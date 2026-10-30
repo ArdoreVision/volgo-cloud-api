@@ -1,0 +1,20 @@
+name: Volgo testen
+on: workflow_dispatch
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      U: https://volgo.damienhanssens.workers.dev
+    steps:
+      - name: Demo-bedrijf klaarzetten
+        run: |
+          npx -y wrangler@4 d1 execute volgo-db --remote --command "INSERT OR IGNORE INTO gebruikers (email, naam, bedrijf, wachtwoord, plan, testmodus) VALUES ('demo@volgo.test','Demo','Volgo Demo Installatie','-','start',1); INSERT OR IGNORE INTO ava_instellingen (team_id, sleutel, begroeting, bedrijfsinfo) SELECT id, 'demo-volgo', 'Hoi! Ik ben AVA. Waar kan ik je mee helpen?', 'Installatiebedrijf voor warmtepompen en zonnepanelen in Zeeland.' FROM gebruikers WHERE email='demo@volgo.test';" > /dev/null
+      - name: Paginas en AVA testen
+        run: |
+          for p in / /abonnement /betalen /aanmelden /inloggen /dashboard /privacy /ava.js /demo/demo-volgo; do
+            echo "::warning::PAGINA $p $(curl -s -o /dev/null -w '%{http_code}' $U$p)"
+          done
+          r=$(curl -s -X POST $U/api/ava -H 'content-type: application/json' -H 'origin: https://example.com' -d '{"actie":"bericht","sleutel":"demo-volgo","tekst":"Hoi, mijn cv-ketel is kapot. Wat kost een warmtepomp en kunnen jullie deze week langskomen?"}')
+          echo "::warning::AVA $(echo "$r" | head -c 700 | tr '\n' ' ')"
