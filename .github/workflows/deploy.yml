@@ -1,0 +1,100 @@
+name: Volgo online zetten
+
+# Bij elke wijziging op main wordt Volgo gebouwd en op je Cloudflare-account gezet.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Geheimen controleren
+        run: |
+          ontbreekt=""
+          [ -z "$CLOUDFLARE_API_TOKEN" ] && ontbreekt="$ontbreekt CLOUDFLARE_API_TOKEN"
+          [ -z "$CLOUDFLARE_ACCOUNT_ID" ] && ontbreekt="$ontbreekt CLOUDFLARE_ACCOUNT_ID"
+          if [ -n "$ontbreekt" ]; then
+            echo "::error::Deze geheimen ontbreken in GitHub (Settings > Secrets and variables > Actions):$ontbreekt"
+            exit 1
+          fi
+
+      # Alleen de allereerste keer: de broncode en afbeeldingen ophalen en in de repository zetten.
+      - name: Eerste keer, code en afbeeldingen ophalen
+        run: |
+          veranderd=0
+          if [ ! -f src/routes/index.tsx ]; then
+            curl -fsSL "https://d2ol7oe51mr4n9.cloudfront.net/user_3J5RqwbXh2etH5X6PKaBeWJrpNx/1c7340fc-cf58-4442-8c57-5d1aca45add3.zip" -o /tmp/src.zip
+            echo "7a7232636d07887aeb3bdf145a8dbf8e  /tmp/src.zip" | md5sum -c -
+            unzip -o -q /tmp/src.zip -d .
+            veranderd=1
+          fi
+          if [ ! -f public/assets/volgo/hero.jpg ]; then
+            curl -fsSL "https://d2ol7oe51mr4n9.cloudfront.net/user_3J5RqwbXh2etH5X6PKaBeWJrpNx/833229fa-e8ea-446e-ae27-bf6473a9d06a.zip" -o /tmp/assets.zip
+            echo "a9414734a737a7ca9510524a98bb5bdc  /tmp/assets.zip" | md5sum -c -
+            unzip -o -q /tmp/assets.zip -d .
+            veranderd=1
+          fi
+          if [ "$veranderd" = 1 ]; then
+            git config user.name "volgo-bot"
+            git config user.email "volgo-bot@users.noreply.github.com"
+            git add -A
+            git commit -m "Volgo: broncode en afbeeldingen toegevoegd"
+            git push
+          fi
+
+      - name: Pakketten installeren
+        run: npm install --no-audit --no-fund
+
+      - name: Database klaarzetten
+        run: |
+          zoek_id() {
+            npx wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const l=JSON.parse(s);const d=l.find(x=>x.name==="volgo-db");process.stdout.write(d?(d.uuid||d.id||""):"")})'
+          }
+          ID=$(zoek_id)
+          if [ -z "$ID" ]; then
+            npx wrangler d1 create volgo-db
+            ID=$(zoek_id)
+          fi
+          if [ -z "$ID" ]; then echo "::error::Kon de database niet aanmaken of vinden"; exit 1; fi
+          sed -i "s/__D1_ID__/$ID/" wrangler.jsonc
+          npx wrangler d1 migrations apply volgo-db --remote
+
+      - name: Bouwen
+        run: npx vite build
+
+      - name: Online zetten
+        run: npx wrangler deploy
+
+      - name: Sleutels doorgeven aan Volgo
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: |
+          for naam in ANTHROPIC_API_KEY RESEND_API_KEY STRIPE_SECRET_KEY; do
+            waarde="${!naam}"
+            if [ -n "$waarde" ]; then
+              printf '%s' "$waarde" | npx wrangler secret put "$naam"
+              echo "$naam ingesteld"
+            else
+              echo "$naam niet ingesteld (optioneel)"
+            fi
+          done
