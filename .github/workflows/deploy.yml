@@ -35,7 +35,7 @@ jobs:
             echo "::error::Deze geheimen ontbreken in GitHub (Settings > Secrets and variables > Actions):$ontbreekt"
             exit 1
           fi
-          grep -v '^\s*$' deploy.log | tail -15 | sed 's/^/::notice::LOG /'
+          grep -v '^\s*$' deploy.log | tail -15 | sed 's/^/::warning::LOG /'
 
       # Alleen de allereerste keer: de broncode en afbeeldingen ophalen en in de repository zetten.
       - name: Eerste keer, code en afbeeldingen ophalen
