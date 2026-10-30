@@ -11,6 +11,14 @@ jobs:
       - name: Demo-bedrijf klaarzetten
         run: |
           npx -y wrangler@4 d1 execute volgo-db --remote --command "INSERT OR IGNORE INTO gebruikers (email, naam, bedrijf, wachtwoord, plan, testmodus) VALUES ('demo@volgo.test','Demo','Volgo Demo Installatie','-','start',1); INSERT OR IGNORE INTO ava_instellingen (team_id, sleutel, begroeting, bedrijfsinfo) SELECT id, 'demo-volgo', 'Hoi! Ik ben AVA. Waar kan ik je mee helpen?', 'Installatiebedrijf voor warmtepompen en zonnepanelen in Zeeland.' FROM gebruikers WHERE email='demo@volgo.test';" > /dev/null
+      - name: Claude-sleutel controleren
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          echo "::warning::GEHEIMEN IN VOLGO $(npx -y wrangler@4 secret list --name volgo 2>/dev/null | grep -o '"name": *"[A-Z_]*"' | tr '\n' ' ')"
+          echo "::warning::SLEUTEL LENGTE ${#ANTHROPIC_API_KEY} BEGINT ${ANTHROPIC_API_KEY:0:7}"
+          r=$(curl -s https://api.anthropic.com/v1/messages -H "x-api-key: $ANTHROPIC_API_KEY" -H 'anthropic-version: 2023-06-01' -H 'content-type: application/json' -d '{"model":"claude-haiku-5-5","max_tokens":20,"messages":[{"role":"user","content":"Zeg hoi"}]}')
+          echo "::warning::CLAUDE $(echo "$r" | head -c 400 | tr '\n' ' ')"
       - name: Paginas en AVA testen
         run: |
           for p in / /abonnement /betalen /aanmelden /inloggen /dashboard /privacy /ava.js /demo/demo-volgo; do
