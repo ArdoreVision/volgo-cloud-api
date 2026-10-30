@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS chat_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  ip_hash TEXT NOT NULL
+);
