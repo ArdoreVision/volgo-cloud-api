@@ -81,7 +81,17 @@ jobs:
         run: npx vite build
 
       - name: Online zetten
-        run: npx wrangler deploy
+        run: |
+          ls -la dist dist/server 2>&1 | head -30
+          set +e
+          npx wrangler deploy 2>&1 | tee deploy.log
+          code=${PIPESTATUS[0]}
+          set -e
+          if [ "$code" != "0" ]; then
+            grep -v '^\s*$' deploy.log | tail -25 | while IFS= read -r regel; do echo "::error::$regel"; done
+            echo "::error::Bestanden: $(ls dist/server 2>&1 | tr '\n' ' ')"
+            exit 1
+          fi
 
       - name: Sleutels doorgeven aan Volgo
         env:
