@@ -1,0 +1,44 @@
+name: Landing AVA testen
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  t:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - run: |
+          mkdir -p /tmp/pw /tmp/shots && cd /tmp/pw && npm init -y >/dev/null && npm i playwright@1 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
+          cat > t.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const log = (m) => console.log('::warning::LAND ' + m);
+          const b = await chromium.launch();
+          for (const [n, vp, m] of [['d', { width: 1440, height: 900 }, false], ['m', { width: 390, height: 844 }, true]]) {
+            const c = await b.newContext({ viewport: vp, deviceScaleFactor: m ? 2 : 1, isMobile: m, hasTouch: m });
+            const p = await c.newPage(); p.on('pageerror', (e) => log('JS-fout ' + e.message));
+            await p.goto('https://thevolgo.app/', { waitUntil: 'networkidle' }); await p.waitForTimeout(2000);
+            await p.locator('.v-hero__actions a', { hasText: '7-day' }).click();
+            await p.locator('#volgo-ava .b.a:not(.typ)').nth(1).waitFor({ timeout: 60000 });
+            await p.waitForTimeout(800);
+            log(n + ' trial-knop -> url ' + new URL(p.url()).pathname + ' | AVA: ' + (await p.locator('#volgo-ava .b.a:not(.typ)').nth(1).textContent()).slice(0, 260) + ' | links: ' + (await p.locator('#volgo-ava .b a').count()));
+            await p.screenshot({ path: `/tmp/shots/${n}-trial.png` });
+            await p.locator('#volgo-ava .x').click(); await p.waitForTimeout(500);
+            await p.locator('.v-final a', { hasText: 'Book a call' }).scrollIntoViewIfNeeded();
+            await p.locator('.v-final a', { hasText: 'Book a call' }).click();
+            await p.locator('#volgo-ava .kal .dg').first().waitFor({ timeout: 20000 }).catch(() => log(n + ' kalender niet open'));
+            await p.waitForTimeout(600);
+            log(n + ' book-a-call: kalender stap ' + (await p.locator('#volgo-ava .kal .stp').textContent().catch(() => '?')) + ' | ' + (await p.locator('#volgo-ava .kal h4').textContent().catch(() => '?')) + ' | pagina ' + new URL(p.url()).pathname);
+            await p.screenshot({ path: `/tmp/shots/${n}-call.png` });
+            await c.close();
+          }
+          await b.close();
+          JS
+          node t.mjs
+      - if: always()
+        run: |
+          cd /tmp; T="(SELECT id FROM gebruikers WHERE email='volgo.app@outlook.com')"
+          printf '%s\n' "DELETE FROM ava_berichten WHERE gesprek_id IN (SELECT id FROM ava_gesprekken WHERE team_id = $T);" "DELETE FROM ava_gesprek_meta WHERE gesprek_id IN (SELECT id FROM ava_gesprekken WHERE team_id = $T);" "DELETE FROM ava_gesprekken WHERE team_id = $T;" > r.sql
+          npx -y wrangler@4 d1 execute volgo-db --remote --file r.sql > /dev/null 2>&1 || true
+          cd /tmp/shots && git init -q && git config user.name bot && git config user.email bot@x && git add -A && git commit -qm s && git push -qf https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} HEAD:landshots || true
