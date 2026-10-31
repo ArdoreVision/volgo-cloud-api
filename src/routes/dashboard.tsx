@@ -17,6 +17,7 @@ import { VolgoMark } from "@/components/volgo/logo";
 import { haalDashboard, uitloggen, zetLeadStatus } from "@/lib/api/account.functions";
 import { isAdmin } from "@/lib/api/admin.functions";
 import { PlanCall } from "@/components/dash/plan-call";
+import { Verkeer } from "@/components/dash/verkeer";
 import { ProfielFoto, ProfielKnop } from "@/components/dash/profiel";
 import { checkNieuw } from "@/lib/api/ava.functions";
 import { PLANS, isPlan } from "@/lib/plans";
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-type Tab = "home" | "website" | "overzicht" | "gesprekken" | "agenda" | "team" | "aanvragen" | "instellingen";
+type Tab = "home" | "website" | "overzicht" | "verkeer" | "gesprekken" | "agenda" | "team" | "aanvragen" | "instellingen";
 type Sub = "ava" | "stijl" | "installeren" | "meldingen" | "account" | "abonnement";
 const SUBS: [Sub, string][] = [
   ["ava", "AVA"],
@@ -65,6 +66,7 @@ function Icon({ name }: { name: Tab | "uit" | "meer" | "ava" | "abonnement" | "a
     instellingen: "M10 7.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6zM10 2.5l1.3 2 2.3-.6.6 2.3 2.2 1-1 2.2 1 2.2-2.2 1-.6 2.3-2.3-.6-1.3 2-1.3-2-2.3.6-.6-2.3-2.2-1 1-2.2-1-2.2 2.2-1 .6-2.3 2.3.6z",
     meer: "M4.5 10h.01M10 10h.01M15.5 10h.01",
     overzicht: "M3 10.5 10 4l7 6.5V17a1 1 0 0 1-1 1h-3.5v-5h-5v5H4a1 1 0 0 1-1-1z",
+    verkeer: "M3 16.5h14M5 13.5V10M9 13.5V6M13 13.5V8.5M17 13.5V4",
     agenda: "M3.5 5.5h13v11h-13zM3.5 8.5h13M7 3.5v3M13 3.5v3",
     gesprekken: "M3.5 4.5h13v9h-6l-4 3v-3h-3z",
     ava: "M10 3.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM7.6 9h.01M12.4 9h.01M7.8 11.8c1.2 1 3.2 1 4.4 0",
@@ -193,6 +195,7 @@ function Dashboard() {
   const tabs: [Tab, string][] = [
     ["home", "Home"],
     ["overzicht", "Overview"],
+    ["verkeer", "Traffic"],
     ["gesprekken", "Chats"],
     ["aanvragen", "Requests"],
     ["agenda", "Calendar"],
@@ -269,6 +272,7 @@ function Dashboard() {
 
         {tab === "home" ? <Home bedrijf={g.bedrijf} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "overzicht" ? <Overview data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
+        {tab === "verkeer" ? <Verkeer openTab={(t) => setTab(t)} /> : null}
         {tab === "gesprekken" ? <Gesprekken data={data} /> : null}
         {tab === "agenda" ? <Agenda data={data} /> : null}
         {tab === "website" ? <Website /> : null}
@@ -412,7 +416,7 @@ function Dashboard() {
         <div className="v-sheet" onClick={() => setMeer(false)} role="presentation">
           <div aria-label="More" className="v-sheet__paneel" onClick={(e) => e.stopPropagation()} role="dialog">
             <span aria-hidden="true" className="v-sheet__greep" />
-            {(["overzicht", "team", "website", "instellingen"] as Tab[]).map((id) => (
+            {(["overzicht", "verkeer", "team", "website", "instellingen"] as Tab[]).map((id) => (
               <button key={id} onClick={() => setTab(id)} type="button">
                 <Icon name={id} />
                 {tabs.find((t) => t[0] === id)?.[1]}

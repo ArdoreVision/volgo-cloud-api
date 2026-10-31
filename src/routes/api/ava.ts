@@ -20,6 +20,20 @@ const schema = z.discriminatedUnion("actie", [
   z.object({ actie: z.literal("poll"), sleutel: z.string().max(64), token: z.string().max(64), na_id: z.number().int().min(0) }),
   z.object({ actie: z.literal("bericht"), sleutel: z.string().max(64), token: z.string().max(64).optional(), tekst: z.string().trim().min(1).max(1500) }),
   z.object({ actie: z.literal("agenda"), sleutel: z.string().max(64), token: z.string().max(64).optional() }),
+  // Website analytics (no cookies): a page view, its time on page / scroll depth, and chat events.
+  z.object({
+    actie: z.literal("view"),
+    sleutel: z.string().max(64),
+    sessie: z.string().min(6).max(40),
+    pad: z.string().max(500),
+    titel: z.string().max(300).optional(),
+    ref: z.string().max(500).optional(),
+    utm: z.string().max(80).optional(),
+    host: z.string().max(200).optional(),
+    breedte: z.number().int().min(0).max(10000).optional(),
+  }),
+  z.object({ actie: z.literal("ping"), sleutel: z.string().max(64), sessie: z.string().min(6).max(40), id: z.number().int().min(1), duur: z.number().min(0).max(100000), scroll: z.number().min(0).max(100) }),
+  z.object({ actie: z.literal("event"), sleutel: z.string().max(64), sessie: z.string().min(6).max(40), soort: z.enum(["chat_open", "chat_bericht", "agenda_open", "geboekt"]) }),
   z.object({
     actie: z.literal("boek"),
     sleutel: z.string().max(64),
@@ -54,6 +68,7 @@ export const Route = createFileRoute("/api/ava")({
           if (body.actie === "config") return json({ uit: true });
           if (body.actie === "poll") return json({ berichten: [], mens: null, laatste_id: body.na_id });
           if (body.actie === "agenda" || body.actie === "boek") return json({ ok: false, reden: "Booking is not available right now. Please contact the business directly.", dagen: [] });
+          if (body.actie === "view" || body.actie === "ping" || body.actie === "event") return json({ ok: false });
           return json({ antwoord: "Sorry, this chat is not available right now. Please contact the business directly." });
         }
         if (body.actie === "config") {
@@ -63,6 +78,34 @@ export const Route = createFileRoute("/api/ava")({
         }
         if (body.actie === "poll") {
           return json(await pollGesprek(DB, inst.team_id, body.token, body.na_id));
+        }
+        if (body.actie === "view" || body.actie === "ping" || body.actie === "event") {
+          const v = await import("@/lib/verkeer.server");
+          if (body.actie === "ping") {
+            await v.updateView(DB, inst.team_id, body.id, body.sessie, body.duur, body.scroll);
+            return json({ ok: true });
+          }
+          if (body.actie === "event") {
+            await v.slaEventOp(DB, inst.team_id, body.sessie, body.soort);
+            return json({ ok: true });
+          }
+          const ip = request.headers.get("cf-connecting-ip") ?? "onbekend";
+          const ua = request.headers.get("user-agent") ?? "";
+          if (/bot|crawl|spider|slurp|headless|lighthouse|preview/i.test(ua)) return json({ ok: false });
+          const { binnenLimiet } = await import("@/lib/limiet.server");
+          if (!(await binnenLimiet(DB, `sv:${await hashIp(ip)}`, 60, 400))) return json({ ok: false });
+          const { ANTHROPIC_API_KEY } = bindings();
+          const id = await v.slaViewOp(DB, {
+            team: inst.team_id,
+            bezoeker: await v.bezoekerId(ip, ua, inst.team_id, (ANTHROPIC_API_KEY ?? "volgo").slice(-24)),
+            sessie: body.sessie,
+            pad: body.pad || "/",
+            titel: body.titel ?? "",
+            bron: v.bronVan(body.ref, body.utm, body.host ?? ""),
+            apparaat: v.apparaatVan(ua, body.breedte),
+            land: request.headers.get("cf-ipcountry") ?? "",
+          });
+          return json({ ok: true, id });
         }
         if (body.actie === "agenda") {
           if (!inst.boeken) return json({ dagen: [], soorten: [] });

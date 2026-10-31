@@ -209,6 +209,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   function eindTijd(t, duur) { var m = +t.slice(0, 2) * 60 + +t.slice(3, 5) + duur; return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); }
   function kalender() {
     var oud = log.querySelector(".kal:not(.ok)"); if (oud) oud.remove();
+    gebeurtenis("agenda_open");
     var ch = log.querySelector(".chips"); if (ch) ch.remove();
     var kaart = document.createElement("div"); kaart.className = "kal";
     kaart.innerHTML = '<p class="hulp">' + K.laden + "</p>";
@@ -296,6 +297,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
         if (!r || !r.ok) { k.fout = (r && (r.reden || r.antwoord)) || T.fout; k.stap = 2; k.tijd = null; k.dag = null; laad(); return; }
         var l = dagLabel(dg.datum), sam = K[k.soort][0] + " · " + l.wd + " " + l.dt + " · " + k.tijd + "–" + eindTijd(k.tijd, k.data.duur);
         kaart.className = "kal ok";
+        gebeurtenis("geboekt");
         kaart.innerHTML = '<div class="sam">' + ICOON.kal + "<span><b>✓ " + K.klaar + "</b><br>" + esc(sam) + "</span></div>";
         state.msgs.push({ r: "s", t: "✓ " + K.klaar + ": " + sam });
         if (r.antwoord) { state.msgs.push({ r: "a", t: r.antwoord }); bubble("a", r.antwoord); }
@@ -323,11 +325,64 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   post({ actie: "config", sleutel: KEY }).then(function (c) {
     // Subscription ended: remove the chat from the website.
     if (c && c.uit) { host.remove(); return; }
-    if (c && !c.fout) applyConfig(c);
+    if (c && !c.fout) { applyConfig(c); meten(); }
   }).catch(function () {});
   if (!state.msgs.length) setTimeout(function () { var d = $(".dot"); if (d && !panel.classList.contains("open")) d.hidden = false; }, 4000);
 
-  function open() { panel.classList.add("open"); fab.classList.add("open"); $(".dot").hidden = true; setTimeout(function () { ta.focus(); }, 250); }
+  // ---------- Website analytics for the business (no cookies, nothing personal) ----------
+  // Skipped entirely when the visitor's browser asks not to be tracked.
+  var NIET = navigator.doNotTrack === "1" || window.doNotTrack === "1" || navigator.globalPrivacyControl === true;
+  var SESSIE = (function () {
+    try { var x = sessionStorage.getItem("volgo-s"); if (!x) { x = Math.random().toString(36).slice(2) + Date.now().toString(36); sessionStorage.setItem("volgo-s", x); } return x; }
+    catch (e) { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+  })();
+  var view = { id: 0, pad: "", zicht: 0, sinds: 0, scroll: 0 };
+  function beacon(body) {
+    var t = JSON.stringify(body);
+    try { if (navigator.sendBeacon && navigator.sendBeacon(API, new Blob([t], { type: "text/plain" }))) return; } catch (e) {}
+    try { fetch(API, { method: "POST", body: t, keepalive: true, headers: { "content-type": "text/plain" } }); } catch (e) {}
+  }
+  function actief() { return view.zicht + (view.sinds ? (Date.now() - view.sinds) / 1000 : 0); }
+  function ping() { if (!NIET && view.id) beacon({ actie: "ping", sleutel: KEY, sessie: SESSIE, id: view.id, duur: Math.round(actief()), scroll: view.scroll }); }
+  function gebeurtenis(soort) { if (!NIET) beacon({ actie: "event", sleutel: KEY, sessie: SESSIE, soort: soort }); }
+  function nieuweView() {
+    if (NIET) return;
+    var pad = location.pathname + (location.hash && location.hash.length < 40 ? "" : "");
+    if (pad === view.pad) return;
+    ping();
+    view = { id: 0, pad: pad, zicht: 0, sinds: document.visibilityState === "visible" ? Date.now() : 0, scroll: 0 };
+    var eerste = false;
+    try { eerste = !sessionStorage.getItem("volgo-r"); sessionStorage.setItem("volgo-r", "1"); } catch (e) {}
+    var utm = ""; try { utm = new URLSearchParams(location.search).get("utm_source") || ""; } catch (e) {}
+    var huidig = view;
+    post({ actie: "view", sleutel: KEY, sessie: SESSIE, pad: pad.slice(0, 480), titel: (document.title || "").slice(0, 280), ref: eerste ? (document.referrer || "").slice(0, 480) : "", utm: utm.slice(0, 70), host: location.hostname, breedte: window.innerWidth || 0 })
+      .then(function (r) { if (r && r.id) huidig.id = r.id; }).catch(function () {});
+  }
+  function meten() {
+    if (NIET || window.__volgoMeet) return;
+    window.__volgoMeet = true;
+    nieuweView();
+    window.addEventListener("scroll", function () {
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      var p = h > 0 ? Math.round((window.scrollY / h) * 100) : 100;
+      if (p > view.scroll) view.scroll = Math.min(100, p);
+    }, { passive: true });
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") { if (view.sinds) { view.zicht += (Date.now() - view.sinds) / 1000; view.sinds = 0; } ping(); }
+      else view.sinds = Date.now();
+    });
+    window.addEventListener("pagehide", ping);
+    setInterval(function () { if (document.visibilityState === "visible") ping(); }, 20000);
+    // Websites that change pages without reloading (React, Shopify themes, …).
+    ["pushState", "replaceState"].forEach(function (f) {
+      var orig = history[f];
+      history[f] = function () { var r = orig.apply(this, arguments); setTimeout(nieuweView, 300); return r; };
+    });
+    window.addEventListener("popstate", function () { setTimeout(nieuweView, 300); });
+  }
+
+  var chatGeteld = false, berichtGeteld = false;
+  function open() { if (!chatGeteld) { chatGeteld = true; gebeurtenis("chat_open"); } panel.classList.add("open"); fab.classList.add("open"); $(".dot").hidden = true; setTimeout(function () { ta.focus(); }, 250); }
   function close() { panel.classList.remove("open"); fab.classList.remove("open"); }
   fab.addEventListener("click", open);
   $(".x").addEventListener("click", close);
@@ -379,6 +434,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     if (!t || busy) return;
     busy = true; send.disabled = true; ta.value = "";
     var ch = log.querySelector(".chips"); if (ch) ch.remove();
+    if (!berichtGeteld) { berichtGeteld = true; gebeurtenis("chat_bericht"); }
     state.msgs.push({ r: "u", t: t }); save(state); bubble("u", t);
     var typ = document.createElement("p"); typ.className = "b a typ"; typ.innerHTML = "<span></span><span></span><span></span>"; log.appendChild(typ); log.scrollTop = log.scrollHeight;
     post({ actie: "bericht", sleutel: KEY, token: state.token, tekst: t }).then(function (r) {

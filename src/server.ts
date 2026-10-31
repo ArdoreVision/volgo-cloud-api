@@ -44,6 +44,15 @@ export default {
     ctx.waitUntil(
       import("./lib/samenvatting.server").then((m) => m.stuurOchtendSamenvattingen()).catch((e) => console.error("[samenvatting]", e)),
     );
+    // Website analytics are kept for 13 months at most.
+    ctx.waitUntil(
+      Promise.all([import("./lib/verkeer.server"), import("./lib/bindings.server")])
+        .then(([v, b]) => {
+          const { DB } = b.bindings();
+          return DB ? v.ruimVerkeerOp(DB) : undefined;
+        })
+        .catch((e) => console.error("[verkeer opruimen]", e)),
+    );
   },
   async fetch(request: Request, env: unknown, ctx: unknown) {
     // Eén officieel adres: www en workers.dev sturen door naar thevolgo.app (API en widget blijven overal werken).

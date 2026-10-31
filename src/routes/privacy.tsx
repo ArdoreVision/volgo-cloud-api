@@ -37,6 +37,15 @@ function Privacy() {
           <li>An encrypted code of your IP address, only to prevent abuse and spam. Your IP address cannot be recovered from this code.</li>
         </ul>
 
+        <h2>Website statistics from AVA</h2>
+        <p>
+          On websites where AVA is installed (including this one), AVA counts visits so the business can see how its website performs: which pages are viewed,
+          for how long and how far down, the website you came from, the type of device, and the country based on your connection. This is done without cookies and
+          without storing your IP address. Visitors are counted with a code that changes every day and differs per website, so nobody can be followed across days
+          or websites. If your browser asks websites not to track you (Do Not Track or Global Privacy Control), nothing is counted. Statistics are kept for 13
+          months.
+        </p>
+
         <h2>Why</h2>
         <p>
           We only use your data to contact you about your request and to schedule a demo. The legal basis is your consent and
