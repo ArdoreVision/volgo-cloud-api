@@ -6,7 +6,8 @@ import { Footer } from "@/components/volgo/footer";
 import { Nav } from "@/components/volgo/nav";
 import { accountStatus } from "@/lib/api/assistent.functions";
 import { startBetaling, uitloggen } from "@/lib/api/account.functions";
-import { PLANS, VERGELIJKING, type PlanId } from "@/lib/plans";
+import { InstallGuides } from "@/components/volgo/install-guides";
+import { PLANS, START_STAPPEN, VERGELIJKING, type PlanId } from "@/lib/plans";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/pricing")({
@@ -101,6 +102,7 @@ function Abonnement() {
                     <li key={f}>{f}</li>
                   ))}
                 </ul>
+                <p className="v-plan__hoe">{START_STAPPEN[id].titel}</p>
                 <ul className="v-plan__list">
                   {p.features.map((f) => (
                     <li key={f}>{f}</li>
@@ -111,6 +113,57 @@ function Abonnement() {
           })}
         </div>
         {fout ? <p className="v-err v-err--c" role="alert">{fout}</p> : null}
+        <section aria-labelledby="after-title" className="v-na">
+          <h2 className="v-h2 v-center" id="after-title">
+            What happens after you subscribe.
+          </h2>
+          <p className="v-lede v-center">Every plan starts with 7 days free. Here is exactly how you get going.</p>
+          <div className="v-na__grid">
+            {(Object.keys(PLANS) as PlanId[]).map((id) => (
+              <article className={`v-na__kaart v-na__kaart--${id}`} key={id}>
+                <p className="v-na__plan">
+                  {PLANS[id].naam} · €{PLANS[id].prijsTekst}/mo
+                </p>
+                <h3>{START_STAPPEN[id].titel}</h3>
+                <ol>
+                  {START_STAPPEN[id].stappen.map((s) => (
+                    <li key={s}>{s}</li>
+                  ))}
+                </ol>
+                {id === "start" ? (
+                  <p className="v-na__slot">Custom website, photo and video tools: available on Pro and Premium.</p>
+                ) : (
+                  <p className="v-na__noot">Website included. Your domain name (about €10–20 a year) is not included; we help you register or connect it.</p>
+                )}
+              </article>
+            ))}
+          </div>
+
+          <div className="v-na__install">
+            <div>
+              <h3>Install AVA on your own website</h3>
+              <p>
+                After signing up you'll find your personal line of code in your dashboard under <strong>AVA → On your website</strong>. Paste it once
+                and AVA appears on every page. Pick your platform:
+              </p>
+            </div>
+            <InstallGuides />
+          </div>
+
+          <div className="v-na__regels">
+            <p>
+              <strong>Free for 7 days.</strong> A payment card is required. Nothing is charged until the trial ends; then your plan renews monthly.
+            </p>
+            <p>
+              <strong>Cancel any time.</strong> In your dashboard under Subscription. AVA, your dashboard and the website we built (if you have one)
+              stop at the end of your paid period.
+            </p>
+            <p>
+              <strong>Switch any time.</strong> Upgrade from Start to Pro to get your custom website; your leads and settings stay.
+            </p>
+          </div>
+        </section>
+
         <section aria-labelledby="compare-title" className="v-compare">
           <h2 className="v-h2 v-center" id="compare-title">
             Compare plans.

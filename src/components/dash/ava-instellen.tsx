@@ -4,6 +4,8 @@ import type { FormEvent } from "react";
 import { bewaarAva, bewaarMeldingen, haalAva } from "@/lib/api/ava.functions";
 import { markeerOnboarding } from "@/lib/api/assistent.functions";
 
+import { InstallGuides } from "@/components/volgo/install-guides";
+
 import { AvaStijl } from "./ava-stijl";
 
 type Ava = Awaited<ReturnType<typeof haalAva>>;
@@ -113,6 +115,10 @@ export function AvaInstellen() {
               {gekopieerd ? "Copied" : "Copy"}
             </button>
           </div>
+          <p className="v-muted v-small" style={{ marginTop: 14 }}>
+            Where to paste it, step by step:
+          </p>
+          <InstallGuides />
         </section>
       </div>
 

@@ -7,8 +7,8 @@ export function Bento() {
       <div className="v-bento">
         <article className="v-tile v-tile--site">
           <div className="v-tile__text">
-            <h3>One line, any website</h3>
-            <p>WordPress, Wix, Shopify, Squarespace or custom built: AVA goes on your existing site with one line of code. We do it for you if you like.</p>
+            <h3>Your website, or a new one</h3>
+            <p>Start: put AVA on your own site with one line of code, on WordPress, Wix, Shopify or anything else. Pro and Premium: we build you a website to measure, with photos, video and AVA inside.</p>
           </div>
           <img alt="" height={600} loading="lazy" src="/assets/volgo/website.jpg" width={800} />
         </article>

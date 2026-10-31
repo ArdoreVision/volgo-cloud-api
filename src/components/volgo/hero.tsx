@@ -11,8 +11,8 @@ export function Hero() {
             Never miss a lead again.
           </h1>
           <p className="v-hero__sub">
-            Add AVA to your website with one line of code. AVA answers every visitor day and night, asks what they need, collects
-            their details and puts the hottest leads on top, ready for your quote.
+            Add AVA to your website with one line of code, or let us build you a new website with AVA inside. AVA answers every visitor
+            day and night, collects their details and puts the hottest leads on top, ready for your quote.
           </p>
           <div className="v-hero__actions">
             <a className="v-cta-primary" href="/pricing">
@@ -22,7 +22,7 @@ export function Hero() {
               Log in
             </a>
           </div>
-          <p className="v-hero__fine">Works on any website · We set it up for you · Cancel any month</p>
+          <p className="v-hero__fine">7 days free · Works on any website · Cancel any time</p>
         </div>
         <div className="v-hero__art">
           <img alt="AVA, Volgo's AI assistant, next to a phone with messages" height={900} src="/assets/volgo/hero.jpg" width={900} />

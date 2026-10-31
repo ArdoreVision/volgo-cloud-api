@@ -22,13 +22,15 @@ export const Route = createFileRoute("/terms")({
       <p>
         Volgo provides AVA, an AI assistant that the customer adds to their own website with one line of code. AVA chats with visitors, answers
         questions, captures contact details and ranks leads by how warm they are. The customer gets access to an online
-        dashboard with conversations, leads, calendar, team chat and analytics. What each plan includes is listed on the{" "}
+        dashboard with conversations, leads, calendar, team chat and analytics. On the Pro and Premium plans, Volgo also builds a
+        custom website for the customer with AVA built in, planned together by chat or call, and hosts it for as long as the
+        subscription runs. Domain name costs are not included and are paid by the customer. What each plan includes is listed on the{" "}
         <a href="/pricing">pricing page</a>.
       </p>
 
       <h2>3. Trial, prices and payment</h2>
       <ul>
-        <li>The Start plan begins with a free 7-day trial. If you cancel during the trial, you pay nothing.</li>
+        <li>Every plan begins with a free 7-day trial. A payment card is required. If you cancel during the trial, you pay nothing.</li>
         <li>After the trial, the subscription continues automatically at the current monthly price. Prices exclude VAT.</li>
         <li>Payment is made monthly in advance through our payment partner. If a payment fails, we may suspend the service after a reminder.</li>
         <li>We may adjust prices once a year. We’ll let you know at least 30 days in advance; you may then cancel before the change takes effect.</li>
@@ -37,8 +39,9 @@ export const Route = createFileRoute("/terms")({
       <h2>4. Term and cancellation</h2>
       <p>
         A subscription runs month to month and can be canceled monthly, effective from the next billing period. You can cancel
-        in your dashboard or by emailing hanssenscornerstone@outlook.com. When the subscription ends, the website goes offline and
-        we delete the data as described in the Data Processing Agreement.
+        in your dashboard or by emailing hanssenscornerstone@outlook.com. When the subscription ends, AVA stops working on your website
+        and, on Pro and Premium, the website built by Volgo goes offline. The domain name stays yours. We delete the data as described in
+        the Data Processing Agreement.
       </p>
 
       <h2>5. What we ask of the customer</h2>

@@ -1,4 +1,4 @@
-import { PLANS, type PlanId } from "@/lib/plans";
+import { PLANS, START_STAPPEN, type PlanId } from "@/lib/plans";
 
 export function PricingPreview() {
   return (
@@ -7,7 +7,7 @@ export function PricingPreview() {
         <h2 className="v-h2 v-center" id="price-title">
           Simple pricing.
         </h2>
-        <p className="v-lede v-center">Start simple. Add your team with Pro. Give everyone full access with Premium. Cancel any month.</p>
+        <p className="v-lede v-center">Start: AVA on your own website. Pro and Premium: we build your website for you, with AVA inside. 7 days free, cancel any time.</p>
       </header>
       <div className="v-plans">
         {(Object.keys(PLANS) as PlanId[]).map((id) => {
@@ -29,6 +29,7 @@ export function PricingPreview() {
                   <li key={f}>{f}</li>
                 ))}
               </ul>
+              <p className="v-plan__hoe">{START_STAPPEN[id].titel}</p>
               <ul className="v-plan__list">
                 {p.features.map((f) => (
                   <li key={f}>{f}</li>
@@ -39,7 +40,7 @@ export function PricingPreview() {
         })}
       </div>
       <p className="v-pricing__note">
-        Prices per month, excluding VAT. <a href="/pricing#compare-title">Compare all features</a>
+        Prices per month, excluding VAT. Domain name not included. <a href="/pricing#after-title">How it works after you subscribe</a>
       </p>
     </section>
   );
