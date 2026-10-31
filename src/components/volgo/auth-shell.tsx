@@ -14,7 +14,7 @@ export function AuthShell({ children, wide = false }: { children: ReactNode; wid
       </header>
       <main className={`v-auth__card${wide ? " v-auth__card--wide" : ""}`}>{children}</main>
       <p className="v-auth__foot">
-        Een dienst van Hanssens Cornerstone Capital · <a href="/privacy">Privacy</a>
+        Een dienst van Hanssens Cornerstone Capital · <a href="/voorwaarden">Voorwaarden</a> · <a href="/privacy">Privacy</a>
       </p>
     </div>
   );

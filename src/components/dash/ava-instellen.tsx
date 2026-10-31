@@ -24,14 +24,14 @@ export function AvaInstellen() {
   const [kleur, setKleur] = useState("#1677d9");
   const [opgeslagen, setOpgeslagen] = useState(false);
   const [gekopieerd, setGekopieerd] = useState(false);
-  const [melding, setMelding] = useState({ chat: true, lead: true, email: false });
+  const [melding, setMelding] = useState({ chat: true, lead: true, email: false, heet_mail: true, samenvatting: true });
   const [browser, setBrowser] = useState<string>("default");
 
   useEffect(() => {
     void haalAva().then((a) => {
       setAva(a);
       setKleur(a.inst.kleur);
-      setMelding({ chat: !!a.meldingen.chat, lead: !!a.meldingen.lead, email: !!a.meldingen.email });
+      setMelding({ chat: !!a.meldingen.chat, lead: !!a.meldingen.lead, email: !!a.meldingen.email, heet_mail: !!a.meldingen.heet_mail, samenvatting: !!a.meldingen.samenvatting });
     });
     if (typeof Notification !== "undefined") setBrowser(Notification.permission);
   }, []);
@@ -40,7 +40,7 @@ export function AvaInstellen() {
     const nieuw = { ...melding, [k]: v };
     setMelding(nieuw);
     await bewaarMeldingen({ data: nieuw });
-    if (v && k !== "email" && typeof Notification !== "undefined" && Notification.permission === "default") {
+    if (v && (k === "chat" || k === "lead") && typeof Notification !== "undefined" && Notification.permission === "default") {
       setBrowser(await Notification.requestPermission());
     }
   }
@@ -86,7 +86,9 @@ export function AvaInstellen() {
           <div className="v-toggles">
             <Toggle aan={melding.chat} label="Nieuw gesprek" onChange={(v) => void wijzigMelding("chat", v)} uitleg="Een seintje zodra iemand AVA aanspreekt." />
             <Toggle aan={melding.lead} label="Nieuwe lead" onChange={(v) => void wijzigMelding("lead", v)} uitleg="Als een bezoeker zijn gegevens achterlaat, met warmte." />
-            <Toggle aan={melding.email} label="E-mail bij nieuwe lead" onChange={(v) => void wijzigMelding("email", v)} uitleg="Ook een mail, als je het dashboard niet open hebt." />
+            <Toggle aan={melding.heet_mail} label="E-mail bij een hete lead" onChange={(v) => void wijzigMelding("heet_mail", v)} uitleg="Direct een mail als iemand met warmte 75 of hoger zijn gegevens achterlaat." />
+            <Toggle aan={melding.email} label="E-mail bij elke lead" onChange={(v) => void wijzigMelding("email", v)} uitleg="Ook een mail bij minder warme leads." />
+            <Toggle aan={melding.samenvatting} label="Ochtendsamenvatting" onChange={(v) => void wijzigMelding("samenvatting", v)} uitleg="Elke ochtend om 7:00 een korte mail: nieuwe leads, wie je moet bellen en je afspraken." />
           </div>
           {browser === "denied" ? <p className="v-muted v-small">Je browser blokkeert meldingen. Je ziet ze wel in het dashboard zelf.</p> : null}
         </section>

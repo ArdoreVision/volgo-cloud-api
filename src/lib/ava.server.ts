@@ -3,6 +3,7 @@ import type { D1Database } from "@cloudflare/workers-types";
 
 import { randomToken } from "./auth.server";
 import { bindings } from "./bindings.server";
+import { SITE_URL, esc, mailOpmaak, verstuurMail } from "./mail.server";
 
 export type AvaInstellingen = { team_id: number; sleutel: string; naam: string; begroeting: string; bedrijfsinfo: string; kleur: string; bedrijf: string };
 
@@ -52,25 +53,17 @@ async function purgeVoorbeeld(DB: D1Database, team: number) {
   ]);
 }
 
-async function mailEigenaar(DB: D1Database, team: number, onderwerp: string, html: string) {
-  const { RESEND_API_KEY } = bindings();
-  if (!RESEND_API_KEY) return;
+async function mailEigenaar(DB: D1Database, team: number, warmte: number, onderwerp: string, html: string) {
+  // Iedereen in het team die mail bij elke lead wil, of (standaard) mail bij een hete lead.
   const ontvangers = await DB.prepare(
-    `SELECT g.email FROM gebruikers g LEFT JOIN team_leden t ON t.gebruiker_id = g.id JOIN meldingen m ON m.gebruiker_id = g.id
-     WHERE (g.id = ? OR t.team_id = ?) AND m.email = 1`,
+    `SELECT g.email FROM gebruikers g LEFT JOIN team_leden t ON t.gebruiker_id = g.id LEFT JOIN meldingen m ON m.gebruiker_id = g.id
+     WHERE (g.id = ? OR t.team_id = ?) AND (COALESCE(m.email, 0) = 1 OR (? >= 75 AND COALESCE(m.heet_mail, 1) = 1))`,
   )
-    .bind(team, team)
+    .bind(team, team, warmte)
     .all<{ email: string }>();
-  for (const r of ontvangers.results) {
-    await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: "AVA via Volgo <onboarding@resend.dev>", to: [r.email], subject: onderwerp, html }),
-    }).catch(() => undefined);
-  }
+  for (const r of ontvangers.results) await verstuurMail(r.email, onderwerp, html);
 }
 
-const esc = (v: string) => v.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c);
 
 async function maakLead(DB: D1Database, gesprekId: number, team: number, d: { naam: string; contact: string; onderwerp: string; warmte: number; reden: string }) {
   const r = await DB.prepare("INSERT INTO klant_leads (gebruiker_id, naam, onderwerp, kanaal, status, laatste_actie, voorbeeld) VALUES (?, ?, ?, 'Website-chat', 'nieuw', ?, 0)")
@@ -82,11 +75,21 @@ async function maakLead(DB: D1Database, gesprekId: number, team: number, d: { na
     DB.prepare("UPDATE ava_gesprek_meta SET lead_id = ? WHERE gesprek_id = ?").bind(leadId, gesprekId),
     DB.prepare("UPDATE ava_gesprekken SET bezoeker = ?, warmte = ? WHERE id = ?").bind(d.naam, d.warmte, gesprekId),
   ]);
+  const heet = d.warmte >= 75;
   await mailEigenaar(
     DB,
     team,
-    `Nieuwe lead via AVA: ${d.naam} (warmte ${d.warmte})`,
-    `<div style="font-family:-apple-system,Helvetica,Arial,sans-serif;max-width:520px"><p style="color:#1677d9;font-weight:600">Nieuwe lead via AVA</p><h1 style="font-size:22px;margin:0 0 6px">${esc(d.naam)}</h1><p>${esc(d.onderwerp)}</p><p><strong>Contact:</strong> ${esc(d.contact)}<br><strong>Warmte:</strong> ${d.warmte}/100 · ${esc(d.reden)}</p><p style="color:#6b7280;font-size:13px">Bekijk het hele gesprek in je Volgo-dashboard.</p></div>`,
+    d.warmte,
+    `${heet ? "Hete lead" : "Nieuwe lead"}: ${d.naam} (warmte ${d.warmte})`,
+    mailOpmaak(
+      `${heet ? "Bel deze lead vandaag nog: " : "Nieuwe lead: "}${esc(d.naam)}`,
+      `<p style="margin:0 0 12px">${esc(d.onderwerp)}</p>
+       <table style="border-collapse:collapse;font-size:15px">
+         <tr><td style="padding:4px 16px 4px 0;color:#64748b">Contact</td><td style="padding:4px 0"><strong>${esc(d.contact)}</strong></td></tr>
+         <tr><td style="padding:4px 16px 4px 0;color:#64748b">Warmte</td><td style="padding:4px 0"><strong style="color:${heet ? "#c4211b" : "#1677d9"}">${d.warmte}/100</strong> · ${esc(d.reden)}</td></tr>
+       </table>`,
+      { tekst: "Open het gesprek", url: `${SITE_URL}/dashboard` },
+    ),
   );
   return leadId;
 }

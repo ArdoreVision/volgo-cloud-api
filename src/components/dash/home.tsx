@@ -3,6 +3,8 @@ import type { FormEvent, KeyboardEvent } from "react";
 
 import { vraagAssistent } from "@/lib/api/assistent.functions";
 
+import { AanDeSlag } from "./aan-de-slag";
+
 const VOORBEELDEN = [
   "Welke leads moet ik vandaag als eerste bellen?",
   "Wat staat er deze week in mijn agenda?",
@@ -20,7 +22,7 @@ function groet(d: Date) {
 
 type Bericht = { rol: "ik" | "ava"; tekst: string };
 
-export function Home({ voornaam, bedrijf }: { voornaam: string; bedrijf: string }) {
+export function Home({ voornaam, bedrijf, openTab }: { voornaam: string; bedrijf: string; openTab: (t: "ava" | "team") => void }) {
   const [nu, setNu] = useState(() => new Date());
   const [tekst, setTekst] = useState("");
   const [berichten, setBerichten] = useState<Bericht[]>([]);
@@ -141,6 +143,8 @@ export function Home({ voornaam, bedrijf }: { voornaam: string; bedrijf: string 
           ))}
         </div>
       ) : null}
+
+      {leeg ? <AanDeSlag openTab={openTab} /> : null}
     </section>
   );
 }

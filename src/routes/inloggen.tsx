@@ -53,7 +53,10 @@ function Inloggen() {
           <input autoComplete="email" id="email" inputMode="email" name="email" required type="email" />
         </div>
         <div className="v-fld">
-          <label htmlFor="wachtwoord">Wachtwoord</label>
+          <span className="v-fld__row">
+            <label htmlFor="wachtwoord">Wachtwoord</label>
+            <a href="/wachtwoord-vergeten">Vergeten?</a>
+          </span>
           <input autoComplete="current-password" id="wachtwoord" name="wachtwoord" required type="password" />
         </div>
         {fout ? <p className="v-err" role="alert">{fout}</p> : null}

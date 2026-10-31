@@ -93,6 +93,10 @@ function Aanmelden() {
           </div>
           <p className="v-hint">Minimaal 8 tekens.</p>
         </div>
+        <p className="v-hint v-akkoord">
+          Door je account aan te maken ga je akkoord met de <a href="/voorwaarden" target="_blank">algemene voorwaarden</a> en de{" "}
+          <a href="/verwerkersovereenkomst" target="_blank">verwerkersovereenkomst</a>.
+        </p>
         {fout ? <p className="v-err" role="alert">{fout}</p> : null}
         <button className="v-auth__btn" disabled={bezig} type="submit">
           {bezig ? "Account wordt aangemaakt" : "Account aanmaken"}

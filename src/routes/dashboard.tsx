@@ -1,6 +1,7 @@
 import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 
+import { Account } from "@/components/dash/account";
 import { Agenda } from "@/components/dash/agenda";
 import { AvaInstellen } from "@/components/dash/ava-instellen";
 import { Gesprekken } from "@/components/dash/gesprekken";
@@ -159,7 +160,7 @@ function Dashboard() {
           </p>
         ) : null}
 
-        {tab === "home" ? <Home bedrijf={g.bedrijf} voornaam={voornaam} /> : null}
+        {tab === "home" ? <Home bedrijf={g.bedrijf} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "overzicht" ? <Overview data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "gesprekken" ? <Gesprekken data={data} /> : null}
         {tab === "ava" ? <AvaInstellen /> : null}
@@ -234,36 +235,7 @@ function Dashboard() {
           </>
         ) : null}
 
-        {tab === "account" ? (
-          <>
-            <header className="v-dash__head">
-              <h1>Account</h1>
-            </header>
-            <section className="v-dash__panel">
-              <dl className="v-dl">
-                <div>
-                  <dt>Naam</dt>
-                  <dd>{g.naam}</dd>
-                </div>
-                <div>
-                  <dt>Bedrijf</dt>
-                  <dd>{g.bedrijf}</dd>
-                </div>
-                <div>
-                  <dt>E-mailadres</dt>
-                  <dd>{g.email}</dd>
-                </div>
-                <div>
-                  <dt>Lid sinds</dt>
-                  <dd>{datum(g.created_at)}</dd>
-                </div>
-              </dl>
-              <button className="v-dash__logout" onClick={() => void loguit()} type="button">
-                Uitloggen
-              </button>
-            </section>
-          </>
-        ) : null}
+        {tab === "account" ? <Account g={g} loguit={() => void loguit()} /> : null}
       </main>
       <div aria-live="polite" className="v-toasts">
         {toasts.map((t) => (

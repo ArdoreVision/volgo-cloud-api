@@ -30,6 +30,8 @@ type AppEnv = {
   CLAUDE_MODEL?: string;
   // Optioneel: Stripe geheime sleutel voor echte abonnementsbetalingen.
   STRIPE_SECRET_KEY?: string;
+  // Optioneel: afzender voor mails, bv. "Volgo <hallo@jouwdomein.nl>".
+  MAIL_FROM?: string;
   APP_SLUG?: string;
 };
 

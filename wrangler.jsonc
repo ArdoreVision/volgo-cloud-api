@@ -7,6 +7,8 @@
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
   "assets": { "directory": "./dist/client", "binding": "ASSETS", "not_found_handling": "none" },
+  // Elke ochtend 06:00 UTC (07:00 winter, 08:00 zomer): ochtendsamenvatting per mail.
+  "triggers": { "crons": ["0 6 * * *"] },
   "vars": { "HF_ENV": "production", "APP_SLUG": "volgo" },
   "d1_databases": [
     { "binding": "DB", "database_name": "volgo-db", "database_id": "__D1_ID__", "migrations_dir": "migrations" }

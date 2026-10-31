@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 export function VolgoNotFound() {
   return (
-    <div style={{ minHeight: "100dvh", display: "grid", placeItems: "center", padding: 24, background: "#ffffff", color: "#111318", fontFamily: "Geist, -apple-system, sans-serif", textAlign: "center" }}>
+    <div style={{ minHeight: "100dvh", display: "grid", placeItems: "center", padding: 24, background: "#ffffff", color: "#111318", fontFamily: "\"Instrument Sans\", -apple-system, sans-serif", textAlign: "center" }}>
       <div>
         <p style={{ fontSize: 96, fontWeight: 600, letterSpacing: "-0.06em", margin: 0, lineHeight: 1 }}>404</p>
         <h1 style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.03em", margin: "16px 0 8px" }}>Deze pagina bestaat niet.</h1>
