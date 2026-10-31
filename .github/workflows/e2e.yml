@@ -81,6 +81,11 @@ jobs:
             await p.fill('#email', mail); await p.fill('#wachtwoord', 'geheim12345'); await p.locator('.v-auth__btn').click();
             await p.waitForURL('**/dashboard', { timeout: 20000 }).catch(async () => { log('login fout: ' + p.url() + ' | ' + (await p.locator('main').innerText()).replace(/\n/g, ' / ').slice(0, 300)); await shot(p, 'loginfout'); throw new Error('stop'); });
             await p.waitForSelector('.v-home__groet');
+            await p.locator('.v-dash__nav button', { hasText: 'Subscription' }).click();
+            await p.locator('.v-billing button').click();
+            await p.waitForURL((u) => u.hostname.includes('stripe.com'), { timeout: 30000 }).then(() => log('portal geopend: ' + p.url().slice(0, 50))).catch(async () => log('portal fout: ' + (await p.locator('.v-billing .v-err').textContent().catch(() => '?'))));
+            await shot(p, 'portal');
+            await p.goBack().catch(() => {});
             log('nieuwe klant -> ' + new URL(p.url()).pathname + ' | ' + (await p.locator('.v-home__groet h1').textContent()) + ' | banner: ' + ((await p.locator('.v-dash__banner').textContent().catch(() => '')) || '').slice(0, 60));
             await ctx.close();
           }
@@ -123,6 +128,8 @@ jobs:
               await p.waitForTimeout(2500); log('wachtwoord fout -> ' + (await p.locator('.v-err').last().textContent().catch(() => '?')));
               await p.locator('.v-dash__nav button', { hasText: 'AVA' }).click();
               await p.waitForSelector('.v-toggle'); log('toggles: ' + (await p.locator('.v-toggle strong').allTextContents()).join(' | '));
+              await p.locator('.v-dash__nav button', { hasText: 'Subscription' }).click();
+              await p.waitForSelector('.v-billing button'); await shot(p, 'subscription');
               await p.locator('.v-dash__brand').click(); await p.waitForSelector('.v-home__groet');
               await p.locator('.v-home__tips button').first().click();
               await p.waitForSelector('.v-home__msg--ava p:not(.v-home__typen)', { timeout: 40000 });
