@@ -47,6 +47,10 @@ export const startBetaling = createServerFn({ method: "POST" })
       b.set("line_items[0][price_data][product_data][name]", `Volgo ${plan.naam}`);
       if (plan.proefDagen) b.set("subscription_data[trial_period_days]", String(plan.proefDagen));
       b.set("metadata[plan]", plan.id);
+      // HCC is zelf de verkoper; Stripe "Managed Payments" (Stripe als verkoper) staat uit.
+      b.set("managed_payments[enabled]", "false");
+      b.set("billing_address_collection", "required");
+      b.set("tax_id_collection[enabled]", "true");
       b.set("success_url", `${origin()}/aanmelden?session_id={CHECKOUT_SESSION_ID}`);
       b.set("cancel_url", `${origin()}/abonnement`);
       try {
