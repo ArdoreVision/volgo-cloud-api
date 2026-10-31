@@ -1,0 +1,13 @@
+name: Eigen accounts herstellen
+on: workflow_dispatch
+jobs:
+  h:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - run: |
+          cd /tmp
+          npx -y wrangler@4 d1 execute volgo-db --remote --command "UPDATE gebruikers SET status='actief', proef_tot=NULL, stripe_abonnement='', stripe_klant='', stripe_check=NULL, testmodus=1 WHERE email IN ('d.hanssens02@gmail.com','demo@volgo.test','badkamer-demo@volgo.test')" > /dev/null 2>&1
+          echo "::warning::HERSTEL $(npx -y wrangler@4 d1 execute volgo-db --remote --json --command "SELECT email, status, stripe_abonnement FROM gebruikers" 2>/dev/null | jq -c '.[0].results')"

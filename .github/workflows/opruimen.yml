@@ -43,6 +43,8 @@ jobs:
           [[ "$K" == sk_test_* ]] || { echo "::warning::STRIPE live: niets gestopt"; exit 0; }
           cd /tmp
           npx -y wrangler@4 d1 execute volgo-db --remote --json --command "SELECT stripe_klant FROM gebruikers WHERE COALESCE(stripe_klant,'') != ''" 2>/dev/null | jq -r '.[0].results[].stripe_klant' > houden.txt
+          totaal=$(npx -y wrangler@4 d1 execute volgo-db --remote --json --command "SELECT COUNT(*) n FROM gebruikers" 2>/dev/null | jq -r '.[0].results[0].n // empty')
+          [ -n "$totaal" ] || { echo "::warning::STRIPE database niet gelezen: niets gestopt"; exit 0; }
           n=0
           for st in trialing active past_due; do
             curl -s "https://api.stripe.com/v1/subscriptions?status=$st&limit=100" -u "$K:" | jq -r '.data[] | .id + " " + .customer' > subs.txt
