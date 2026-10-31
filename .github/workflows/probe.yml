@@ -1,0 +1,11 @@
+name: Adres controleren
+on: workflow_dispatch
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for u in https://thevolgo.app/ https://www.thevolgo.app/ https://thevolgo.app/og.png https://volgo.damienhanssens.workers.dev/; do
+            echo "::warning::PROBE $u $(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' --max-time 20 $u)"
+          done
+          echo "::warning::DNS $(dig +short thevolgo.app | tr '\n' ' ')"
