@@ -1,0 +1,39 @@
+name: Testdata opruimen
+on: workflow_dispatch
+jobs:
+  op:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - run: |
+          cd /tmp
+          q() { npx -y wrangler@4 d1 execute volgo-db --remote --json --command "$1" 2>/dev/null; }
+          echo "::warning::VOOR $(q "SELECT COUNT(*) n FROM gebruikers WHERE email LIKE 'test%@volgo.test'" | jq -c '.[0].results')"
+          cat > op.sql <<'SQL'
+          CREATE TEMP TABLE weg AS SELECT id FROM gebruikers WHERE email LIKE 'test%@volgo.test';
+          DELETE FROM ava_berichten WHERE gesprek_id IN (SELECT id FROM ava_gesprekken WHERE team_id IN (SELECT id FROM weg));
+          DELETE FROM ava_gesprek_meta WHERE gesprek_id IN (SELECT id FROM ava_gesprekken WHERE team_id IN (SELECT id FROM weg));
+          DELETE FROM ava_gesprekken WHERE team_id IN (SELECT id FROM weg);
+          DELETE FROM afspraken WHERE team_id IN (SELECT id FROM weg);
+          DELETE FROM ava_instellingen WHERE team_id IN (SELECT id FROM weg);
+          DELETE FROM ava_stijl WHERE team_id IN (SELECT id FROM weg);
+          DELETE FROM berichten WHERE team_id IN (SELECT id FROM weg);
+          DELETE FROM kanalen WHERE team_id IN (SELECT id FROM weg);
+          DELETE FROM onboarding WHERE team_id IN (SELECT id FROM weg);
+          DELETE FROM sites WHERE team_id IN (SELECT id FROM weg);
+          DELETE FROM uitnodigingen WHERE team_id IN (SELECT id FROM weg);
+          DELETE FROM website_aanvragen WHERE team_id IN (SELECT id FROM weg) OR team_id = (SELECT id FROM gebruikers WHERE email='demo@volgo.test');
+          DELETE FROM klant_leads WHERE gebruiker_id IN (SELECT id FROM weg);
+          DELETE FROM meldingen WHERE gebruiker_id IN (SELECT id FROM weg);
+          DELETE FROM sessies WHERE gebruiker_id IN (SELECT id FROM weg);
+          DELETE FROM wachtwoord_resets WHERE gebruiker_id IN (SELECT id FROM weg);
+          DELETE FROM team_leden WHERE gebruiker_id IN (SELECT id FROM weg) OR team_id IN (SELECT id FROM weg);
+          DELETE FROM gebruikers WHERE id IN (SELECT id FROM weg);
+          DELETE FROM limieten;
+          SQL
+          sed -i 's/^          //' op.sql
+          npx -y wrangler@4 d1 execute volgo-db --remote --file op.sql > out.txt 2>&1 || { tail -5 out.txt | while read l; do echo "::warning::FOUT $l"; done; exit 1; }
+          echo "::warning::NA $(q "SELECT COUNT(*) n, (SELECT COUNT(*) FROM gebruikers) totaal, (SELECT COUNT(*) FROM website_aanvragen) aanvragen FROM gebruikers WHERE email LIKE 'test%@volgo.test'" | jq -c '.[0].results')"
+          echo "::warning::OVER $(q "SELECT email, plan, status FROM gebruikers" | jq -c '.[0].results')"
