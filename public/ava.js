@@ -194,6 +194,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   function eindTijd(t, duur) { var m = +t.slice(0, 2) * 60 + +t.slice(3, 5) + duur; return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); }
   function kalender() {
     var oud = log.querySelector(".kal:not(.ok)"); if (oud) oud.remove();
+    var ch = log.querySelector(".chips"); if (ch) ch.remove();
     var kaart = document.createElement("div"); kaart.className = "kal";
     kaart.innerHTML = '<p class="hulp">' + K.laden + "</p>";
     log.appendChild(kaart); log.scrollTop = log.scrollHeight;

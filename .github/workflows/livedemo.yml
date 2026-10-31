@@ -38,24 +38,35 @@ jobs:
               log('na scrollen ' + f + ': website scrollY ' + Math.round(sy));
               await p.screenshot({ path: `/tmp/shots/${n}-demo-scroll.png` });
             }
-            // Book via the calendar inside the sample site
-            await p.evaluate((y) => scrollTo(0, y - 60), top); await p.waitForTimeout(800);
+            // The calendar opens inside the framed sample site
+            await p.evaluate((y) => scrollTo(0, y + 190), top); await p.waitForTimeout(1000);
             await p.locator('.vx-live__knoppen button', { hasText: 'Book an appointment' }).click();
             await fr.locator('.kal .opt').first().waitFor({ timeout: 20000 });
-            await p.waitForTimeout(500); await p.screenshot({ path: '/tmp/shots/4-kal-stap1.png' });
-            await fr.locator('.kal .opt', { hasText: 'Phone call' }).click(); await p.waitForTimeout(500);
-            const weg = await fr.locator('.kal .dg.weg').count(), vrij = await fr.locator('.kal .dg:not(.weg)').count(), tw = await fr.locator('.kal .tijd.weg').count();
+            await p.waitForTimeout(600); await p.screenshot({ path: '/tmp/shots/4-landing-kal.png' });
+            await c.close();
+          }
+          // 1b. Booking flow on the full sample site
+          {
+            const c = await b.newContext({ viewport: { width: 1440, height: 900 } });
+            const p = await c.newPage();
+            await p.goto(U + '/voorbeeld/contractor', { waitUntil: 'networkidle' }); await p.waitForTimeout(1200);
+            await p.locator('.hero [data-ava-book]').click();
+            const k = p.locator('#volgo-ava .kal');
+            await k.locator('.opt').first().waitFor({ timeout: 20000 }); await p.waitForTimeout(400);
+            await p.screenshot({ path: '/tmp/shots/5-kal-stap1.png' });
+            await k.locator('.opt', { hasText: 'Phone call' }).click(); await p.waitForTimeout(500);
+            const weg = await k.locator('.dg.weg').count(), vrij = await k.locator('.dg:not(.weg)').count(), tw = await k.locator('.tijd.weg').count();
             log(`kalender: ${vrij} beschikbare dagen, ${weg} donkere dagen, ${tw} bezette tijden op gekozen dag`);
-            await p.screenshot({ path: '/tmp/shots/5-kal-stap2.png' });
-            await fr.locator('.kal .tijd:not(.weg)').first().click(); await p.waitForTimeout(400);
-            await fr.locator('.kal input[name=naam]').fill('Test Booking');
-            await fr.locator('.kal input[name=contact]').fill('(512) 555-0199');
-            await p.screenshot({ path: '/tmp/shots/6-kal-stap3.png' });
-            await fr.locator('.kal .knop').click();
-            await fr.locator('.kal.ok').waitFor({ timeout: 20000 }).catch(async () => log('boeken fout: ' + await fr.locator('.kal .err').textContent().catch(() => '?')));
+            await p.screenshot({ path: '/tmp/shots/6-kal-stap2.png' });
+            await k.locator('.tijd:not(.weg)').first().click(); await p.waitForTimeout(400);
+            await k.locator('input[name=naam]').fill('Test Booking');
+            await k.locator('input[name=contact]').fill('(512) 555-0199');
+            await p.screenshot({ path: '/tmp/shots/7-kal-stap3.png' });
+            await k.locator('.knop').click();
+            await p.locator('#volgo-ava .kal.ok').waitFor({ timeout: 20000 }).catch(async () => log('boeken fout: ' + await k.locator('.err').textContent().catch(() => '?')));
             await p.waitForTimeout(800);
-            log('geboekt: ' + (await fr.locator('.kal.ok').innerText().catch(() => '?')).replace(/\n/g, ' ') + ' | AVA: ' + (await fr.locator('.b.a').last().textContent()));
-            await p.screenshot({ path: '/tmp/shots/7-kal-klaar.png' });
+            log('geboekt: ' + (await p.locator('#volgo-ava .kal.ok').innerText().catch(() => '?')).replace(/\n/g, ' ') + ' | AVA: ' + (await p.locator('#volgo-ava .b.a').last().textContent()));
+            await p.screenshot({ path: '/tmp/shots/8-kal-klaar.png' });
             await c.close();
           }
           // 2. A visitor asks AVA questions on the full site
