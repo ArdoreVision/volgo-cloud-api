@@ -1,0 +1,34 @@
+name: Volgo testen
+on: workflow_dispatch
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      U: https://volgo.damienhanssens.workers.dev
+    steps:
+      - name: Demo-bedrijf klaarzetten
+        run: |
+          npx -y wrangler@4 d1 execute volgo-db --remote --command "INSERT OR IGNORE INTO gebruikers (email, naam, bedrijf, wachtwoord, plan, testmodus) VALUES ('demo@volgo.test','Demo','Volgo Demo Installatie','-','start',1); INSERT OR IGNORE INTO ava_instellingen (team_id, sleutel, begroeting, bedrijfsinfo) SELECT id, 'demo-volgo', 'Hoi! Ik ben AVA. Waar kan ik je mee helpen?', 'Installatiebedrijf voor warmtepompen en zonnepanelen in Zeeland.' FROM gebruikers WHERE email='demo@volgo.test';" > /dev/null
+      - name: Claude-sleutel controleren
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          echo "::warning::GEHEIMEN IN VOLGO $(npx -y wrangler@4 secret list --name volgo 2>/dev/null | grep -o '"name": *"[A-Z_]*"' | tr '\n' ' ')"
+          echo "::warning::SLEUTEL LENGTE ${#ANTHROPIC_API_KEY} BEGINT ${ANTHROPIC_API_KEY:0:7}"
+          r=$(curl -s https://api.anthropic.com/v1/messages -H "x-api-key: $ANTHROPIC_API_KEY" -H 'anthropic-version: 2023-06-01' -H 'content-type: application/json' -d '{"model":"claude-haiku-5-5","max_tokens":20,"messages":[{"role":"user","content":"Zeg hoi"}]}')
+          echo "::warning::CLAUDE $(echo "$r" | head -c 400 | tr '\n' ' ')"
+      - name: AVA-verzoek nabootsen
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          r=$(curl -s https://api.anthropic.com/v1/messages -H "x-api-key: $ANTHROPIC_API_KEY" -H 'anthropic-version: 2023-06-01' -H 'content-type: application/json' -d '{"model": "claude-haiku-5-5", "max_tokens": 400, "thinking": {"type": "disabled"}, "system": "Je bent AVA, de AI-assistent in de chat op de website van Volgo Demo Installatie. Kort, Nederlands. Roep na elk bericht waarin je iets nieuws leert de tool gesprek_bijwerken aan.", "tools": [{"name": "gesprek_bijwerken", "description": "Werk de gegevens van dit gesprek bij.", "input_schema": {"type": "object", "properties": {"naam": {"type": "string"}, "contact": {"type": "string"}, "onderwerp": {"type": "string"}, "warmte": {"type": "number"}, "reden": {"type": "string"}, "lead_klaar": {"type": "boolean"}}}}], "messages": [{"role": "user", "content": "Hoi, mijn cv-ketel is kapot. Wat kost een warmtepomp en kunnen jullie deze week langskomen?"}]}')
+          echo "::warning::NABOOTS $(echo "$r" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("stop_reason"), [ (b["type"], b.get("text","")[:200], b.get("input")) for b in d.get("content",[]) ], d.get("error"))' | head -c 900 | tr '\n' ' ')"
+      - name: Paginas en AVA testen
+        run: |
+          for p in / /abonnement /betalen /aanmelden /inloggen /dashboard /privacy /ava.js /demo/demo-volgo; do
+            echo "::warning::PAGINA $p $(curl -s -o /dev/null -w '%{http_code}' $U$p)"
+          done
+          r=$(curl -s -X POST $U/api/ava -H 'content-type: application/json' -H 'origin: https://example.com' -d '{"actie":"bericht","sleutel":"demo-volgo","tekst":"Hoi, mijn cv-ketel is kapot. Wat kost een warmtepomp en kunnen jullie deze week langskomen?"}')
+          echo "::warning::AVA $(echo "$r" | head -c 700 | tr '\n' ' ')"

@@ -1,0 +1,14 @@
+{
+  // Volgo op je eigen Cloudflare-account.
+  // De database-id wordt bij elke deploy automatisch ingevuld door GitHub Actions.
+  "name": "volgo",
+  "main": "dist/server/server.js",
+  "compatibility_date": "2025-09-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "assets": { "directory": "./dist/client", "binding": "ASSETS", "not_found_handling": "none" },
+  "vars": { "HF_ENV": "production", "APP_SLUG": "volgo" },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "volgo-db", "database_id": "__D1_ID__", "migrations_dir": "migrations" }
+  ]
+}
