@@ -238,8 +238,27 @@ function Dashboard() {
                 {g.status === "proef" ? `Free trial, ${proefDagen} ${proefDagen === 1 ? "day" : "days"} left` : "Active"}
                 {g.testmodus ? " · test account" : ""}
               </p>
+              <div className="v-meter">
+                <div className="v-meter__kop">
+                  <span>AVA conversations this month</span>
+                  <strong>
+                    {data.gebruik.gesprekken.toLocaleString("en-GB")} / {plan.limieten.gesprekken.toLocaleString("en-GB")}
+                  </strong>
+                </div>
+                <div aria-hidden="true" className="v-meter__balk">
+                  <i
+                    className={data.gebruik.gesprekken >= plan.limieten.gesprekken ? "is-vol" : ""}
+                    style={{ width: `${Math.min(100, (data.gebruik.gesprekken / plan.limieten.gesprekken) * 100)}%` }}
+                  />
+                </div>
+                {data.gebruik.gesprekken >= plan.limieten.gesprekken ? (
+                  <p className="v-small">
+                    You've reached this month's limit. AVA keeps capturing leads in basic mode. <a href="/pricing">Upgrade</a> for smart replies again.
+                  </p>
+                ) : null}
+              </div>
               <ul className="v-plan__list">
-                {plan.features.map((f) => (
+                {[...plan.kern, ...plan.features].map((f) => (
                   <li key={f}>{f}</li>
                 ))}
               </ul>

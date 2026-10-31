@@ -1,6 +1,8 @@
 import { useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 
+import { planVan } from "@/lib/plans";
+
 import { type DashData, STATUS_LABEL, type Status, dagKey, geleden, plusDag, sqlDate, tijdAms, uurAms, warmteLabel } from "./util";
 
 type Bereik = "dag" | "week" | "maand" | "60" | "90";
@@ -95,11 +97,23 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
           </p>
         </div>
         <div aria-label="Period" className="v-seg" role="tablist">
-          {BEREIKEN.map(([id, label]) => (
-            <button aria-selected={bereik === id} key={id} onClick={() => setBereik(id)} role="tab" type="button">
-              {label}
-            </button>
-          ))}
+          {BEREIKEN.map(([id, label, d]) => {
+            const op = d > planVan(data.gebruiker.plan).limieten.analyticsDagen;
+            return (
+              <button
+                aria-selected={bereik === id}
+                disabled={op}
+                key={id}
+                onClick={() => setBereik(id)}
+                role="tab"
+                title={op ? "Available on Pro and Premium" : undefined}
+                type="button"
+              >
+                {label}
+                {op ? " · Pro" : ""}
+              </button>
+            );
+          })}
         </div>
       </header>
 

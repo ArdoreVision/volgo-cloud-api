@@ -135,7 +135,9 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
   let antwoord = "";
   let warmte = schatWarmte(alleBezoeker, Boolean(meta.contact));
 
-  if (ANTHROPIC_API_KEY) {
+  // Monthly plan limit reached? AVA keeps working in basic mode, so no lead is lost.
+  const { boveLimiet } = await import("./limieten.server");
+  if (ANTHROPIC_API_KEY && !(await boveLimiet(DB, team))) {
     try {
       const r = await claudeAntwoord(ANTHROPIC_API_KEY, inst, historie, meta);
       antwoord = r.antwoord;

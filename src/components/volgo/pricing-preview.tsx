@@ -20,10 +20,15 @@ export function PricingPreview() {
               <p className="v-plan__price">
                 <span>€{p.prijsTekst}</span> per month
               </p>
-              <p className="v-plan__trial">{p.proefDagen ? `First ${p.proefDagen} days free` : "Starts right away"}</p>
               <a className={`v-plan__cta v-plan__cta--${id}`} href="/pricing">
-                {p.proefDagen ? "Start free trial" : `Choose ${p.naam}`}
+                Start free trial
               </a>
+              <p className="v-plan__kaart">7 days free · Payment card required</p>
+              <ul className="v-plan__kern">
+                {p.kern.map((f) => (
+                  <li key={f}>{f}</li>
+                ))}
+              </ul>
               <ul className="v-plan__list">
                 {p.features.map((f) => (
                   <li key={f}>{f}</li>
@@ -46,7 +51,7 @@ export function FinalCta() {
       <h2 className="v-h2 v-center" id="cta-title">
         Turn more visitors into quotes.
       </h2>
-      <p className="v-lede v-center">Try Volgo Start free for 7 days. Questions first? Ask AVA in the corner, or email us.</p>
+      <p className="v-lede v-center">Every plan starts with 7 days free. Questions first? Ask AVA in the corner, or email us.</p>
       <div className="v-final__actions">
         <a className="v-cta-primary" href="/pricing">
           Start 7-day free trial

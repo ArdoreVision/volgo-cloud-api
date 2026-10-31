@@ -291,6 +291,7 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
     gesprekken: gesprekken.results,
     leden: leden.results,
     kanalen: kanalen.results,
+    gebruik: { gesprekken: await (await import("../limieten.server")).gesprekkenDezeMaand(DB, team) },
     nu: new Date().toISOString(),
   };
 });

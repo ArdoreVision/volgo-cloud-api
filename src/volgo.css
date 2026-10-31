@@ -867,3 +867,17 @@ a.v-plan__cta { display: block; text-align: center; text-decoration: none; box-s
 @media (max-width: 1100px) { .v-inside__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .v-inside__grid { grid-template-columns: 1fr; } }
 .v-pricing__note a { color: var(--accent); }
+.v-seg button:disabled { opacity: 0.45; cursor: not-allowed; }
+.v-meter { margin: 18px 0 4px; padding: 16px; border-radius: 16px; background: var(--surface); }
+.v-meter__kop { display: flex; justify-content: space-between; gap: 12px; font-size: 14.5px; }
+.v-meter__kop span { color: var(--ink-2); }
+.v-meter__balk { margin-top: 10px; height: 8px; border-radius: 99px; background: #e3e8ef; overflow: hidden; }
+.v-meter__balk i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.v-meter__balk i.is-vol { background: var(--bad); }
+.v-meter p { margin: 10px 0 0; color: var(--ink-2); }
+.v-meter a { color: var(--accent); }
+.v-plan__kaart { margin: 10px 0 0; text-align: center; font-size: 13px; color: var(--muted); }
+.v-plan--premium .v-plan__kaart { color: rgba(255, 255, 255, 0.6); }
+.v-plan__kern { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 6px; }
+.v-plan__kern li { font-family: var(--display); font-weight: 600; font-size: 1.05rem; letter-spacing: -0.01em; }
+.v-plan__kern + .v-plan__list { margin-top: 14px; }

@@ -68,7 +68,7 @@ function Abonnement() {
             <p className="v-melding">Your trial or subscription has ended. Choose a plan to continue — all your data is still here.</p>
           ) : null}
           <h1 className="v-h2 v-center">{wisselen ? "Switch plans." : "Choose your plan."}</h1>
-          <p className="v-lede v-center">Start simple, grow into Pro, or give your whole team full access with Premium.</p>
+          <p className="v-lede v-center">Every plan starts with 7 days free. Switch or cancel any time.</p>
         </header>
         <div className="v-plans">
           {(Object.keys(PLANS) as PlanId[]).map((id) => {
@@ -81,7 +81,6 @@ function Abonnement() {
                 <p className="v-plan__price">
                   <span>€{p.prijsTekst}</span> per month
                 </p>
-                <p className="v-plan__trial">{p.proefDagen && !wisselen ? `First ${p.proefDagen} days free` : "Starts right away"}</p>
                 <button
                   className={`v-plan__cta v-plan__cta--${id}`}
                   disabled={bezig !== null || (wisselen && (huidig === id || !eigenaar))}
@@ -94,10 +93,14 @@ function Abonnement() {
                       ? huidig === id
                         ? "Current plan"
                         : `Switch to ${p.naam}`
-                      : p.proefDagen
-                        ? "Start 7-day free trial"
-                        : `Choose ${p.naam}`}
+                      : "Start free trial"}
                 </button>
+                <p className="v-plan__kaart">{wisselen ? "Switches right away" : "7 days free · Payment card required"}</p>
+                <ul className="v-plan__kern">
+                  {p.kern.map((f) => (
+                    <li key={f}>{f}</li>
+                  ))}
+                </ul>
                 <ul className="v-plan__list">
                   {p.features.map((f) => (
                     <li key={f}>{f}</li>
