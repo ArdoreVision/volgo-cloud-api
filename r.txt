@@ -1,0 +1,35 @@
+STRIPE modus sk_live_
+ACCOUNT {"charges_enabled":true,"payouts_enabled":true,"details_submitted":true,"country":"NL","naam":"Volgo","url":"https://thevolgo.app/","support":"volgo.app@outlook.com","afschrift":"VOLGO","eisen":null,"voorbij":null,"uitgeschakeld":null}
+TAX {"status":"active","defaults":{"provider":"stripe","tax_behavior":"exclusive","tax_code":null},"head":"NL","missing":{"active":{}}}
+TAXREG []
+PORTAL []
+WEBHOOKS []
+ABO []
+BALANCE {"available":[{"amount":0,"currency":"eur"}],"pending":[{"amount":0,"currency":"eur"}]}
+EMAILS {"email":"ardorevision@outlook.com"}
+RESEND [{"name":"thevolgo.app","status":"pending","region":"eu-west-1"}]
+ANTHROPIC lengte 106
+PAGINA / 200 34545B 0.407900s
+PAGINA /pricing 200 19281B 0.078111s
+PAGINA /terms 200 10877B 0.294892s
+PAGINA /privacy 200 9724B 0.205482s
+PAGINA /cookies 200 7519B 0.111334s
+PAGINA /dpa 200 9762B 0.331549s
+PAGINA /login 200 4977B 0.090384s
+PAGINA /signup 200 4772B 0.312965s
+PAGINA /forgot-password 200 5026B 0.396626s
+PAGINA /ava.js 200 43057B 0.083055s
+PAGINA /robots.txt 200 119B 0.188030s
+PAGINA /sitemap.xml 200 746B 0.180834s
+PAGINA /og.png 200 359162B 0.122411s
+PAGINA /manifest.webmanifest 200 550B 0.072947s
+PAGINA /voorbeeld/contractor.html 307 0B 0.069996s
+PAGINA /voorbeeld/badkamer.html 307 0B 0.066458s
+PAGINA /demo/x 200 4148B 0.084406s
+HEADERS strict-transport-security: max-age=63072000; includeSubDomains; preload content-security-policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' blob: https:; connect-src 'self' https:; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self' referrer-policy: strict-origin-when-cross-origin x-content-type-options: nosniff 
+WWW 301 -> https://thevolgo.app/
+HTTP 301 -> https://thevolgo.app/
+AVA {"naam":"Alex","begroeting":"Hi! I'm Alex, Volgo's assistant. Want to try Volgo free for 7 days, or book a call with the team first? Ask me anything.","kleur":"#1677d9","bedrijf":"Volgo","boeken":true,"toestemming":true,"avatar":null,"positie":"rechts","thema":"licht","vorm":"rond","lettertype":"web
+DNS MX  TXT  DMARC  RESENDDKIM  SEND-MX 
+TITLE <title>Volgo · Never miss a lead again | name="description" content="Add AVA to your website with one line of code. AVA answers every visitor 24/7, captures their details and puts your hottest leads on top, ready for your quote.
+PRICING €10  VAT: excluding VAT. Already h 
