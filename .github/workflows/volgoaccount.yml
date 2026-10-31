@@ -1,0 +1,44 @@
+name: Volgo eigen AVA
+on:
+  workflow_dispatch:
+    inputs:
+      hash: { description: "wachtwoord-hash", required: true }
+jobs:
+  v:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      HASH: ${{ inputs.hash }}
+    steps:
+      - run: |
+          cd /tmp
+          M="volgo.app@outlook.com"; K="86aa08e701cb78322293f3a3"; T="(SELECT id FROM gebruikers WHERE email='$M')"
+          cat > info.txt <<'INFO'
+          Volgo (thevolgo.app) is a service by Hanssens Cornerstone Capital in Vlissingen, the Netherlands. It helps businesses that live from quotes (contractors, bathrooms, kitchens, heating, roofing, solar, landscaping, clinics and similar) get more customers with less work.
+          What Volgo does: AVA, an AI assistant, goes on the business's own website with one line of code (WordPress, Wix, Shopify, Squarespace, Webflow or custom). AVA answers every visitor within seconds, 24/7, in their own language, gives price ranges the business sets, collects name and phone or email with permission, lets visitors book appointments in a calendar inside the chat (only free moments), and scores every lead 0-100 so buyers are on top. The business sees everything in its dashboard, gets an email for hot leads and a summary every morning, and can take over any chat.
+          Plans (per month, excl. VAT, cancel any time): Start EUR 147 (300 AVA conversations, 1 user, AVA on your own website). Pro EUR 497, most popular (1,000 conversations, 5 users, own AVA style without Volgo branding, team chat and video, 90-day analytics, plus Volgo builds a custom website with AVA inside, planned by chat or call). Premium EUR 997 (5,000 conversations, unlimited users, larger website, multiple websites or locations, fastest support). Domain name is not included (about EUR 10-20 a year).
+          Every plan: 7 days free, a payment card is required, nothing is charged before day 7, cancel in the dashboard before then and you pay nothing. AVA is live on a website in about 5 minutes.
+          How to start the free trial: go to https://thevolgo.app/pricing and click Start free trial on the plan. Recommend Start for a single small business that only wants AVA on its current site, Pro if they want a new website or a team, Premium for multiple locations or a big team.
+          Calls: anyone can book a 30-minute call with the Volgo team in the calendar in this chat. Also reachable by Instagram DM at @thevolgo.app.
+          Goal of the chat: understand their business (what they do, how many inquiries they get, whether they have a website), recommend a plan in one sentence and give the link https://thevolgo.app/pricing, or open the calendar when they want to talk first. When someone says they want to start the free trial, ask one short question about their business if needed, recommend a plan and always give the link https://thevolgo.app/pricing.
+          INFO
+          sed -i 's/^          //' info.txt
+          INFO_SQL=$(sed "s/'/''/g" info.txt)
+          q() { npx -y wrangler@4 d1 execute volgo-db --remote --json --command "$1" 2>/dev/null; }
+          if [ "$(q "SELECT COUNT(*) n FROM gebruikers WHERE email='$M'" | jq -r '.[0].results[0].n')" = 1 ]; then
+            echo "::warning::VOLGO account bestond al, wachtwoord niet gewijzigd"
+          else
+            q "INSERT INTO gebruikers (email, naam, bedrijf, wachtwoord, plan, status, testmodus, functie) VALUES ('$M', 'Damien Hanssens', 'Volgo', '$HASH', 'premium', 'actief', 1, 'Founder')" > /dev/null
+            q "INSERT INTO kanalen (team_id, naam) SELECT id, 'general' FROM gebruikers WHERE email='$M'" > /dev/null
+            q "INSERT INTO kanalen (team_id, naam) SELECT id, 'leads' FROM gebruikers WHERE email='$M'" > /dev/null
+            echo "::warning::VOLGO account aangemaakt"
+          fi
+          cat > a.sql <<SQL
+          DELETE FROM ava_instellingen WHERE team_id = $T OR sleutel = '$K';
+          INSERT INTO ava_instellingen (team_id, sleutel, naam, begroeting, bedrijfsinfo, kleur, boeken, tijdzone, open_dagen, open_van, open_tot, afspraak_duur, afspraak_soorten)
+            SELECT id, '$K', 'AVA', 'Hi! I''m AVA, Volgo''s assistant. Want to try Volgo free for 7 days, or book a call with the team first? Ask me anything.', '$INFO_SQL', '#1677d9', 1, 'Europe/Amsterdam', '1,2,3,4,5', '10:00', '18:00', 30, 'bellen' FROM gebruikers WHERE email = '$M';
+          SQL
+          sed -i 's/^          //' a.sql
+          npx -y wrangler@4 d1 execute volgo-db --remote --file a.sql > out.txt 2>&1 || { grep -i error out.txt | head -3 | sed 's/^/::warning::FOUT /'; exit 1; }
+          echo "::warning::VOLGO $(q "SELECT g.id, g.bedrijf, g.plan, a.sleutel, a.afspraak_soorten FROM gebruikers g JOIN ava_instellingen a ON a.team_id = g.id WHERE g.email='$M'" | jq -c '.[0].results')"
