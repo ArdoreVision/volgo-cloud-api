@@ -80,8 +80,8 @@ export const haalGesprekken = createServerFn({ method: "GET" }).handler(async ()
   const { g, DB } = await sessie();
   const r = await DB.prepare(
     `SELECT g.id, g.bezoeker, g.onderwerp, g.status, g.laatste, g.warmte, g.voorbeeld, m.overgenomen_naam, m.lead_id,
-            (SELECT b.tekst FROM ava_berichten b WHERE b.gesprek_id = g.id ORDER BY b.id DESC LIMIT 1) AS laatste_tekst,
-            (SELECT b.rol FROM ava_berichten b WHERE b.gesprek_id = g.id ORDER BY b.id DESC LIMIT 1) AS laatste_rol,
+            (SELECT b.tekst FROM ava_berichten b WHERE b.gesprek_id = g.id AND b.rol != 'systeem' ORDER BY b.id DESC LIMIT 1) AS laatste_tekst,
+            (SELECT b.rol FROM ava_berichten b WHERE b.gesprek_id = g.id AND b.rol != 'systeem' ORDER BY b.id DESC LIMIT 1) AS laatste_rol,
             datetime('now') AS nu
      FROM ava_gesprekken g LEFT JOIN ava_gesprek_meta m ON m.gesprek_id = g.id
      WHERE g.team_id = ? ORDER BY g.laatste DESC LIMIT 60`,

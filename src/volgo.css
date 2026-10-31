@@ -1176,3 +1176,6 @@ a.v-plan__cta { display: block; text-align: center; text-decoration: none; box-s
 .v-footer__social a { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; color: var(--ink-2); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); transition: color 0.2s, background 0.2s, transform 0.2s var(--spring); }
 .v-footer__social a:hover { transform: translateY(-2px); color: #fff; background: var(--ink); }
 .v-footer__social a[title="Instagram"]:hover { background: linear-gradient(45deg, #f9a03f, #e1306c 55%, #833ab4); }
+.v-footer__rechts { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 22px; }
+.v-footer__rechts .v-footer__social { padding-left: 22px; border-left: 1px solid var(--line); }
+@media (max-width: 700px) { .v-footer__rechts .v-footer__social { padding-left: 0; border-left: 0; } }
