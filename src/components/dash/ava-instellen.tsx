@@ -24,7 +24,9 @@ function Toggle({ aan, onChange, label, uitleg }: { aan: boolean; onChange: (v: 
   );
 }
 
-export function AvaInstellen() {
+export type AvaDeel = "praten" | "stijl" | "installeren" | "meldingen";
+
+export function AvaInstellen({ deel }: { deel: AvaDeel }) {
   const [ava, setAva] = useState<Ava | null>(null);
   const [kleur, setKleur] = useState("#1677d9");
   const [opgeslagen, setOpgeslagen] = useState(false);
@@ -69,21 +71,8 @@ export function AvaInstellen() {
   const host = typeof window !== "undefined" ? window.location.origin : "";
   const code = `<script src="${host}/ava.js" data-key="${ava.inst.sleutel}" defer></script>`;
 
-  return (
+  if (deel === "meldingen") return (
     <>
-      <header className="v-dash__head v-dash__head--row">
-        <div>
-          <h1>AVA</h1>
-          <p>
-            {ava.aiActief ? "AVA has real conversations using AI." : "AVA is running in basic mode: a short, fixed intake. With AI connected, AVA has real conversations."}
-          </p>
-        </div>
-        <a className="v-addbtn" href={`/demo/${ava.inst.sleutel}`} rel="noopener" target="_blank">
-          Try AVA on a sample site
-        </a>
-      </header>
-
-      <div className="v-dash__grid">
         <section className="v-dash__panel">
           <div className="v-dash__panel-head">
             <h2>Notifications</h2>
@@ -97,7 +86,10 @@ export function AvaInstellen() {
           </div>
           {browser === "denied" ? <p className="v-muted v-small">Your browser blocks notifications. You will still see them in the dashboard.</p> : null}
         </section>
-
+    </>
+  );
+  if (deel === "installeren") return (
+    <>
         <section className="v-dash__panel">
           <div className="v-dash__panel-head">
             <h2>On your website</h2>
@@ -120,10 +112,21 @@ export function AvaInstellen() {
           </p>
           <InstallGuides />
         </section>
-      </div>
-
+    </>
+  );
+  if (deel === "stijl") return (
+    <>
       <AvaStijl begin={ava.stijl} kleur={kleur} mag={ava.magStijl} naam={ava.inst.naam} />
-
+    </>
+  );
+  return (
+    <>
+      <p className="v-instel__intro">
+        {ava.aiActief ? "AVA has real conversations using AI." : "AVA is running in basic mode: a short, fixed intake."}{" "}
+        <a href={`/demo/${ava.inst.sleutel}`} rel="noopener" target="_blank">
+          Try AVA on a sample site ↗
+        </a>
+      </p>
       <section className="v-dash__panel">
         <div className="v-dash__panel-head">
           <h2>How AVA talks</h2>

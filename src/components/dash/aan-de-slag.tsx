@@ -5,7 +5,7 @@ import { haalOnboarding, markeerOnboarding } from "@/lib/api/assistent.functions
 type Data = NonNullable<Awaited<ReturnType<typeof haalOnboarding>>>;
 
 /** Drie stappen voor een nieuwe klant. Verdwijnt als alles klaar is of als je hem wegklikt. */
-export function AanDeSlag({ openTab }: { openTab: (t: "ava" | "team") => void }) {
+export function AanDeSlag({ openTab }: { openTab: (t: string) => void }) {
   const [d, setD] = useState<Data | null>(null);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function AanDeSlag({ openTab }: { openTab: (t: "ava" | "team") => void })
       titel: "Add AVA to your website",
       uitleg: "Copy one line of code to your site, or let us do it for you.",
       knop: "Get the code",
-      doe: () => openTab("ava"),
+      doe: () => openTab("installeren"),
     },
     { key: "team", klaar: d.stappen.team, titel: "Invite your team", uitleg: "Colleagues see the leads and can join the chat.", knop: "Invite", doe: () => openTab("team") },
   ];

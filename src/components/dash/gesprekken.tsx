@@ -12,6 +12,7 @@ export function Gesprekken({ data }: { data: DashData }) {
   const [detail, setDetail] = useState<Detail | null>(null);
   const [nu, setNu] = useState(() => Date.parse(data.nu));
   const [tekst, setTekst] = useState("");
+  const [mobielDetail, setMobielDetail] = useState(false);
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
   const lijst = useRef<HTMLDivElement>(null);
@@ -74,10 +75,15 @@ export function Gesprekken({ data }: { data: DashData }) {
         <h1>Conversations</h1>
         <p>Everything AVA discusses with visitors to your website. Follow live conversations as they happen.</p>
       </header>
-      <div className="v-convo">
+      <div className={`v-convo${mobielDetail ? " is-detail" : ""}`}>
         <aside className="v-convo__list">
           {data.gesprekken.map((g) => (
-            <button aria-current={actief === g.id} className="v-convo__item" key={g.id} onClick={() => setActief(g.id)} type="button">
+            <button aria-current={actief === g.id} className="v-convo__item" key={g.id} onClick={() => {
+                setActief(g.id);
+                setMobielDetail(true);
+              }}
+              type="button"
+            >
               <div className="v-convo__row">
                 <strong>{g.bezoeker}</strong>
                 {g.overgenomen_naam ? (
@@ -101,6 +107,9 @@ export function Gesprekken({ data }: { data: DashData }) {
           {detail ? (
             <>
               <header className="v-convo__head">
+                <button aria-label="Back to all chats" className="v-convo__terug" onClick={() => setMobielDetail(false)} type="button">
+                  ‹
+                </button>
                 <div>
                   <h2>{detail.gesprek.bezoeker}</h2>
                   <p className="v-muted v-small">

@@ -29,7 +29,17 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-type Tab = "home" | "website" | "overzicht" | "gesprekken" | "agenda" | "team" | "aanvragen" | "ava" | "abonnement" | "account";
+type Tab = "home" | "website" | "overzicht" | "gesprekken" | "agenda" | "team" | "aanvragen" | "instellingen";
+type Sub = "ava" | "stijl" | "installeren" | "meldingen" | "account" | "abonnement";
+const SUBS: [Sub, string][] = [
+  ["ava", "AVA"],
+  ["stijl", "Style"],
+  ["installeren", "Install"],
+  ["meldingen", "Notifications"],
+  ["account", "Account"],
+  ["abonnement", "Subscription"],
+];
+const isSub = (t: string): t is Sub => SUBS.some(([id]) => id === t);
 type Toast = { id: number; titel: string; tekst: string; tab: Tab; heet?: boolean };
 type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
 const STATUS_LABEL: Record<Status, string> = {
@@ -44,10 +54,12 @@ const STATUS_LABEL: Record<Status, string> = {
 const datum = (iso: string) =>
   new Date(iso.replace(" ", "T") + "Z").toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
 
-function Icon({ name }: { name: Tab | "uit" }) {
+function Icon({ name }: { name: Tab | "uit" | "meer" | "ava" | "abonnement" | "account" }) {
   const d: Record<string, string> = {
     home: "M10 3.5l1.6 4.1 4.4.3-3.4 2.8 1.1 4.3L10 12.6 6.3 15l1.1-4.3L4 7.9l4.4-.3z",
     website: "M3 4.5h14v11H3zM3 7.5h14M6 6h.01M8 6h.01",
+    instellingen: "M10 7.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6zM10 2.5l1.3 2 2.3-.6.6 2.3 2.2 1-1 2.2 1 2.2-2.2 1-.6 2.3-2.3-.6-1.3 2-1.3-2-2.3.6-.6-2.3-2.2-1 1-2.2-1-2.2 2.2-1 .6-2.3 2.3.6z",
+    meer: "M4.5 10h.01M10 10h.01M15.5 10h.01",
     overzicht: "M3 10.5 10 4l7 6.5V17a1 1 0 0 1-1 1h-3.5v-5h-5v5H4a1 1 0 0 1-1-1z",
     agenda: "M3.5 5.5h13v11h-13zM3.5 8.5h13M7 3.5v3M13 3.5v3",
     gesprekken: "M3.5 4.5h13v9h-6l-4 3v-3h-3z",
@@ -74,7 +86,18 @@ function Dashboard() {
   });
   const router = useRouter();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>("home");
+  const [tab, setTabRaw] = useState<Tab>("home");
+  const [sub, setSub] = useState<Sub>("ava");
+  const [meer, setMeer] = useState(false);
+  /** Go to a tab; settings pages ("ava", "account", …) open inside Settings. */
+  const setTab = (t: string) => {
+    if (isSub(t)) {
+      setSub(t);
+      setTabRaw("instellingen");
+    } else setTabRaw(t as Tab);
+    setMeer(false);
+    if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+  };
   const [toasts, setToasts] = useState<Toast[]>([]);
   const sinds = useRef(data.nu.slice(0, 19).replace("T", " "));
 
@@ -121,13 +144,18 @@ function Dashboard() {
     ["home", "Home"],
     ["overzicht", "Overview"],
     ["gesprekken", "Conversations"],
+    ["aanvragen", "Requests"],
     ["agenda", "Calendar"],
     ["team", "Team"],
     ["website", "Website"],
-    ["aanvragen", "Requests"],
-    ["ava", "AVA"],
-    ["abonnement", "Subscription"],
-    ["account", "Account"],
+    ["instellingen", "Settings"],
+  ];
+  // Mobile: four main tabs at the bottom, the rest under "More".
+  const mobiel: [Tab, string][] = [
+    ["home", "Home"],
+    ["gesprekken", "Chats"],
+    ["aanvragen", "Leads"],
+    ["agenda", "Calendar"],
   ];
 
   return (
@@ -169,7 +197,6 @@ function Dashboard() {
         {tab === "home" ? <Home bedrijf={g.bedrijf} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "overzicht" ? <Overview data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "gesprekken" ? <Gesprekken data={data} /> : null}
-        {tab === "ava" ? <AvaInstellen /> : null}
         {tab === "agenda" ? <Agenda data={data} /> : null}
         {tab === "website" ? <Website /> : null}
         {tab === "team" ? (
@@ -230,11 +257,26 @@ function Dashboard() {
           </>
         ) : null}
 
-        {tab === "abonnement" ? (
+        {tab === "instellingen" ? (
           <>
             <header className="v-dash__head">
-              <h1>Subscription</h1>
+              <h1>Settings</h1>
+              <p>Everything you can adjust, in one place.</p>
             </header>
+            <nav aria-label="Settings" className="v-instel__nav">
+              {SUBS.map(([id, label]) => (
+                <button aria-current={sub === id ? "page" : undefined} key={id} onClick={() => setSub(id)} type="button">
+                  {label}
+                </button>
+              ))}
+            </nav>
+            {sub === "ava" ? <AvaInstellen deel="praten" /> : null}
+            {sub === "stijl" ? <AvaInstellen deel="stijl" /> : null}
+            {sub === "installeren" ? <AvaInstellen deel="installeren" /> : null}
+            {sub === "meldingen" ? <AvaInstellen deel="meldingen" /> : null}
+            {sub === "account" ? <Account g={g} loguit={() => void loguit()} /> : null}
+            {sub === "abonnement" ? (
+              <>
             <section className="v-dash__panel v-plan-card">
               <p className="v-plan-card__name">Volgo {plan.naam}</p>
               <p className="v-plan-card__price">€{plan.prijsTekst} <span>per month, excl. VAT</span></p>
@@ -268,11 +310,44 @@ function Dashboard() {
               </ul>
               {g.rol === "eigenaar" ? <BillingButton /> : <p className="v-plan-card__help">Only the account owner can manage the subscription.</p>}
             </section>
+              </>
+            ) : null}
           </>
         ) : null}
-
-        {tab === "account" ? <Account g={g} loguit={() => void loguit()} /> : null}
       </main>
+      <nav aria-label="Main" className="v-mnav">
+        {mobiel.map(([id, label]) => (
+          <button aria-current={tab === id ? "page" : undefined} key={id} onClick={() => setTab(id)} type="button">
+            <Icon name={id} />
+            <span>{label}</span>
+          </button>
+        ))}
+        <button aria-current={meer || !mobiel.some(([id]) => id === tab) ? "page" : undefined} aria-expanded={meer} onClick={() => setMeer(!meer)} type="button">
+          <Icon name="meer" />
+          <span>More</span>
+        </button>
+      </nav>
+      {meer ? (
+        <div className="v-sheet" onClick={() => setMeer(false)} role="presentation">
+          <div aria-label="More" className="v-sheet__paneel" onClick={(e) => e.stopPropagation()} role="dialog">
+            <span aria-hidden="true" className="v-sheet__greep" />
+            {(["overzicht", "team", "website", "instellingen"] as Tab[]).map((id) => (
+              <button key={id} onClick={() => setTab(id)} type="button">
+                <Icon name={id} />
+                {tabs.find((t) => t[0] === id)?.[1]}
+              </button>
+            ))}
+            <button onClick={() => setTab("abonnement")} type="button">
+              <Icon name="abonnement" />
+              Subscription
+            </button>
+            <button className="v-sheet__uit" onClick={() => void loguit()} type="button">
+              <Icon name="uit" />
+              Log out
+            </button>
+          </div>
+        </div>
+      ) : null}
       <div aria-live="polite" className="v-toasts">
         {toasts.map((t) => (
           <button

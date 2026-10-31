@@ -22,7 +22,7 @@ function groet(d: Date) {
 
 type Bericht = { rol: "ik" | "ava"; tekst: string };
 
-export function Home({ voornaam, bedrijf, openTab }: { voornaam: string; bedrijf: string; openTab: (t: "ava" | "team") => void }) {
+export function Home({ voornaam, bedrijf, openTab }: { voornaam: string; bedrijf: string; openTab: (t: string) => void }) {
   const [nu, setNu] = useState(() => new Date());
   const [tekst, setTekst] = useState("");
   const [berichten, setBerichten] = useState<Bericht[]>([]);
