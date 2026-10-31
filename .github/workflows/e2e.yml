@@ -23,7 +23,7 @@ jobs:
           q() { npx -y wrangler@4 d1 execute volgo-db --remote --command "$1" > /dev/null 2>&1; }
           q "UPDATE gebruikers SET status='proef', proef_tot=datetime('now','-1 day') WHERE email='demo@volgo.test'"
           echo "::warning::GATE verlopen -> $(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' -b volgo_sessie=$TOKEN $U/dashboard)"
-          SL=$(npx -y wrangler@4 d1 execute volgo-db --remote --json --command "SELECT a.sleutel FROM ava_instellingen a JOIN gebruikers g ON g.id=a.team_id WHERE g.email='demo@volgo.test'" 2>/dev/null | grep -o '"sleutel": *"[a-f0-9]*"' | grep -o '[a-f0-9]\{8,\}')
+          SL=$(npx -y wrangler@4 d1 execute volgo-db --remote --json --command "SELECT a.sleutel FROM ava_instellingen a JOIN gebruikers g ON g.id=a.team_id WHERE g.email='demo@volgo.test'" 2>/dev/null | jq -r '.[0].results[0].sleutel' || true)
           echo "::warning::GATE widget verlopen -> $(curl -s -X POST $U/api/ava -H 'content-type: application/json' -d "{\"actie\":\"config\",\"sleutel\":\"$SL\"}")"
           echo "::warning::GATE assistent verlopen -> $(curl -s -o /dev/null -w '%{http_code}' -b volgo_sessie=$TOKEN $U/api/ava -X POST -H 'content-type: application/json' -d "{\"actie\":\"bericht\",\"sleutel\":\"$SL\",\"tekst\":\"hoi\"}") $(curl -s $U/api/ava -X POST -H 'content-type: application/json' -d "{\"actie\":\"bericht\",\"sleutel\":\"$SL\",\"tekst\":\"hoi\"}" | head -c 90)"
           q "UPDATE gebruikers SET status='actief', proef_tot=NULL WHERE email='demo@volgo.test'"
