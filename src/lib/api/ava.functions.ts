@@ -60,7 +60,8 @@ export const bewaarAgenda = createServerFn({ method: "POST" })
         afspraak_soorten: z.array(z.enum(["bellen", "langs", "kantoor"])).min(1).max(3),
         tijdzone: z.string().max(60),
       })
-      .refine((d) => d.open_van < d.open_tot, "Opening time must be before closing time"),
+      .refine((d) => d.open_van < d.open_tot, "Opening time must be before closing time")
+      .parse(v),
   )
   .handler(async ({ data }) => {
     const { g, DB } = await sessie();
