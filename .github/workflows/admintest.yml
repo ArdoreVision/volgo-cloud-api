@@ -1,0 +1,50 @@
+name: Admin testen
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  admin:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      U: https://thevolgo.app
+    steps:
+      - name: Sessies
+        run: |
+          cd /tmp
+          q() { npx -y wrangler@4 d1 execute volgo-db --remote --json --command "$1" 2>/dev/null; }
+          ADMIN_ID=$(q "SELECT id FROM gebruikers WHERE lower(email) IN ('damienhanssens@outlook.com','hanssenscornerstone@outlook.com','volgo.app@outlook.com') ORDER BY id LIMIT 1" | jq -r '.[0].results[0].id // empty')
+          echo "::warning::ADMIN account aanwezig: ${ADMIN_ID:-nee}"
+          T1=$(openssl rand -hex 32); H1=$(printf '%s' "$T1" | sha256sum | cut -d' ' -f1)
+          q "INSERT INTO sessies (token_hash, gebruiker_id, verloopt) SELECT '$H1', id, datetime('now','+10 minutes') FROM gebruikers WHERE email='demo@volgo.test'" > /dev/null
+          echo "::warning::ADMIN gewone klant -> $(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' -b volgo_sessie=$T1 $U/admin)"
+          if [ -n "$ADMIN_ID" ]; then
+            T2=$(openssl rand -hex 32); H2=$(printf '%s' "$T2" | sha256sum | cut -d' ' -f1)
+            q "INSERT INTO sessies (token_hash, gebruiker_id, verloopt) VALUES ('$H2', $ADMIN_ID, datetime('now','+10 minutes'))" > /dev/null
+            echo "T2=$T2" >> $GITHUB_ENV; echo "H2=$H2" >> $GITHUB_ENV
+          fi
+          q "DELETE FROM sessies WHERE token_hash = '$H1'" > /dev/null
+      - name: Browser
+        if: env.T2 != ''
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y >/dev/null && npm i playwright@1 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
+          cat > a.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const b = await chromium.launch(); const c = await b.newContext({ viewport: { width: 1366, height: 900 }, deviceScaleFactor: 2 });
+          await c.addCookies([{ name: 'volgo_sessie', value: process.env.T2, domain: 'thevolgo.app', path: '/', httpOnly: true, secure: true, sameSite: 'Lax' }]);
+          const p = await c.newPage(); await p.goto(process.env.U + '/admin', { waitUntil: 'networkidle' });
+          console.log('::warning::ADMIN pagina ' + new URL(p.url()).pathname + ' | ' + (await p.locator('.v-admin__cijfers').innerText().catch(() => 'geen')).replace(/\n/g, ' '));
+          await p.screenshot({ path: '/tmp/admin-aanvragen.png' });
+          await p.locator('.v-instel__nav button', { hasText: 'Customers' }).click(); await p.waitForTimeout(500); await p.screenshot({ path: '/tmp/admin-klanten.png' });
+          await b.close();
+          JS
+          node a.mjs
+      - name: Opruimen en bewaren
+        if: always()
+        run: |
+          cd /tmp; [ -n "$H2" ] && npx -y wrangler@4 d1 execute volgo-db --remote --command "DELETE FROM sessies WHERE token_hash = '$H2'" > /dev/null 2>&1 || true
+          cd $GITHUB_WORKSPACE 2>/dev/null || cd /tmp
+          git init -q /tmp/r && cd /tmp/r && git config user.name bot && git config user.email bot@x
+          cp /tmp/admin-*.png . 2>/dev/null || true
+          git add -A && git commit -qm a && git push -qf https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} HEAD:adminshots || true
