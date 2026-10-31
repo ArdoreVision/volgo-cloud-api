@@ -149,7 +149,7 @@ jobs:
               await p2.waitForFunction(() => document.querySelector('#volgo-ava').shadowRoot.querySelectorAll('.b.a:not(.typ)').length >= 2, null, { timeout: 40000 });
               await p.locator('.v-dash__nav button', { hasText: 'Conversations' }).click();
               await p.waitForSelector('.v-convo__item'); await p.reload({ waitUntil: 'networkidle' }); await p.locator('.v-dash__nav button', { hasText: 'Conversations' }).click();
-              await p.locator('.v-convo__item', { hasText: 'quote for a heat pump' }).first().click(); await p.waitForTimeout(1500);
+              await p.locator('.v-convo__item').first().click(); await p.waitForTimeout(1500);
               log('gekozen gesprek: ' + (await p.locator('.v-convo__head h2').textContent()) + ' / berichten: ' + (await p.locator('.v-tb').count()));
               await p.locator('.v-convo__acties button', { hasText: 'Take over' }).click();
               await p.waitForSelector('.v-convo__invoer textarea', { timeout: 15000 });
