@@ -51,7 +51,7 @@ jobs:
             await p.locator('.v-auth__btn').click();
             await p.waitForURL('**/inloggen**');
             await p.fill('#email', mail); await p.fill('#wachtwoord', 'geheim12345'); await p.locator('.v-auth__btn').click();
-            await p.waitForURL('**/dashboard', { timeout: 20000 });
+            await p.waitForURL('**/dashboard', { timeout: 20000 }).catch(async () => { log('login fout: ' + new URL(p.url()).pathname + ' ' + (await p.locator('.v-err').textContent().catch(() => 'geen melding'))); throw new Error('stop'); });
             await p.waitForSelector('.v-home__groet');
             log('nieuwe klant -> ' + new URL(p.url()).pathname + ' | ' + (await p.locator('.v-home__groet h1').textContent()) + ' | banner: ' + ((await p.locator('.v-dash__banner').textContent().catch(() => '')) || '').slice(0, 60));
             await ctx.close();
