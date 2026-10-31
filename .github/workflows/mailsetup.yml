@@ -1,0 +1,31 @@
+name: Mail instellen
+on: workflow_dispatch
+jobs:
+  mail:
+    runs-on: ubuntu-latest
+    env:
+      R: ${{ secrets.RESEND_API_KEY }}
+      CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - run: |
+          [ -n "$R" ] || { echo "::warning::MAIL geen RESEND_API_KEY in GitHub"; exit 0; }
+          re() { curl -s "https://api.resend.com/$1" -H "Authorization: Bearer $R" -H "Content-Type: application/json" "${@:2}"; }
+          ID=$(re domains | jq -r '.data[]? | select(.name=="thevolgo.app") | .id' | head -1)
+          [ -n "$ID" ] || ID=$(re domains -X POST -d '{"name":"thevolgo.app","region":"eu-west-1"}' | tee /tmp/d.json | jq -r '.id // empty')
+          [ -n "$ID" ] || { echo "::warning::MAIL domein toevoegen mislukt: $(cat /tmp/d.json | head -c 300)"; exit 1; }
+          re domains/$ID > /tmp/dom.json
+          echo "::warning::MAIL domein status $(jq -r .status /tmp/dom.json)"
+          ZONE=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=thevolgo.app" -H "Authorization: Bearer $CF" | jq -r '.result[0].id // empty')
+          jq -c '.records[]' /tmp/dom.json | while read -r rec; do
+            type=$(echo "$rec" | jq -r .type); name=$(echo "$rec" | jq -r .name); val=$(echo "$rec" | jq -r .value); prio=$(echo "$rec" | jq -r '.priority // 10')
+            fqdn="$name.thevolgo.app"; [ "$name" = "@" ] && fqdn="thevolgo.app"
+            body=$(jq -nc --arg t "$type" --arg n "$fqdn" --arg c "$val" --argjson p "$prio" '{type:$t,name:$n,content:$c,ttl:1} + (if $t=="MX" then {priority:$p} else {} end)')
+            r=$( [ -n "$ZONE" ] && curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE/dns_records" -H "Authorization: Bearer $CF" -H "Content-Type: application/json" -d "$body" | jq -r 'if .success then "toegevoegd" else (.errors[0].message // "fout") end' )
+            echo "::warning::DNS $type $fqdn -> ${r:-geen toegang tot Cloudflare DNS} | waarde: ${val:0:60}"
+          done
+          re domains/$ID/verify -X POST > /dev/null
+          for i in $(seq 1 18); do s=$(re domains/$ID | jq -r .status); [ "$s" = verified ] && break; sleep 10; done
+          echo "::warning::MAIL na controle: $s"
+          if [ "$s" = verified ]; then
+            echo "::warning::MAIL testmail $(re emails -X POST -d '{"from":"Volgo <hallo@thevolgo.app>","to":["volgo.app@outlook.com"],"reply_to":"volgo.app@outlook.com","subject":"Volgo mail werkt","html":"<p>Deze testmail komt van hallo@thevolgo.app. Wachtwoordherstel, uitnodigingen en leadmeldingen gaan nu via dit adres.</p>"}' | head -c 200)"
+          fi

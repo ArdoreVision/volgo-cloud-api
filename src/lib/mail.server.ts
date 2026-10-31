@@ -6,7 +6,7 @@ export const esc = (v: string) => v.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", 
 
 /** Nette, eenvoudige Volgo-mail. `inhoud` is al veilige HTML. */
 export function mailOpmaak(kop: string, inhoud: string, knop?: { tekst: string; url: string }) {
-  return `<!doctype html><html lang="nl"><body style="margin:0;background:#f5f7fa;padding:32px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#0b1220">
+  return `<!doctype html><html lang="en"><body style="margin:0;background:#f5f7fa;padding:32px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#0b1220">
 <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:20px;padding:32px">
 <p style="margin:0 0 20px;font-weight:600;font-size:15px;color:#1677d9">Volgo</p>
 <h1 style="margin:0 0 14px;font-size:22px;line-height:1.25;letter-spacing:-0.02em">${kop}</h1>
@@ -19,13 +19,20 @@ ${knop ? `<p style="margin:26px 0 0"><a href="${knop.url}" style="display:inline
 
 /** Verstuurt een mail via Resend. Geeft false terug als mail (nog) niet is ingesteld of mislukt. */
 export async function verstuurMail(aan: string, onderwerp: string, html: string) {
-  const { RESEND_API_KEY, MAIL_FROM } = bindings();
+  const { RESEND_API_KEY, MAIL_FROM, MAIL_REPLY_TO } = bindings();
   if (!RESEND_API_KEY) return false;
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: MAIL_FROM || "Volgo <onboarding@resend.dev>", to: [aan], subject: onderwerp, html }),
+      body: JSON.stringify({
+        from: MAIL_FROM || "Volgo <onboarding@resend.dev>",
+        to: [aan],
+        subject: onderwerp,
+        html,
+        // Replies land in the Volgo inbox.
+        ...(MAIL_REPLY_TO ? { reply_to: MAIL_REPLY_TO } : {}),
+      }),
     });
     return r.ok;
   } catch {
