@@ -5,9 +5,7 @@ import { huidigeGebruiker } from "../auth.server";
 import { bindings } from "../bindings.server";
 import { actieveGebruiker } from "../toegang.server";
 import { planVoorTeam } from "../limieten.server";
-import { esc, mailOpmaak, verstuurMail } from "../mail.server";
-
-const VOLGO_INBOX = "hanssenscornerstone@outlook.com";
+import { VOLGO_INBOX, esc, mailOpmaak, verstuurMail } from "../mail.server";
 
 async function sessie() {
   const g = await actieveGebruiker().catch(() => null);
