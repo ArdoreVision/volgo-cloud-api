@@ -94,7 +94,7 @@ export function Website() {
           </ol>
           <div className="v-website__samenvatting">
             <p>
-              <strong>Your request</strong> · we'll reach you by {a.contact === "call" ? "a call (send BOOK in a DM to @damienhanssens on Instagram to pick a time)" : "chat and email"}
+              <strong>Your request</strong> · we'll reach you by {a.contact === "call" ? "a call (send BOOK in a DM to @thevolgo.app on Instagram to pick a time)" : "chat and email"}
               {a.domein ? ` · domain: ${a.domein}` : ""}
             </p>
             <p className="v-website__wensen">{a.wensen}</p>

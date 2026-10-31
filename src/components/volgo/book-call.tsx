@@ -12,13 +12,13 @@ export function BookCall({ compact = false }: { compact?: boolean }) {
         </svg>
       </span>
       <div className="v-book__tekst">
-        <strong>Book a call via Instagram</strong>
+        <strong>Chat with us on Instagram</strong>
         <p>
-          Send a DM with the word <b className="v-book__woord">{BOEK_WOORD}</b> to <b>@{INSTAGRAM}</b>. We reply in the DM to pick a time that suits you.
+          Send a DM with the word <b className="v-book__woord">{BOEK_WOORD}</b> to <b>@{INSTAGRAM}</b>. We reply in the DM and plan a call at a time that suits you.
         </p>
       </div>
       <a className="v-book__knop" href={INSTAGRAM_DM} rel="noopener noreferrer" target="_blank">
-        Send “{BOEK_WOORD}” on Instagram
+        DM @{INSTAGRAM}
       </a>
     </div>
   );

@@ -55,13 +55,13 @@ export function FinalCta() {
       <h2 className="v-h2 v-center" id="cta-title">
         More customers. Less chasing.
       </h2>
-      <p className="v-lede v-center">AVA live on your website in 5 minutes, 7 days free. Questions first? Ask AVA in the corner, or book a call: send BOOK in a DM to @{INSTAGRAM} on Instagram.</p>
+      <p className="v-lede v-center">AVA live on your website in 5 minutes, 7 days free. Questions first? Ask AVA in the corner, or send us a DM on Instagram (@{INSTAGRAM}) starting with BOOK to plan a call.</p>
       <div className="v-final__actions">
         <a className="v-cta-primary" href="/pricing">
           Start 7-day free trial
         </a>
         <a className="v-cta-ghost" href={INSTAGRAM_DM} rel="noopener noreferrer" target="_blank">
-          Book a call
+          DM us on Instagram
         </a>
       </div>
     </section>

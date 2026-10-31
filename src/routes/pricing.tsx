@@ -202,7 +202,7 @@ function Abonnement() {
             </table>
           </div>
         </section>
-        <section className="v-pricing__boek" aria-label="Book a call">
+        <section className="v-pricing__boek" aria-label="Chat with us on Instagram">
           <h2 className="v-h2 v-center">Rather talk it through first?</h2>
           <BookCall />
         </section>
