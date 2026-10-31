@@ -27,8 +27,8 @@ export const PLANS: Record<PlanId, Plan> = {
   start: {
     id: "start",
     naam: "Start",
-    prijs: 14995,
-    prijsTekst: "149.95",
+    prijs: 14700,
+    prijsTekst: "147",
     proefDagen: 7,
     tagline: "For owners who want every website lead answered and followed up.",
     kern: ["300 AVA conversations / month", "1 user"],
@@ -45,8 +45,8 @@ export const PLANS: Record<PlanId, Plan> = {
   pro: {
     id: "pro",
     naam: "Pro",
-    prijs: 49999,
-    prijsTekst: "499.99",
+    prijs: 49700,
+    prijsTekst: "497",
     proefDagen: 7,
     tagline: "Built for teams that need follow-up, accountability and visibility.",
     badge: "Most popular",
@@ -64,8 +64,8 @@ export const PLANS: Record<PlanId, Plan> = {
   premium: {
     id: "premium",
     naam: "Premium",
-    prijs: 99999,
-    prijsTekst: "999.99",
+    prijs: 99700,
+    prijsTekst: "997",
     proefDagen: 7,
     tagline: "Everything in Pro, for high-volume sales teams.",
     badge: "For teams",
@@ -73,9 +73,7 @@ export const PLANS: Record<PlanId, Plan> = {
     features: [
       "Everything in Pro",
       "AVA on multiple websites or locations",
-      "Monthly coaching call",
-      "Dedicated account manager",
-      "VIP support via WhatsApp",
+      "Fastest support",
     ],
     limieten: { leden: null, teamChat: true, gesprekken: 5000, analyticsDagen: 90 },
   },
@@ -100,8 +98,6 @@ export const VERGELIJKING: { label: string; start: string | boolean; pro: string
   { label: "AVA trained on all your services and prices", start: false, pro: true, premium: true },
   { label: "Monthly review of your leads and AVA", start: false, pro: true, premium: true },
   { label: "AVA on multiple websites or locations", start: false, pro: false, premium: true },
-  { label: "Monthly coaching call", start: false, pro: false, premium: true },
-  { label: "Dedicated account manager", start: false, pro: false, premium: true },
-  { label: "Support", start: "Email", pro: "Priority email", premium: "VIP WhatsApp" },
+  { label: "Support", start: "Email", pro: "Priority email", premium: "Fastest" },
   { label: "Free trial", start: "7 days", pro: "7 days", premium: "7 days" },
 ];

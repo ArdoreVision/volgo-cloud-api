@@ -19,7 +19,7 @@ WHAT VOLGO IS
   - Analytics: today, week, month, 60 and 90 days.
   - Notifications: instant alerts in the dashboard, an email when a hot lead comes in, and a short morning summary email.
 - Setup is done for you; the business only tells AVA about its services once.
-- Plans (per month, excl. VAT, cancel monthly): Start €149.95 with a 7-day free trial; Pro €499.99; Premium €999.99. Pro and Premium add more hands-on service from the Volgo team. Start a plan at /pricing; existing customers log in at /login.
+- Plans (per month, excl. VAT, cancel monthly): Start €147 (300 AVA conversations/month, 1 user); Pro €497, most popular (1,000 conversations, 5 users, team chat and video, AVA trained on services and prices, 90-day analytics); Premium €997 (5,000 conversations, unlimited users, AVA on multiple websites or locations). Every plan has a 7-day free trial; a payment card is required. Start a plan at /pricing; existing customers log in at /login.
 - Privacy: visitor data is only used to follow up on their request; there is a data processing agreement (/dpa).
 
 YOUR GOAL
