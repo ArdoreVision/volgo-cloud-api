@@ -12,7 +12,18 @@ jobs:
           re() { curl -s "https://api.resend.com/$1" -H "Authorization: Bearer $R" -H "Content-Type: application/json" "${@:2}"; }
           ID=$(re domains | jq -r '.data[]? | select(.name=="thevolgo.app") | .id' | head -1)
           echo "::warning::MAIL domeinen nu: $(re domains | head -c 300)"
-          [ -n "$ID" ] || ID=$(curl -s -X POST "https://api.resend.com/domains" -H "Authorization: Bearer $R" -H "Content-Type: application/json" --data-raw '{"name":"thevolgo.app","region":"eu-west-1"}' | tee /tmp/d.json | jq -r '.id // empty')
+          if [ -z "$ID" ]; then
+            python3 - <<'PY' > /tmp/d.json
+          import json, os, urllib.request, urllib.error
+          req = urllib.request.Request("https://api.resend.com/domains", data=json.dumps({"name": "thevolgo.app", "region": "eu-west-1"}).encode(), method="POST",
+                                       headers={"Authorization": "Bearer " + os.environ["R"].strip(), "Content-Type": "application/json", "User-Agent": "volgo-setup"})
+          try:
+              print(urllib.request.urlopen(req).read().decode())
+          except urllib.error.HTTPError as e:
+              print(e.read().decode())
+          PY
+            ID=$(jq -r '.id // empty' /tmp/d.json)
+          fi
           [ -n "$ID" ] || { echo "::warning::MAIL domein toevoegen mislukt: $(cat /tmp/d.json | head -c 300)"; exit 1; }
           re domains/$ID > /tmp/dom.json
           echo "::warning::MAIL domein status $(jq -r .status /tmp/dom.json)"
