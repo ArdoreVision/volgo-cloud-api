@@ -156,7 +156,7 @@ jobs:
               await p.locator('.v-dash__nav button', { hasText: 'Settings' }).click(); await p.locator('.v-instel__nav button', { hasText: 'Notifications' }).click(); await p.waitForSelector('.v-toggle'); log('toggles: ' + (await p.locator('.v-toggle strong').allTextContents()).join(' | ')); await p.locator('.v-dash__nav button', { hasText: 'Settings' }).click(); await p.locator('.v-instel__nav button', { hasText: 'Style' }).click();
               await p.locator('.v-ed-kaart button', { hasText: 'Open the editor' }).click();
               await p.waitForSelector('.v-ed__zij'); await p.waitForTimeout(2500);
-              await p.fill('#ed-knop', 'Chat with us');
+              await p.locator('.v-ed__kaarten button', { hasText: 'Photo + text' }).click(); await p.fill('#ed-knop', 'Chat with us');
               await p.locator('.v-ed__groepkop', { hasText: 'Colour' }).click(); await p.locator('.v-ed__groepin .v-seg button', { hasText: 'Dark' }).click();
               await p.locator('.v-ed__groepkop', { hasText: 'Chat window' }).click(); await p.locator('.v-ed__kaarten button', { hasText: 'Sharp' }).click();
               await p.locator('.v-ed__groepkop', { hasText: 'Position' }).click(); await p.locator('.v-ed__groepin .v-seg button', { hasText: 'Bottom left' }).click();
