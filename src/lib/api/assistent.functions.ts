@@ -145,6 +145,7 @@ export const haalOnboarding = createServerFn({ method: "GET" }).handler(async ()
   ]);
   return {
     verborgen: Boolean(ob?.verborgen),
+    teamMogelijk: (await import("../limieten.server").then((m) => m.planVoorTeam(DB, g.team_id))).limieten.teamChat,
     sleutel: inst.sleutel,
     stappen: {
       info: inst.bedrijfsinfo.trim().length >= 40,
@@ -169,7 +170,8 @@ export const markeerOnboarding = createServerFn({ method: "POST" })
 export const accountStatus = createServerFn({ method: "GET" }).handler(async () => {
   const g = await huidigeGebruiker().catch(() => null);
   const { DB } = bindings();
-  if (!g || !DB) return { ingelogd: false, toegang: false, email: "" };
+  if (!g || !DB) return { ingelogd: false, toegang: false, email: "", plan: "", eigenaar: false };
   const { heeftToegang } = await import("../toegang.server");
-  return { ingelogd: true, toegang: await heeftToegang(DB, g.team_id), email: g.email };
+  const p = await DB.prepare("SELECT plan FROM gebruikers WHERE id = ?").bind(g.team_id).first<{ plan: string }>();
+  return { ingelogd: true, toegang: await heeftToegang(DB, g.team_id), email: g.email, plan: p?.plan ?? "", eigenaar: g.rol === "eigenaar" };
 });

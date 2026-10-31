@@ -98,6 +98,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   function open() { panel.classList.add("open"); fab.classList.add("open"); $(".dot").hidden = true; setTimeout(function () { ta.focus(); }, 250); }
   function close() { panel.classList.remove("open"); fab.classList.remove("open"); }
   fab.addEventListener("click", open);
+  window.VolgoAva = { open: open, close: close };
   $(".x").addEventListener("click", close);
   root.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
   ta.addEventListener("input", function () { send.disabled = !ta.value.trim() || busy; });

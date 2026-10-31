@@ -7,14 +7,14 @@ export function PricingPreview() {
         <h2 className="v-h2 v-center" id="price-title">
           Simple pricing.
         </h2>
-        <p className="v-lede v-center">One monthly price. Your website, AVA and the dashboard included. Cancel any month.</p>
+        <p className="v-lede v-center">Start simple. Add your team with Pro. Get full access and the website builder with Premium. Cancel any month.</p>
       </header>
       <div className="v-plans">
         {(Object.keys(PLANS) as PlanId[]).map((id) => {
           const p = PLANS[id];
           return (
             <article className={`v-plan v-plan--${id}`} key={id}>
-              {id === "pro" ? <p className="v-plan__badge">Most popular</p> : null}
+              {p.badge ? <p className="v-plan__badge">{p.badge}</p> : null}
               <h3 className="v-plan__name">{p.naam}</h3>
               <p className="v-plan__tag">{p.tagline}</p>
               <p className="v-plan__price">
@@ -33,7 +33,9 @@ export function PricingPreview() {
           );
         })}
       </div>
-      <p className="v-pricing__note">Prices per month, excluding VAT.</p>
+      <p className="v-pricing__note">
+        Prices per month, excluding VAT. <a href="/pricing#compare-title">Compare all features</a>
+      </p>
     </section>
   );
 }

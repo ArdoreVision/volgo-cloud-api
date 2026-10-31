@@ -26,6 +26,8 @@ jobs:
           q "UPDATE gebruikers SET status='actief', proef_tot=NULL WHERE email='demo@volgo.test'"
           echo "::warning::GATE actief -> $(curl -s -o /dev/null -w '%{http_code}' -b volgo_sessie=$TOKEN $U/dashboard)"
           echo "::warning::GATE uitgelogd -> $(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' $U/dashboard)"
+      - name: Demo op Premium zetten
+        run: cd /tmp && npx -y wrangler@4 d1 execute volgo-db --remote --command "UPDATE gebruikers SET plan='premium' WHERE email='demo@volgo.test'" > /dev/null 2>&1
       - name: Browser
         run: |
           mkdir -p /tmp/pw && cd /tmp/pw && npm init -y >/dev/null && { npm i playwright@1 && npx playwright install --with-deps chromium; } > i.log 2>&1 || { tail -8 i.log | sed 's/^/::error::/'; exit 1; }
@@ -132,6 +134,17 @@ jobs:
               await p.waitForSelector('.v-toggle'); log('toggles: ' + (await p.locator('.v-toggle strong').allTextContents()).join(' | '));
               await p.locator('.v-dash__nav button', { hasText: 'Subscription' }).click();
               await p.waitForSelector('.v-billing button'); await shot(p, 'subscription');
+              await p.locator('.v-dash__nav button', { hasText: 'Website' }).click();
+              await p.waitForSelector('.v-builder__ideeen button', { timeout: 20000 });
+              await p.locator('.v-builder__ideeen button').first().click();
+              await p.waitForSelector('.v-builder__msg--ava:not(.v-builder__msg--bezig)', { timeout: 90000 });
+              log('builder: ' + (await p.locator('.v-builder__msg--ava').last().textContent()));
+              await p.locator('.v-builder__balk textarea').fill('Make the main color dark green and translate the whole site to Dutch');
+              await p.locator('.v-builder__balk button').click();
+              await p.waitForFunction(() => document.querySelectorAll('.v-builder__msg--ava:not(.v-builder__msg--bezig)').length >= 2, null, { timeout: 90000 });
+              log('builder 2: ' + (await p.locator('.v-builder__msg--ava').last().textContent()));
+              await p.waitForTimeout(3500);
+              await shot(p, 'builder');
               await p.locator('.v-dash__brand').click(); await p.waitForSelector('.v-home__groet');
               await p.locator('.v-home__tips button').first().click();
               await p.waitForSelector('.v-home__msg--ava p:not(.v-home__typen)', { timeout: 40000 });

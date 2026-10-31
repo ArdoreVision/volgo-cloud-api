@@ -25,7 +25,7 @@ export function TeamChat({ data }: { data: DashData }) {
   const [tekst, setTekst] = useState("");
   const [nieuwKanaal, setNieuwKanaal] = useState<string | null>(null);
   const [uitnodigen, setUitnodigen] = useState(false);
-  const [uitnodiging, setUitnodiging] = useState<{ link: string; gemaild: boolean } | null>(null);
+  const [uitnodiging, setUitnodiging] = useState<{ link: string; gemaild: boolean; fout?: string } | null>(null);
   const [gekopieerd, setGekopieerd] = useState(false);
   const lijst = useRef<HTMLDivElement>(null);
   const laatste = useRef(0);
@@ -216,8 +216,13 @@ export function TeamChat({ data }: { data: DashData }) {
         >
           <div aria-label="Invite team members" className="v-modal__card" role="dialog">
             <h2>Invite team members</h2>
-            <p className="v-muted">Invite as many people as you like. Everyone gets their own account in your team.</p>
-            {uitnodiging ? (
+            <p className="v-muted">Everyone gets their own login for your team.</p>
+            {uitnodiging?.fout ? (
+              <div className="v-upsell v-upsell--klein">
+                <p>{uitnodiging.fout}</p>
+                <a className="v-btn-blauw" href="/pricing?upgrade=1">See plans</a>
+              </div>
+            ) : uitnodiging ? (
               <>
                 <p className="v-auth__ok">{uitnodiging.gemaild ? "Invitation sent by email" : "Invitation ready"}</p>
                 <div className="v-copy">

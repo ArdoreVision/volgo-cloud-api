@@ -1,5 +1,6 @@
 const faqs = [
-  { q: "What does it cost?", a: "Start is €149.95 per month and begins with 7 days free. Pro is €499.99 and Premium €999.99 per month. Prices exclude VAT and you can cancel any month." },
+  { q: "What does it cost?", a: "Start is €149.95 per month and begins with 7 days free. Pro is €499.99 and Premium €999.99 per month. Prices exclude VAT, you can switch plans any time and cancel any month." },
+  { q: "What's the difference between the plans?", a: "Start is just for you: your website, AVA and the dashboard. Pro adds team chat and video calls for up to 5 users, plus AVA trained on all your services and a monthly improvement round. Premium gives your whole team full access with unlimited users and the website builder, so you can change your own site by asking AVA." },
   { q: "Do I need to do anything technical?", a: "No. We build your website with AVA inside. You only tell AVA about your business in your dashboard, which takes about two minutes." },
   { q: "Can I keep my current website?", a: "Yes. Then you add AVA to your existing site with one line of code, which you'll find in your dashboard. We're happy to do it for you." },
   { q: "Does AVA sound like a robot?", a: "AVA writes short, friendly messages in your visitor's own language, and honestly says it's an AI when asked. It never makes up prices or promises; it passes those questions to you." },

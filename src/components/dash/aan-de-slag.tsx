@@ -12,10 +12,7 @@ export function AanDeSlag({ openTab }: { openTab: (t: "ava" | "team") => void })
     void haalOnboarding().then((r) => r && setD(r));
   }, []);
   if (!d || d.verborgen) return null;
-  const klaar = Object.values(d.stappen).filter(Boolean).length;
-  if (klaar === 3) return null;
-
-  const stappen = [
+  const alle = [
     { key: "info", klaar: d.stappen.info, titel: "Tell AVA about your business", uitleg: "Services, service area and opening hours. Takes two minutes.", knop: "Fill in", doe: () => openTab("ava") },
     {
       key: "getest",
@@ -31,16 +28,21 @@ export function AanDeSlag({ openTab }: { openTab: (t: "ava" | "team") => void })
     },
     { key: "team", klaar: d.stappen.team, titel: "Invite your team", uitleg: "Colleagues see the leads and can join the chat.", knop: "Invite", doe: () => openTab("team") },
   ];
+  // Start is for one person: no team step.
+  const stappen = d.teamMogelijk ? alle : alle.filter((s) => s.key !== "team");
+  const totaal = stappen.length;
+  const klaar = stappen.filter((s) => s.klaar).length;
+  if (klaar === totaal) return null;
 
   return (
     <section aria-label="Get started" className="v-start">
       <header className="v-start__kop">
         <div>
           <strong>Get started</strong>
-          <span>{klaar} of 3 done</span>
+          <span>{klaar} of {totaal} done</span>
         </div>
         <div aria-hidden="true" className="v-start__balk">
-          <i style={{ width: `${(klaar / 3) * 100}%` }} />
+          <i style={{ width: `${(klaar / totaal) * 100}%` }} />
         </div>
         <button
           aria-label="Hide"

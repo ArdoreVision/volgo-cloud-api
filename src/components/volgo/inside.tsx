@@ -3,7 +3,9 @@ const items = [
   { t: "Live conversations", d: "See who AVA is talking to right now, what they asked and how long the chat has been going.", i: "M3.5 4.5h13v9h-6l-4 3v-3h-3z" },
   { t: "Leads", d: "All inquiries in one list, warmest first. Mark them as quoted, booked or won in one tap.", i: "M3 5h14M3 10h14M3 15h9" },
   { t: "Agenda", d: "Your appointments as a clear day-by-day list or a full month, just like your phone's calendar.", i: "M3.5 5.5h13v11h-13zM3.5 8.5h13M7 3.5v3M13 3.5v3" },
-  { t: "Team chat and video", d: "Channels and private messages for your team, plus a video call with one click. Invite as many colleagues as you like.", i: "M4 5.5h12v8H9l-3.5 3v-3H4z" },
+  { t: "Team chat and video", d: "Channels, private messages and one-click video calls for your team. On Pro (up to 5 users) and Premium (unlimited).", i: "M4 5.5h12v8H9l-3.5 3v-3H4z" },
+  { t: "Website builder", d: "On Premium, change your own website by asking AVA: “Add a service”, “Make it green”. Preview, publish, undo.", i: "M3 4.5h14v11H3zM3 7.5h14M6 6h.01M8 6h.01" },
+  { t: "Your plan, your call", d: "Switch plans, update your card, download invoices or cancel yourself. No phone calls, no emails.", i: "M3 6h14v9H3zM3 9h14" },
   { t: "Analytics", d: "Conversations, leads and customers for today, this week, this month, or the last 60 or 90 days.", i: "M4 16V9M10 16V4M16 16v-5" },
 ];
 

@@ -36,8 +36,16 @@ export const startBetaling = createServerFn({ method: "POST" })
     const { DB, STRIPE_SECRET_KEY } = bindings();
     if (!DB) return { ok: false as const, message: "Database unavailable." };
 
+    // Logged in (switching plans)? Reuse the Stripe customer and skip the trial.
+    const ik = await huidigeGebruiker().catch(() => null);
+    const bestaand = ik
+      ? await DB.prepare("SELECT stripe_klant, plan FROM gebruikers WHERE id = ?").bind(ik.team_id).first<{ stripe_klant: string | null; plan: string }>()
+      : null;
+    if (ik && ik.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can change the plan." };
+
     if (STRIPE_SECRET_KEY) {
       const b = new URLSearchParams();
+      if (bestaand?.stripe_klant) b.set("customer", bestaand.stripe_klant);
       b.set("mode", "subscription");
       b.set("locale", "en");
       b.set("line_items[0][quantity]", "1");
@@ -45,7 +53,7 @@ export const startBetaling = createServerFn({ method: "POST" })
       b.set("line_items[0][price_data][unit_amount]", String(plan.prijs));
       b.set("line_items[0][price_data][recurring][interval]", "month");
       b.set("line_items[0][price_data][product_data][name]", `Volgo ${plan.naam}`);
-      if (plan.proefDagen) b.set("subscription_data[trial_period_days]", String(plan.proefDagen));
+      if (plan.proefDagen && !ik) b.set("subscription_data[trial_period_days]", String(plan.proefDagen));
       b.set("metadata[plan]", plan.id);
       // HCC is zelf de verkoper; Stripe "Managed Payments" (Stripe als verkoper) staat uit.
       b.set("managed_payments[enabled]", "false");
@@ -169,8 +177,17 @@ export const activeerAbonnement = createServerFn({ method: "POST" })
       .bind(data.token)
       .first<{ plan: string; status: string; gebruikt: number; stripe_klant: string | null; stripe_abonnement: string | null }>();
     if (!b || b.status !== "betaald" || b.gebruikt || !isPlan(b.plan)) return { ok: false as const, message: "We couldn’t find your payment." };
+    // Switching plans: stop the old Stripe subscription so the customer never pays twice.
+    const oud = await DB.prepare("SELECT stripe_abonnement FROM gebruikers WHERE id = ?").bind(g.team_id).first<{ stripe_abonnement: string | null }>();
+    const { STRIPE_SECRET_KEY } = bindings();
+    if (STRIPE_SECRET_KEY && oud?.stripe_abonnement && b.stripe_abonnement && oud.stripe_abonnement !== b.stripe_abonnement) {
+      await fetch(`https://api.stripe.com/v1/subscriptions/${encodeURIComponent(oud.stripe_abonnement)}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${STRIPE_SECRET_KEY}` },
+      }).catch((e) => console.error("[plan switch] cancel old", e));
+    }
     await DB.batch([
-      DB.prepare("UPDATE gebruikers SET plan = ?, status = 'actief', proef_tot = NULL, stripe_klant = COALESCE(NULLIF(?, ''), stripe_klant), stripe_abonnement = COALESCE(NULLIF(?, ''), stripe_abonnement) WHERE id = ?").bind(
+      DB.prepare("UPDATE gebruikers SET plan = ?, status = 'actief', proef_tot = NULL, stripe_check = NULL, stripe_klant = COALESCE(NULLIF(?, ''), stripe_klant), stripe_abonnement = COALESCE(NULLIF(?, ''), stripe_abonnement) WHERE id = ?").bind(
         b.plan,
         b.stripe_klant ?? "",
         b.stripe_abonnement ?? "",

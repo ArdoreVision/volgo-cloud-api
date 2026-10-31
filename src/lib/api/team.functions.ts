@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { hashWachtwoord, huidigeGebruiker, maakSessie, randomToken } from "../auth.server";
 import { bindings } from "../bindings.server";
+import { aantalPlekken, planVoorTeam } from "../limieten.server";
 import { dmKey } from "../team.server";
 
 async function sessie() {
@@ -11,6 +12,13 @@ async function sessie() {
   const { DB } = bindings();
   if (!g || !DB) throw new Error("Not logged in");
   return { g, DB };
+}
+
+/** Team chat and video are part of Pro and Premium. */
+async function chatSessie() {
+  const s = await sessie();
+  if (!(await planVoorTeam(s.DB, s.g.team_id)).limieten.teamChat) throw new Error("Team chat is part of Pro and Premium.");
+  return s;
 }
 
 // ── Chat ────────────────────────────────────────────────
@@ -37,7 +45,7 @@ type D1Like = NonNullable<ReturnType<typeof bindings>["DB"]>;
 export const haalBerichten = createServerFn({ method: "GET" })
   .validator((v: unknown) => doel.extend({ na_id: z.number().int().default(0) }).parse(v))
   .handler(async ({ data }) => {
-    const { g, DB } = await sessie();
+    const { g, DB } = await chatSessie();
     const f = await filter(DB, g.team_id, g.id, data);
     const rows = await DB.prepare(
       `SELECT b.id, b.tekst, b.soort, b.created_at, b.afzender_id, u.naam AS afzender
@@ -52,7 +60,7 @@ export const haalBerichten = createServerFn({ method: "GET" })
 export const stuurBericht = createServerFn({ method: "POST" })
   .validator((v: unknown) => doel.extend({ tekst: z.string().trim().min(1).max(4000), soort: z.enum(["tekst", "video"]).default("tekst") }).parse(v))
   .handler(async ({ data }) => {
-    const { g, DB } = await sessie();
+    const { g, DB } = await chatSessie();
     const f = await filter(DB, g.team_id, g.id, data);
     await DB.prepare("INSERT INTO berichten (team_id, kanaal_id, dm_key, afzender_id, tekst, soort) VALUES (?, ?, ?, ?, ?, ?)")
       .bind(g.team_id, f.kanaal_id, f.dm_key, g.id, data.tekst, data.soort)
@@ -63,7 +71,7 @@ export const stuurBericht = createServerFn({ method: "POST" })
 export const maakKanaal = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ naam: z.string().trim().min(2).max(40) }).parse(v))
   .handler(async ({ data }) => {
-    const { g, DB } = await sessie();
+    const { g, DB } = await chatSessie();
     const naam = data.naam.toLowerCase().replace(/[^a-z0-9à-ü-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "kanaal";
     const r = await DB.prepare("INSERT INTO kanalen (team_id, naam) VALUES (?, ?)").bind(g.team_id, naam).run();
     return { id: Number(r.meta?.last_row_id), naam };
@@ -74,6 +82,17 @@ export const maakUitnodiging = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ email: z.string().trim().toLowerCase().email().max(200) }).parse(v))
   .handler(async ({ data }) => {
     const { g, DB } = await sessie();
+    const plan = await planVoorTeam(DB, g.team_id);
+    if (plan.limieten.leden !== null && (await aantalPlekken(DB, g.team_id)) >= plan.limieten.leden) {
+      return {
+        link: "",
+        gemaild: false,
+        fout:
+          plan.limieten.leden === 1
+            ? "Volgo Start is for one person. Upgrade to Pro to add your team."
+            : `Your ${plan.naam} plan includes up to ${plan.limieten.leden} users. Upgrade to Premium for unlimited users.`,
+      };
+    }
     const token = randomToken(20);
     await DB.prepare("INSERT INTO uitnodigingen (token, team_id, email) VALUES (?, ?, ?)").bind(token, g.team_id, data.email).run();
     const host = getRequestHeader("host") ?? "thevolgo.app";
@@ -97,7 +116,7 @@ export const maakUitnodiging = createServerFn({ method: "POST" })
         gemaild = false;
       }
     }
-    return { link, gemaild };
+    return { link, gemaild, fout: "" };
   });
 
 export const bekijkUitnodiging = createServerFn({ method: "GET" })
@@ -122,6 +141,9 @@ export const accepteerUitnodiging = createServerFn({ method: "POST" })
     const u = await DB.prepare("SELECT team_id FROM uitnodigingen WHERE token = ? AND gebruikt = 0 AND created_at > datetime('now', '-14 days')").bind(data.token).first<{ team_id: number }>();
     if (!u) return { ok: false as const, message: "This invitation has expired or was already used." };
     const eigenaar = await DB.prepare("SELECT bedrijf, plan FROM gebruikers WHERE id = ?").bind(u.team_id).first<{ bedrijf: string; plan: string }>();
+    const lim = (await planVoorTeam(DB, u.team_id)).limieten.leden;
+    const bezet = await DB.prepare("SELECT COUNT(*) AS n FROM team_leden WHERE team_id = ? AND gebruiker_id != ?").bind(u.team_id, u.team_id).first<{ n: number }>();
+    if (lim !== null && 1 + (bezet?.n ?? 0) >= lim) return { ok: false as const, message: "This team is full on its current plan. Ask the owner to upgrade." };
     if (!eigenaar) return { ok: false as const, message: "This team no longer exists." };
     if (await DB.prepare("SELECT id FROM gebruikers WHERE email = ?").bind(data.email).first()) {
       return { ok: false as const, message: "An account with this email address already exists." };
