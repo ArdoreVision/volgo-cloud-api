@@ -57,7 +57,13 @@ export const bewaarAgenda = createServerFn({ method: "POST" })
         open_van: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
         open_tot: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
         afspraak_duur: z.number().int().min(15).max(240),
-        afspraak_soorten: z.array(z.enum(["bellen", "langs", "kantoor"])).min(1).max(3),
+        afspraak_soorten: z.array(z.enum(["bellen", "langs", "kantoor", "insta"])).min(1).max(4),
+        instagram: z
+          .string()
+          .trim()
+          .max(40)
+          .transform((v) => v.replace(/^@/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/.*$/, ""))
+          .refine((v) => v === "" || /^[A-Za-z0-9._]{1,30}$/.test(v), "Invalid Instagram username"),
         tijdzone: z.string().max(60),
       })
       .refine((d) => d.open_van < d.open_tot, "Opening time must be before closing time")
@@ -70,11 +76,12 @@ export const bewaarAgenda = createServerFn({ method: "POST" })
     } catch {
       return { ok: false, message: "Unknown time zone." };
     }
+    if (data.afspraak_soorten.includes("insta") && !data.instagram) return { ok: false, message: "Fill in your Instagram username for the Instagram option." };
     await instellingenVoorTeam(DB, g.team_id);
     await DB.prepare(
-      "UPDATE ava_instellingen SET boeken = ?, open_dagen = ?, open_van = ?, open_tot = ?, afspraak_duur = ?, afspraak_soorten = ?, tijdzone = ? WHERE team_id = ?",
+      "UPDATE ava_instellingen SET boeken = ?, open_dagen = ?, open_van = ?, open_tot = ?, afspraak_duur = ?, afspraak_soorten = ?, tijdzone = ?, instagram = ? WHERE team_id = ?",
     )
-      .bind(data.boeken ? 1 : 0, [...new Set(data.open_dagen)].sort().join(","), data.open_van, data.open_tot, data.afspraak_duur, [...new Set(data.afspraak_soorten)].join(","), data.tijdzone, g.team_id)
+      .bind(data.boeken ? 1 : 0, [...new Set(data.open_dagen)].sort().join(","), data.open_van, data.open_tot, data.afspraak_duur, [...new Set(data.afspraak_soorten)].join(","), data.tijdzone, data.instagram, g.team_id)
       .run();
     return { ok: true, message: "Saved." };
   });

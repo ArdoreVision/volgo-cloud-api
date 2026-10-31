@@ -20,8 +20,9 @@ export type AvaInstellingen = {
   open_tot: string;
   afspraak_duur: number;
   afspraak_soorten: string;
+  instagram: string;
 };
-const KOLOMMEN = "a.team_id, a.sleutel, a.naam, a.begroeting, a.bedrijfsinfo, a.kleur, a.boeken, a.tijdzone, a.open_dagen, a.open_van, a.open_tot, a.afspraak_duur, a.afspraak_soorten, g.bedrijf";
+const KOLOMMEN = "a.team_id, a.sleutel, a.naam, a.begroeting, a.bedrijfsinfo, a.kleur, a.boeken, a.tijdzone, a.open_dagen, a.open_van, a.open_tot, a.afspraak_duur, a.afspraak_soorten, a.instagram, g.bedrijf";
 
 export async function instellingenVoorTeam(DB: D1Database, teamId: number): Promise<AvaInstellingen> {
   const bestaand = await DB.prepare(
@@ -136,14 +137,15 @@ async function nieuwGesprek(DB: D1Database, inst: AvaInstellingen, onderwerp: st
 
 /** What the calendar in the chat shows: kinds of appointment, free days and times, and details we already know. */
 export async function agendaVoorChat(DB: D1Database, inst: AvaInstellingen, token?: string) {
-  const { vrijeDagen, soortenVan } = await import("./boeken.server");
+  const { vrijeDagen, zichtbareSoorten } = await import("./boeken.server");
   const bekend = token
     ? await DB.prepare("SELECT m.naam, m.contact FROM ava_gesprek_meta m JOIN ava_gesprekken g ON g.id = m.gesprek_id WHERE m.token = ? AND g.team_id = ?")
         .bind(token, inst.team_id)
         .first<{ naam: string | null; contact: string | null }>()
     : null;
   return {
-    soorten: soortenVan(inst),
+    soorten: zichtbareSoorten(inst),
+    instagram: inst.instagram,
     duur: inst.afspraak_duur,
     tijdzone: inst.tijdzone,
     dagen: await vrijeDagen(DB, inst),

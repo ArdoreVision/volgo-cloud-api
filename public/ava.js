@@ -15,8 +15,8 @@
   var T = TEKST[TAAL] || TEKST.en;
   // Texts for the appointment calendar inside the chat.
   var KAL = {
-    en: { chipBoek: "Book an appointment", chipPrijs: "What does it cost?", chipVraag: "I have a question", stap: "Step {n} of {m}", s1: "How would you like to meet?", s1h: "Tap one option.", bellen: ["Phone call", "We call you at the time you pick"], langs: ["Visit at your address", "We come to you, for example to measure"], kantoor: ["At our office", "You visit us"], s2: "Pick a day and time", s2h: "Light days still have room. Tap a day, then a time.", dicht: "Closed", vol: "Fully booked", beschikbaar: "Available", nietBeschikbaar: "Not available", vrij: "free", tz: "Times are in {tz} time", geen: "There are no free moments in the coming weeks. Type your phone number in the chat and we'll call you to plan.", s3: "Your details", s3h: "So we know who to expect and how to reach you.", naam: "Your name", contact: "Phone number or email", adres: "Address (street, number, town)", bevestig: "Confirm appointment", terug: "Back", bezig: "Booking…", klaar: "Booked", vandaag: "Today", morgen: "Tomorrow", laden: "Loading free moments…", nodig: "Please fill in all fields.", opnieuw: "Pick a time" },
-    nl: { chipBoek: "Afspraak maken", chipPrijs: "Wat kost het?", chipVraag: "Ik heb een vraag", stap: "Stap {n} van {m}", s1: "Hoe wil je afspreken?", s1h: "Tik op één keuze.", bellen: ["Telefoongesprek", "We bellen je op het moment dat jij kiest"], langs: ["Langskomen bij jou", "We komen bij je langs, bijvoorbeeld om op te meten"], kantoor: ["Bij ons op kantoor", "Jij komt bij ons langs"], s2: "Kies een dag en tijd", s2h: "Lichte dagen hebben nog plek. Tik op een dag, daarna op een tijd.", dicht: "Gesloten", vol: "Vol", beschikbaar: "Beschikbaar", nietBeschikbaar: "Niet beschikbaar", vrij: "vrij", tz: "Tijden zijn in {tz}-tijd", geen: "Er zijn de komende weken geen vrije momenten. Typ je telefoonnummer in de chat, dan bellen we je om te plannen.", s3: "Jouw gegevens", s3h: "Zodat we weten wie we verwachten en hoe we je bereiken.", naam: "Je naam", contact: "Telefoonnummer of e-mail", adres: "Adres (straat, nummer, plaats)", bevestig: "Afspraak bevestigen", terug: "Terug", bezig: "Bezig met boeken…", klaar: "Geboekt", vandaag: "Vandaag", morgen: "Morgen", laden: "Vrije momenten laden…", nodig: "Vul alle velden in.", opnieuw: "Kies een tijd" },
+    en: { chipBoek: "Book an appointment", chipPrijs: "What does it cost?", chipVraag: "I have a question", stap: "Step {n} of {m}", s1: "How would you like to meet?", s1h: "Tap one option.", bellen: ["Phone call", "We call you at the time you pick"], langs: ["Visit at your address", "We come to you, for example to measure"], kantoor: ["At our office", "You visit us"], insta: ["DM on Instagram", "Chat with us on Instagram, whenever suits you"], instaT: "Send us a DM on Instagram", instaH: "Tap the button to open Instagram. Start your message with what you need, we reply there.", instaK: "Open Instagram DM", s2: "Pick a day and time", s2h: "Light days still have room. Tap a day, then a time.", dicht: "Closed", vol: "Fully booked", beschikbaar: "Available", nietBeschikbaar: "Not available", vrij: "free", tz: "Times are in {tz} time", geen: "There are no free moments in the coming weeks. Type your phone number in the chat and we'll call you to plan.", s3: "Your details", s3h: "So we know who to expect and how to reach you.", naam: "Your name", contact: "Phone number or email", adres: "Address (street, number, town)", bevestig: "Confirm appointment", terug: "Back", bezig: "Booking…", klaar: "Booked", vandaag: "Today", morgen: "Tomorrow", laden: "Loading free moments…", nodig: "Please fill in all fields.", opnieuw: "Pick a time" },
+    nl: { chipBoek: "Afspraak maken", chipPrijs: "Wat kost het?", chipVraag: "Ik heb een vraag", stap: "Stap {n} van {m}", s1: "Hoe wil je afspreken?", s1h: "Tik op één keuze.", bellen: ["Telefoongesprek", "We bellen je op het moment dat jij kiest"], langs: ["Langskomen bij jou", "We komen bij je langs, bijvoorbeeld om op te meten"], kantoor: ["Bij ons op kantoor", "Jij komt bij ons langs"], insta: ["DM via Instagram", "Stuur ons een bericht op Instagram, wanneer het jou uitkomt"], instaT: "Stuur ons een DM op Instagram", instaH: "Tik op de knop om Instagram te openen. Zet in je bericht waar je hulp bij zoekt, we antwoorden daar.", instaK: "Instagram-DM openen", s2: "Kies een dag en tijd", s2h: "Lichte dagen hebben nog plek. Tik op een dag, daarna op een tijd.", dicht: "Gesloten", vol: "Vol", beschikbaar: "Beschikbaar", nietBeschikbaar: "Niet beschikbaar", vrij: "vrij", tz: "Tijden zijn in {tz}-tijd", geen: "Er zijn de komende weken geen vrije momenten. Typ je telefoonnummer in de chat, dan bellen we je om te plannen.", s3: "Jouw gegevens", s3h: "Zodat we weten wie we verwachten en hoe we je bereiken.", naam: "Je naam", contact: "Telefoonnummer of e-mail", adres: "Adres (straat, nummer, plaats)", bevestig: "Afspraak bevestigen", terug: "Terug", bezig: "Bezig met boeken…", klaar: "Geboekt", vandaag: "Vandaag", morgen: "Morgen", laden: "Vrije momenten laden…", nodig: "Vul alle velden in.", opnieuw: "Kies een tijd" },
   };
   var K = KAL[TAAL] || KAL.en;
   window.__volgoAva = true;
@@ -60,7 +60,7 @@
 .log{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:8px}\
 .b{max-width:84%;padding:10px 14px;border-radius:20px;font-size:15px;line-height:1.45;white-space:pre-line;word-break:break-word;animation:pop .3s cubic-bezier(.34,1.56,.64,1)}\
 .b.a{align-self:flex-start;background:#fff;color:#111318;box-shadow:0 1px 2px rgba(17,19,24,.08);border-bottom-left-radius:6px}\
-.b a{color:var(--c);font-weight:600;text-decoration:underline;text-underline-offset:2px;word-break:break-all}\
+.b a{color:var(--c);font-weight:600;text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}\
 .b.u{align-self:flex-end;background:var(--c);color:#fff;border-bottom-right-radius:6px}\
 .b.h{align-self:flex-start;background:#fff;color:#111318;box-shadow:0 1px 2px rgba(17,19,24,.08);border-bottom-left-radius:6px;border-left:3px solid #1f9d55}\
 .b.h b{display:block;font-size:12px;color:#1f9d55;margin-bottom:2px}\
@@ -195,6 +195,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     bellen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>',
     langs: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>',
     kantoor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/><path d="M16 9h2a2 2 0 0 1 2 2v10"/><path d="M8 7h4M8 11h4M8 15h4M3 21h18"/></svg>',
+    insta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>',
     kal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
   };
   var esc = function (t) { var d = document.createElement("div"); d.textContent = t == null ? "" : String(t); return d.innerHTML; };
@@ -217,6 +218,10 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
       post({ actie: "agenda", sleutel: KEY, token: state.token }).then(function (d) { k.data = d; if (dan) dan(); teken(); }).catch(function () { kaart.innerHTML = '<p class="err">' + T.net + "</p>"; });
     }
     function stappen() { return k.data && k.data.soorten.length > 1 ? 3 : 2; }
+    function instaKaart() {
+      var u = String(k.data.instagram || "").replace(/[^A-Za-z0-9._]/g, "");
+      return kop(2, K.instaT, K.instaH) + '<a class="knop" style="display:block;text-align:center;text-decoration:none" href="https://ig.me/m/' + u + '" target="_blank" rel="noopener">' + ICOON.insta.replace("<svg ", '<svg style="width:18px;height:18px;vertical-align:-3px;margin-right:6px" ') + K.instaK + "</a><p class=\"tz\">@" + esc(u) + "</p>";
+    }
     function kop(n, titel, hulp) {
       var m = stappen(), nn = m === 2 ? n - 1 : n, balk = "";
       for (var i = 1; i <= m; i++) balk += '<i class="' + (i <= nn ? "aan" : "") + '"></i>';
@@ -232,6 +237,8 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
       if (k.stap === 1) {
         h = kop(1, K.s1, K.s1h);
         d.soorten.forEach(function (s) { h += '<button class="opt" type="button" data-soort="' + s + '">' + ICOON[s] + "<span><b>" + K[s][0] + "</b><small>" + K[s][1] + "</small></span></button>"; });
+      } else if (k.stap === 2 && k.soort === "insta") {
+        h = instaKaart();
       } else if (k.stap === 2) {
         h = kop(2, K.s2, K.s2h);
         var eerste = -1;

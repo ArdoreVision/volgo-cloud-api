@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { bewaarAgenda } from "@/lib/api/ava.functions";
 
-type Inst = { boeken: number; open_dagen: string; open_van: string; open_tot: string; afspraak_duur: number; afspraak_soorten: string; tijdzone: string };
+type Inst = { boeken: number; open_dagen: string; open_van: string; open_tot: string; afspraak_duur: number; afspraak_soorten: string; tijdzone: string; instagram: string };
 
 const DAGEN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const VOLGORDE = [1, 2, 3, 4, 5, 6, 0];
@@ -10,6 +10,7 @@ const SOORTEN: [string, string, string][] = [
   ["bellen", "Phone call", "You call them at the chosen time"],
   ["langs", "Visit at their address", "You go to them, e.g. to measure. Asks for their address"],
   ["kantoor", "At your office", "They come to you"],
+  ["insta", "DM on Instagram", "Opens a DM with your Instagram account, no time slot"],
 ];
 const ZONES = ["Europe/Amsterdam", "Europe/Brussels", "Europe/London", "Europe/Berlin", "America/New_York", "America/Chicago", "America/Denver", "America/Phoenix", "America/Los_Angeles", "Australia/Sydney"];
 
@@ -22,6 +23,7 @@ export function AgendaInstellingen({ inst }: { inst: Inst }) {
   const [duur, setDuur] = useState(inst.afspraak_duur);
   const [soorten, setSoorten] = useState(inst.afspraak_soorten.split(","));
   const [zone, setZone] = useState(inst.tijdzone);
+  const [insta, setInsta] = useState(inst.instagram ?? "");
   const [melding, setMelding] = useState<{ ok: boolean; tekst: string } | null>(null);
   const zones = ZONES.includes(zone) ? ZONES : [zone, ...ZONES];
 
@@ -30,7 +32,7 @@ export function AgendaInstellingen({ inst }: { inst: Inst }) {
     if (!soorten.length) return setMelding({ ok: false, tekst: "Choose at least one kind of appointment." });
     if (van >= tot) return setMelding({ ok: false, tekst: "Opening time must be before closing time." });
     try {
-      const r = await bewaarAgenda({ data: { boeken: aan, open_dagen: dagen, open_van: van, open_tot: tot, afspraak_duur: duur, afspraak_soorten: soorten as ("bellen" | "langs" | "kantoor")[], tijdzone: zone } });
+      const r = await bewaarAgenda({ data: { boeken: aan, open_dagen: dagen, open_van: van, open_tot: tot, afspraak_duur: duur, afspraak_soorten: soorten as ("bellen" | "langs" | "kantoor" | "insta")[], tijdzone: zone, instagram: insta } });
       setMelding({ ok: r.ok, tekst: r.message });
     } catch {
       setMelding({ ok: false, tekst: "Couldn't save. Check the times and try again." });
@@ -66,6 +68,12 @@ export function AgendaInstellingen({ inst }: { inst: Inst }) {
             </label>
           ))}
         </div>
+        {soorten.includes("insta") ? (
+          <label className="v-fld v-agset__insta">
+            <span className="v-fld__label">Your Instagram username</span>
+            <input onChange={(e) => setInsta(e.target.value)} placeholder="@yourbusiness" value={insta} />
+          </label>
+        ) : null}
         <span className="v-fld__label">Days you take appointments</span>
         <div className="v-agset__dagen">
           {VOLGORDE.map((d) => (

@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import type { PointerEvent as RPointerEvent } from "react";
 
 import { Account } from "@/components/dash/account";
 import { Agenda } from "@/components/dash/agenda";
@@ -92,6 +93,48 @@ function Dashboard() {
   const [sub, setSub] = useState<Sub>("ava");
   const [meer, setMeer] = useState(false);
   const [admin, setAdmin] = useState(false);
+  // Day or night mode: remembered per device, follows the phone/computer setting the first time.
+  const [thema, setThema] = useState<"licht" | "donker">("licht");
+  useEffect(() => {
+    let t: string | null = null;
+    try {
+      t = localStorage.getItem("volgo-thema");
+    } catch {
+      /* private mode */
+    }
+    setThema(t === "donker" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "donker" : "licht");
+  }, []);
+  useEffect(() => {
+    document.documentElement.style.colorScheme = thema === "donker" ? "dark" : "light";
+    document.documentElement.dataset.thema = thema;
+    return () => {
+      document.documentElement.style.colorScheme = "";
+      delete document.documentElement.dataset.thema;
+    };
+  }, [thema]);
+  const wisselThema = () => {
+    const n = thema === "donker" ? "licht" : "donker";
+    setThema(n);
+    try {
+      localStorage.setItem("volgo-thema", n);
+    } catch {
+      /* private mode */
+    }
+  };
+  // A soft ripple where you click a button: feedback that feels alive, without being loud.
+  const rimpel = (e: RPointerEvent) => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>("button, .v-dash a");
+    if (!el || el.closest(".v-rimpel-uit")) return;
+    const r = el.getBoundingClientRect();
+    const d = Math.max(r.width, r.height) * 2;
+    const g = document.createElement("span");
+    g.className = "v-rimpel";
+    g.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
+    if (getComputedStyle(el).position === "static") el.style.position = "relative";
+    el.style.overflow = "hidden";
+    el.appendChild(g);
+    window.setTimeout(() => g.remove(), 650);
+  };
   useEffect(() => {
     void isAdmin().then(setAdmin).catch(() => setAdmin(false));
   }, []);
@@ -165,7 +208,7 @@ function Dashboard() {
   ];
 
   return (
-    <div className="volgo v-dash">
+    <div className="volgo v-dash" data-thema={thema} onPointerDown={rimpel}>
       <aside className="v-dash__side">
         <button aria-label="Volgo, go to home" className="v-nav__brand v-dash__brand" onClick={() => setTab("home")} type="button">
           <VolgoMark />
@@ -201,9 +244,22 @@ function Dashboard() {
       </aside>
 
       <div className="v-dash__profiel">
+        <button aria-label={thema === "donker" ? "Switch to day mode" : "Switch to night mode"} className="v-thema v-rimpel-uit" onClick={wisselThema} title={thema === "donker" ? "Day mode" : "Night mode"} type="button">
+          <span className="v-thema__zon" aria-hidden="true">
+            <svg fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeWidth="2" viewBox="0 0 24 24" width="18">
+              <circle cx="12" cy="12" r="4.5" />
+              <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+            </svg>
+          </span>
+          <span className="v-thema__maan" aria-hidden="true">
+            <svg fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="18">
+              <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z" />
+            </svg>
+          </span>
+        </button>
         <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} />
       </div>
-      <main className={`v-dash__main${tab === "team" && plan.limieten.teamChat ? " v-dash__main--full" : ""}${tab === "home" ? " v-dash__main--home" : ""}`}>
+      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${tab === "team" && plan.limieten.teamChat ? " v-dash__main--full" : ""}${tab === "home" ? " v-dash__main--home" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
             Your free trial has {proefDagen} {proefDagen === 1 ? "day" : "days"} left. After that, Volgo {plan.naam} continues automatically at €{plan.prijsTekst} per month.

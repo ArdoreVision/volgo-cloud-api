@@ -4,6 +4,7 @@ import type { FormEvent, KeyboardEvent } from "react";
 import { vraagAssistent } from "@/lib/api/assistent.functions";
 
 import { AanDeSlag } from "./aan-de-slag";
+import { Wereldbol } from "./wereldbol";
 
 const VOORBEELDEN = [
   "Which leads should I call first today?",
@@ -83,9 +84,21 @@ export function Home({ voornaam, bedrijf, openTab }: { voornaam: string; bedrijf
   }
 
   const leeg = berichten.length === 0;
+  // The globe folds away smoothly once you start talking to AVA, then leaves the page.
+  const [bolWeg, setBolWeg] = useState(false);
+  useEffect(() => {
+    if (leeg) return setBolWeg(false);
+    const t = window.setTimeout(() => setBolWeg(true), 750);
+    return () => window.clearTimeout(t);
+  }, [leeg]);
 
   return (
     <section className={`v-home${leeg ? " v-home--leeg" : ""}`}>
+      {!bolWeg ? (
+        <div aria-hidden="true" className={`v-home__bol${leeg ? "" : " is-weg"}`}>
+          <Wereldbol maat={240} />
+        </div>
+      ) : null}
       <header className="v-home__groet">
         <p className="v-home__tijd">
           <span>{tijd}</span> · {datum}

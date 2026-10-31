@@ -8,6 +8,9 @@ const DAGEN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
 export const SOORTEN = { bellen: "Phone call", langs: "Visit at your address", kantoor: "At our office" } as const;
 export type Soort = keyof typeof SOORTEN;
 export const isSoort = (s: string): s is Soort => s in SOORTEN;
+/** Kinds shown in the chat: the bookable ones, plus "insta" (a DM on Instagram, no time slot) when a username is set. */
+export const zichtbareSoorten = (inst: AvaInstellingen) =>
+  inst.afspraak_soorten.split(",").filter((s) => isSoort(s) || (s === "insta" && Boolean(inst.instagram)));
 
 /** Current local time of the business as "YYYY-MM-DDTHH:MM". */
 export function nuLokaal(tz: string, plusMin = 0) {
@@ -85,7 +88,7 @@ export async function vrijeDagen(DB: D1Database, inst: Inst, weken = 3) {
 
 /** Short instruction for AVA: when to open the calendar in the chat. */
 export function agendaInstructies(inst: Inst) {
-  const soorten = soortenVan(inst).map((s) => SOORTEN[s].toLowerCase()).join(", ");
+  const soorten = [...soortenVan(inst).map((s) => SOORTEN[s].toLowerCase()), ...(zichtbareSoorten(inst).includes("insta") ? ["a DM on Instagram"] : [])].join(", ");
   return `APPOINTMENTS
 - Visitors can book a ${inst.afspraak_duur}-minute appointment themselves (${soorten}) in a small calendar inside this chat. It only shows moments that are still free.
 - As soon as someone wants an appointment, a call back, a visit, a measuring visit or a quote visit, call the agenda_tonen tool. Then tell them in one or two short, friendly sentences that they can pick a day and time below, in 3 easy steps. Don't ask for their name or contact details then: the calendar asks for them. Never list dates or times yourself and never promise a time.
