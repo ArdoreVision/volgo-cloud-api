@@ -163,7 +163,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
       typ.remove();
       if (r.token) state.token = r.token;
       if (r.laatste_id) state.na = Math.max(state.na || 0, r.laatste_id);
-      if (r.mens) { mens = r.mens; zetKop(); save(state); return; }
+      if (r.mens) { mens = r.mens; zetKop(); save(state); poll(); return; }
       var a = r.antwoord || "Something went wrong. Please try again.";
       state.msgs.push({ r: "a", t: a }); save(state); bubble("a", a);
     }).catch(function () {

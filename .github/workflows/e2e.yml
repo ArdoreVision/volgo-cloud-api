@@ -146,7 +146,7 @@ jobs:
               const p2 = await bctx.newPage(); await p2.goto(U + '/demo/' + sleutel, { waitUntil: 'networkidle' }); await p2.waitForTimeout(2000);
               await p2.locator('#volgo-ava .fab').click(); await p2.waitForTimeout(800);
               await p2.locator('#volgo-ava textarea').fill('Hi, can you send me a quote for a heat pump?'); await p2.keyboard.press('Enter');
-              await p2.waitForFunction(() => document.querySelector('#volgo-ava').shadowRoot.querySelectorAll('.b.a').length >= 2, null, { timeout: 40000 });
+              await p2.waitForFunction(() => document.querySelector('#volgo-ava').shadowRoot.querySelectorAll('.b.a:not(.typ)').length >= 2, null, { timeout: 40000 });
               await p.locator('.v-dash__nav button', { hasText: 'Conversations' }).click();
               await p.waitForSelector('.v-convo__item'); await p.reload({ waitUntil: 'networkidle' }); await p.locator('.v-dash__nav button', { hasText: 'Conversations' }).click();
               await p.locator('.v-convo__item', { hasText: 'quote for a heat pump' }).first().click(); await p.waitForTimeout(1500);

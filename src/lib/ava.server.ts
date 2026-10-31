@@ -124,7 +124,8 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
   }
 
   const gid = meta.gesprek_id;
-  await DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'bezoeker', ?)").bind(gid, tekst).run();
+  const ins = await DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'bezoeker', ?)").bind(gid, tekst).run();
+  const bezoekerId = Number(ins.meta?.last_row_id) || 0;
 
   // Taken over by a person in the dashboard? Then AVA stays quiet; the person answers.
   const mens = await DB.prepare("SELECT overgenomen_naam FROM ava_gesprek_meta WHERE gesprek_id = ? AND overgenomen_door IS NOT NULL")
@@ -132,7 +133,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
     .first<{ overgenomen_naam: string }>();
   if (mens) {
     await DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), status = 'live', berichten = berichten + 1 WHERE id = ?").bind(gid).run();
-    return { token, antwoord: "", mens: mens.overgenomen_naam, laatste_id: await laatsteId(DB, gid) };
+    return { token, antwoord: "", mens: mens.overgenomen_naam, laatste_id: bezoekerId };
   }
 
   const historie = (
@@ -214,16 +215,21 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
     }
   }
 
+  // Someone took over while AVA was thinking? Then drop AVA's answer; the person replies.
+  const intussen = await DB.prepare("SELECT overgenomen_naam FROM ava_gesprek_meta WHERE gesprek_id = ? AND overgenomen_door IS NOT NULL")
+    .bind(gid)
+    .first<{ overgenomen_naam: string }>();
+  if (intussen) {
+    await DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), berichten = berichten + 1, warmte = ? WHERE id = ?").bind(warmte, gid).run();
+    return { token, antwoord: "", mens: intussen.overgenomen_naam, laatste_id: bezoekerId };
+  }
+
   await DB.batch([
     DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'ava', ?)").bind(gid, antwoord),
     DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), status = 'live', berichten = berichten + 2, warmte = ? WHERE id = ?").bind(warmte, gid),
   ]);
-  return { token, antwoord, mens: null as string | null, laatste_id: await laatsteId(DB, gid) };
-}
-
-async function laatsteId(DB: D1Database, gid: number) {
-  const r = await DB.prepare("SELECT MAX(id) AS id FROM ava_berichten WHERE gesprek_id = ?").bind(gid).first<{ id: number | null }>();
-  return r?.id ?? 0;
+  // Polling only returns team/system messages, so "after the visitor's message" never skips one.
+  return { token, antwoord, mens: null as string | null, laatste_id: bezoekerId };
 }
 
 /** For the website chat: new messages from a person (or system notes) since na_id. */
