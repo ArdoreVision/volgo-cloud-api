@@ -1,5 +1,6 @@
 import type { D1Database } from "@cloudflare/workers-types";
 
+import { huidigeGebruiker } from "./auth.server";
 import { bindings } from "./bindings.server";
 
 const OK = ["active", "trialing", "past_due"];
@@ -32,6 +33,8 @@ export async function heeftToegang(DB: D1Database, teamId: number) {
     const r = await fetch(`https://api.stripe.com/v1/subscriptions/${encodeURIComponent(e.stripe_abonnement!)}`, {
       headers: { Authorization: `Bearer ${STRIPE_SECRET_KEY}` },
     });
+    // Stripe hiccup (rate limit, 5xx)? Keep the current status and try again next time.
+    if (!r.ok) return e.status !== "verlopen";
     const s = (await r.json()) as { status?: string };
     const goed = Boolean(s.status && OK.includes(s.status));
     const nieuweStatus = goed ? (s.status === "trialing" ? "proef" : "actief") : "verlopen";
@@ -41,4 +44,13 @@ export async function heeftToegang(DB: D1Database, teamId: number) {
     console.error("[toegang stripe]", err);
     return e.status !== "verlopen"; // Stripe even onbereikbaar: klant niet buitensluiten.
   }
+}
+
+/** Logged in AND an active subscription or trial. Use for every dashboard action. */
+export async function actieveGebruiker() {
+  const g = await huidigeGebruiker();
+  const { DB } = bindings();
+  if (!g || !DB) throw new Error("You're logged out. Please log in again.");
+  if (!(await heeftToegang(DB, g.team_id))) throw new Error("Your subscription has ended. Choose a plan to continue.");
+  return g;
 }

@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { huidigeGebruiker } from "../auth.server";
 import { bindings } from "../bindings.server";
+import { amsDatum } from "../team.server";
+import { actieveGebruiker } from "../toegang.server";
 
 /** Is er iemand ingelogd? Gebruikt om ingelogde gebruikers van de landingspagina naar hun home te sturen. */
 export const isIngelogd = createServerFn({ method: "GET" }).handler(async () => {
@@ -27,6 +29,10 @@ const STATUS_EN: Record<string, string> = {
   verloren: "lost",
 };
 
+/** Appointments are stored as Amsterdam local time ("YYYY-MM-DDTHH:MM"): format without converting. */
+const lokaal = (s: string) =>
+  new Date(`${s.slice(0, 16)}:00Z`).toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
+
 const ams = (iso: string) =>
   new Date(iso.replace(" ", "T") + (iso.includes("Z") || iso.includes("+") ? "" : "Z")).toLocaleString("en-GB", {
     weekday: "short",
@@ -41,7 +47,7 @@ const ams = (iso: string) =>
 export const vraagAssistent = createServerFn({ method: "POST" })
   .validator((d: unknown) => invoer.parse(d))
   .handler(async ({ data }) => {
-    const g = await huidigeGebruiker();
+    const g = await actieveGebruiker().catch(() => null);
     if (!g) return { ok: false as const, antwoord: "You are logged out. Log in again to continue." };
     const { DB, ANTHROPIC_API_KEY, CLAUDE_MODEL } = bindings();
     if (!DB) return { ok: false as const, antwoord: "The database is temporarily unavailable." };
@@ -56,8 +62,8 @@ export const vraagAssistent = createServerFn({ method: "POST" })
       )
         .bind(team)
         .all<{ naam: string; onderwerp: string; kanaal: string; status: string; created_at: string; warmte: number; reden: string | null }>(),
-      DB.prepare("SELECT titel, start, locatie FROM afspraken WHERE team_id = ? AND start >= datetime('now', '-1 day') ORDER BY start LIMIT 25")
-        .bind(team)
+      DB.prepare("SELECT titel, start, locatie FROM afspraken WHERE team_id = ? AND substr(start, 1, 10) >= ? ORDER BY start LIMIT 25")
+        .bind(team, amsDatum(new Date()))
         .all<{ titel: string; start: string; locatie: string | null }>(),
       DB.prepare("SELECT bezoeker, onderwerp, status, laatste, warmte FROM ava_gesprekken WHERE team_id = ? ORDER BY laatste DESC LIMIT 15")
         .bind(team)
@@ -88,7 +94,7 @@ export const vraagAssistent = createServerFn({ method: "POST" })
         : ["(none)"]),
       "",
       "CALENDAR (upcoming appointments):",
-      ...(afspraken.results.length ? afspraken.results.map((a) => `- ${ams(a.start)} | ${a.titel}${a.locatie ? ` | ${a.locatie}` : ""}`) : ["(none)"]),
+      ...(afspraken.results.length ? afspraken.results.map((a) => `- ${lokaal(a.start)} | ${a.titel}${a.locatie ? ` | ${a.locatie}` : ""}`) : ["(none)"]),
       "",
       "RECENT AVA CONVERSATIONS ON THE WEBSITE:",
       ...(gesprekken.results.length
@@ -132,7 +138,7 @@ ${context}`;
 
 /** Eerste dag: welke van de drie stappen zijn al gedaan? */
 export const haalOnboarding = createServerFn({ method: "GET" }).handler(async () => {
-  const g = await huidigeGebruiker();
+  const g = await actieveGebruiker().catch(() => null);
   const { DB } = bindings();
   if (!g || !DB) return null;
   const { instellingenVoorTeam } = await import("../ava.server");
@@ -159,7 +165,7 @@ export const haalOnboarding = createServerFn({ method: "GET" }).handler(async ()
 export const markeerOnboarding = createServerFn({ method: "POST" })
   .validator((d: unknown) => z.object({ actie: z.enum(["getest", "verbergen", "geinstalleerd"]) }).parse(d))
   .handler(async ({ data }) => {
-    const g = await huidigeGebruiker();
+    const g = await actieveGebruiker().catch(() => null);
     const { DB } = bindings();
     if (!g || !DB) return { ok: false };
     const kolom = data.actie === "getest" ? "ava_getest" : data.actie === "geinstalleerd" ? "geinstalleerd" : "verborgen";

@@ -3,13 +3,14 @@ import { z } from "zod";
 
 import { huidigeGebruiker } from "../auth.server";
 import { bindings } from "../bindings.server";
+import { actieveGebruiker } from "../toegang.server";
 import { planVoorTeam } from "../limieten.server";
 import { esc, mailOpmaak, verstuurMail } from "../mail.server";
 
 const VOLGO_INBOX = "hanssenscornerstone@outlook.com";
 
 async function sessie() {
-  const g = await huidigeGebruiker();
+  const g = await actieveGebruiker().catch(() => null);
   const { DB } = bindings();
   if (!g || !DB) throw new Error("You're logged out.");
   return { g, DB, plan: await planVoorTeam(DB, g.team_id) };

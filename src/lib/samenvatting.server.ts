@@ -1,4 +1,5 @@
 import { bindings } from "./bindings.server";
+import { amsDatum } from "./team.server";
 import { SITE_URL, esc, mailOpmaak, verstuurMail } from "./mail.server";
 
 const tijd = (iso: string) =>
@@ -13,7 +14,10 @@ export async function stuurOchtendSamenvattingen() {
     .all<{ id: number; bedrijf: string }>();
   let verstuurd = 0;
 
+  const { heeftToegang } = await import("./toegang.server");
   for (const t of teams.results) {
+    // Only for businesses with an active subscription or trial.
+    if (!(await heeftToegang(DB, t.id))) continue;
     const [nieuweLeads, gesprekken, heet, afspraken, ontvangers] = await Promise.all([
       DB.prepare("SELECT COUNT(*) AS n FROM klant_leads WHERE gebruiker_id = ? AND voorbeeld = 0 AND created_at > datetime('now', '-1 day')").bind(t.id).first<{ n: number }>(),
       DB.prepare("SELECT COUNT(*) AS n FROM ava_gesprekken WHERE team_id = ? AND voorbeeld = 0 AND gestart > datetime('now', '-1 day')").bind(t.id).first<{ n: number }>(),
@@ -24,9 +28,9 @@ export async function stuurOchtendSamenvattingen() {
         .bind(t.id)
         .all<{ naam: string; onderwerp: string; warmte: number; laatste_actie: string | null }>(),
       DB.prepare(
-        "SELECT titel, start FROM afspraken WHERE team_id = ? AND voorbeeld = 0 AND date(start, '+1 hour') = date('now', '+1 hour') ORDER BY start",
+        "SELECT titel, start FROM afspraken WHERE team_id = ? AND voorbeeld = 0 AND substr(start, 1, 10) = ? ORDER BY start",
       )
-        .bind(t.id)
+        .bind(t.id, amsDatum(new Date()))
         .all<{ titel: string; start: string }>(),
       DB.prepare(
         `SELECT g.email, g.naam FROM gebruikers g LEFT JOIN team_leden tl ON tl.gebruiker_id = g.id LEFT JOIN meldingen m ON m.gebruiker_id = g.id
@@ -54,7 +58,7 @@ export async function stuurOchtendSamenvattingen() {
     if (afspraken.results.length) {
       blokken.push(
         `<p style="margin:0 0 6px;font-weight:600;color:#0b1220">On your calendar today</p><ul style="margin:0;padding-left:20px">${afspraken.results
-          .map((a) => `<li style="margin:0 0 4px">${tijd(a.start)} · ${esc(a.titel)}</li>`)
+          .map((a) => `<li style="margin:0 0 4px">${a.start.slice(11, 16)} · ${esc(a.titel)}</li>`)
           .join("")}</ul>`,
       );
     }

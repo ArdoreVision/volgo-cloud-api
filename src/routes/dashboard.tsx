@@ -277,7 +277,7 @@ function Dashboard() {
             {sub === "stijl" ? <AvaInstellen deel="stijl" /> : null}
             {sub === "installeren" ? <AvaInstellen deel="installeren" /> : null}
             {sub === "meldingen" ? <AvaInstellen deel="meldingen" /> : null}
-            {sub === "account" ? <Account g={g} loguit={() => void loguit()} /> : null}
+            {sub === "account" ? <Account g={g} leden={data.leden} loguit={() => void loguit()} /> : null}
             {sub === "abonnement" ? (
               <>
             <section className="v-dash__panel v-plan-card">

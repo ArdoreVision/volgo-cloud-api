@@ -61,6 +61,9 @@ async function mailEigenaar(DB: D1Database, team: number, warmte: number, onderw
   )
     .bind(team, team, warmte)
     .all<{ email: string }>();
+  // Max 20 lead emails per business per hour (protects against spam floods).
+  const { binnenLimiet } = await import("./limiet.server");
+  if (!(await binnenLimiet(DB, `leadmail:${team}`, 60, 20))) return;
   for (const r of ontvangers.results) await verstuurMail(r.email, onderwerp, html);
 }
 
@@ -124,6 +127,10 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
   }
 
   const gid = meta.gesprek_id;
+  const aantal = await DB.prepare("SELECT COUNT(*) AS n FROM ava_berichten WHERE gesprek_id = ?").bind(gid).first<{ n: number }>();
+  if ((aantal?.n ?? 0) >= 150) {
+    return { token, antwoord: "This chat has become very long. Please contact the business directly, they have your question.", mens: null as string | null, laatste_id: 0 };
+  }
   const ins = await DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'bezoeker', ?)").bind(gid, tekst).run();
   const bezoekerId = Number(ins.meta?.last_row_id) || 0;
 

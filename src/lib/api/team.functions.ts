@@ -1,14 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 import { hashWachtwoord, huidigeGebruiker, maakSessie, randomToken } from "../auth.server";
 import { bindings } from "../bindings.server";
+import { actieveGebruiker } from "../toegang.server";
 import { aantalPlekken, planVoorTeam } from "../limieten.server";
+import { SITE_URL, esc, mailOpmaak, verstuurMail } from "../mail.server";
 import { dmKey } from "../team.server";
 
 async function sessie() {
-  const g = await huidigeGebruiker();
+  const g = await actieveGebruiker().catch(() => null);
   const { DB } = bindings();
   if (!g || !DB) throw new Error("Not logged in");
   return { g, DB };
@@ -82,6 +83,7 @@ export const maakUitnodiging = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ email: z.string().trim().toLowerCase().email().max(200) }).parse(v))
   .handler(async ({ data }) => {
     const { g, DB } = await sessie();
+    if (g.rol !== "eigenaar") return { link: "", gemaild: false, fout: "Only the account owner can invite people." };
     const plan = await planVoorTeam(DB, g.team_id);
     if (plan.limieten.leden !== null && (await aantalPlekken(DB, g.team_id)) >= plan.limieten.leden) {
       return {
@@ -95,27 +97,16 @@ export const maakUitnodiging = createServerFn({ method: "POST" })
     }
     const token = randomToken(20);
     await DB.prepare("INSERT INTO uitnodigingen (token, team_id, email) VALUES (?, ?, ?)").bind(token, g.team_id, data.email).run();
-    const host = getRequestHeader("host") ?? "thevolgo.app";
-    const link = `https://${host}/invite?token=${token}`;
-    const { RESEND_API_KEY } = bindings();
-    let gemaild = false;
-    if (RESEND_API_KEY) {
-      try {
-        const res = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            from: "Volgo <onboarding@resend.dev>",
-            to: [data.email],
-            subject: `${g.naam} invited you to join the ${g.bedrijf} team on Volgo`,
-            html: `<div style="font-family:-apple-system,Helvetica,Arial,sans-serif;max-width:480px"><h1 style="font-size:22px">You're invited</h1><p>${g.naam} invited you to join the ${g.bedrijf} team on Volgo.</p><p><a href="${link}" style="display:inline-block;padding:12px 22px;border-radius:999px;background:#111318;color:#fff;text-decoration:none">Accept invitation</a></p></div>`,
-          }),
-        });
-        gemaild = res.ok;
-      } catch {
-        gemaild = false;
-      }
-    }
+    const link = `${SITE_URL}/invite?token=${token}`;
+    const gemaild = await verstuurMail(
+      data.email,
+      `${g.naam} invited you to the ${g.bedrijf} team on Volgo`,
+      mailOpmaak(
+        "You're invited",
+        `<p>${esc(g.naam)} invited you to join the <strong>${esc(g.bedrijf)}</strong> team on Volgo, to follow up on leads together.</p>`,
+        { tekst: "Accept invitation", url: link },
+      ),
+    );
     return { link, gemaild, fout: "" };
   });
 

@@ -5,9 +5,10 @@ import { instellingenVoorTeam } from "../ava.server";
 import { stijlSchema } from "../stijl.server";
 import { huidigeGebruiker } from "../auth.server";
 import { bindings } from "../bindings.server";
+import { actieveGebruiker } from "../toegang.server";
 
 async function sessie() {
-  const g = await huidigeGebruiker();
+  const g = await actieveGebruiker().catch(() => null);
   const { DB, ANTHROPIC_API_KEY } = bindings();
   if (!g || !DB) throw new Error("Not logged in");
   return { g, DB, aiActief: Boolean(ANTHROPIC_API_KEY) };

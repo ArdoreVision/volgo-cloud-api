@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
-import { hashIp, recentCount } from "@/lib/aanvraag.server";
+import { hashIp } from "@/lib/aanvraag.server";
 import { instellingenViaSleutel, pollGesprek, verwerkBericht } from "@/lib/ava.server";
 import { bindings } from "@/lib/bindings.server";
 
@@ -36,6 +36,14 @@ export const Route = createFileRoute("/api/ava")({
         }
         const inst = await instellingenViaSleutel(DB, body.sleutel);
         if (!inst) return json({ fout: "Unknown key" }, 404);
+        // No active subscription or trial? Then the chat is switched off on the website.
+        const { heeftToegang } = await import("@/lib/toegang.server");
+        const actief = await heeftToegang(DB, inst.team_id);
+        if (!actief) {
+          if (body.actie === "config") return json({ uit: true });
+          if (body.actie === "poll") return json({ berichten: [], mens: null, laatste_id: body.na_id });
+          return json({ antwoord: "Sorry, this chat is not available right now. Please contact the business directly." });
+        }
         if (body.actie === "config") {
           const { actieveStijl } = await import("@/lib/stijl.server");
           const stijl = await actieveStijl(DB, inst.team_id);
@@ -45,8 +53,12 @@ export const Route = createFileRoute("/api/ava")({
           return json(await pollGesprek(DB, inst.team_id, body.token, body.na_id));
         }
         const ipHash = await hashIp(request.headers.get("cf-connecting-ip") ?? "onbekend");
-        if ((await recentCount("chat_log", ipHash, 60)) >= 80) return json({ antwoord: "You've sent a lot of messages. Please try again in a little while." });
-        await DB.prepare("INSERT INTO chat_log (ip_hash) VALUES (?)").bind(ipHash).run();
+        const { binnenLimiet } = await import("@/lib/limiet.server");
+        // Anti-spam: messages per visitor, and new conversations per visitor per business.
+        if (!(await binnenLimiet(DB, `w:${ipHash}`, 60, 80))) return json({ antwoord: "You've sent a lot of messages. Please try again in a little while." });
+        if (!body.token && !(await binnenLimiet(DB, `wn:${inst.team_id}:${ipHash}`, 60, 6))) {
+          return json({ antwoord: "You've started several chats in a short time. Please continue in your earlier chat or try again later." });
+        }
         const res = await verwerkBericht(DB, inst, body.token, body.tekst);
         return json(res);
       },

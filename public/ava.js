@@ -115,7 +115,11 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     render();
   }
   host.style.setProperty("--c", "#1677d9");
-  post({ actie: "config", sleutel: KEY }).then(function (c) { if (c && !c.fout) applyConfig(c); }).catch(function () {});
+  post({ actie: "config", sleutel: KEY }).then(function (c) {
+    // Subscription ended: remove the chat from the website.
+    if (c && c.uit) { host.remove(); return; }
+    if (c && !c.fout) applyConfig(c);
+  }).catch(function () {});
   if (!state.msgs.length) setTimeout(function () { var d = $(".dot"); if (d && !panel.classList.contains("open")) d.hidden = false; }, 4000);
 
   function open() { panel.classList.add("open"); fab.classList.add("open"); $(".dot").hidden = true; setTimeout(function () { ta.focus(); }, 250); }
@@ -149,6 +153,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     }).catch(function () {});
   }
   (function lus() {
+    if (!host.isConnected) return;
     poll();
     setTimeout(lus, panel.classList.contains("open") ? 3000 : 12000);
   })();

@@ -135,9 +135,11 @@ export function TeamChat({ data }: { data: DashData }) {
           ))}
           {anderen.length === 0 ? <p className="v-chatapp__hint">Invite your team to chat privately.</p> : null}
         </div>
-        <button className="v-chatapp__invite" onClick={() => setUitnodigen(true)} type="button">
-          + Invite team members
-        </button>
+        {data.gebruiker.rol === "eigenaar" ? (
+          <button className="v-chatapp__invite" onClick={() => setUitnodigen(true)} type="button">
+            + Invite team members
+          </button>
+        ) : null}
       </aside>
 
       <section className="v-chatapp__main">

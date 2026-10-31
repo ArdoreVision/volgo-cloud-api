@@ -5,9 +5,9 @@ import { z } from "zod";
 import { hashIp, recentCount } from "../aanvraag.server";
 import { checkWachtwoord, hashWachtwoord, huidigeGebruiker, maakSessie, randomToken, sha256 } from "../auth.server";
 import { bindings } from "../bindings.server";
-import { esc, mailOpmaak, verstuurMail } from "../mail.server";
+import { SITE_URL, esc, mailOpmaak, verstuurMail } from "../mail.server";
 
-const origin = () => `https://${getRequestHeader("host") ?? "thevolgo.app"}`;
+const origin = () => SITE_URL;
 const sterk = z.string().min(8, "Choose a password of at least 8 characters.").max(200);
 
 /** Stap 1: herstellink aanvragen. Zegt altijd hetzelfde, zodat niemand kan zien welke adressen een account hebben. */
@@ -18,8 +18,10 @@ export const vraagHerstel = createServerFn({ method: "POST" })
     const algemeen = { ok: true as const, message: "If this email address is registered with Volgo, you’ll receive an email with a link within a few minutes." };
     if (!DB) return algemeen;
     const ipHash = await hashIp(getRequestHeader("cf-connecting-ip") ?? "onbekend");
-    if ((await recentCount("chat_log", ipHash, 15)) >= 30) return { ok: false as const, message: "Too many attempts. Please try again in 15 minutes." };
-    await DB.prepare("INSERT INTO chat_log (ip_hash) VALUES (?)").bind(ipHash).run();
+    const { binnenLimiet } = await import("../limiet.server");
+    if (!(await binnenLimiet(DB, `reset:${ipHash}`, 15, 10)) || !(await binnenLimiet(DB, `reset-mail:${data.email}`, 60, 3))) {
+      return { ok: false as const, message: "Too many attempts. Please try again later." };
+    }
 
     const g = await DB.prepare("SELECT id, naam FROM gebruikers WHERE email = ?").bind(data.email).first<{ id: number; naam: string }>();
     if (!g) return algemeen;
@@ -95,5 +97,8 @@ export const wijzigWachtwoord = createServerFn({ method: "POST" })
     const rij = await DB.prepare("SELECT wachtwoord FROM gebruikers WHERE id = ?").bind(g.id).first<{ wachtwoord: string }>();
     if (!rij || !(await checkWachtwoord(data.huidig, rij.wachtwoord))) return { ok: false as const, message: "Your current password is incorrect." };
     await DB.prepare("UPDATE gebruikers SET wachtwoord = ? WHERE id = ?").bind(await hashWachtwoord(data.nieuw), g.id).run();
-    return { ok: true as const, message: "Your password has been changed." };
+    // Log out everywhere else; this device stays logged in with a fresh session.
+    await DB.prepare("DELETE FROM sessies WHERE gebruiker_id = ?").bind(g.id).run();
+    await maakSessie(g.id);
+    return { ok: true as const, message: "Your password has been changed. Other devices have been logged out." };
   });

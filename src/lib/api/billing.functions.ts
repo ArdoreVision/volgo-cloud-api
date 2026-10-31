@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestHeader } from "@tanstack/react-start/server";
 
 import { huidigeGebruiker } from "../auth.server";
 import { bindings } from "../bindings.server";
+import { SITE_URL } from "../mail.server";
 
 async function stripe(key: string, path: string, body?: URLSearchParams) {
   const r = await fetch(`https://api.stripe.com/v1/${path}`, {
@@ -50,7 +50,7 @@ export const openBillingPortal = createServerFn({ method: "POST" }).handler(asyn
   try {
     const b = new URLSearchParams();
     b.set("customer", e.stripe_klant);
-    b.set("return_url", `https://${getRequestHeader("host") ?? "thevolgo.app"}/dashboard`);
+    b.set("return_url", `${SITE_URL}/dashboard`);
     b.set("configuration", await portalConfig(STRIPE_SECRET_KEY));
     b.set("locale", "en");
     const s = (await stripe(STRIPE_SECRET_KEY, "billing_portal/sessions", b)) as { url: string };

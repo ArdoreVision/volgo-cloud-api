@@ -73,7 +73,7 @@ export async function saveAndMail(a: Aanvraag, ipHash: string): Promise<{ mailed
       method: "POST",
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "Volgo Requests <onboarding@resend.dev>",
+        from: bindings().MAIL_FROM || "Volgo <onboarding@resend.dev>",
         to: [INBOX],
         reply_to: a.email,
         subject: `New demo request${a.bron === "chat" ? " (AVA chat)" : ""}: ${a.bedrijf} (${a.naam})`,

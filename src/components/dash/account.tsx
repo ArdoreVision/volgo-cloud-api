@@ -2,11 +2,13 @@ import { useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import type { FormEvent } from "react";
 
+import { verwijderLid } from "@/lib/api/account.functions";
 import { wijzigAccount, wijzigWachtwoord } from "@/lib/api/wachtwoord.functions";
 
-type G = { naam: string; bedrijf: string; email: string; rol: string; created_at: string };
+type G = { id: number; naam: string; bedrijf: string; email: string; rol: string; created_at: string };
+type Lid = { id: number; naam: string; email: string; rol: string };
 
-export function Account({ g, loguit }: { g: G; loguit: () => void }) {
+export function Account({ g, loguit, leden = [] }: { g: G; loguit: () => void; leden?: Lid[] }) {
   const router = useRouter();
   const [melding1, setMelding1] = useState<{ ok: boolean; tekst: string } | null>(null);
   const [melding2, setMelding2] = useState<{ ok: boolean; tekst: string } | null>(null);
@@ -107,6 +109,40 @@ export function Account({ g, loguit }: { g: G; loguit: () => void }) {
           </div>
         </form>
       </section>
+
+      {eigenaar && leden.length > 1 ? (
+        <section className="v-dash__panel">
+          <h2 className="v-sub">Team members</h2>
+          <ul className="v-leden">
+            {leden.map((l) => (
+              <li key={l.id}>
+                <span className="v-dash__avatar" aria-hidden="true">
+                  {l.naam.trim()[0]?.toUpperCase()}
+                </span>
+                <div>
+                  <strong>{l.naam}</strong>
+                  <small>
+                    {l.email} · {l.rol === "eigenaar" ? "Owner" : "Member"}
+                  </small>
+                </div>
+                {l.id !== g.id ? (
+                  <button
+                    className="v-linkbtn--rood"
+                    onClick={async () => {
+                      if (!window.confirm(`Remove ${l.naam} from your team? They can no longer log in.`)) return;
+                      await verwijderLid({ data: { id: l.id } });
+                      await router.invalidate();
+                    }}
+                    type="button"
+                  >
+                    Remove
+                  </button>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="v-dash__panel">
         <h2 className="v-sub">Log out</h2>
