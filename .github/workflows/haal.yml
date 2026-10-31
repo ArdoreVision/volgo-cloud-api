@@ -1,0 +1,16 @@
+name: haal
+on:
+  workflow_dispatch:
+    inputs:
+      urls: { description: "naam=url per regel, spatie gescheiden", required: true }
+permissions:
+  contents: write
+jobs:
+  h:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          mkdir -p /tmp/f && cd /tmp/f
+          for p in ${{ inputs.urls }}; do n="${p%%=*}"; u="${p#*=}"; curl -sSfL -o "$n" "$u"; done
+          ls -la
+          git init -q && git config user.name bot && git config user.email bot@x && git add -A && git commit -qm f && git push -qf https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} HEAD:adsrc
