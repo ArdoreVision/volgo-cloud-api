@@ -11,7 +11,8 @@ jobs:
           [ -n "$R" ] || { echo "::warning::MAIL geen RESEND_API_KEY in GitHub"; exit 0; }
           re() { curl -s "https://api.resend.com/$1" -H "Authorization: Bearer $R" -H "Content-Type: application/json" "${@:2}"; }
           ID=$(re domains | jq -r '.data[]? | select(.name=="thevolgo.app") | .id' | head -1)
-          [ -n "$ID" ] || ID=$(re domains -X POST -d '{"name":"thevolgo.app","region":"eu-west-1"}' | tee /tmp/d.json | jq -r '.id // empty')
+          echo "::warning::MAIL domeinen nu: $(re domains | head -c 300)"
+          [ -n "$ID" ] || ID=$(curl -s -X POST "https://api.resend.com/domains" -H "Authorization: Bearer $R" -H "Content-Type: application/json" --data-raw '{"name":"thevolgo.app","region":"eu-west-1"}' | tee /tmp/d.json | jq -r '.id // empty')
           [ -n "$ID" ] || { echo "::warning::MAIL domein toevoegen mislukt: $(cat /tmp/d.json | head -c 300)"; exit 1; }
           re domains/$ID > /tmp/dom.json
           echo "::warning::MAIL domein status $(jq -r .status /tmp/dom.json)"
@@ -23,9 +24,9 @@ jobs:
             r=$( [ -n "$ZONE" ] && curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE/dns_records" -H "Authorization: Bearer $CF" -H "Content-Type: application/json" -d "$body" | jq -r 'if .success then "toegevoegd" else (.errors[0].message // "fout") end' )
             echo "::warning::DNS $type $fqdn -> ${r:-geen toegang tot Cloudflare DNS} | waarde: ${val:0:60}"
           done
-          re domains/$ID/verify -X POST > /dev/null
+          curl -s -X POST "https://api.resend.com/domains/$ID/verify" -H "Authorization: Bearer $R" > /dev/null
           for i in $(seq 1 18); do s=$(re domains/$ID | jq -r .status); [ "$s" = verified ] && break; sleep 10; done
           echo "::warning::MAIL na controle: $s"
           if [ "$s" = verified ]; then
-            echo "::warning::MAIL testmail $(re emails -X POST -d '{"from":"Volgo <hallo@thevolgo.app>","to":["volgo.app@outlook.com"],"reply_to":"volgo.app@outlook.com","subject":"Volgo mail werkt","html":"<p>Deze testmail komt van hallo@thevolgo.app. Wachtwoordherstel, uitnodigingen en leadmeldingen gaan nu via dit adres.</p>"}' | head -c 200)"
+            echo "::warning::MAIL testmail $(curl -s -X POST "https://api.resend.com/emails" -H "Authorization: Bearer $R" -H "Content-Type: application/json" --data-raw '{"from":"Volgo <hallo@thevolgo.app>","to":["volgo.app@outlook.com"],"reply_to":"volgo.app@outlook.com","subject":"Volgo mail werkt","html":"<p>Deze testmail komt van hallo@thevolgo.app. Wachtwoordherstel, uitnodigingen en leadmeldingen gaan nu via dit adres.</p>"}' | head -c 200)"
           fi
