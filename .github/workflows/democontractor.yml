@@ -1,0 +1,58 @@
+name: Demo aannemer (VS)
+on:
+  workflow_dispatch:
+    inputs:
+      hash: { description: "wachtwoord-hash", required: true }
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      HASH: ${{ inputs.hash }}
+    steps:
+      - run: |
+          cd /tmp
+          M="contractor-demo@volgo.test"; K="60adfde15d398c471ff29dd4"; T="(SELECT id FROM gebruikers WHERE email='$M')"
+          cat > info.txt <<'INFO'
+          Bluebonnet Build Co. (a fictional demo company) is a family-run general contractor in Austin, Texas, founded in 2011. Licensed and insured. One project manager per job, a fixed written price before work starts, and a 2-year workmanship warranty.
+          Service area: Austin, Round Rock, Cedar Park, Georgetown, Pflugerville, Leander, Lakeway and Bee Cave. Outside that area we usually don't take jobs.
+          Services and typical price ranges (labor and materials, final price after a free on-site estimate):
+          - Kitchen remodel: $28,000 to $75,000. Typical timeline 4 to 8 weeks.
+          - Bathroom remodel: $14,000 to $38,000. Typical timeline 2 to 4 weeks. Walk-in shower conversion from $9,500.
+          - Home additions and garage conversions: from $90,000. Timeline 3 to 6 months, permits included.
+          - Decks and covered patios: $9,000 to $40,000. Timeline 1 to 3 weeks.
+          - Whole-home remodel: priced per project after a visit.
+          - Small repairs under $3,000 we don't do.
+          How it works: 1) free phone call or on-site estimate, 2) design and a fixed written quote within 5 business days, 3) we pull permits and schedule, 4) build with weekly updates, 5) final walkthrough. 20% deposit at signing. Financing available through a partner lender.
+          Current lead time: new projects can usually start in 4 to 6 weeks.
+          Office and showroom: 2100 S Lamar Blvd, Austin (by appointment). Hours Monday to Friday 7:30 to 17:30, Saturday 9:00 to 13:00.
+          Goal of the chat: understand the project (type, size, town, timing, budget if they want to share it), give an honest price range from the list above, and offer a free estimate. Prefer letting them book a phone call or an on-site estimate in the calendar.
+          INFO
+          sed -i 's/^          //' info.txt
+          INFO_SQL=$(sed "s/'/''/g" info.txt)
+          q() { npx -y wrangler@4 d1 execute volgo-db --remote --json --command "$1" 2>/dev/null; }
+          if [ "$(q "SELECT COUNT(*) n FROM gebruikers WHERE email='$M'" | jq -r '.[0].results[0].n')" = 1 ]; then
+            q "UPDATE gebruikers SET wachtwoord='$HASH', status='actief' WHERE email='$M'" > /dev/null
+          else
+            q "INSERT INTO gebruikers (email, naam, bedrijf, wachtwoord, plan, status, testmodus, functie) VALUES ('$M', 'Jordan Miller', 'Bluebonnet Build Co.', '$HASH', 'pro', 'actief', 1, 'Owner')" > /dev/null
+            q "INSERT INTO kanalen (team_id, naam) SELECT id, 'general' FROM gebruikers WHERE email='$M'" > /dev/null
+            q "INSERT INTO kanalen (team_id, naam) SELECT id, 'leads' FROM gebruikers WHERE email='$M'" > /dev/null
+          fi
+          cat > a.sql <<SQL
+          DELETE FROM ava_instellingen WHERE team_id = $T OR sleutel = '$K';
+          INSERT INTO ava_instellingen (team_id, sleutel, naam, begroeting, bedrijfsinfo, kleur, boeken, tijdzone, open_dagen, open_van, open_tot, afspraak_duur, afspraak_soorten)
+            SELECT id, '$K', 'AVA', 'Hi there! I''m AVA from Bluebonnet Build Co. Planning a remodel? I can give you a price range right away or book you a free estimate.', '$INFO_SQL', '#c2410c', 1, 'America/Chicago', '1,2,3,4,5,6', '08:00', '17:00', 60, 'bellen,langs,kantoor' FROM gebruikers WHERE email = '$M';
+          DELETE FROM afspraken WHERE team_id = $T AND titel LIKE '%(busy)%';
+          SQL
+          sed -i 's/^          //' a.sql
+          # A few existing jobs in the calendar, so the chat shows realistic gaps.
+          for d in 1 2 3 4 6 8; do
+            for t in "09:00 11:00" "13:00 14:00"; do
+              set -- $t
+              day=$(TZ=America/Chicago date -d "+$d day" +%F)
+              echo "INSERT INTO afspraken (team_id, titel, start, eind, locatie, notitie, voorbeeld) SELECT id, 'Site visit (busy)', '${day}T$1', '${day}T$2', 'Austin', 'Existing job', 0 FROM gebruikers WHERE email = '$M';" >> a.sql
+            done
+          done
+          npx -y wrangler@4 d1 execute volgo-db --remote --file a.sql > out.txt 2>&1 || { grep -i error out.txt | head -3 | sed 's/^/::warning::FOUT /'; exit 1; }
+          echo "::warning::DEMO $(q "SELECT g.id, g.bedrijf, a.sleutel, a.tijdzone, a.afspraak_soorten, (SELECT COUNT(*) FROM afspraken WHERE team_id = g.id) afspraken FROM gebruikers g JOIN ava_instellingen a ON a.team_id = g.id WHERE g.email='$M'" | jq -c '.[0].results')"
