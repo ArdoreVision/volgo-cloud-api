@@ -148,6 +148,9 @@ jobs:
               await p.locator('.v-dash__nav button', { hasText: 'Subscription' }).click();
               await p.waitForSelector('.v-billing button'); await shot(p, 'subscription');
               await p.locator('.v-dash__nav button', { hasText: 'Team' }).click(); await p.waitForTimeout(800); await shot(p, 'team-start');
+              await p.locator('.v-dash__nav button', { hasText: 'Website' }).click(); await p.waitForTimeout(1500);
+              if (await p.locator('#w-wensen').count()) { await shot(p, 'website-form'); await p.fill('#w-wensen', 'Pages for our services, a gallery of finished jobs and a short video on the homepage. Calm green colors.'); await p.fill('#w-domein', 'volgodemo.nl'); await p.locator('button', { hasText: 'Request my website' }).click(); await p.waitForSelector('.v-tijdlijn', { timeout: 15000 }); }
+              await shot(p, 'website-status');
               await p.goto(U + '/pricing', { waitUntil: 'networkidle' }); await p.screenshot({ path: '/tmp/shots/pricing-full.png', fullPage: true }); await p.goto(U + '/dashboard', { waitUntil: 'networkidle' });
               await p.locator('.v-dash__brand').click(); await p.waitForSelector('.v-home__groet');
               await p.locator('.v-home__tips button').first().click();
