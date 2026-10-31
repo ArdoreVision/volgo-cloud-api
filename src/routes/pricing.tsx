@@ -9,15 +9,15 @@ import { startBetaling, uitloggen } from "@/lib/api/account.functions";
 import { PLANS, type PlanId } from "@/lib/plans";
 import "@/volgo.css";
 
-export const Route = createFileRoute("/abonnement")({
-  validateSearch: (s: Record<string, unknown>): { verlopen?: string } => ({ verlopen: s.verlopen === "ja" ? "ja" : undefined }),
+export const Route = createFileRoute("/pricing")({
+  validateSearch: (s: Record<string, unknown>): { expired?: string } => ({ expired: s.expired === "1" || s.expired === 1 ? "1" : undefined }),
   loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "" })),
   head: () => ({ meta: [{ title: "Abonnementen · Volgo" }] }),
   component: Abonnement,
 });
 
 function Abonnement() {
-  const { verlopen } = Route.useSearch();
+  const { expired: verlopen } = Route.useSearch();
   const { ingelogd, toegang, email } = Route.useLoaderData();
   const [bezig, setBezig] = useState<PlanId | null>(null);
   const [fout, setFout] = useState("");
@@ -93,7 +93,7 @@ function Abonnement() {
           })}
         </div>
         {fout ? <p className="v-err v-err--c" role="alert">{fout}</p> : null}
-        <p className="v-pricing__note">Prijzen per maand, exclusief btw. Al een account? <a href="/inloggen">Log in</a>.</p>
+        <p className="v-pricing__note">Prijzen per maand, exclusief btw. Al een account? <a href="/login">Log in</a>.</p>
       </main>
       <Footer />
       <AvaChat />

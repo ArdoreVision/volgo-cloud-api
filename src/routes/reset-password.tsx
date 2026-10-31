@@ -6,7 +6,7 @@ import { AuthShell } from "@/components/volgo/auth-shell";
 import { herstelWachtwoord } from "@/lib/api/wachtwoord.functions";
 import "@/volgo.css";
 
-export const Route = createFileRoute("/wachtwoord-herstellen")({
+export const Route = createFileRoute("/reset-password")({
   validateSearch: (s: Record<string, unknown>): { token: string } => ({ token: typeof s.token === "string" ? s.token : "" }),
   head: () => ({ meta: [{ title: "Nieuw wachtwoord · Volgo" }, { name: "robots", content: "noindex" }] }),
   component: Herstellen,
@@ -56,7 +56,7 @@ function Herstellen() {
         </button>
       </form>
       <p className="v-auth__alt">
-        <a href="/wachtwoord-vergeten">Nieuwe link aanvragen</a>
+        <a href="/forgot-password">Nieuwe link aanvragen</a>
       </p>
     </AuthShell>
   );

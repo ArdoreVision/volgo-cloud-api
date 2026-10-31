@@ -51,6 +51,13 @@ export default {
     if ((url.hostname === "www.thevolgo.app" || url.hostname.endsWith(".workers.dev")) && request.method === "GET" && !url.pathname.startsWith("/api/") && url.pathname !== "/ava.js") {
       return Response.redirect(`https://thevolgo.app${url.pathname}${url.search}`, 301);
     }
+    // Oude Nederlandse adressen blijven werken.
+    const oud: Record<string, string> = {
+      "/abonnement": "/pricing", "/betalen": "/checkout", "/aanmelden": "/signup", "/inloggen": "/login",
+      "/wachtwoord-vergeten": "/forgot-password", "/wachtwoord-herstellen": "/reset-password", "/uitnodiging": "/invite",
+      "/voorwaarden": "/terms", "/verwerkersovereenkomst": "/dpa",
+    };
+    if (oud[url.pathname]) return Response.redirect(`${url.origin}${oud[url.pathname]}${url.search}`, 301);
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

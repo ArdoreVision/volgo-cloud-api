@@ -7,18 +7,18 @@ import { inloggen } from "@/lib/api/account.functions";
 import { isIngelogd } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
 
-export const Route = createFileRoute("/inloggen")({
+export const Route = createFileRoute("/login")({
   // Ingelogd? Dan direct naar je Volgo-home in plaats van de landingspagina.
   beforeLoad: async () => {
     if (await isIngelogd()) throw redirect({ to: "/dashboard" });
   },
-  validateSearch: (s: Record<string, unknown>): { nieuw?: string } => ({ nieuw: s.nieuw === "ja" ? "ja" : undefined }),
+  validateSearch: (s: Record<string, unknown>): { new?: string } => ({ new: s.new === "1" || s.new === 1 ? "1" : undefined }),
   head: () => ({ meta: [{ title: "Inloggen · Volgo" }] }),
   component: Inloggen,
 });
 
 function Inloggen() {
-  const { nieuw } = Route.useSearch();
+  const { new: nieuw } = Route.useSearch();
   const navigate = useNavigate();
   const [fout, setFout] = useState("");
   const [bezig, setBezig] = useState(false);
@@ -55,7 +55,7 @@ function Inloggen() {
         <div className="v-fld">
           <span className="v-fld__row">
             <label htmlFor="wachtwoord">Wachtwoord</label>
-            <a href="/wachtwoord-vergeten">Vergeten?</a>
+            <a href="/forgot-password">Vergeten?</a>
           </span>
           <input autoComplete="current-password" id="wachtwoord" name="wachtwoord" required type="password" />
         </div>
@@ -65,7 +65,7 @@ function Inloggen() {
         </button>
       </form>
       <p className="v-auth__alt">
-        Nog geen account? <a href="/abonnement">Kies een abonnement</a>
+        Nog geen account? <a href="/pricing">Kies een abonnement</a>
       </p>
     </AuthShell>
   );

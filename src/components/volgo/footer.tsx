@@ -9,9 +9,9 @@ export function Footer() {
       </a>
       <p>Een dienst van Hanssens Cornerstone Capital · Vlissingen · KvK 98133438</p>
       <nav aria-label="Voettekst" className="v-footer__links">
-        <a href="/voorwaarden">Voorwaarden</a>
+        <a href="/terms">Voorwaarden</a>
         <a href="/privacy">Privacy</a>
-        <a href="/verwerkersovereenkomst">Verwerkersovereenkomst</a>
+        <a href="/dpa">Verwerkersovereenkomst</a>
         <a href="/cookies">Cookies</a>
         <a href="mailto:hanssenscornerstone@outlook.com">Contact</a>
       </nav>

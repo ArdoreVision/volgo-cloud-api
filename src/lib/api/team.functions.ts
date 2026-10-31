@@ -77,7 +77,7 @@ export const maakUitnodiging = createServerFn({ method: "POST" })
     const token = randomToken(20);
     await DB.prepare("INSERT INTO uitnodigingen (token, team_id, email) VALUES (?, ?, ?)").bind(token, g.team_id, data.email).run();
     const host = getRequestHeader("host") ?? "thevolgo.app";
-    const link = `https://${host}/uitnodiging?token=${token}`;
+    const link = `https://${host}/invite?token=${token}`;
     const { RESEND_API_KEY } = bindings();
     let gemaild = false;
     if (RESEND_API_KEY) {

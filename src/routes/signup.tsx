@@ -8,7 +8,7 @@ import { isIngelogd } from "@/lib/api/assistent.functions";
 import { PLANS, isPlan } from "@/lib/plans";
 import "@/volgo.css";
 
-export const Route = createFileRoute("/aanmelden")({
+export const Route = createFileRoute("/signup")({
   validateSearch: (s: Record<string, unknown>): { token?: string; session_id?: string } => ({
     token: typeof s.token === "string" && s.token ? s.token : undefined,
     session_id: typeof s.session_id === "string" && s.session_id ? s.session_id : undefined,
@@ -37,8 +37,8 @@ function Aanmelden() {
       <AuthShell>
         <h1 className="v-auth__title">Kies eerst een abonnement.</h1>
         <p className="v-auth__sub">Je maakt een account aan nadat je een abonnement hebt gekozen en afgerond.</p>
-        <a className="v-auth__btn" href="/abonnement">Naar abonnementen</a>
-        <a className="v-auth__link" href="/inloggen">Ik heb al een account</a>
+        <a className="v-auth__btn" href="/pricing">Naar abonnementen</a>
+        <a className="v-auth__link" href="/login">Ik heb al een account</a>
       </AuthShell>
     );
   }
@@ -79,7 +79,7 @@ function Aanmelden() {
       const res = await maakAccount({
         data: { token: betaling!.token, naam: v("naam"), bedrijf: v("bedrijf"), email: v("email"), wachtwoord: String(fd.get("wachtwoord")) },
       });
-      if (res.ok) void navigate({ to: "/inloggen", search: { nieuw: "ja" } });
+      if (res.ok) void navigate({ to: "/login", search: { new: "1" } });
       else {
         setFout(res.message);
         setBezig(false);
@@ -120,8 +120,8 @@ function Aanmelden() {
           <p className="v-hint">Minimaal 8 tekens.</p>
         </div>
         <p className="v-hint v-akkoord">
-          Door je account aan te maken ga je akkoord met de <a href="/voorwaarden" target="_blank">algemene voorwaarden</a> en de{" "}
-          <a href="/verwerkersovereenkomst" target="_blank">verwerkersovereenkomst</a>.
+          Door je account aan te maken ga je akkoord met de <a href="/terms" target="_blank">algemene voorwaarden</a> en de{" "}
+          <a href="/dpa" target="_blank">verwerkersovereenkomst</a>.
         </p>
         {fout ? <p className="v-err" role="alert">{fout}</p> : null}
         <button className="v-auth__btn" disabled={bezig} type="submit">

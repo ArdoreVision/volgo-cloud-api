@@ -6,7 +6,7 @@ import { bekijkTestBetaling, rondTestBetalingAf } from "@/lib/api/account.functi
 import { PLANS, isPlan } from "@/lib/plans";
 import "@/volgo.css";
 
-export const Route = createFileRoute("/betalen")({
+export const Route = createFileRoute("/checkout")({
   validateSearch: (s: Record<string, unknown>): { token?: string } => ({ token: typeof s.token === "string" && s.token ? s.token : undefined }),
   loaderDeps: ({ search }) => ({ token: search.token ?? "" }),
   loader: ({ deps }) => (deps.token ? bekijkTestBetaling({ data: { token: deps.token } }) : null),
@@ -25,7 +25,7 @@ function Betalen() {
       <AuthShell>
         <h1 className="v-auth__title">Deze betaling bestaat niet meer.</h1>
         <p className="v-auth__sub">Kies opnieuw een abonnement om verder te gaan.</p>
-        <a className="v-auth__btn" href="/abonnement">Naar abonnementen</a>
+        <a className="v-auth__btn" href="/pricing">Naar abonnementen</a>
       </AuthShell>
     );
   }
@@ -34,7 +34,7 @@ function Betalen() {
   async function rondAf() {
     setBezig(true);
     const res = await rondTestBetalingAf({ data: { token: token ?? "" } });
-    if (res.ok || info?.status === "betaald") void navigate({ to: "/aanmelden", search: { token } });
+    if (res.ok || info?.status === "betaald") void navigate({ to: "/signup", search: { token } });
     else setBezig(false);
   }
 
@@ -67,7 +67,7 @@ function Betalen() {
       <button className="v-auth__btn" disabled={bezig} onClick={() => void rondAf()} type="button">
         {bezig ? "Even geduld" : "Betaling afronden"}
       </button>
-      <a className="v-auth__link" href="/abonnement">
+      <a className="v-auth__link" href="/pricing">
         Ander abonnement kiezen
       </a>
     </AuthShell>

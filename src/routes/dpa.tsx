@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/volgo/legal";
 import "@/volgo.css";
 
-export const Route = createFileRoute("/verwerkersovereenkomst")({
+export const Route = createFileRoute("/dpa")({
   head: () => ({ meta: [{ title: "Verwerkersovereenkomst · Volgo" }, { name: "description", content: "Hoe Volgo persoonsgegevens verwerkt voor klanten (AVG)." }] }),
   component: () => (
     <LegalPage

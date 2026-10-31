@@ -15,10 +15,10 @@ export function Hero() {
             beantwoordt en opvolgt tot de afspraak staat.
           </p>
           <div className="v-hero__actions">
-            <a className="v-cta-primary" href="/abonnement">
+            <a className="v-cta-primary" href="/pricing">
               Probeer 7 dagen gratis
             </a>
-            <a className="v-cta-ghost" href="/inloggen">
+            <a className="v-cta-ghost" href="/login">
               Ik heb al een account
             </a>
           </div>

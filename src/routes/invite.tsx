@@ -6,7 +6,7 @@ import { AuthShell } from "@/components/volgo/auth-shell";
 import { accepteerUitnodiging, bekijkUitnodiging } from "@/lib/api/team.functions";
 import "@/volgo.css";
 
-export const Route = createFileRoute("/uitnodiging")({
+export const Route = createFileRoute("/invite")({
   validateSearch: (s: Record<string, unknown>): { token?: string } => ({ token: typeof s.token === "string" && s.token ? s.token : undefined }),
   loaderDeps: ({ search }) => ({ token: search.token ?? "" }),
   loader: ({ deps }) => (deps.token ? bekijkUitnodiging({ data: { token: deps.token } }) : null),
@@ -26,7 +26,7 @@ function Uitnodiging() {
       <AuthShell>
         <h1 className="v-auth__title">Deze uitnodiging werkt niet meer.</h1>
         <p className="v-auth__sub">Vraag je collega om een nieuwe uitnodiging. Heb je al een account? Log dan in.</p>
-        <a className="v-auth__btn" href="/inloggen">Inloggen</a>
+        <a className="v-auth__btn" href="/login">Inloggen</a>
       </AuthShell>
     );
   }

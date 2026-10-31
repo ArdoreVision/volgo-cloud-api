@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/volgo/legal";
 import "@/volgo.css";
 
-export const Route = createFileRoute("/voorwaarden")({
+export const Route = createFileRoute("/terms")({
   head: () => ({ meta: [{ title: "Algemene voorwaarden · Volgo" }, { name: "description", content: "De algemene voorwaarden van Volgo." }] }),
   component: () => (
     <LegalPage
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/voorwaarden")({
       <p>
         Volgo bouwt en host een website voor de klant met AVA erin: een AI-assistent die met bezoekers chat, vragen beantwoordt, contactgegevens
         vastlegt en leads op warmte sorteert. De klant krijgt toegang tot een online dashboard met gesprekken, leads, agenda, teamchat en
-        statistieken. De inhoud van de functies per abonnement staat op de <a href="/abonnement">abonnementenpagina</a>.
+        statistieken. De inhoud van de functies per abonnement staat op de <a href="/pricing">abonnementenpagina</a>.
       </p>
 
       <h2>3. Proefperiode, prijzen en betaling</h2>
@@ -76,7 +76,7 @@ export const Route = createFileRoute("/voorwaarden")({
       <h2>10. Privacy</h2>
       <p>
         Voor gegevens van de klant zelf geldt onze <a href="/privacy">privacyverklaring</a>. Voor gegevens van bezoekers van de website van de klant
-        zijn wij verwerker en geldt de <a href="/verwerkersovereenkomst">verwerkersovereenkomst</a>. Die maakt deel uit van deze voorwaarden.
+        zijn wij verwerker en geldt de <a href="/dpa">verwerkersovereenkomst</a>. Die maakt deel uit van deze voorwaarden.
       </p>
 
       <h2>11. Toepasselijk recht</h2>

@@ -52,8 +52,8 @@ export const startBetaling = createServerFn({ method: "POST" })
       b.set("adaptive_pricing[enabled]", "false"); // altijd in euro's
       b.set("billing_address_collection", "required");
       b.set("tax_id_collection[enabled]", "true");
-      b.set("success_url", `${origin()}/aanmelden?session_id={CHECKOUT_SESSION_ID}`);
-      b.set("cancel_url", `${origin()}/abonnement`);
+      b.set("success_url", `${origin()}/signup?session_id={CHECKOUT_SESSION_ID}`);
+      b.set("cancel_url", `${origin()}/pricing`);
       try {
         const s = await stripe("checkout/sessions", { method: "POST", body: b });
         return { ok: true as const, url: String(s.url) };
@@ -65,7 +65,7 @@ export const startBetaling = createServerFn({ method: "POST" })
 
     const token = randomToken(16);
     await DB.prepare("INSERT INTO betalingen (token, plan, status, testmodus) VALUES (?, ?, 'open', 1)").bind(token, plan.id).run();
-    return { ok: true as const, url: `/betalen?token=${token}` };
+    return { ok: true as const, url: `/checkout?token=${token}` };
   });
 
 // Testbetaling: alleen zolang er geen Stripe-sleutel is.

@@ -6,7 +6,7 @@ import { AuthShell } from "@/components/volgo/auth-shell";
 import { vraagHerstel } from "@/lib/api/wachtwoord.functions";
 import "@/volgo.css";
 
-export const Route = createFileRoute("/wachtwoord-vergeten")({
+export const Route = createFileRoute("/forgot-password")({
   head: () => ({ meta: [{ title: "Wachtwoord vergeten · Volgo" }, { name: "robots", content: "noindex" }] }),
   component: Vergeten,
 });
@@ -47,7 +47,7 @@ function Vergeten() {
         </form>
       )}
       <p className="v-auth__alt">
-        <a href="/inloggen">Terug naar inloggen</a>
+        <a href="/login">Terug naar inloggen</a>
       </p>
     </AuthShell>
   );

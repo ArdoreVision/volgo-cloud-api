@@ -44,9 +44,9 @@ jobs:
             const mail = `test${Date.now()}@volgo.test`;
             await p.goto(U + '/');
             await p.locator('.v-hero__actions a', { hasText: '7 dagen' }).click();
-            await p.waitForURL('**/abonnement');
+            await p.waitForURL('**/pricing');
             await p.locator('.v-plan__cta--start').click();
-            await p.waitForURL((u) => u.hostname.includes('stripe.com') || u.pathname.startsWith('/betalen'), { timeout: 30000 }).catch(async (e) => { log('na kiezen: ' + p.url() + ' | ' + (await p.locator('.v-err').textContent().catch(() => 'geen fout'))); throw e; });
+            await p.waitForURL((u) => u.hostname.includes('stripe.com') || u.pathname.startsWith('/checkout'), { timeout: 30000 }).catch(async (e) => { log('na kiezen: ' + p.url() + ' | ' + (await p.locator('.v-err').textContent().catch(() => 'geen fout'))); throw e; });
             if (p.url().includes('stripe.com')) {
               log('stripe checkout geopend');
               await p.waitForSelector('#email', { timeout: 30000 });
@@ -68,15 +68,15 @@ jobs:
               await vul('#billingLocality', 'Vlissingen');
               await shot(p, 'stripe-ingevuld');
               await p.locator('.SubmitButton, button[type=submit]').first().click();
-              await p.waitForURL('**/aanmelden**', { timeout: 60000 }).catch(async (e) => { await shot(p, 'stripe-fout'); log('stripe bleef op ' + p.url()); throw e; });
+              await p.waitForURL('**/signup**', { timeout: 60000 }).catch(async (e) => { await shot(p, 'stripe-fout'); log('stripe bleef op ' + p.url()); throw e; });
             } else {
               log('LET OP: nog testbetaalpagina, geen Stripe');
               await p.locator('.v-auth__btn').click();
-              await p.waitForURL('**/aanmelden**');
+              await p.waitForURL('**/signup**');
             }
             await p.fill('#naam', 'Test Klant'); await p.fill('#bedrijf', 'Testbedrijf BV'); await p.fill('#email', mail); await p.fill('#wachtwoord', 'geheim12345');
             await p.locator('.v-auth__btn').click();
-            await p.waitForURL('**/inloggen**');
+            await p.waitForURL('**/login**');
             await p.waitForSelector('text=Je account is aangemaakt');
             await p.fill('#email', mail); await p.fill('#wachtwoord', 'geheim12345'); await p.locator('.v-auth__btn').click();
             await p.waitForURL('**/dashboard', { timeout: 20000 }).catch(async () => { log('login fout: ' + p.url() + ' | ' + (await p.locator('main').innerText()).replace(/\n/g, ' / ').slice(0, 300)); await shot(p, 'loginfout'); throw new Error('stop'); });
@@ -89,10 +89,10 @@ jobs:
             const ctx = await b.newContext({ viewport: { width: 1366, height: 860 }, deviceScaleFactor: 2 });
             const p = await ctx.newPage();
             p.on('pageerror', (e) => log('JS-fout: ' + e.message));
-            for (const r of ['/voorwaarden', '/verwerkersovereenkomst', '/cookies', '/privacy', '/wachtwoord-vergeten', '/og.png']) {
+            for (const r of ['/terms', '/dpa', '/cookies', '/privacy', '/forgot-password', '/og.png']) {
               const res = await p.goto(U + r); log('pagina ' + r + ' ' + res.status());
             }
-            await p.goto(U + '/wachtwoord-vergeten'); await shot(p, 'vergeten');
+            await p.goto(U + '/forgot-password'); await shot(p, 'vergeten');
             await p.fill('#email', 'demo@volgo.test'); await p.click('button[type=submit]');
             await p.waitForSelector('.v-auth__ok, .v-err', { timeout: 15000 });
             log('vergeten -> ' + (await p.locator('.v-auth__ok, .v-err').first().textContent()));
@@ -100,8 +100,8 @@ jobs:
             const font = await p.evaluate(() => [getComputedStyle(document.querySelector('h1')).fontFamily, getComputedStyle(document.body.querySelector('.volgo')).fontFamily, document.fonts.check('600 40px "Bricolage Grotesque"')]);
             log('fonts ' + JSON.stringify(font));
             await shot(p, 'landing');
-            await p.goto(U + '/inloggen'); await shot(p, 'inloggen');
-            await p.goto(U + '/voorwaarden'); await shot(p, 'voorwaarden');
+            await p.goto(U + '/login'); await shot(p, 'inloggen');
+            await p.goto(U + '/terms'); await shot(p, 'voorwaarden');
             await ctx.close();
           }
           for (const [naam, vp] of [['desktop', { width: 1366, height: 860 }], ['mobiel', { width: 390, height: 844 }]]) {

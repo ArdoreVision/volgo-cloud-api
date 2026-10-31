@@ -27,7 +27,7 @@ export const vraagHerstel = createServerFn({ method: "POST" })
     await DB.prepare("INSERT INTO wachtwoord_resets (token_hash, gebruiker_id, verloopt) VALUES (?, ?, datetime('now', '+1 hour'))")
       .bind(await sha256(token), g.id)
       .run();
-    const link = `${origin()}/wachtwoord-herstellen?token=${token}`;
+    const link = `${origin()}/reset-password?token=${token}`;
     const verstuurd = await verstuurMail(
       data.email,
       "Nieuw wachtwoord voor Volgo",
