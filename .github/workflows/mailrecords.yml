@@ -1,0 +1,14 @@
+name: Mail records
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  m:
+    runs-on: ubuntu-latest
+    env:
+      R: ${{ secrets.RESEND_API_KEY }}
+    steps:
+      - run: |
+          mkdir -p /tmp/r && cd /tmp/r
+          curl -s "https://api.resend.com/domains/5eb3e58d-e1cf-43fa-9642-00ee3366b3b2" -H "Authorization: Bearer $R" | jq '.records' > records.json
+          git init -q && git config user.name bot && git config user.email bot@x && git add -A && git commit -qm r && git push -qf https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} HEAD:mailrec
