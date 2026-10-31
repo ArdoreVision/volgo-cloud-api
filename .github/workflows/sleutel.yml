@@ -1,0 +1,12 @@
+name: Sleutel opzoeken
+on: workflow_dispatch
+jobs:
+  s:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - run: |
+          cd /tmp
+          npx -y wrangler@4 d1 execute volgo-db --remote --json --command "SELECT g.id, g.email, g.bedrijf, g.plan, g.status, a.naam, a.begroeting, substr(a.bedrijfsinfo,1,200) info, a.boeken, a.afspraak_soorten, a.tijdzone, a.open_van, a.open_tot, a.afspraak_duur FROM ava_instellingen a JOIN gebruikers g ON g.id = a.team_id WHERE a.sleutel = 'c2c0abaa339e5c0a8c9e4064'" 2>/dev/null | jq -c '.[0].results' | sed 's/^/::warning::SLEUTEL /'

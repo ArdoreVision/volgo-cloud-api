@@ -1584,7 +1584,7 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .v-dash[data-thema="donker"] :is(.v-videobtn, .v-callcard, .v-ava__item--live, .v-badge--groen, .v-auth__ok) { background-color: rgba(34, 197, 94, 0.13); color: #7ee2a8; }
 .v-dash[data-thema="donker"] .v-badge--rood { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
 .v-dash[data-thema="donker"] .v-mens-badge, .v-dash[data-thema="donker"] .v-heat--warm { background: rgba(245, 159, 0, 0.16); color: #ffc46b; }
-.v-dash[data-thema="donker"] .v-toggle i { background: #2b3443; }
+.v-dash[data-thema="donker"] .v-toggle input:not(:checked) + i { background: #2b3443; }
 .v-dash[data-thema="donker"] .v-toast { background: rgba(22, 28, 38, 0.95); color: var(--ink); box-shadow: 0 0 0 1px var(--line), 0 18px 40px rgba(0, 0, 0, 0.45); }
 .v-dash[data-thema="donker"] .v-meter__balk { background: #232c39; }
 .v-dash[data-thema="donker"] .v-wv__b--a, .v-dash[data-thema="donker"] .v-na__slot { background: #1c2430; }
