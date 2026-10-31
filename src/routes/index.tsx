@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
 import { AvaChat } from "@/components/volgo/ava-chat";
 import { Bento } from "@/components/volgo/bento";
@@ -14,17 +14,14 @@ import { isIngelogd } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/")({
-  // Ingelogd? Dan direct naar je Volgo-home in plaats van de landingspagina.
-  beforeLoad: async () => {
-    if (await isIngelogd()) throw redirect({ to: "/dashboard" });
-  },
+  loader: async () => ({ ingelogd: await isIngelogd().catch(() => false) }),
   component: Index,
 });
 
 function Index() {
   return (
     <div className="volgo">
-      <Nav />
+      <Nav ingelogd={Route.useLoaderData().ingelogd} />
       <main>
         <Hero />
         <Problem />

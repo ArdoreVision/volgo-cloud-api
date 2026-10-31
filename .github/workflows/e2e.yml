@@ -52,7 +52,7 @@ jobs:
             const p = await ctx.newPage();
             p.on('pageerror', (e) => log(naam + ' JS-fout: ' + e.message));
             await p.goto(U + '/', { waitUntil: 'networkidle' });
-            log(naam + ' / gaat naar ' + new URL(p.url()).pathname);
+            log(naam + ' / blijft op ' + new URL(p.url()).pathname + ' knop: ' + (await p.locator('.v-nav__cta').textContent())); await p.goto(U + '/dashboard', { waitUntil: 'networkidle' });
             await p.waitForSelector('.v-start', { timeout: 10000 }).catch(() => log(naam + ' geen aan-de-slag'));
             await shot(p, naam + '-home');
             if (naam === 'desktop') {

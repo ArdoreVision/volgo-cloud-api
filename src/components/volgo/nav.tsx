@@ -1,6 +1,6 @@
 import { VolgoMark } from "./logo";
 
-export function Nav() {
+export function Nav({ ingelogd = false }: { ingelogd?: boolean }) {
   return (
     <header className="v-nav">
       <div className="v-nav__inner">
@@ -12,14 +12,22 @@ export function Nav() {
           <a href="/#hoe">Hoe het werkt</a>
           <a href="/abonnement">Abonnementen</a>
           <a href="/#vragen">Vragen</a>
-          <a href="/inloggen">Inloggen</a>
+          {ingelogd ? null : <a href="/inloggen">Inloggen</a>}
         </nav>
-        <a className="v-nav__login" href="/inloggen">
-          Inloggen
-        </a>
-        <a className="v-nav__cta" href="/abonnement">
-          Probeer gratis
-        </a>
+        {ingelogd ? null : (
+          <a className="v-nav__login" href="/inloggen">
+            Inloggen
+          </a>
+        )}
+        {ingelogd ? (
+          <a className="v-nav__cta" href="/dashboard">
+            Naar dashboard
+          </a>
+        ) : (
+          <a className="v-nav__cta" href="/abonnement">
+            Probeer gratis
+          </a>
+        )}
       </div>
     </header>
   );
