@@ -2,6 +2,9 @@ import { bindings } from "./bindings.server";
 
 export const SITE_URL = "https://thevolgo.app";
 
+/** Volgo's own inbox: every new signup is announced here. */
+export const VOLGO_INBOX = "volgo.app@outlook.com";
+
 export const esc = (v: string) => v.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c);
 
 /** Nette, eenvoudige Volgo-mail. `inhoud` is al veilige HTML. */

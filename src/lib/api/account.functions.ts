@@ -5,7 +5,7 @@ import { z } from "zod";
 import { hashIp, recentCount } from "../aanvraag.server";
 import { checkWachtwoord, hashWachtwoord, huidigeGebruiker, maakSessie, randomToken, stopSessie } from "../auth.server";
 import { bindings } from "../bindings.server";
-import { SITE_URL } from "../mail.server";
+import { SITE_URL, VOLGO_INBOX, esc, mailOpmaak, verstuurMail } from "../mail.server";
 import { PLANS, isPlan } from "../plans";
 import { seedTeam, zorgVoorKanaal } from "../team.server";
 import { actieveGebruiker, heeftToegang } from "../toegang.server";
@@ -213,6 +213,18 @@ export const maakAccount = createServerFn({ method: "POST" })
     const id = Number(res.meta?.last_row_id);
     await seedTeam(DB, id);
     await zorgVoorKanaal(DB, id);
+    // Tell the Volgo inbox about every new signup. Never blocks or fails the signup itself.
+    await verstuurMail(
+      VOLGO_INBOX,
+      `New signup: ${data.bedrijf} (${plan.naam})`,
+      mailOpmaak(
+        `New signup: ${esc(data.bedrijf)}`,
+        `<p><strong>${esc(data.naam)}</strong> · ${esc(data.email)}</p>
+         <p>Plan: <strong>${plan.naam}</strong>${plan.proefDagen ? ` · ${plan.proefDagen}-day free trial` : ""}${b.testmodus ? " · <em>test payment</em>" : ""}</p>
+         <p style="color:#64748b">Account #${id} · ${new Date().toISOString().replace("T", " ").slice(0, 16)} UTC</p>`,
+        { tekst: "Open admin", url: `${origin()}/admin` },
+      ),
+    ).catch(() => false);
     return { ok: true as const };
   });
 
