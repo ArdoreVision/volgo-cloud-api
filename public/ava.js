@@ -3,6 +3,15 @@
   "use strict";
   var script = document.currentScript;
   if (!script || window.__volgoAva) return;
+  // Widget texts follow the language of the website (<html lang="...">); AVA itself replies in the visitor's language.
+  var TEKST = {
+    en: { net: "No connection. Please try again in a moment.", vraag: "Ask a question", vraagNaam: "Ask ", snel: "Replies instantly", team: " from the team is here", typ: "Type your question...", ai: "AI assistant", fout: "Something went wrong. Please try again.", open: "Open chat", sluit: "Close", stuur: "Send" },
+    nl: { net: "Geen verbinding. Probeer het zo opnieuw.", vraag: "Stel een vraag", vraagNaam: "Vraag het ", snel: "Reageert direct", team: " van het team is er", typ: "Typ je vraag...", ai: "AI-assistent", fout: "Er ging iets mis. Probeer het opnieuw.", open: "Chat openen", sluit: "Sluiten", stuur: "Versturen" },
+    de: { net: "Keine Verbindung. Bitte gleich erneut versuchen.", vraag: "Frage stellen", vraagNaam: "Frag ", snel: "Antwortet sofort", team: " aus dem Team ist da", typ: "Ihre Frage...", ai: "KI-Assistent", fout: "Etwas ist schiefgelaufen. Bitte erneut versuchen.", open: "Chat öffnen", sluit: "Schließen", stuur: "Senden" },
+    fr: { net: "Pas de connexion. Réessayez dans un instant.", vraag: "Poser une question", vraagNaam: "Demandez à ", snel: "Répond immédiatement", team: " de l'équipe est là", typ: "Votre question...", ai: "Assistant IA", fout: "Une erreur s'est produite. Réessayez.", open: "Ouvrir le chat", sluit: "Fermer", stuur: "Envoyer" },
+    es: { net: "Sin conexión. Inténtalo de nuevo en un momento.", vraag: "Haz una pregunta", vraagNaam: "Pregunta a ", snel: "Responde al instante", team: " del equipo está aquí", typ: "Escribe tu pregunta...", ai: "Asistente IA", fout: "Algo salió mal. Inténtalo de nuevo.", open: "Abrir chat", sluit: "Cerrar", stuur: "Enviar" },
+  };
+  var T = TEKST[((document.documentElement.lang || navigator.language || "en").slice(0, 2)).toLowerCase()] || TEKST.en;
   window.__volgoAva = true;
   var KEY = script.getAttribute("data-key");
   var BASE = new URL(script.src).origin;
@@ -76,11 +85,11 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
 @media (max-width:640px){.links .panel{left:0}.fab span{display:none}.fab{padding:6px}.panel{right:0;bottom:0;width:100%;height:100%;border-radius:0}}\
 ";
   root.innerHTML = "<style>" + css + "</style><div class=\"w\">" +
-    '<button class="fab" type="button" aria-label="Open chat"><img alt="" src="' + BASE + '/assets/volgo/ava.png"><span class="lbl">Ask a question</span><i class="dot" hidden></i></button>' +
-    '<section class="panel" role="dialog" aria-label="Chat"><div class="head"><img alt="" src="' + BASE + '/assets/volgo/ava.png"><div><strong class="nm">AVA</strong><small><i></i><span class="sub">Replies instantly</span></small></div><button class="x" type="button" aria-label="Close">×</button></div>' +
+    '<button class="fab" type="button" aria-label="' + T.open + '"><img alt="" src="' + BASE + '/assets/volgo/ava.png"><span class="lbl">' + T.vraag + '</span><i class="dot" hidden></i></button>' +
+    '<section class="panel" role="dialog" aria-label="Chat"><div class="head"><img alt="" src="' + BASE + '/assets/volgo/ava.png"><div><strong class="nm">AVA</strong><small><i></i><span class="sub">' + T.snel + '</span></small></div><button class="x" type="button" aria-label="' + T.sluit + '">×</button></div>' +
     '<div class="log" role="log" aria-live="polite"></div>' +
-    '<form><textarea rows="1" maxlength="1500" placeholder="Type your question..." aria-label="Message"></textarea><button class="send" type="submit" aria-label="Send" disabled>↑</button></form>' +
-    '<p class="note">AI assistant<span class="merk"> · <a href="' + BASE + '" target="_blank" rel="noopener">Volgo</a></span></p></section></div>';
+    '<form><textarea rows="1" maxlength="1500" placeholder="' + T.typ + '" aria-label="' + T.typ + '"></textarea><button class="send" type="submit" aria-label="' + T.stuur + '" disabled>↑</button></form>' +
+    '<p class="note">' + T.ai + '<span class="merk"> · <a href="' + BASE + '" target="_blank" rel="noopener">Volgo</a></span></p></section></div>';
 
   var $ = function (s) { return root.querySelector(s); };
   var fab = $(".fab"), panel = $(".panel"), log = $(".log"), form = $("form"), ta = $("textarea"), send = $(".send");
@@ -105,7 +114,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     root.querySelector(".panel").style.setProperty("--c", c.kleur || "#1677d9");
     fab.style.setProperty("--c", c.kleur || "#1677d9");
     $(".nm").textContent = c.naam + " · " + c.bedrijf;
-    $(".lbl").textContent = c.knoptekst || "Ask " + c.naam;
+    $(".lbl").textContent = c.knoptekst || T.vraagNaam + c.naam;
     // Own style (Pro and Premium): photo, position, theme, shape, font, no Volgo mention.
     var w = $(".w");
     w.className = "w" + (c.positie === "links" ? " links" : "") + (c.thema === "donker" ? " donker" : "") + (c.vorm === "strak" ? " strak" : "") + (c.lettertype === "website" ? " wf" : "");
@@ -138,7 +147,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   var mens = null;
   function zetKop() {
     var sub = $(".sub");
-    if (sub) sub.textContent = mens ? mens + " from the team is here" : "Replies instantly";
+    if (sub) sub.textContent = mens ? mens + T.team : T.snel;
   }
   function poll() {
     if (!state.token) return;
@@ -172,10 +181,10 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
       if (r.token) state.token = r.token;
       if (r.laatste_id) state.na = Math.max(state.na || 0, r.laatste_id);
       if (r.mens) { mens = r.mens; zetKop(); save(state); poll(); return; }
-      var a = r.antwoord || "Something went wrong. Please try again.";
+      var a = r.antwoord || T.fout;
       state.msgs.push({ r: "a", t: a }); save(state); bubble("a", a);
     }).catch(function () {
-      typ.remove(); bubble("a", "No connection. Please try again in a moment.");
+      typ.remove(); bubble("a", T.net);
     }).then(function () { busy = false; send.disabled = !ta.value.trim(); });
   }
 })();
