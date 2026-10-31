@@ -1,0 +1,119 @@
+name: Live demo testen
+on:
+  workflow_dispatch:
+    inputs:
+      pw: { description: "wachtwoord demo", required: true }
+permissions:
+  contents: write
+jobs:
+  t:
+    runs-on: ubuntu-latest
+    env:
+      PW: ${{ inputs.pw }}
+      U: https://thevolgo.app
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - run: |
+          mkdir -p /tmp/pw /tmp/shots && cd /tmp/pw && npm init -y >/dev/null && npm i playwright@1 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
+          cat > t.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const log = (m) => console.log('::warning::LIVE ' + m);
+          const b = await chromium.launch();
+          const U = process.env.U;
+          // 1. Landing page, desktop: the sample site scrolls along
+          {
+            const c = await b.newContext({ viewport: { width: 1440, height: 900 } });
+            const p = await c.newPage(); p.on('pageerror', (e) => log('JS-fout landing: ' + e.message));
+            await p.goto(U + '/', { waitUntil: 'networkidle' });
+            const top = await p.evaluate(() => document.querySelector('#demo').getBoundingClientRect().top + scrollY);
+            await p.evaluate((y) => scrollTo(0, y - 60), top); await p.waitForTimeout(3500);
+            await p.screenshot({ path: '/tmp/shots/1-demo-start.png' });
+            const fr = p.frameLocator('.vx-live__scherm iframe');
+            const baan = await p.evaluate(() => document.querySelector('.vx-live__baan').getBoundingClientRect().height);
+            log('baan hoogte ' + Math.round(baan));
+            for (const [n, f] of [['2', 0.4], ['3', 0.85]]) {
+              await p.evaluate(([y, h, f]) => scrollTo(0, y + h * f - 400), [top, baan, f]); await p.waitForTimeout(900);
+              const sy = await p.frame({ url: /contractor/ }).evaluate(() => scrollY);
+              log('na scrollen ' + f + ': website scrollY ' + Math.round(sy));
+              await p.screenshot({ path: `/tmp/shots/${n}-demo-scroll.png` });
+            }
+            // Book via the calendar inside the sample site
+            await p.evaluate((y) => scrollTo(0, y - 60), top); await p.waitForTimeout(800);
+            await p.locator('.vx-live__knoppen button', { hasText: 'Book an appointment' }).click();
+            await fr.locator('.kal .opt').first().waitFor({ timeout: 20000 });
+            await p.waitForTimeout(500); await p.screenshot({ path: '/tmp/shots/4-kal-stap1.png' });
+            await fr.locator('.kal .opt', { hasText: 'Phone call' }).click(); await p.waitForTimeout(500);
+            const weg = await fr.locator('.kal .dg.weg').count(), vrij = await fr.locator('.kal .dg:not(.weg)').count(), tw = await fr.locator('.kal .tijd.weg').count();
+            log(`kalender: ${vrij} beschikbare dagen, ${weg} donkere dagen, ${tw} bezette tijden op gekozen dag`);
+            await p.screenshot({ path: '/tmp/shots/5-kal-stap2.png' });
+            await fr.locator('.kal .tijd:not(.weg)').first().click(); await p.waitForTimeout(400);
+            await fr.locator('.kal input[name=naam]').fill('Test Booking');
+            await fr.locator('.kal input[name=contact]').fill('(512) 555-0199');
+            await p.screenshot({ path: '/tmp/shots/6-kal-stap3.png' });
+            await fr.locator('.kal .knop').click();
+            await fr.locator('.kal.ok').waitFor({ timeout: 20000 }).catch(async () => log('boeken fout: ' + await fr.locator('.kal .err').textContent().catch(() => '?')));
+            await p.waitForTimeout(800);
+            log('geboekt: ' + (await fr.locator('.kal.ok').innerText().catch(() => '?')).replace(/\n/g, ' ') + ' | AVA: ' + (await fr.locator('.b.a').last().textContent()));
+            await p.screenshot({ path: '/tmp/shots/7-kal-klaar.png' });
+            await c.close();
+          }
+          // 2. A visitor asks AVA questions on the full site
+          {
+            const c = await b.newContext({ viewport: { width: 1440, height: 900 } });
+            const p = await c.newPage();
+            await p.goto(U + '/voorbeeld/contractor', { waitUntil: 'networkidle' }); await p.waitForTimeout(1500);
+            await p.locator('#volgo-ava .fab').click(); await p.waitForTimeout(600);
+            await p.screenshot({ path: '/tmp/shots/8-chat-open.png' });
+            const vraag = async (t) => {
+              const n = await p.locator('#volgo-ava .b.a').count();
+              await p.locator('#volgo-ava textarea').fill(t); await p.keyboard.press('Enter');
+              await p.locator('#volgo-ava .b.a:not(.typ)').nth(n).waitFor({ timeout: 60000 });
+              await p.waitForTimeout(700);
+              log('vraag: ' + t + ' || AVA: ' + (await p.locator('#volgo-ava .b.a:not(.typ)').nth(n).textContent()).slice(0, 300) + ' || kalender open: ' + (await p.locator('#volgo-ava .kal').count()));
+            };
+            await vraag('How much does a kitchen remodel cost? Our kitchen is about 200 sq ft.');
+            await vraag('Do you work in Round Rock? And can someone come by to look at it?');
+            await p.waitForTimeout(1500); await p.screenshot({ path: '/tmp/shots/9-chat-agenda.png' });
+            await c.close();
+          }
+          // 3. Mobile
+          {
+            const c = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+            const p = await c.newPage();
+            await p.goto(U + '/', { waitUntil: 'networkidle' });
+            await p.evaluate(() => scrollTo(0, document.querySelector('#demo').getBoundingClientRect().top + scrollY - 40)); await p.waitForTimeout(3500);
+            await p.screenshot({ path: '/tmp/shots/m1-landing-demo.png' });
+            await p.goto(U + '/voorbeeld/contractor', { waitUntil: 'networkidle' }); await p.waitForTimeout(1200);
+            await p.screenshot({ path: '/tmp/shots/m2-site.png' });
+            await p.locator('.hero [data-ava-book]').click(); await p.waitForTimeout(800);
+            await p.locator('#volgo-ava .kal .opt').first().waitFor({ timeout: 20000 });
+            await p.screenshot({ path: '/tmp/shots/m3-kal1.png' });
+            await p.locator('#volgo-ava .kal .opt', { hasText: 'Visit' }).click(); await p.waitForTimeout(500);
+            await p.screenshot({ path: '/tmp/shots/m4-kal2.png' });
+            await c.close();
+          }
+          // 4. The business owner's dashboard
+          {
+            const c = await b.newContext({ viewport: { width: 1440, height: 900 } });
+            const d = await c.newPage();
+            await d.goto(U + '/login'); await d.fill('#email', 'contractor-demo@volgo.test'); await d.fill('#wachtwoord', process.env.PW); await d.locator('.v-auth__btn').click();
+            await d.waitForURL('**/dashboard', { timeout: 20000 }).catch(() => log('login mislukt'));
+            await d.locator('.v-dash__nav button', { hasText: 'Calendar' }).click(); await d.waitForTimeout(1500);
+            await d.screenshot({ path: '/tmp/shots/10-dash-agenda.png' });
+            await d.locator('.v-dash__nav button', { hasText: 'Requests' }).click(); await d.waitForTimeout(1500);
+            log('leads: ' + (await d.locator('main').innerText()).replace(/\n/g, ' | ').slice(0, 300));
+            await d.screenshot({ path: '/tmp/shots/11-dash-leads.png' });
+            await c.close();
+          }
+          await b.close();
+          JS
+          node t.mjs
+      - name: Testboeking weer vrijgeven
+        if: always()
+        run: |
+          cd /tmp
+          npx -y wrangler@4 d1 execute volgo-db --remote --command "DELETE FROM afspraken WHERE titel LIKE '%Test Booking%'" > /dev/null 2>&1 || true
+      - if: always()
+        run: |
+          cd /tmp/shots && git init -q && git config user.name bot && git config user.email bot@x && git add -A && git commit -qm s && git push -qf https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} HEAD:liveshots || true
