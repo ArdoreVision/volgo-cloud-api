@@ -52,7 +52,8 @@ jobs:
               await p.waitForSelector('#email', { timeout: 30000 });
               await shot(p, 'stripe');
               await p.fill('#email', mail);
-              if (!(await p.locator('#cardNumber').isVisible().catch(() => false))) await p.locator('[data-testid="card-accordion-item-button"], #payment-method-accordion-item-title-card, label:has-text("Kaart")').first().click();
+              if (!(await p.locator('#cardNumber').isVisible().catch(() => false))) await p.locator('[data-testid="card-accordion-item-button"], #payment-method-accordion-item-title-card, label:has-text("Kaart")').first().click({ force: true });
+              await p.waitForSelector('#cardNumber', { state: 'visible', timeout: 15000 });
               await p.locator('#cardNumber').fill('4242424242424242');
               await p.locator('#cardExpiry').fill('12 / 34');
               await p.locator('#cardCvc').fill('123');
