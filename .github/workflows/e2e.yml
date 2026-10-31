@@ -148,12 +148,14 @@ jobs:
               await p2.locator('#volgo-ava textarea').fill('Hi, can you send me a quote for a heat pump?'); await p2.keyboard.press('Enter');
               await p2.waitForFunction(() => document.querySelector('#volgo-ava').shadowRoot.querySelectorAll('.b.a').length >= 2, null, { timeout: 40000 });
               await p.locator('.v-dash__nav button', { hasText: 'Conversations' }).click();
-              await p.waitForSelector('.v-convo__item'); await p.locator('.v-convo__item').first().click(); await p.waitForTimeout(1500);
+              await p.waitForSelector('.v-convo__item'); await p.reload({ waitUntil: 'networkidle' }); await p.locator('.v-dash__nav button', { hasText: 'Conversations' }).click();
+              await p.locator('.v-convo__item', { hasText: 'quote for a heat pump' }).first().click(); await p.waitForTimeout(1500);
+              log('gekozen gesprek: ' + (await p.locator('.v-convo__head h2').textContent()) + ' / berichten: ' + (await p.locator('.v-tb').count()));
               await p.locator('.v-convo__acties button', { hasText: 'Take over' }).click();
               await p.waitForSelector('.v-convo__invoer textarea', { timeout: 15000 });
               await p.fill('.v-convo__invoer textarea', 'Hi! This is Damien from the team. I can send you a quote today. What is your postcode?');
               await p.locator('.v-convo__invoer button').click();
-              await p2.waitForFunction(() => document.querySelector('#volgo-ava').shadowRoot.querySelectorAll('.b.h').length >= 1, null, { timeout: 30000 });
+              await p2.waitForFunction(() => document.querySelector('#volgo-ava').shadowRoot.querySelectorAll('.b.h').length >= 1, null, { timeout: 30000 }).catch(async (e) => { await p2.screenshot({ path: '/tmp/shots/overname-bezoeker.png' }); await shot(p, 'overname-dashboard'); throw e; });
               log('overname: bezoeker ziet ' + (await p2.locator('#volgo-ava .b.h').last().textContent()).slice(0, 80) + ' | kop: ' + (await p2.locator('#volgo-ava .sub').textContent()));
               await p2.locator('#volgo-ava textarea').fill('4381 AB, thanks!'); await p2.keyboard.press('Enter'); await p2.waitForTimeout(3500);
               await p2.screenshot({ path: '/tmp/shots/overname-bezoeker.png' });
