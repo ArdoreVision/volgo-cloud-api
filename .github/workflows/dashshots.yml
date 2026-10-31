@@ -1,0 +1,55 @@
+name: Dashboard schermen
+on:
+  workflow_dispatch:
+    inputs:
+      pw: { description: "wachtwoord demo", required: true }
+permissions:
+  contents: write
+jobs:
+  s:
+    runs-on: ubuntu-latest
+    env:
+      PW: ${{ inputs.pw }}
+    steps:
+      - run: |
+          mkdir -p /tmp/pw /tmp/shots && cd /tmp/pw && npm init -y >/dev/null && npm i playwright@1 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
+          cat > s.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const log = (m) => console.log('::warning::DASH ' + m);
+          const b = await chromium.launch();
+          for (const [n, vp, m] of [['d', { width: 1440, height: 900 }, false], ['m', { width: 390, height: 844 }, true]]) {
+            const c = await b.newContext({ viewport: vp, deviceScaleFactor: m ? 2 : 1, isMobile: m, hasTouch: m, colorScheme: 'light' });
+            const p = await c.newPage(); p.on('pageerror', (e) => log('JS-fout ' + e.message));
+            await p.goto('https://thevolgo.app/login'); await p.fill('#email', 'contractor-demo@volgo.test'); await p.fill('#wachtwoord', process.env.PW); await p.locator('.v-auth__btn').click();
+            await p.waitForURL('**/dashboard', { timeout: 20000 }); await p.waitForTimeout(2500);
+            await p.screenshot({ path: `/tmp/shots/${n}-1-home-licht.png` });
+            await p.locator('.v-thema').click(); await p.waitForTimeout(1500);
+            log(n + ' thema na klik: ' + await p.locator('.v-dash').getAttribute('data-thema'));
+            await p.screenshot({ path: `/tmp/shots/${n}-2-home-donker.png` });
+            await p.locator('.v-home__balk textarea').fill('Which leads should I call first today?'); await p.keyboard.press('Enter');
+            await p.waitForTimeout(500); await p.screenshot({ path: `/tmp/shots/${n}-3-bol-weg.png` });
+            await p.locator('.v-home__msg--ava p:not(.v-home__typen)').first().waitFor({ timeout: 40000 }).catch(() => {});
+            await p.waitForTimeout(1000); await p.screenshot({ path: `/tmp/shots/${n}-4-chat-donker.png` });
+            log(n + ' bol nog zichtbaar: ' + await p.locator('.v-home__bol').count());
+            if (!m) {
+              for (const [t, f] of [['Chats', '5-chats'], ['Requests', '6-leads'], ['Calendar', '7-agenda'], ['Overview', '8-overzicht']]) {
+                await p.locator('.v-dash__nav button', { hasText: t }).click(); await p.waitForTimeout(1600);
+                await p.screenshot({ path: `/tmp/shots/${n}-${f}.png` });
+              }
+              await p.locator('.v-dash__nav button', { hasText: 'Settings' }).click(); await p.waitForTimeout(1500);
+              await p.locator('.v-agset').scrollIntoViewIfNeeded(); await p.waitForTimeout(500);
+              await p.screenshot({ path: `/tmp/shots/${n}-9-afspraken.png` });
+              await p.locator('.v-thema').click(); await p.waitForTimeout(800);
+              await p.screenshot({ path: `/tmp/shots/${n}-10-afspraken-licht.png` });
+            } else {
+              await p.locator('.v-mnav button', { hasText: 'Chats' }).click(); await p.waitForTimeout(1500);
+              await p.screenshot({ path: `/tmp/shots/${n}-5-chats.png` });
+              await p.locator('.v-mnav button', { hasText: 'Calendar' }).click(); await p.waitForTimeout(1500);
+              await p.screenshot({ path: `/tmp/shots/${n}-7-agenda.png` });
+            }
+            await c.close();
+          }
+          await b.close();
+          JS
+          node s.mjs
+          cd /tmp/shots && git init -q && git config user.name bot && git config user.email bot@x && git add -A && git commit -qm s && git push -qf https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} HEAD:dashshots
