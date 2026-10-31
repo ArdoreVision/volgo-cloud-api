@@ -46,6 +46,11 @@ export default {
     );
   },
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    // Eén officieel adres: www en workers.dev sturen door naar thevolgo.app (API en widget blijven overal werken).
+    const url = new URL(request.url);
+    if ((url.hostname === "www.thevolgo.app" || url.hostname.endsWith(".workers.dev")) && request.method === "GET" && !url.pathname.startsWith("/api/") && url.pathname !== "/ava.js") {
+      return Response.redirect(`https://thevolgo.app${url.pathname}${url.search}`, 301);
+    }
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

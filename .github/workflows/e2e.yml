@@ -8,7 +8,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      U: https://volgo.damienhanssens.workers.dev
+      U: https://thevolgo.app
     steps:
       - uses: actions/checkout@v4
       - name: Demo-sessie maken
