@@ -218,7 +218,7 @@ export function Voordelen() {
       <header className="vx-kop vx-kop--midden" data-reveal="">
         <p className="vx-label">What you get</p>
         <h2 className="v-h2" id="vd-titel">
-          More customers, less chasing.
+          Four reasons businesses add AVA.
         </h2>
       </header>
       <div className="vx-voordelen">
