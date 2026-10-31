@@ -35,6 +35,27 @@ jobs:
           const b = await chromium.launch();
           const log = (m) => console.log('::warning::E2E ' + m);
           const shot = (p, n) => p.screenshot({ path: `/tmp/shots/${n}.png` });
+          // Nieuwe klant: landing -> abonnement -> betalen -> account -> inloggen -> dashboard
+          {
+            const ctx = await b.newContext({ viewport: { width: 1366, height: 860 } });
+            const p = await ctx.newPage();
+            const mail = `test${Date.now()}@volgo.test`;
+            await p.goto(U + '/');
+            await p.locator('.v-hero__actions a', { hasText: '7 dagen' }).click();
+            await p.waitForURL('**/abonnement');
+            await p.locator('.v-plan__cta--start').click();
+            await p.waitForURL('**/betalen**');
+            await p.locator('.v-auth__btn').click();
+            await p.waitForURL('**/aanmelden**');
+            await p.fill('#naam', 'Test Klant'); await p.fill('#bedrijf', 'Testbedrijf BV'); await p.fill('#email', mail); await p.fill('#wachtwoord', 'geheim12345');
+            await p.locator('.v-auth__btn').click();
+            await p.waitForURL('**/inloggen**');
+            await p.fill('#email', mail); await p.fill('#wachtwoord', 'geheim12345'); await p.locator('.v-auth__btn').click();
+            await p.waitForURL('**/dashboard', { timeout: 20000 });
+            await p.waitForSelector('.v-home__groet');
+            log('nieuwe klant -> ' + new URL(p.url()).pathname + ' | ' + (await p.locator('.v-home__groet h1').textContent()) + ' | banner: ' + ((await p.locator('.v-dash__banner').textContent().catch(() => '')) || '').slice(0, 60));
+            await ctx.close();
+          }
           // Uitgelogd: landingspagina, juridisch, wachtwoord vergeten
           {
             const ctx = await b.newContext({ viewport: { width: 1366, height: 860 }, deviceScaleFactor: 2 });
