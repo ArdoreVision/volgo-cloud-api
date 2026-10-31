@@ -18,11 +18,8 @@ export function Hero() {
             <a className="v-cta-primary" href="/abonnement">
               Probeer 7 dagen gratis
             </a>
-            <a className="v-cta-ghost" href="#aanvragen">
-              Demo aanvragen
-              <svg aria-hidden="true" viewBox="0 0 16 16">
-                <path d="M8 3v9.5M4 9l4 4 4-4" />
-              </svg>
+            <a className="v-cta-ghost" href="/inloggen">
+              Ik heb al een account
             </a>
           </div>
         </div>

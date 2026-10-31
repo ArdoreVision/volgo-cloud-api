@@ -19,6 +19,7 @@ export const Route = createFileRoute("/dashboard")({
   loader: async () => {
     const d = await haalDashboard();
     if (!d) throw redirect({ to: "/inloggen", search: {} });
+    if ("geblokkeerd" in d) throw redirect({ to: "/abonnement", search: { verlopen: "ja" } });
     return d;
   },
   head: () => ({ meta: [{ title: "Dashboard · Volgo" }, { name: "robots", content: "noindex" }] }),

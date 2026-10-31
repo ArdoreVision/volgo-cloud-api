@@ -5,15 +5,20 @@ import { AvaChat } from "@/components/volgo/ava-chat";
 import { Footer } from "@/components/volgo/footer";
 import { Nav } from "@/components/volgo/nav";
 import { startBetaling } from "@/lib/api/account.functions";
+import { isIngelogd } from "@/lib/api/assistent.functions";
 import { PLANS, type PlanId } from "@/lib/plans";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/abonnement")({
+  validateSearch: (s: Record<string, unknown>): { verlopen?: string } => ({ verlopen: s.verlopen === "ja" ? "ja" : undefined }),
+  loader: async () => ({ ingelogd: await isIngelogd().catch(() => false) }),
   head: () => ({ meta: [{ title: "Abonnementen · Volgo" }] }),
   component: Abonnement,
 });
 
 function Abonnement() {
+  const { verlopen } = Route.useSearch();
+  const { ingelogd } = Route.useLoaderData();
   const [bezig, setBezig] = useState<PlanId | null>(null);
   const [fout, setFout] = useState("");
 
@@ -35,9 +40,12 @@ function Abonnement() {
 
   return (
     <div className="volgo">
-      <Nav />
+      <Nav ingelogd={ingelogd && !verlopen} />
       <main className="v-pricing">
         <header className="v-pricing__head">
+          {verlopen ? (
+            <p className="v-melding">Je proefperiode of abonnement is afgelopen. Kies een abonnement om verder te gaan, al je gegevens staan nog klaar.</p>
+          ) : null}
           <h1 className="v-h2 v-center">Kies je abonnement.</h1>
           <p className="v-lede v-center">Begin met 7 dagen gratis. Daarna betaal je per maand.</p>
         </header>

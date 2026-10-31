@@ -7,6 +7,7 @@ import { checkWachtwoord, hashWachtwoord, huidigeGebruiker, maakSessie, randomTo
 import { bindings } from "../bindings.server";
 import { PLANS, isPlan } from "../plans";
 import { seedTeam, zorgVoorKanaal } from "../team.server";
+import { heeftToegang } from "../toegang.server";
 
 function origin() {
   const host = getRequestHeader("host") ?? "thevolgo.app";
@@ -151,6 +152,30 @@ export const maakAccount = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+// 3b. Abonnement (opnieuw) activeren op een bestaand account, bv. na een verlopen proefperiode.
+export const activeerAbonnement = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ token: z.string().min(8).max(200) }).parse(v))
+  .handler(async ({ data }) => {
+    const g = await huidigeGebruiker();
+    const { DB } = bindings();
+    if (!g || !DB) return { ok: false as const, message: "Log eerst in." };
+    if (g.rol !== "eigenaar") return { ok: false as const, message: "Alleen de eigenaar van het account kan het abonnement wijzigen." };
+    const b = await DB.prepare("SELECT plan, status, gebruikt, stripe_klant, stripe_abonnement FROM betalingen WHERE token = ?")
+      .bind(data.token)
+      .first<{ plan: string; status: string; gebruikt: number; stripe_klant: string | null; stripe_abonnement: string | null }>();
+    if (!b || b.status !== "betaald" || b.gebruikt || !isPlan(b.plan)) return { ok: false as const, message: "We konden je betaling niet vinden." };
+    await DB.batch([
+      DB.prepare("UPDATE gebruikers SET plan = ?, status = 'actief', proef_tot = NULL, stripe_klant = COALESCE(NULLIF(?, ''), stripe_klant), stripe_abonnement = COALESCE(NULLIF(?, ''), stripe_abonnement) WHERE id = ?").bind(
+        b.plan,
+        b.stripe_klant ?? "",
+        b.stripe_abonnement ?? "",
+        g.team_id,
+      ),
+      DB.prepare("UPDATE betalingen SET gebruikt = 1 WHERE token = ?").bind(data.token),
+    ]);
+    return { ok: true as const, message: "" };
+  });
+
 // 4. Inloggen / uitloggen
 export const inloggen = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ email: z.string().trim().toLowerCase().max(200), wachtwoord: z.string().max(200) }).parse(v))
@@ -180,6 +205,8 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
   const { DB } = bindings();
   if (!DB) return null;
   const team = g.team_id;
+  // Geen actief abonnement of proefperiode? Dan geen dashboard.
+  if (!(await heeftToegang(DB, team))) return { geblokkeerd: true as const };
 
   // Oudere testaccounts krijgen eenmalig de nieuwe voorbeelddata.
   const heeftGesprekken = await DB.prepare("SELECT id FROM ava_gesprekken WHERE team_id = ? LIMIT 1").bind(team).first();

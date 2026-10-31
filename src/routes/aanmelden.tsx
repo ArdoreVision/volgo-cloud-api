@@ -3,7 +3,8 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 
 import { AuthShell, Steps } from "@/components/volgo/auth-shell";
-import { controleerBetaling, maakAccount } from "@/lib/api/account.functions";
+import { activeerAbonnement, controleerBetaling, maakAccount } from "@/lib/api/account.functions";
+import { isIngelogd } from "@/lib/api/assistent.functions";
 import { PLANS, isPlan } from "@/lib/plans";
 import "@/volgo.css";
 
@@ -13,16 +14,19 @@ export const Route = createFileRoute("/aanmelden")({
     session_id: typeof s.session_id === "string" && s.session_id ? s.session_id : undefined,
   }),
   loaderDeps: ({ search }) => ({ token: search.token ?? "", session_id: search.session_id ?? "" }),
-  loader: ({ deps }) =>
-    deps.token || deps.session_id
-      ? controleerBetaling({ data: { token: deps.token || undefined, session_id: deps.session_id || undefined } })
-      : null,
+  loader: async ({ deps }) => {
+    const [betaling, ingelogd] = await Promise.all([
+      deps.token || deps.session_id ? controleerBetaling({ data: { token: deps.token || undefined, session_id: deps.session_id || undefined } }) : null,
+      isIngelogd().catch(() => false),
+    ]);
+    return { betaling, ingelogd };
+  },
   head: () => ({ meta: [{ title: "Account aanmaken · Volgo" }] }),
   component: Aanmelden,
 });
 
 function Aanmelden() {
-  const betaling = Route.useLoaderData();
+  const { betaling, ingelogd } = Route.useLoaderData();
   const navigate = useNavigate();
   const [fout, setFout] = useState("");
   const [bezig, setBezig] = useState(false);
@@ -39,6 +43,28 @@ function Aanmelden() {
     );
   }
   const p = PLANS[betaling.plan];
+
+  // Al ingelogd (bv. na een verlopen proef)? Dan het abonnement op het bestaande account zetten.
+  if (ingelogd) {
+    const activeer = async () => {
+      setBezig(true);
+      const r = await activeerAbonnement({ data: { token: betaling.token } }).catch(() => ({ ok: false as const, message: "Er ging iets mis." }));
+      if (r.ok) return void navigate({ to: "/dashboard" });
+      setFout(r.message);
+      setBezig(false);
+    };
+    return (
+      <AuthShell>
+        <p className="v-auth__ok">Betaling gelukt · Volgo {p.naam}</p>
+        <h1 className="v-auth__title">Abonnement activeren</h1>
+        <p className="v-auth__sub">Je bent al ingelogd. We zetten Volgo {p.naam} op je bestaande account, met al je gegevens.</p>
+        {fout ? <p className="v-err" role="alert">{fout}</p> : null}
+        <button className="v-auth__btn" disabled={bezig} onClick={() => void activeer()} type="button">
+          {bezig ? "Even geduld…" : "Activeren en naar mijn dashboard"}
+        </button>
+      </AuthShell>
+    );
+  }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();

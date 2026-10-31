@@ -806,3 +806,4 @@ button.v-dash__brand { border: 0; background: transparent; font: inherit; color:
 .volgo h1, .volgo .v-h2, .volgo .v-home__groet h1 { letter-spacing: -0.022em; }
 .volgo .v-stat strong, .volgo .v-plan__price span, .volgo .v-plan-card__price { letter-spacing: -0.02em; }
 .volgo .v-hero__title { font-weight: 600; letter-spacing: -0.012em; word-spacing: 0.04em; }
+.v-melding { margin: 0 auto 22px; max-width: 560px; padding: 14px 18px; border-radius: 16px; background: #fff7e6; color: #8a5a00; font-size: 15px; line-height: 1.5; text-align: center; }

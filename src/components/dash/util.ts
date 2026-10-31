@@ -1,6 +1,6 @@
 import type { haalDashboard } from "@/lib/api/account.functions";
 
-export type DashData = NonNullable<Awaited<ReturnType<typeof haalDashboard>>>;
+export type DashData = Exclude<NonNullable<Awaited<ReturnType<typeof haalDashboard>>>, { geblokkeerd: true }>;
 export type Lead = DashData["leads"][number];
 export type Afspraak = DashData["afspraken"][number];
 export type Gesprek = DashData["gesprekken"][number];

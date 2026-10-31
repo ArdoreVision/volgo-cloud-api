@@ -17,6 +17,15 @@ jobs:
           HASH=$(printf '%s' "$TOKEN" | sha256sum | cut -d' ' -f1)
           echo "TOKEN=$TOKEN" >> $GITHUB_ENV
           cd /tmp && npx -y wrangler@4 d1 execute volgo-db --remote --command "UPDATE gebruikers SET naam='Damien Demo' WHERE email='demo@volgo.test'; INSERT INTO sessies (token_hash, gebruiker_id, verloopt) SELECT '$HASH', id, datetime('now','+1 day') FROM gebruikers WHERE email='demo@volgo.test';" > w.log 2>&1 || { tail -8 w.log | sed 's/^/::error::/'; exit 1; }
+      - name: Toegang zonder abonnement
+        run: |
+          cd /tmp
+          q() { npx -y wrangler@4 d1 execute volgo-db --remote --command "$1" > /dev/null 2>&1; }
+          q "UPDATE gebruikers SET status='proef', proef_tot=datetime('now','-1 day') WHERE email='demo@volgo.test'"
+          echo "::warning::GATE verlopen -> $(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' -b volgo_sessie=$TOKEN $U/dashboard)"
+          q "UPDATE gebruikers SET status='actief', proef_tot=NULL WHERE email='demo@volgo.test'"
+          echo "::warning::GATE actief -> $(curl -s -o /dev/null -w '%{http_code}' -b volgo_sessie=$TOKEN $U/dashboard)"
+          echo "::warning::GATE uitgelogd -> $(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' $U/dashboard)"
       - name: Browser
         run: |
           mkdir -p /tmp/pw && cd /tmp/pw && npm init -y >/dev/null && { npm i playwright@1 && npx playwright install --with-deps chromium; } > i.log 2>&1 || { tail -8 i.log | sed 's/^/::error::/'; exit 1; }
