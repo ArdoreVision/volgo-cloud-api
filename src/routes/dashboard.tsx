@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Agenda } from "@/components/dash/agenda";
 import { AvaInstellen } from "@/components/dash/ava-instellen";
 import { Gesprekken } from "@/components/dash/gesprekken";
+import { Home } from "@/components/dash/home";
 import { Overview } from "@/components/dash/overview";
 import { TeamChat } from "@/components/dash/team-chat";
 import { warmteLabel } from "@/components/dash/util";
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-type Tab = "overzicht" | "gesprekken" | "agenda" | "team" | "aanvragen" | "ava" | "abonnement" | "account";
+type Tab = "home" | "overzicht" | "gesprekken" | "agenda" | "team" | "aanvragen" | "ava" | "abonnement" | "account";
 type Toast = { id: number; titel: string; tekst: string; tab: Tab; heet?: boolean };
 type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
 const STATUS_LABEL: Record<Status, string> = {
@@ -40,6 +41,7 @@ const datum = (iso: string) =>
 
 function Icon({ name }: { name: Tab | "uit" }) {
   const d: Record<string, string> = {
+    home: "M10 3.5l1.6 4.1 4.4.3-3.4 2.8 1.1 4.3L10 12.6 6.3 15l1.1-4.3L4 7.9l4.4-.3z",
     overzicht: "M3 10.5 10 4l7 6.5V17a1 1 0 0 1-1 1h-3.5v-5h-5v5H4a1 1 0 0 1-1-1z",
     agenda: "M3.5 5.5h13v11h-13zM3.5 8.5h13M7 3.5v3M13 3.5v3",
     gesprekken: "M3.5 4.5h13v9h-6l-4 3v-3h-3z",
@@ -66,7 +68,7 @@ function Dashboard() {
   });
   const router = useRouter();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>("overzicht");
+  const [tab, setTab] = useState<Tab>("home");
   const [toasts, setToasts] = useState<Toast[]>([]);
   const sinds = useRef(data.nu.slice(0, 19).replace("T", " "));
 
@@ -110,6 +112,7 @@ function Dashboard() {
   }
 
   const tabs: [Tab, string][] = [
+    ["home", "Home"],
     ["overzicht", "Overzicht"],
     ["gesprekken", "Gesprekken"],
     ["agenda", "Agenda"],
@@ -123,10 +126,10 @@ function Dashboard() {
   return (
     <div className="volgo v-dash">
       <aside className="v-dash__side">
-        <a className="v-nav__brand v-dash__brand" href="/">
+        <button aria-label="Volgo, naar home" className="v-nav__brand v-dash__brand" onClick={() => setTab("home")} type="button">
           <VolgoMark />
           <span>Volgo</span>
-        </a>
+        </button>
         <nav aria-label="Dashboard" className="v-dash__nav">
           {tabs.map(([id, label]) => (
             <button aria-current={tab === id ? "page" : undefined} key={id} onClick={() => setTab(id)} type="button">
@@ -149,13 +152,14 @@ function Dashboard() {
         </div>
       </aside>
 
-      <main className={`v-dash__main${tab === "team" ? " v-dash__main--full" : ""}`}>
+      <main className={`v-dash__main${tab === "team" ? " v-dash__main--full" : ""}${tab === "home" ? " v-dash__main--home" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
             Je proefperiode loopt nog {proefDagen} {proefDagen === 1 ? "dag" : "dagen"}. Daarna gaat Volgo {plan.naam} automatisch verder voor € {plan.prijsTekst} per maand.
           </p>
         ) : null}
 
+        {tab === "home" ? <Home bedrijf={g.bedrijf} voornaam={voornaam} /> : null}
         {tab === "overzicht" ? <Overview data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "gesprekken" ? <Gesprekken data={data} /> : null}
         {tab === "ava" ? <AvaInstellen /> : null}

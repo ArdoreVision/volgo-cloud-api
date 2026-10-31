@@ -701,3 +701,45 @@
   .v-convo__msgs { min-height: 50dvh; }
   .v-tb { max-width: 88%; }
 }
+
+/* ---------- Home (AVA voor de ondernemer) ---------- */
+button.v-dash__brand { border: 0; background: transparent; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+.v-dash__main--home { display: flex; flex-direction: column; min-height: 100dvh; }
+.v-home { display: flex; flex-direction: column; flex: 1; width: 100%; max-width: 760px; margin: 0 auto; padding: 24px 0 28px; min-height: 0; }
+.v-home--leeg { justify-content: center; }
+.v-home__groet { text-align: center; margin-bottom: 28px; }
+.v-home:not(.v-home--leeg) .v-home__groet { text-align: left; margin-bottom: 14px; }
+.v-home__tijd { margin: 0 0 10px; font-size: 14px; color: var(--muted); text-transform: capitalize; }
+.v-home__tijd span { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.v-home__groet h1 { margin: 0; font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 600; letter-spacing: -0.045em; line-height: 1.05; }
+.v-home:not(.v-home--leeg) .v-home__groet h1 { font-size: clamp(1.5rem, 3vw, 2rem); }
+.v-home__sub { margin: 12px 0 0; color: var(--muted); font-size: 16px; }
+.v-home__chat { flex: 1; min-height: 0; overflow-y: auto; display: grid; align-content: start; gap: 14px; padding: 8px 2px 18px; }
+.v-home__msg { display: flex; gap: 10px; align-items: flex-start; animation: v-home-in 0.35s var(--ease, ease) both; }
+.v-home__msg p { margin: 0; padding: 12px 16px; border-radius: 20px; font-size: 15.5px; line-height: 1.55; white-space: pre-wrap; max-width: 86%; }
+.v-home__msg--ik { justify-content: flex-end; }
+.v-home__msg--ik p { background: var(--accent); color: #fff; border-bottom-right-radius: 6px; }
+.v-home__msg--ava p { background: #fff; color: var(--ink); border: 1px solid var(--line); border-bottom-left-radius: 6px; }
+.v-home__ava { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--sky-2); color: var(--accent); font-size: 13px; font-weight: 700; }
+.v-home__typen { display: flex; gap: 5px; align-items: center; }
+.v-home__typen i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: v-home-dot 1.1s infinite ease-in-out; }
+.v-home__typen i:nth-child(2) { animation-delay: 0.15s; }
+.v-home__typen i:nth-child(3) { animation-delay: 0.3s; }
+.v-home__balk { display: flex; align-items: flex-end; gap: 10px; padding: 10px 10px 10px 22px; border-radius: 30px; background: #fff; border: 1px solid var(--line); box-shadow: 0 10px 40px rgba(20, 60, 120, 0.08); transition: box-shadow 0.2s, border-color 0.2s; }
+.v-home__balk:focus-within { border-color: var(--accent); box-shadow: 0 10px 40px rgba(22, 119, 217, 0.16); }
+.v-home__balk textarea { flex: 1; min-width: 0; resize: none; border: 0; outline: 0; background: transparent; font: inherit; font-size: 16.5px; line-height: 1.5; padding: 9px 0; color: var(--ink); max-height: 160px; field-sizing: content; }
+.v-home__balk textarea::placeholder { color: var(--muted); }
+.v-home__balk button { flex: none; width: 42px; height: 42px; border: 0; border-radius: 50%; background: var(--accent); cursor: pointer; display: grid; place-items: center; transition: transform 0.15s, opacity 0.2s; }
+.v-home__balk button:hover { transform: scale(1.06); }
+.v-home__balk button:disabled { opacity: 0.45; cursor: default; transform: none; }
+.v-home__balk svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.v-home__tips { margin-top: 16px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.v-home__tips button { padding: 9px 15px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink-2); font: inherit; font-size: 14px; cursor: pointer; transition: background 0.2s, border-color 0.2s; }
+.v-home__tips button:hover { background: var(--sky-2); border-color: transparent; color: var(--ink); }
+@keyframes v-home-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes v-home-dot { 0%, 80%, 100% { opacity: 0.3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+@media (max-width: 860px) {
+  .v-dash__main--home { min-height: calc(100dvh - 70px); }
+  .v-home { padding: 8px 0 16px; }
+  .v-home__msg p { max-width: 92%; }
+}

@@ -1,12 +1,17 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import type { FormEvent } from "react";
 
 import { AuthShell, Steps } from "@/components/volgo/auth-shell";
 import { inloggen } from "@/lib/api/account.functions";
+import { isIngelogd } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/inloggen")({
+  // Ingelogd? Dan direct naar je Volgo-home in plaats van de landingspagina.
+  beforeLoad: async () => {
+    if (await isIngelogd()) throw redirect({ to: "/dashboard" });
+  },
   validateSearch: (s: Record<string, unknown>): { nieuw?: string } => ({ nieuw: s.nieuw === "ja" ? "ja" : undefined }),
   head: () => ({ meta: [{ title: "Inloggen · Volgo" }] }),
   component: Inloggen,
