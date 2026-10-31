@@ -104,6 +104,8 @@ jobs:
             await p.goto(U + '/', { waitUntil: 'networkidle' });
             const font = await p.evaluate(() => [getComputedStyle(document.querySelector('h1')).fontFamily, getComputedStyle(document.body.querySelector('.volgo')).fontFamily, document.fonts.check('600 40px "Bricolage Grotesque"')]);
             log('fonts ' + JSON.stringify(font));
+            await p.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 600) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 120)); } window.scrollTo(0, 0); });
+            await p.screenshot({ path: '/tmp/shots/landing-full.png', fullPage: true });
             await shot(p, 'landing');
             await p.goto(U + '/login'); await shot(p, 'inloggen');
             await p.goto(U + '/terms'); await shot(p, 'voorwaarden');
