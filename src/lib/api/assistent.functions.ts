@@ -155,3 +155,12 @@ export const markeerOnboarding = createServerFn({ method: "POST" })
     await DB.prepare(`INSERT INTO onboarding (team_id, ${kolom}) VALUES (?, 1) ON CONFLICT(team_id) DO UPDATE SET ${kolom} = 1`).bind(g.team_id).run();
     return { ok: true };
   });
+
+/** Voor publieke pagina's: ben je ingelogd en heb je al toegang? */
+export const accountStatus = createServerFn({ method: "GET" }).handler(async () => {
+  const g = await huidigeGebruiker().catch(() => null);
+  const { DB } = bindings();
+  if (!g || !DB) return { ingelogd: false, toegang: false, email: "" };
+  const { heeftToegang } = await import("../toegang.server");
+  return { ingelogd: true, toegang: await heeftToegang(DB, g.team_id), email: g.email };
+});

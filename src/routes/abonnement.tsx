@@ -4,21 +4,21 @@ import { useState } from "react";
 import { AvaChat } from "@/components/volgo/ava-chat";
 import { Footer } from "@/components/volgo/footer";
 import { Nav } from "@/components/volgo/nav";
-import { startBetaling } from "@/lib/api/account.functions";
-import { isIngelogd } from "@/lib/api/assistent.functions";
+import { accountStatus } from "@/lib/api/assistent.functions";
+import { startBetaling, uitloggen } from "@/lib/api/account.functions";
 import { PLANS, type PlanId } from "@/lib/plans";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/abonnement")({
   validateSearch: (s: Record<string, unknown>): { verlopen?: string } => ({ verlopen: s.verlopen === "ja" ? "ja" : undefined }),
-  loader: async () => ({ ingelogd: await isIngelogd().catch(() => false) }),
+  loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "" })),
   head: () => ({ meta: [{ title: "Abonnementen · Volgo" }] }),
   component: Abonnement,
 });
 
 function Abonnement() {
   const { verlopen } = Route.useSearch();
-  const { ingelogd } = Route.useLoaderData();
+  const { ingelogd, toegang, email } = Route.useLoaderData();
   const [bezig, setBezig] = useState<PlanId | null>(null);
   const [fout, setFout] = useState("");
 
@@ -43,6 +43,25 @@ function Abonnement() {
       <Nav ingelogd={ingelogd && !verlopen} />
       <main className="v-pricing">
         <header className="v-pricing__head">
+          {ingelogd && toegang ? (
+            <div className="v-al-account">
+              <p>
+                Je bent ingelogd als <strong>{email}</strong> en hebt al een abonnement.
+              </p>
+              <div>
+                <a className="v-btn-blauw" href="/dashboard">
+                  Naar mijn dashboard
+                </a>
+                <button
+                  className="v-dash__logout"
+                  onClick={() => void uitloggen().then(() => window.location.reload())}
+                  type="button"
+                >
+                  Uitloggen
+                </button>
+              </div>
+            </div>
+          ) : null}
           {verlopen ? (
             <p className="v-melding">Je proefperiode of abonnement is afgelopen. Kies een abonnement om verder te gaan, al je gegevens staan nog klaar.</p>
           ) : null}

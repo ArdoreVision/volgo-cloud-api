@@ -807,3 +807,8 @@ button.v-dash__brand { border: 0; background: transparent; font: inherit; color:
 .volgo .v-stat strong, .volgo .v-plan__price span, .volgo .v-plan-card__price { letter-spacing: -0.02em; }
 .volgo .v-hero__title { font-weight: 600; letter-spacing: -0.012em; word-spacing: 0.04em; }
 .v-melding { margin: 0 auto 22px; max-width: 560px; padding: 14px 18px; border-radius: 16px; background: #fff7e6; color: #8a5a00; font-size: 15px; line-height: 1.5; text-align: center; }
+.v-al-account { margin: 0 auto 28px; max-width: 560px; padding: 18px 20px; border-radius: 20px; background: #fff; border: 1px solid var(--line); text-align: center; }
+.v-al-account p { margin: 0 0 14px; color: var(--ink-2); }
+.v-al-account > div { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.v-al-account .v-btn-blauw { text-decoration: none; display: inline-block; }
+.v-al-account .v-dash__logout { margin: 0; }
