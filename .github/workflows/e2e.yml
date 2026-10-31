@@ -44,7 +44,7 @@ jobs:
             const mail = `test${Date.now()}@volgo.test`;
             await p.goto(U + '/');
             await p.locator('.v-hero__actions a', { hasText: '7-day' }).click();
-            await p.waitForURL('**/pricing');
+            await p.waitForURL('**/pricing'); await p.waitForLoadState('networkidle');
             await p.locator('.v-plan__cta--start').click();
             await p.waitForURL((u) => u.hostname.includes('stripe.com') || u.pathname.startsWith('/checkout'), { timeout: 30000 }).catch(async (e) => { log('na kiezen: ' + p.url() + ' | ' + (await p.locator('.v-err').textContent().catch(() => 'geen fout'))); throw e; });
             if (p.url().includes('stripe.com')) {
