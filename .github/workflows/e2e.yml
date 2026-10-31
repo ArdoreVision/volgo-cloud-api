@@ -27,7 +27,7 @@ jobs:
           echo "::warning::GATE actief -> $(curl -s -o /dev/null -w '%{http_code}' -b volgo_sessie=$TOKEN $U/dashboard)"
           echo "::warning::GATE uitgelogd -> $(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' $U/dashboard)"
       - name: Demo op Premium zetten
-        run: cd /tmp && npx -y wrangler@4 d1 execute volgo-db --remote --command "UPDATE gebruikers SET plan='premium' WHERE email='demo@volgo.test'" > /dev/null 2>&1
+        run: cd /tmp && npx -y wrangler@4 d1 execute volgo-db --remote --command "UPDATE gebruikers SET plan='start' WHERE email='demo@volgo.test'" > /dev/null 2>&1
       - name: Browser
         run: |
           mkdir -p /tmp/pw && cd /tmp/pw && npm init -y >/dev/null && { npm i playwright@1 && npx playwright install --with-deps chromium; } > i.log 2>&1 || { tail -8 i.log | sed 's/^/::error::/'; exit 1; }
@@ -134,6 +134,8 @@ jobs:
               await p.waitForSelector('.v-toggle'); log('toggles: ' + (await p.locator('.v-toggle strong').allTextContents()).join(' | '));
               await p.locator('.v-dash__nav button', { hasText: 'Subscription' }).click();
               await p.waitForSelector('.v-billing button'); await shot(p, 'subscription');
+              await p.locator('.v-dash__nav button', { hasText: 'Team' }).click(); await p.waitForTimeout(800); await shot(p, 'team-start');
+              await p.goto(U + '/pricing', { waitUntil: 'networkidle' }); await p.screenshot({ path: '/tmp/shots/pricing-full.png', fullPage: true }); await p.goto(U + '/dashboard', { waitUntil: 'networkidle' });
               await p.locator('.v-dash__brand').click(); await p.waitForSelector('.v-home__groet');
               await p.locator('.v-home__tips button').first().click();
               await p.waitForSelector('.v-home__msg--ava p:not(.v-home__typen)', { timeout: 40000 });
