@@ -45,7 +45,7 @@ export const openBillingPortal = createServerFn({ method: "POST" }).handler(asyn
   if (g.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can manage the subscription." };
   const e = await DB.prepare("SELECT stripe_klant FROM gebruikers WHERE id = ?").bind(g.team_id).first<{ stripe_klant: string | null }>();
   if (!STRIPE_SECRET_KEY || !e?.stripe_klant) {
-    return { ok: false as const, message: "This is a test account without a card on file. Email hanssenscornerstone@outlook.com to change or cancel." };
+    return { ok: false as const, message: "This is a test account without a card on file. Email volgo.app@outlook.com to change or cancel." };
   }
   try {
     const b = new URLSearchParams();

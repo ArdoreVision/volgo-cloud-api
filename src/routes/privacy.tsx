@@ -27,7 +27,7 @@ function Privacy() {
         <p>
           Volgo is a service by Hanssens Cornerstone Capital, based in Vlissingen, the Netherlands, registered with the Dutch
           Chamber of Commerce (KvK) no. 98133438. We are responsible for processing your personal data through this website.
-          Questions? Email <a href="mailto:hanssenscornerstone@outlook.com">hanssenscornerstone@outlook.com</a>.
+          Questions? Email <a href="mailto:volgo.app@outlook.com">volgo.app@outlook.com</a>.
         </p>
 
         <h2>What data we process</h2>

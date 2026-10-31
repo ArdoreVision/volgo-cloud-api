@@ -13,7 +13,7 @@ export function LegalPage({ titel, bijgewerkt, intro, children }: { titel: strin
         {intro ? <div className="v-legal__intro">{intro}</div> : null}
         {children}
         <p className="v-legal__meta v-legal__eind">
-          Questions about this document? Email <a href="mailto:hanssenscornerstone@outlook.com">hanssenscornerstone@outlook.com</a>.
+          Questions about this document? Email <a href="mailto:volgo.app@outlook.com">volgo.app@outlook.com</a>.
         </p>
       </main>
       <Footer />

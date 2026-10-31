@@ -42,7 +42,7 @@ export const vraagHerstel = createServerFn({ method: "POST" })
     if (!verstuurd) {
       return {
         ok: false as const,
-        message: "We can’t send email right now. Email hanssenscornerstone@outlook.com and we’ll help you personally.",
+        message: "We can’t send email right now. Email volgo.app@outlook.com and we’ll help you personally.",
       };
     }
     return algemeen;

@@ -78,7 +78,7 @@ type Block = { type: string; text?: string; id?: string; name?: string; input?: 
 type ApiMsg = { role: "user" | "assistant"; content: string | Block[] | Record<string, unknown>[] };
 
 const FALLBACK =
-  "I'm not available right now. You can start your 7-day free trial at /pricing, or email hanssenscornerstone@outlook.com and the Volgo team will get back to you.";
+  "I'm not available right now. You can start your 7-day free trial at /pricing, or email volgo.app@outlook.com and the Volgo team will get back to you.";
 
 async function callClaude(key: string, model: string, messages: ApiMsg[]) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {

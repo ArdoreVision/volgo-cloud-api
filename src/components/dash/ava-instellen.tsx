@@ -110,7 +110,7 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
           <div className="v-dash__panel-head">
             <h2>On your website</h2>
           </div>
-          <p className="v-muted v-small">Paste this one line just before &lt;/body&gt; on your website, or send it to whoever manages your site. Prefer we do it? Email hanssenscornerstone@outlook.com.</p>
+          <p className="v-muted v-small">Paste this one line just before &lt;/body&gt; on your website, or send it to whoever manages your site. Prefer we do it? Email volgo.app@outlook.com.</p>
           <div className="v-copy">
             <input aria-label="Install code" readOnly value={code} />
             <button

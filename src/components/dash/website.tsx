@@ -100,7 +100,7 @@ export function Website() {
             <p className="v-website__wensen">{a.wensen}</p>
             <a
               className="v-dash__logout"
-              href={`mailto:hanssenscornerstone@outlook.com?subject=${encodeURIComponent("My Volgo website")}&body=${encodeURIComponent(`Hi Volgo,\n\nAbout my website request:\n\n`)}`}
+              href={`mailto:volgo.app@outlook.com?subject=${encodeURIComponent("My Volgo website")}&body=${encodeURIComponent(`Hi Volgo,\n\nAbout my website request:\n\n`)}`}
             >
               Message the Volgo team
             </a>
