@@ -4,6 +4,8 @@ import type { FormEvent } from "react";
 import { bewaarAva, bewaarMeldingen, haalAva } from "@/lib/api/ava.functions";
 import { markeerOnboarding } from "@/lib/api/assistent.functions";
 
+import { AvaStijl } from "./ava-stijl";
+
 type Ava = Awaited<ReturnType<typeof haalAva>>;
 const KLEUREN = ["#1677d9", "#111318", "#1f9d55", "#6d4fd8", "#e07a10", "#d63c7b"];
 
@@ -113,6 +115,8 @@ export function AvaInstellen() {
           </div>
         </section>
       </div>
+
+      <AvaStijl begin={ava.stijl} kleur={kleur} mag={ava.magStijl} naam={ava.inst.naam} />
 
       <section className="v-dash__panel">
         <div className="v-dash__panel-head">

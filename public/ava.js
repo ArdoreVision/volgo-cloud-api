@@ -57,14 +57,26 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
 .send:disabled{opacity:.35;cursor:default}\
 .note{margin:8px 16px 12px;text-align:center;font-size:11.5px;color:#6b7280}\
 .note a{color:#6b7280}\
-@media (max-width:640px){.fab span{display:none}.fab{padding:6px}.panel{right:0;bottom:0;width:100%;height:100%;border-radius:0}}\
+.links .fab,.links .panel{right:auto;left:18px}\
+.links .panel{transform-origin:bottom left}\
+.strak .fab{border-radius:16px}.strak .fab img{border-radius:12px}.strak .panel{border-radius:16px}.strak .b{border-radius:12px}.strak form{border-radius:12px}.strak .head img{border-radius:10px}.strak .send{border-radius:10px}\
+.donker .fab{background:#161b24;color:#f3f5f8;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 14px 40px rgba(0,0,0,.4)}\
+.donker .panel{background:linear-gradient(180deg,#121823 0%,#0d1117 30%);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 30px 80px rgba(0,0,0,.5)}\
+.donker .head{border-color:#232a36}.donker .head strong{color:#f3f5f8}.donker .head small,.donker .note,.donker .note a{color:#9aa3af}\
+.donker .x{background:rgba(255,255,255,.08);color:#f3f5f8}\
+.donker .b.a{background:#1b2230;color:#eef1f6;box-shadow:none}\
+.donker form{background:#161b24;box-shadow:inset 0 0 0 1px #232a36}.donker form:focus-within{background:#161b24}.donker textarea{color:#f3f5f8}\
+.dot{border-color:#fff}.donker .dot{border-color:#161b24}\
+.wf *{font-family:inherit}\
+.fab img,.head img{object-fit:cover;background:#eef2f7}\
+@media (max-width:640px){.links .panel{left:0}.fab span{display:none}.fab{padding:6px}.panel{right:0;bottom:0;width:100%;height:100%;border-radius:0}}\
 ";
-  root.innerHTML = "<style>" + css + "</style>" +
+  root.innerHTML = "<style>" + css + "</style><div class=\"w\">" +
     '<button class="fab" type="button" aria-label="Open chat"><img alt="" src="' + BASE + '/assets/volgo/ava.png"><span class="lbl">Ask a question</span><i class="dot" hidden></i></button>' +
     '<section class="panel" role="dialog" aria-label="Chat"><div class="head"><img alt="" src="' + BASE + '/assets/volgo/ava.png"><div><strong class="nm">AVA</strong><small><i></i><span class="sub">Replies instantly</span></small></div><button class="x" type="button" aria-label="Close">×</button></div>' +
     '<div class="log" role="log" aria-live="polite"></div>' +
     '<form><textarea rows="1" maxlength="1500" placeholder="Type your question..." aria-label="Message"></textarea><button class="send" type="submit" aria-label="Send" disabled>↑</button></form>' +
-    '<p class="note">AI assistant · <a href="' + BASE + '" target="_blank" rel="noopener">Volgo</a></p></section>';
+    '<p class="note">AI assistant<span class="merk"> · <a href="' + BASE + '" target="_blank" rel="noopener">Volgo</a></span></p></section></div>';
 
   var $ = function (s) { return root.querySelector(s); };
   var fab = $(".fab"), panel = $(".panel"), log = $(".log"), form = $("form"), ta = $("textarea"), send = $(".send");
@@ -88,7 +100,13 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     root.querySelector(".panel").style.setProperty("--c", c.kleur || "#1677d9");
     fab.style.setProperty("--c", c.kleur || "#1677d9");
     $(".nm").textContent = c.naam + " · " + c.bedrijf;
-    $(".lbl").textContent = "Ask " + c.naam;
+    $(".lbl").textContent = c.knoptekst || "Ask " + c.naam;
+    // Own style (Pro and Premium): photo, position, theme, shape, font, no Volgo mention.
+    var w = $(".w");
+    w.className = "w" + (c.positie === "links" ? " links" : "") + (c.thema === "donker" ? " donker" : "") + (c.vorm === "strak" ? " strak" : "") + (c.lettertype === "website" ? " wf" : "");
+    if (c.lettertype === "website") { try { host.style.fontFamily = getComputedStyle(document.body).fontFamily; } catch (e) {} }
+    if (c.avatar) Array.prototype.forEach.call(root.querySelectorAll(".fab img,.head img"), function (img) { img.src = c.avatar; });
+    var merk = $(".merk"); if (merk) merk.hidden = c.branding === false;
     render();
   }
   host.style.setProperty("--c", "#1677d9");

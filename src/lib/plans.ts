@@ -16,6 +16,8 @@ export type Plan = {
     /** Max people on the account, including the owner. null = unlimited. */
     leden: number | null;
     teamChat: boolean;
+    /** Own photo and style for the chat, no "Volgo" mention. */
+    eigenStijl: boolean;
     /** AI conversations per calendar month. Above this, AVA still captures leads in basic mode. */
     gesprekken: number;
     /** Longest analytics range in days. */
@@ -40,7 +42,7 @@ export const PLANS: Record<PlanId, Plan> = {
       "Calendar and 30-day analytics",
       "Standard email support",
     ],
-    limieten: { leden: 1, teamChat: false, gesprekken: 300, analyticsDagen: 30 },
+    limieten: { leden: 1, teamChat: false, eigenStijl: false, gesprekken: 300, analyticsDagen: 30 },
   },
   pro: {
     id: "pro",
@@ -54,12 +56,13 @@ export const PLANS: Record<PlanId, Plan> = {
     features: [
       "Everything in Start",
       "Team chat and video calls",
+      "Your own AVA photo and style, no Volgo branding",
       "AVA trained on all your services and prices",
       "90-day analytics",
       "Monthly review of your leads and AVA",
       "Priority email support",
     ],
-    limieten: { leden: 5, teamChat: true, gesprekken: 1000, analyticsDagen: 90 },
+    limieten: { leden: 5, teamChat: true, eigenStijl: true, gesprekken: 1000, analyticsDagen: 90 },
   },
   premium: {
     id: "premium",
@@ -75,7 +78,7 @@ export const PLANS: Record<PlanId, Plan> = {
       "AVA on multiple websites or locations",
       "Fastest support",
     ],
-    limieten: { leden: null, teamChat: true, gesprekken: 5000, analyticsDagen: 90 },
+    limieten: { leden: null, teamChat: true, eigenStijl: true, gesprekken: 5000, analyticsDagen: 90 },
   },
 };
 
@@ -95,6 +98,7 @@ export const VERGELIJKING: { label: string; start: string | boolean; pro: string
   { label: "Calendar", start: true, pro: true, premium: true },
   { label: "Analytics history", start: "30 days", pro: "90 days", premium: "90 days" },
   { label: "Team chat and video calls", start: false, pro: true, premium: true },
+  { label: "Own AVA photo and style, no Volgo branding", start: false, pro: true, premium: true },
   { label: "AVA trained on all your services and prices", start: false, pro: true, premium: true },
   { label: "Monthly review of your leads and AVA", start: false, pro: true, premium: true },
   { label: "AVA on multiple websites or locations", start: false, pro: false, premium: true },

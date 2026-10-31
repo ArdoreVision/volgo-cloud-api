@@ -881,3 +881,31 @@ a.v-plan__cta { display: block; text-align: center; text-decoration: none; box-s
 .v-plan__kern { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 6px; }
 .v-plan__kern li { font-family: var(--display); font-weight: 600; font-size: 1.05rem; letter-spacing: -0.01em; }
 .v-plan__kern + .v-plan__list { margin-top: 14px; }
+
+/* ---------- AVA style ---------- */
+.v-stijl { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; align-items: start; }
+.v-stijl__velden { display: grid; gap: 16px; }
+.v-stijl__foto { display: flex; align-items: center; gap: 12px; }
+.v-stijl__foto img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: var(--surface); }
+.v-stijl__foto .v-dash__logout { margin: 0; padding: 9px 16px; font-size: 14px; }
+.v-linkbtn--rood { border: 0; background: none; color: var(--bad); font: inherit; font-size: 14px; cursor: pointer; }
+.v-stijl__voorbeeld { position: sticky; top: 20px; display: grid; gap: 12px; justify-items: end; padding: 20px; border-radius: 22px; background: repeating-linear-gradient(45deg, #f3f5f8 0 10px, #eef1f5 10px 20px); }
+.v-stijl__voorbeeld.is-links { justify-items: start; }
+.v-wv { width: 100%; max-width: 290px; border-radius: 22px; padding: 12px; background: #fff; box-shadow: 0 14px 40px rgba(17, 19, 24, 0.14); font-size: 14px; }
+.v-wv__kop { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid #e7eaf0; margin-bottom: 10px; }
+.v-wv__kop img, .v-wv-knop img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; }
+.v-wv__kop strong { display: block; font-size: 14.5px; }
+.v-wv__kop small { color: #6b7280; font-size: 12px; }
+.v-wv__b { margin: 6px 0; padding: 8px 12px; border-radius: 16px; max-width: 85%; line-height: 1.4; }
+.v-wv__b--a { background: #f1f4f8; }
+.v-wv__b--u { margin-left: auto; background: var(--c); color: #fff; }
+.v-wv__noot { margin: 8px 0 0; text-align: center; font-size: 11px; color: #6b7280; }
+.v-wv-knop { display: inline-flex; align-items: center; gap: 8px; padding: 5px 16px 5px 5px; border-radius: 999px; background: #fff; box-shadow: 0 10px 30px rgba(17, 19, 24, 0.16); font-weight: 600; font-size: 14px; }
+.v-wv--donker { background: #161b24; color: #f3f5f8; }
+.v-wv--donker .v-wv__kop { border-color: #232a36; }
+.v-wv--donker .v-wv__b--a { background: #1f2735; }
+.v-wv--strak { border-radius: 12px; }
+.v-wv--strak .v-wv__b { border-radius: 10px; }
+.v-wv--strak img { border-radius: 9px; }
+.v-wv-knop.v-wv--strak { border-radius: 12px; }
+@media (max-width: 1000px) { .v-stijl { grid-template-columns: 1fr; } .v-stijl__voorbeeld { position: static; } }

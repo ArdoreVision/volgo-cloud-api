@@ -36,7 +36,9 @@ export const Route = createFileRoute("/api/ava")({
         const inst = await instellingenViaSleutel(DB, body.sleutel);
         if (!inst) return json({ fout: "Unknown key" }, 404);
         if (body.actie === "config") {
-          return json({ naam: inst.naam, begroeting: inst.begroeting, kleur: inst.kleur, bedrijf: inst.bedrijf });
+          const { actieveStijl } = await import("@/lib/stijl.server");
+          const stijl = await actieveStijl(DB, inst.team_id);
+          return json({ naam: inst.naam, begroeting: inst.begroeting, kleur: inst.kleur, bedrijf: inst.bedrijf, ...stijl });
         }
         const ipHash = await hashIp(request.headers.get("cf-connecting-ip") ?? "onbekend");
         if ((await recentCount("chat_log", ipHash, 60)) >= 80) return json({ antwoord: "You've sent a lot of messages. Please try again in a little while." });

@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { instellingenVoorTeam } from "../ava.server";
+import { stijlSchema } from "../stijl.server";
 import { huidigeGebruiker } from "../auth.server";
 import { bindings } from "../bindings.server";
 
@@ -18,7 +19,11 @@ export const haalAva = createServerFn({ method: "GET" }).handler(async () => {
   const m = await DB.prepare("SELECT chat, lead, email, heet_mail, samenvatting FROM meldingen WHERE gebruiker_id = ?")
     .bind(g.id)
     .first<{ chat: number; lead: number; email: number; heet_mail: number; samenvatting: number }>();
-  return { inst, meldingen: m ?? { chat: 1, lead: 1, email: 0, heet_mail: 1, samenvatting: 1 }, aiActief };
+  const { haalStijl, STANDAARD_STIJL } = await import("../stijl.server");
+  const { planVoorTeam } = await import("../limieten.server");
+  const magStijl = (await planVoorTeam(DB, g.team_id)).limieten.eigenStijl;
+  const stijl = (await haalStijl(DB, g.team_id)) ?? { ...STANDAARD_STIJL, branding: !magStijl };
+  return { inst, meldingen: m ?? { chat: 1, lead: 1, email: 0, heet_mail: 1, samenvatting: 1 }, aiActief, stijl, magStijl };
 });
 
 export const bewaarAva = createServerFn({ method: "POST" })
@@ -84,4 +89,18 @@ export const checkNieuw = createServerFn({ method: "GET" })
     ]);
     const m = await DB.prepare("SELECT chat, lead FROM meldingen WHERE gebruiker_id = ?").bind(g.id).first<{ chat: number; lead: number }>();
     return { chats: chats.results, leads: leads.results, nu: nu?.nu ?? data.sinds, meldChat: m ? !!m.chat : true, meldLead: m ? !!m.lead : true };
+  });
+
+export const bewaarStijl = createServerFn({ method: "POST" })
+  .validator((v: unknown) => stijlSchema.parse(v))
+  .handler(async ({ data }) => {
+    const { g, DB } = await sessie();
+    const { planVoorTeam } = await import("../limieten.server");
+    if (!(await planVoorTeam(DB, g.team_id)).limieten.eigenStijl) return { ok: false as const, message: "Your own style is part of Pro and Premium." };
+    await DB.prepare(
+      "INSERT OR REPLACE INTO ava_stijl (team_id, avatar, positie, thema, vorm, lettertype, knoptekst, branding) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    )
+      .bind(g.team_id, data.avatar, data.positie, data.thema, data.vorm, data.lettertype, data.knoptekst, data.branding ? 1 : 0)
+      .run();
+    return { ok: true as const, message: "" };
   });
