@@ -5,14 +5,14 @@ export function Hero() {
         <div className="v-hero__copy">
           <p className="v-pill-label">
             <span aria-hidden="true" className="v-pill-label__dot" />
-            Website + AI assistant, in one
+            Leads and quotes, on autopilot
           </p>
           <h1 className="v-hero__title" id="hero-title">
-            Your website now follows up on every customer.
+            Never miss a lead again.
           </h1>
           <p className="v-hero__sub">
-            Volgo builds your website with AVA inside. AVA chats with every visitor, day and night, collects their details and puts
-            your hottest leads at the top of your dashboard.
+            Add AVA to your website with one line of code. AVA answers every visitor day and night, asks what they need, collects
+            their details and puts the hottest leads on top, ready for your quote.
           </p>
           <div className="v-hero__actions">
             <a className="v-cta-primary" href="/pricing">
@@ -22,7 +22,7 @@ export function Hero() {
               Log in
             </a>
           </div>
-          <p className="v-hero__fine">No setup on your side · Cancel any month</p>
+          <p className="v-hero__fine">Works on any website · We set it up for you · Cancel any month</p>
         </div>
         <div className="v-hero__art">
           <img alt="AVA, Volgo's AI assistant, next to a phone with messages" height={900} src="/assets/volgo/hero.jpg" width={900} />

@@ -863,45 +863,6 @@ a.v-plan__cta { display: block; text-align: center; text-decoration: none; box-s
 .v-upsell--klein p { margin: 0 0 12px; }
 .v-upsell--klein .v-btn-blauw { margin-top: 0; }
 
-/* ---------- Website builder ---------- */
-.v-builder { display: grid; grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); gap: 18px; height: calc(100dvh - 64px); min-height: 560px; }
-.v-builder__zij { display: flex; flex-direction: column; min-height: 0; background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 20px; }
-.v-builder__kop h1 { margin: 0; font-size: 1.7rem; }
-.v-builder__kop p { margin: 6px 0 0; font-size: 14px; }
-.v-builder__kop a { color: var(--accent); }
-.v-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #c3c9d3; margin-right: 4px; vertical-align: 1px; }
-.v-dot--aan { background: #1f9d55; box-shadow: 0 0 0 3px rgba(31, 157, 85, 0.18); }
-.v-builder__chat { flex: 1; min-height: 0; overflow-y: auto; margin: 16px 0 12px; display: grid; align-content: start; gap: 10px; }
-.v-builder__leeg p { margin: 0 0 14px; color: var(--ink-2); line-height: 1.55; font-size: 15px; }
-.v-builder__ideeen { display: grid; gap: 8px; }
-.v-builder__ideeen button { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 14px; padding: 10px 12px; font: inherit; font-size: 14px; color: var(--ink-2); cursor: pointer; }
-.v-builder__ideeen button:hover { background: var(--sky-2); border-color: transparent; color: var(--ink); }
-.v-builder__msg { margin: 0; padding: 10px 14px; border-radius: 16px; font-size: 14.5px; line-height: 1.5; max-width: 92%; white-space: pre-wrap; }
-.v-builder__msg--ik { justify-self: end; background: var(--accent); color: #fff; border-bottom-right-radius: 5px; }
-.v-builder__msg--ava { justify-self: start; background: var(--surface); border-bottom-left-radius: 5px; }
-.v-builder__msg--bezig { color: var(--muted); animation: v-pulse 1.4s ease-in-out infinite; }
-@keyframes v-pulse { 50% { opacity: 0.5; } }
-.v-builder__balk { display: flex; gap: 8px; align-items: flex-end; border: 1px solid var(--line); border-radius: 18px; padding: 8px 8px 8px 14px; }
-.v-builder__balk:focus-within { border-color: var(--accent); }
-.v-builder__balk textarea { flex: 1; min-width: 0; border: 0; outline: 0 !important; box-shadow: none !important; resize: none; font: inherit; font-size: 15px; padding: 6px 0; background: transparent; }
-.v-builder__balk button { border: 0; border-radius: 12px; padding: 10px 14px; background: var(--accent); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
-.v-builder__balk button:disabled { opacity: 0.45; cursor: default; }
-.v-builder__acties { margin-top: 12px; display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
-.v-builder__acties button { margin: 0; padding: 10px 16px; font-size: 14px; }
-.v-builder__acties button:disabled { opacity: 0.45; cursor: default; }
-.v-builder__zij .v-upsell { margin: 16px 0 0; padding: 22px; }
-.v-builder__voorbeeld { display: flex; flex-direction: column; min-height: 0; background: #e9edf3; border-radius: 24px; overflow: hidden; }
-.v-builder__balkje { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #fff; border-bottom: 1px solid var(--line); }
-.v-builder__adres { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: var(--muted); background: var(--surface); padding: 6px 12px; border-radius: 999px; }
-.v-builder__open { font-size: 13.5px; color: var(--accent); text-decoration: none; font-weight: 500; }
-.v-builder__frame { flex: 1; min-height: 0; display: flex; justify-content: center; padding: 14px; }
-.v-builder__frame iframe { width: 100%; height: 100%; border: 0; border-radius: 14px; background: #fff; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08); transition: width 0.35s var(--ease); }
-.v-builder__frame--mobiel iframe { width: 390px; max-width: 100%; }
-@media (max-width: 1000px) {
-  .v-builder { grid-template-columns: 1fr; height: auto; }
-  .v-builder__zij { min-height: 420px; }
-  .v-builder__voorbeeld { height: 70dvh; }
-}
 .v-inside__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 @media (max-width: 1100px) { .v-inside__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .v-inside__grid { grid-template-columns: 1fr; } }

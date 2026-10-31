@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
 import { bewaarAva, bewaarMeldingen, haalAva } from "@/lib/api/ava.functions";
+import { markeerOnboarding } from "@/lib/api/assistent.functions";
 
 type Ava = Awaited<ReturnType<typeof haalAva>>;
 const KLEUREN = ["#1677d9", "#111318", "#1f9d55", "#6d4fd8", "#e07a10", "#d63c7b"];
@@ -97,12 +98,13 @@ export function AvaInstellen() {
           <div className="v-dash__panel-head">
             <h2>On your website</h2>
           </div>
-          <p className="v-muted v-small">Volgo adds AVA to your website. You don't have to do anything. Building the site yourself? Paste this one line just before &lt;/body&gt;.</p>
+          <p className="v-muted v-small">Paste this one line just before &lt;/body&gt; on your website, or send it to whoever manages your site. Prefer we do it? Email hanssenscornerstone@outlook.com.</p>
           <div className="v-copy">
             <input aria-label="Install code" readOnly value={code} />
             <button
               onClick={() => {
                 navigator.clipboard.writeText(code).then(() => setGekopieerd(true), () => setGekopieerd(false));
+                void markeerOnboarding({ data: { actie: "geinstalleerd" } });
               }}
               type="button"
             >

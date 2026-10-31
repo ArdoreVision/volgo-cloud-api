@@ -7,7 +7,7 @@ export function PricingPreview() {
         <h2 className="v-h2 v-center" id="price-title">
           Simple pricing.
         </h2>
-        <p className="v-lede v-center">Start simple. Add your team with Pro. Get full access and the website builder with Premium. Cancel any month.</p>
+        <p className="v-lede v-center">Start simple. Add your team with Pro. Give everyone full access with Premium. Cancel any month.</p>
       </header>
       <div className="v-plans">
         {(Object.keys(PLANS) as PlanId[]).map((id) => {
@@ -44,7 +44,7 @@ export function FinalCta() {
   return (
     <section aria-labelledby="cta-title" className="v-final">
       <h2 className="v-h2 v-center" id="cta-title">
-        Let your website do the follow-up.
+        Turn more visitors into quotes.
       </h2>
       <p className="v-lede v-center">Try Volgo Start free for 7 days. Questions first? Ask AVA in the corner, or email us.</p>
       <div className="v-final__actions">

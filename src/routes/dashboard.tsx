@@ -5,7 +5,6 @@ import { Account } from "@/components/dash/account";
 import { Agenda } from "@/components/dash/agenda";
 import { BillingButton } from "@/components/dash/billing-button";
 import { Upsell } from "@/components/dash/upsell";
-import { WebsiteBuilder } from "@/components/dash/website";
 import { AvaInstellen } from "@/components/dash/ava-instellen";
 import { Gesprekken } from "@/components/dash/gesprekken";
 import { Home } from "@/components/dash/home";
@@ -29,7 +28,7 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-type Tab = "home" | "website" | "overzicht" | "gesprekken" | "agenda" | "team" | "aanvragen" | "ava" | "abonnement" | "account";
+type Tab = "home" | "overzicht" | "gesprekken" | "agenda" | "team" | "aanvragen" | "ava" | "abonnement" | "account";
 type Toast = { id: number; titel: string; tekst: string; tab: Tab; heet?: boolean };
 type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
 const STATUS_LABEL: Record<Status, string> = {
@@ -47,7 +46,6 @@ const datum = (iso: string) =>
 function Icon({ name }: { name: Tab | "uit" }) {
   const d: Record<string, string> = {
     home: "M10 3.5l1.6 4.1 4.4.3-3.4 2.8 1.1 4.3L10 12.6 6.3 15l1.1-4.3L4 7.9l4.4-.3z",
-    website: "M3 4.5h14v11H3zM3 7.5h14M6 6h.01M8 6h.01",
     overzicht: "M3 10.5 10 4l7 6.5V17a1 1 0 0 1-1 1h-3.5v-5h-5v5H4a1 1 0 0 1-1-1z",
     agenda: "M3.5 5.5h13v11h-13zM3.5 8.5h13M7 3.5v3M13 3.5v3",
     gesprekken: "M3.5 4.5h13v9h-6l-4 3v-3h-3z",
@@ -123,7 +121,6 @@ function Dashboard() {
     ["gesprekken", "Conversations"],
     ["agenda", "Calendar"],
     ["team", "Team"],
-    ["website", "Website"],
     ["aanvragen", "Requests"],
     ["ava", "AVA"],
     ["abonnement", "Subscription"],
@@ -159,7 +156,7 @@ function Dashboard() {
         </div>
       </aside>
 
-      <main className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || tab === "website" ? " v-dash__main--full" : ""}${tab === "home" ? " v-dash__main--home" : ""}`}>
+      <main className={`v-dash__main${tab === "team" && plan.limieten.teamChat ? " v-dash__main--full" : ""}${tab === "home" ? " v-dash__main--home" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
             Your free trial has {proefDagen} {proefDagen === 1 ? "day" : "days"} left. After that, Volgo {plan.naam} continues automatically at €{plan.prijsTekst} per month.
@@ -184,7 +181,6 @@ function Dashboard() {
             />
           )
         ) : null}
-        {tab === "website" ? <WebsiteBuilder magBewerken={plan.limieten.builder} /> : null}
 
         {tab === "aanvragen" ? (
           <>

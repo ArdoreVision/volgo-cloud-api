@@ -138,7 +138,7 @@ export const haalOnboarding = createServerFn({ method: "GET" }).handler(async ()
   const { instellingenVoorTeam } = await import("../ava.server");
   const inst = await instellingenVoorTeam(DB, g.team_id);
   const [ob, leden, uitnod, echteChat] = await Promise.all([
-    DB.prepare("SELECT ava_getest, verborgen FROM onboarding WHERE team_id = ?").bind(g.team_id).first<{ ava_getest: number; verborgen: number }>(),
+    DB.prepare("SELECT ava_getest, verborgen, geinstalleerd FROM onboarding WHERE team_id = ?").bind(g.team_id).first<{ ava_getest: number; verborgen: number; geinstalleerd: number }>(),
     DB.prepare("SELECT COUNT(*) AS n FROM team_leden WHERE team_id = ? AND gebruiker_id != ?").bind(g.team_id, g.team_id).first<{ n: number }>(),
     DB.prepare("SELECT COUNT(*) AS n FROM uitnodigingen WHERE team_id = ?").bind(g.team_id).first<{ n: number }>(),
     DB.prepare("SELECT id FROM ava_gesprekken WHERE team_id = ? AND voorbeeld = 0 LIMIT 1").bind(g.team_id).first(),
@@ -151,17 +151,18 @@ export const haalOnboarding = createServerFn({ method: "GET" }).handler(async ()
       info: inst.bedrijfsinfo.trim().length >= 40,
       getest: Boolean(ob?.ava_getest) || Boolean(echteChat),
       team: (leden?.n ?? 0) + (uitnod?.n ?? 0) > 0,
+      geinstalleerd: Boolean(ob?.geinstalleerd),
     },
   };
 });
 
 export const markeerOnboarding = createServerFn({ method: "POST" })
-  .validator((d: unknown) => z.object({ actie: z.enum(["getest", "verbergen"]) }).parse(d))
+  .validator((d: unknown) => z.object({ actie: z.enum(["getest", "verbergen", "geinstalleerd"]) }).parse(d))
   .handler(async ({ data }) => {
     const g = await huidigeGebruiker();
     const { DB } = bindings();
     if (!g || !DB) return { ok: false };
-    const kolom = data.actie === "getest" ? "ava_getest" : "verborgen";
+    const kolom = data.actie === "getest" ? "ava_getest" : data.actie === "geinstalleerd" ? "geinstalleerd" : "verborgen";
     await DB.prepare(`INSERT INTO onboarding (team_id, ${kolom}) VALUES (?, 1) ON CONFLICT(team_id) DO UPDATE SET ${kolom} = 1`).bind(g.team_id).run();
     return { ok: true };
   });

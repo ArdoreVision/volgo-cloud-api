@@ -134,17 +134,6 @@ jobs:
               await p.waitForSelector('.v-toggle'); log('toggles: ' + (await p.locator('.v-toggle strong').allTextContents()).join(' | '));
               await p.locator('.v-dash__nav button', { hasText: 'Subscription' }).click();
               await p.waitForSelector('.v-billing button'); await shot(p, 'subscription');
-              await p.locator('.v-dash__nav button', { hasText: 'Website' }).click();
-              await p.waitForSelector('.v-builder__ideeen button', { timeout: 20000 });
-              await p.locator('.v-builder__ideeen button').first().click();
-              await p.waitForSelector('.v-builder__msg--ava:not(.v-builder__msg--bezig)', { timeout: 90000 });
-              log('builder: ' + (await p.locator('.v-builder__msg--ava').last().textContent()));
-              await p.locator('.v-builder__balk textarea').fill('Make the main color dark green and translate the whole site to Dutch');
-              await p.locator('.v-builder__balk button').click();
-              await p.waitForFunction(() => document.querySelectorAll('.v-builder__msg--ava:not(.v-builder__msg--bezig)').length >= 2, null, { timeout: 90000 });
-              log('builder 2: ' + (await p.locator('.v-builder__msg--ava').last().textContent()));
-              await p.waitForTimeout(3500);
-              await shot(p, 'builder');
               await p.locator('.v-dash__brand').click(); await p.waitForSelector('.v-home__groet');
               await p.locator('.v-home__tips button').first().click();
               await p.waitForSelector('.v-home__msg--ava p:not(.v-home__typen)', { timeout: 40000 });

@@ -20,7 +20,7 @@ export const Route = createFileRoute("/terms")({
 
       <h2>2. The service</h2>
       <p>
-        Volgo builds and hosts a website for the customer with AVA built in: an AI assistant that chats with visitors, answers
+        Volgo provides AVA, an AI assistant that the customer adds to their own website with one line of code. AVA chats with visitors, answers
         questions, captures contact details and ranks leads by how warm they are. The customer gets access to an online
         dashboard with conversations, leads, calendar, team chat and analytics. What each plan includes is listed on the{" "}
         <a href="/pricing">pricing page</a>.

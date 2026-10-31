@@ -9,7 +9,7 @@ import appMetaJson from "../app-meta.json";
 type AppMeta = { og_title?: string | null; og_description?: string | null; og_image_url?: string | null; favicon_url?: string | null };
 const meta = appMetaJson as AppMeta;
 const title = meta.og_title ?? "Volgo";
-const description = meta.og_description ?? "Your website with AVA inside: the AI assistant that follows up on every customer.";
+const description = meta.og_description ?? "AVA answers every website visitor 24/7 and turns them into leads and quotes.";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
