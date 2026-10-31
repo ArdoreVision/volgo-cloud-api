@@ -8,17 +8,17 @@ import { bindings } from "../bindings.server";
 import { esc, mailOpmaak, verstuurMail } from "../mail.server";
 
 const origin = () => `https://${getRequestHeader("host") ?? "thevolgo.app"}`;
-const sterk = z.string().min(8, "Kies een wachtwoord van minstens 8 tekens.").max(200);
+const sterk = z.string().min(8, "Choose a password of at least 8 characters.").max(200);
 
 /** Stap 1: herstellink aanvragen. Zegt altijd hetzelfde, zodat niemand kan zien welke adressen een account hebben. */
 export const vraagHerstel = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ email: z.string().trim().toLowerCase().email().max(200) }).parse(v))
   .handler(async ({ data }) => {
     const { DB } = bindings();
-    const algemeen = { ok: true as const, message: "Als dit e-mailadres bij Volgo bekend is, krijg je binnen een paar minuten een mail met een link." };
+    const algemeen = { ok: true as const, message: "If this email address is registered with Volgo, you’ll receive an email with a link within a few minutes." };
     if (!DB) return algemeen;
     const ipHash = await hashIp(getRequestHeader("cf-connecting-ip") ?? "onbekend");
-    if ((await recentCount("chat_log", ipHash, 15)) >= 30) return { ok: false as const, message: "Te veel pogingen. Probeer het over een kwartier opnieuw." };
+    if ((await recentCount("chat_log", ipHash, 15)) >= 30) return { ok: false as const, message: "Too many attempts. Please try again in 15 minutes." };
     await DB.prepare("INSERT INTO chat_log (ip_hash) VALUES (?)").bind(ipHash).run();
 
     const g = await DB.prepare("SELECT id, naam FROM gebruikers WHERE email = ?").bind(data.email).first<{ id: number; naam: string }>();
@@ -30,17 +30,17 @@ export const vraagHerstel = createServerFn({ method: "POST" })
     const link = `${origin()}/reset-password?token=${token}`;
     const verstuurd = await verstuurMail(
       data.email,
-      "Nieuw wachtwoord voor Volgo",
+      "Reset your Volgo password",
       mailOpmaak(
-        `Hoi ${esc(g.naam.split(/\s+/)[0])}, kies een nieuw wachtwoord`,
-        "<p>Je vroeg om een nieuw wachtwoord voor je Volgo-account. Klik op de knop hieronder. De link werkt één uur en kan één keer worden gebruikt.</p><p>Heb je dit niet zelf gevraagd? Dan kun je deze mail negeren, je wachtwoord blijft hetzelfde.</p>",
-        { tekst: "Nieuw wachtwoord kiezen", url: link },
+        `Hi ${esc(g.naam.split(/\s+/)[0])}, choose a new password`,
+        "<p>You asked for a new password for your Volgo account. Click the button below. The link works for one hour and can be used once.</p><p>Didn’t request this? You can ignore this email — your password stays the same.</p>",
+        { tekst: "Choose a new password", url: link },
       ),
     );
     if (!verstuurd) {
       return {
         ok: false as const,
-        message: "We kunnen op dit moment geen mail versturen. Mail naar hanssenscornerstone@outlook.com, dan helpen we je persoonlijk.",
+        message: "We can’t send email right now. Email hanssenscornerstone@outlook.com and we’ll help you personally.",
       };
     }
     return algemeen;
@@ -51,12 +51,12 @@ export const herstelWachtwoord = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ token: z.string().regex(/^[0-9a-f]{64}$/), wachtwoord: sterk }).parse(v))
   .handler(async ({ data }) => {
     const { DB } = bindings();
-    if (!DB) return { ok: false as const, message: "Database niet beschikbaar." };
+    if (!DB) return { ok: false as const, message: "Database unavailable." };
     const h = await sha256(data.token);
     const r = await DB.prepare("SELECT gebruiker_id FROM wachtwoord_resets WHERE token_hash = ? AND gebruikt = 0 AND verloopt > datetime('now')")
       .bind(h)
       .first<{ gebruiker_id: number }>();
-    if (!r) return { ok: false as const, message: "Deze link is verlopen of al gebruikt. Vraag een nieuwe aan." };
+    if (!r) return { ok: false as const, message: "This link has expired or was already used. Request a new one." };
     await DB.batch([
       DB.prepare("UPDATE gebruikers SET wachtwoord = ? WHERE id = ?").bind(await hashWachtwoord(data.wachtwoord), r.gebruiker_id),
       DB.prepare("UPDATE wachtwoord_resets SET gebruikt = 1 WHERE gebruiker_id = ?").bind(r.gebruiker_id),
@@ -80,10 +80,10 @@ export const wijzigAccount = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const g = await huidigeGebruiker();
     const { DB } = bindings();
-    if (!g || !DB) return { ok: false as const, message: "Je bent uitgelogd." };
+    if (!g || !DB) return { ok: false as const, message: "You’ve been logged out." };
     await DB.prepare("UPDATE gebruikers SET naam = ? WHERE id = ?").bind(data.naam, g.id).run();
     if (data.bedrijf && g.rol === "eigenaar") await DB.prepare("UPDATE gebruikers SET bedrijf = ? WHERE id = ?").bind(data.bedrijf, g.id).run();
-    return { ok: true as const, message: "Opgeslagen." };
+    return { ok: true as const, message: "Saved." };
   });
 
 export const wijzigWachtwoord = createServerFn({ method: "POST" })
@@ -91,9 +91,9 @@ export const wijzigWachtwoord = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const g = await huidigeGebruiker();
     const { DB } = bindings();
-    if (!g || !DB) return { ok: false as const, message: "Je bent uitgelogd." };
+    if (!g || !DB) return { ok: false as const, message: "You’ve been logged out." };
     const rij = await DB.prepare("SELECT wachtwoord FROM gebruikers WHERE id = ?").bind(g.id).first<{ wachtwoord: string }>();
-    if (!rij || !(await checkWachtwoord(data.huidig, rij.wachtwoord))) return { ok: false as const, message: "Je huidige wachtwoord klopt niet." };
+    if (!rij || !(await checkWachtwoord(data.huidig, rij.wachtwoord))) return { ok: false as const, message: "Your current password is incorrect." };
     await DB.prepare("UPDATE gebruikers SET wachtwoord = ? WHERE id = ?").bind(await hashWachtwoord(data.nieuw), g.id).run();
-    return { ok: true as const, message: "Je wachtwoord is gewijzigd." };
+    return { ok: true as const, message: "Your password has been changed." };
   });

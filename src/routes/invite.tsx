@@ -10,7 +10,7 @@ export const Route = createFileRoute("/invite")({
   validateSearch: (s: Record<string, unknown>): { token?: string } => ({ token: typeof s.token === "string" && s.token ? s.token : undefined }),
   loaderDeps: ({ search }) => ({ token: search.token ?? "" }),
   loader: ({ deps }) => (deps.token ? bekijkUitnodiging({ data: { token: deps.token } }) : null),
-  head: () => ({ meta: [{ title: "Uitnodiging · Volgo" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Invitation · Volgo" }, { name: "robots", content: "noindex" }] }),
   component: Uitnodiging,
 });
 
@@ -24,9 +24,9 @@ function Uitnodiging() {
   if (!info) {
     return (
       <AuthShell>
-        <h1 className="v-auth__title">Deze uitnodiging werkt niet meer.</h1>
-        <p className="v-auth__sub">Vraag je collega om een nieuwe uitnodiging. Heb je al een account? Log dan in.</p>
-        <a className="v-auth__btn" href="/login">Inloggen</a>
+        <h1 className="v-auth__title">This invitation no longer works.</h1>
+        <p className="v-auth__sub">Ask your colleague for a new invitation. Already have an account? Log in.</p>
+        <a className="v-auth__btn" href="/login">Log in</a>
       </AuthShell>
     );
   }
@@ -37,8 +37,8 @@ function Uitnodiging() {
     const naam = String(fd.get("naam") ?? "").trim();
     const email = String(fd.get("email") ?? "").trim();
     const wachtwoord = String(fd.get("wachtwoord") ?? "");
-    if (naam.length < 2) return setFout("Vul je naam in.");
-    if (wachtwoord.length < 8) return setFout("Kies een wachtwoord van minimaal 8 tekens.");
+    if (naam.length < 2) return setFout("Enter your name.");
+    if (wachtwoord.length < 8) return setFout("Choose a password of at least 8 characters.");
     setFout("");
     setBezig(true);
     const res = await accepteerUitnodiging({ data: { token: token ?? "", naam, email, wachtwoord } });
@@ -51,26 +51,26 @@ function Uitnodiging() {
 
   return (
     <AuthShell>
-      <p className="v-auth__ok">Uitnodiging van {info.van}</p>
-      <h1 className="v-auth__title">Word lid van het team van {info.bedrijf}.</h1>
-      <p className="v-auth__sub">Maak je account aan. Daarna zit je meteen in het dashboard en de teamchat.</p>
+      <p className="v-auth__ok">Invitation from {info.van}</p>
+      <h1 className="v-auth__title">Join the {info.bedrijf} team.</h1>
+      <p className="v-auth__sub">Create your account and you’ll go straight to the dashboard and team chat.</p>
       <form className="v-auth__form" noValidate onSubmit={(e) => void onSubmit(e)}>
         <div className="v-fld">
-          <label htmlFor="naam">Je naam</label>
+          <label htmlFor="naam">Your name</label>
           <input autoComplete="name" id="naam" name="naam" />
         </div>
         <div className="v-fld">
-          <label htmlFor="email">E-mailadres</label>
+          <label htmlFor="email">Email address</label>
           <input autoComplete="email" defaultValue={info.email} id="email" name="email" type="email" />
         </div>
         <div className="v-fld">
-          <label htmlFor="wachtwoord">Wachtwoord</label>
+          <label htmlFor="wachtwoord">Password</label>
           <input autoComplete="new-password" id="wachtwoord" minLength={8} name="wachtwoord" type="password" />
-          <p className="v-hint">Minimaal 8 tekens.</p>
+          <p className="v-hint">At least 8 characters.</p>
         </div>
         {fout ? <p className="v-err" role="alert">{fout}</p> : null}
         <button className="v-auth__btn" disabled={bezig} type="submit">
-          {bezig ? "Even geduld" : "Account aanmaken en starten"}
+          {bezig ? "One moment…" : "Create account and get started"}
         </button>
       </form>
     </AuthShell>

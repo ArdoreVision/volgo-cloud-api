@@ -9,7 +9,7 @@ import appMetaJson from "../app-meta.json";
 type AppMeta = { og_title?: string | null; og_description?: string | null; og_image_url?: string | null; favicon_url?: string | null };
 const meta = appMetaJson as AppMeta;
 const title = meta.og_title ?? "Volgo";
-const description = meta.og_description ?? "Een website met AVA erin: de AI-assistent die je klanten opvolgt.";
+const description = meta.og_description ?? "Your website with AVA inside: the AI assistant that follows up on every customer.";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
@@ -21,11 +21,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "Volgo" },
       { title },
       { name: "description", content: description },
-      { name: "author", content: "Volgo, een dienst van Hanssens Cornerstone Capital" },
+      { name: "author", content: "Volgo, a service by Hanssens Cornerstone Capital" },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
-      { property: "og:locale", content: "nl_NL" },
+      { property: "og:locale", content: "en_US" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { name: "twitter:card", content: meta.og_image_url ? "summary_large_image" : "summary" },
@@ -57,7 +57,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="nl" style={{ colorScheme: "light" }}>
+    <html lang="en" style={{ colorScheme: "light" }}>
       <head>
         <HeadContent />
       </head>

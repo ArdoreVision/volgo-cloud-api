@@ -9,11 +9,11 @@ export function LegalPage({ titel, bijgewerkt, intro, children }: { titel: strin
       <Nav />
       <main className="v-legal">
         <h1 className="v-h2">{titel}</h1>
-        <p className="v-legal__meta">Laatst bijgewerkt: {bijgewerkt}</p>
+        <p className="v-legal__meta">Last updated: {bijgewerkt}</p>
         {intro ? <div className="v-legal__intro">{intro}</div> : null}
         {children}
         <p className="v-legal__meta v-legal__eind">
-          Vragen over dit document? Mail naar <a href="mailto:hanssenscornerstone@outlook.com">hanssenscornerstone@outlook.com</a>.
+          Questions about this document? Email <a href="mailto:hanssenscornerstone@outlook.com">hanssenscornerstone@outlook.com</a>.
         </p>
       </main>
       <Footer />

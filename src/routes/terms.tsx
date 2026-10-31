@@ -4,85 +4,86 @@ import { LegalPage } from "@/components/volgo/legal";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({ meta: [{ title: "Algemene voorwaarden · Volgo" }, { name: "description", content: "De algemene voorwaarden van Volgo." }] }),
+  head: () => ({ meta: [{ title: "Terms of Service · Volgo" }, { name: "description", content: "Volgo's Terms of Service." }] }),
   component: () => (
     <LegalPage
-      bijgewerkt="31 oktober 2026"
-      intro={<p>Deze voorwaarden gelden voor elk gebruik van Volgo. Door een abonnement af te sluiten ga je ermee akkoord.</p>}
-      titel="Algemene voorwaarden"
+      bijgewerkt="October 31, 2026"
+      intro={<p>These terms apply to all use of Volgo. By starting a subscription, you agree to them.</p>}
+      titel="Terms of Service"
     >
-      <h2>1. Wie wij zijn</h2>
+      <h2>1. Who we are</h2>
       <p>
-        Volgo is een dienst van Hanssens Cornerstone Capital, gevestigd in Vlissingen en ingeschreven bij de Kamer van Koophandel onder nummer
-        98133438 (hierna: "Volgo", "wij"). Deze voorwaarden gelden tussen Volgo en de onderneming die een abonnement afsluit (hierna: "de klant").
-        Volgo levert uitsluitend aan ondernemers, niet aan consumenten.
+        Volgo is a service by Hanssens Cornerstone Capital, based in Vlissingen, the Netherlands, and registered with the Dutch
+        Chamber of Commerce (KvK) no. 98133438 ("Volgo", "we"). These terms apply between Volgo and the business that starts a
+        subscription ("the customer"). Volgo only provides its services to businesses, not to consumers.
       </p>
 
-      <h2>2. De dienst</h2>
+      <h2>2. The service</h2>
       <p>
-        Volgo bouwt en host een website voor de klant met AVA erin: een AI-assistent die met bezoekers chat, vragen beantwoordt, contactgegevens
-        vastlegt en leads op warmte sorteert. De klant krijgt toegang tot een online dashboard met gesprekken, leads, agenda, teamchat en
-        statistieken. De inhoud van de functies per abonnement staat op de <a href="/pricing">abonnementenpagina</a>.
+        Volgo builds and hosts a website for the customer with AVA built in: an AI assistant that chats with visitors, answers
+        questions, captures contact details and ranks leads by how warm they are. The customer gets access to an online
+        dashboard with conversations, leads, calendar, team chat and analytics. What each plan includes is listed on the{" "}
+        <a href="/pricing">pricing page</a>.
       </p>
 
-      <h2>3. Proefperiode, prijzen en betaling</h2>
+      <h2>3. Trial, prices and payment</h2>
       <ul>
-        <li>Het Start-abonnement begint met een gratis proefperiode van 7 dagen. Zeg je in die periode op, dan betaal je niets.</li>
-        <li>Na de proefperiode loopt het abonnement automatisch door tegen het geldende maandbedrag. Prijzen zijn exclusief btw.</li>
-        <li>Betaling gebeurt maandelijks vooraf via onze betaalpartner. Bij een mislukte betaling mogen we de dienst na een herinnering opschorten.</li>
-        <li>We mogen prijzen eens per jaar aanpassen. We melden dat minstens 30 dagen vooraf; je mag dan opzeggen tegen de ingangsdatum.</li>
+        <li>The Start plan begins with a free 7-day trial. If you cancel during the trial, you pay nothing.</li>
+        <li>After the trial, the subscription continues automatically at the current monthly price. Prices exclude VAT.</li>
+        <li>Payment is made monthly in advance through our payment partner. If a payment fails, we may suspend the service after a reminder.</li>
+        <li>We may adjust prices once a year. We’ll let you know at least 30 days in advance; you may then cancel before the change takes effect.</li>
       </ul>
 
-      <h2>4. Looptijd en opzeggen</h2>
+      <h2>4. Term and cancellation</h2>
       <p>
-        Een abonnement loopt per maand en is maandelijks opzegbaar, met ingang van de volgende betaalperiode. Opzeggen kan door een mail te sturen
-        naar hanssenscornerstone@outlook.com. Na het einde van het abonnement gaat de website offline en verwijderen we de gegevens volgens de
-        verwerkersovereenkomst.
+        A subscription runs month to month and can be canceled monthly, effective from the next billing period. You can cancel
+        in your dashboard or by emailing hanssenscornerstone@outlook.com. When the subscription ends, the website goes offline and
+        we delete the data as described in the Data Processing Agreement.
       </p>
 
-      <h2>5. Wat we van de klant vragen</h2>
+      <h2>5. What we ask of the customer</h2>
       <ul>
-        <li>De klant levert juiste informatie over zijn bedrijf aan, zodat AVA bezoekers goed kan helpen.</li>
-        <li>De klant gebruikt Volgo niet voor onwettige doeleinden, spam of misleiding, en houdt inloggegevens geheim.</li>
-        <li>De klant is zelf verantwoordelijk voor de afspraken, offertes en prijzen die hij met zijn eigen klanten maakt.</li>
+        <li>The customer provides accurate information about their business, so AVA can help visitors properly.</li>
+        <li>The customer does not use Volgo for unlawful purposes, spam or deception, and keeps login details secret.</li>
+        <li>The customer is responsible for the agreements, quotes and prices they make with their own customers.</li>
       </ul>
 
-      <h2>6. AVA en AI</h2>
+      <h2>6. AVA and AI</h2>
       <p>
-        AVA gebruikt kunstmatige intelligentie. Antwoorden worden automatisch gemaakt en kunnen fouten bevatten. AVA is zo ingesteld dat ze geen
-        prijzen, levertijden of garanties verzint en eerlijk zegt dat ze een AI is. De klant blijft verantwoordelijk voor de opvolging van leads en voor
-        wat met zijn eigen klanten wordt afgesproken.
+        AVA uses artificial intelligence. Replies are generated automatically and may contain mistakes. AVA is set up not to make
+        up prices, delivery times or guarantees, and to say honestly that it is an AI. The customer remains responsible for
+        following up on leads and for what is agreed with their own customers.
       </p>
 
-      <h2>7. Beschikbaarheid</h2>
+      <h2>7. Availability</h2>
       <p>
-        We doen ons best om Volgo altijd bereikbaar te houden, maar kunnen geen ononderbroken werking garanderen. Gepland onderhoud doen we zoveel
-        mogelijk buiten kantooruren.
+        We do our best to keep Volgo available at all times, but cannot guarantee uninterrupted operation. We schedule planned
+        maintenance outside business hours as much as possible.
       </p>
 
-      <h2>8. Aansprakelijkheid</h2>
+      <h2>8. Liability</h2>
       <p>
-        Onze aansprakelijkheid is beperkt tot directe schade en tot maximaal het bedrag dat de klant in de drie maanden voor de schade aan Volgo heeft
-        betaald. We zijn niet aansprakelijk voor indirecte schade, zoals gemiste omzet of gemiste leads. Deze beperking geldt niet bij opzet of grove
-        schuld.
+        Our liability is limited to direct damage and to no more than the amount the customer paid Volgo in the three months
+        before the damage occurred. We are not liable for indirect damage, such as lost revenue or missed leads. This limitation
+        does not apply in case of intent or gross negligence.
       </p>
 
-      <h2>9. Intellectueel eigendom</h2>
+      <h2>9. Intellectual property</h2>
       <p>
-        Teksten, logo's en afbeeldingen die de klant aanlevert blijven van de klant. De software, het dashboard en AVA blijven van Volgo. De klant krijgt
-        zolang het abonnement loopt een gebruiksrecht.
+        Texts, logos and images supplied by the customer remain the customer’s. The software, the dashboard and AVA remain
+        Volgo’s. The customer receives a right of use for as long as the subscription runs.
       </p>
 
       <h2>10. Privacy</h2>
       <p>
-        Voor gegevens van de klant zelf geldt onze <a href="/privacy">privacyverklaring</a>. Voor gegevens van bezoekers van de website van de klant
-        zijn wij verwerker en geldt de <a href="/dpa">verwerkersovereenkomst</a>. Die maakt deel uit van deze voorwaarden.
+        Our <a href="/privacy">Privacy Policy</a> applies to the customer’s own data. For data of visitors to the customer’s
+        website, we act as a processor and the <a href="/dpa">Data Processing Agreement</a> applies. It forms part of these terms.
       </p>
 
-      <h2>11. Toepasselijk recht</h2>
+      <h2>11. Governing law</h2>
       <p>
-        Op deze voorwaarden is Nederlands recht van toepassing. Geschillen leggen we voor aan de bevoegde rechter in het arrondissement Zeeland-West-Brabant.
-        We wijzigen deze voorwaarden alleen met minstens 30 dagen aankondiging.
+        Dutch law applies to these terms. Disputes will be submitted to the competent court in the Zeeland-West-Brabant district.
+        We only change these terms with at least 30 days’ notice.
       </p>
     </LegalPage>
   ),

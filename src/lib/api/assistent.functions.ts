@@ -18,8 +18,17 @@ const invoer = z.object({
     .default([]),
 });
 
+const STATUS_EN: Record<string, string> = {
+  nieuw: "new",
+  opvolging: "AVA following up",
+  offerte: "quote sent",
+  afspraak: "appointment",
+  klant: "customer",
+  verloren: "lost",
+};
+
 const ams = (iso: string) =>
-  new Date(iso.replace(" ", "T") + (iso.includes("Z") || iso.includes("+") ? "" : "Z")).toLocaleString("nl-NL", {
+  new Date(iso.replace(" ", "T") + (iso.includes("Z") || iso.includes("+") ? "" : "Z")).toLocaleString("en-GB", {
     weekday: "short",
     day: "numeric",
     month: "short",
@@ -33,9 +42,9 @@ export const vraagAssistent = createServerFn({ method: "POST" })
   .validator((d: unknown) => invoer.parse(d))
   .handler(async ({ data }) => {
     const g = await huidigeGebruiker();
-    if (!g) return { ok: false as const, antwoord: "Je bent uitgelogd. Log opnieuw in om verder te gaan." };
+    if (!g) return { ok: false as const, antwoord: "You are logged out. Log in again to continue." };
     const { DB, ANTHROPIC_API_KEY, CLAUDE_MODEL } = bindings();
-    if (!DB) return { ok: false as const, antwoord: "De database is even niet bereikbaar." };
+    if (!DB) return { ok: false as const, antwoord: "The database is temporarily unavailable." };
     const team = g.team_id;
 
     const [leads, afspraken, gesprekken, bedrijf] = await Promise.all([
@@ -61,41 +70,41 @@ export const vraagAssistent = createServerFn({ method: "POST" })
 
     if (!ANTHROPIC_API_KEY) {
       const open = leads.results.filter((l) => l.status !== "klant" && l.status !== "verloren");
-      const top = open.slice(0, 3).map((l) => `${l.naam} (warmte ${l.warmte}): ${l.onderwerp}`);
+      const top = open.slice(0, 3).map((l) => `${l.naam} (warmth ${l.warmte}): ${l.onderwerp}`);
       return {
         ok: true as const,
         antwoord: top.length
-          ? `Je hebt ${open.length} open ${open.length === 1 ? "lead" : "leads"}. Bel als eerste:\n${top.map((t) => `- ${t}`).join("\n")}`
-          : "Je hebt op dit moment geen open leads. Zodra AVA iemand spreekt op je website, zie je die hier.",
+          ? `You have ${open.length} open ${open.length === 1 ? "lead" : "leads"}. Call these first:\n${top.map((t) => `- ${t}`).join("\n")}`
+          : "You have no open leads right now. As soon as AVA talks to someone on your website, you will see them here.",
       };
     }
 
     const context = [
-      `Vandaag: ${ams(new Date().toISOString())}`,
+      `Today: ${ams(new Date().toISOString())}`,
       "",
-      "LEADS (warmste open leads eerst; warmte 0-100):",
+      "LEADS (hottest open leads first; warmth 0-100):",
       ...(leads.results.length
-        ? leads.results.map((l) => `- ${l.naam} | warmte ${l.warmte} | status ${l.status} | via ${l.kanaal} | binnen ${ams(l.created_at)} | ${l.onderwerp}${l.reden ? ` | ${l.reden}` : ""}`)
-        : ["(geen)"]),
+        ? leads.results.map((l) => `- ${l.naam} | warmth ${l.warmte} | status ${STATUS_EN[l.status] ?? l.status} | via ${l.kanaal} | received ${ams(l.created_at)} | ${l.onderwerp}${l.reden ? ` | ${l.reden}` : ""}`)
+        : ["(none)"]),
       "",
-      "AGENDA (komende afspraken):",
-      ...(afspraken.results.length ? afspraken.results.map((a) => `- ${ams(a.start)} | ${a.titel}${a.locatie ? ` | ${a.locatie}` : ""}`) : ["(geen)"]),
+      "CALENDAR (upcoming appointments):",
+      ...(afspraken.results.length ? afspraken.results.map((a) => `- ${ams(a.start)} | ${a.titel}${a.locatie ? ` | ${a.locatie}` : ""}`) : ["(none)"]),
       "",
-      "RECENTE GESPREKKEN VAN AVA OP DE WEBSITE:",
+      "RECENT AVA CONVERSATIONS ON THE WEBSITE:",
       ...(gesprekken.results.length
-        ? gesprekken.results.map((c) => `- ${c.bezoeker} | ${c.status} | laatst ${ams(c.laatste)} | warmte ${c.warmte} | ${c.onderwerp}`)
-        : ["(geen)"]),
+        ? gesprekken.results.map((c) => `- ${c.bezoeker} | ${c.status === "live" ? "live" : "finished"} | last message ${ams(c.laatste)} | warmth ${c.warmte} | ${c.onderwerp}`)
+        : ["(none)"]),
     ].join("\n");
 
-    const system = `Je bent AVA, de persoonlijke assistent van ${voornaam} van ${naamBedrijf} in het Volgo-dashboard.
-Je helpt de ondernemer met zijn eigen klanten: wie hij moet bellen, wat er in de agenda staat, wat bezoekers vroegen, en je schrijft berichten en offerteteksten.
+    const system = `You are AVA, the personal assistant of ${voornaam} at ${naamBedrijf} in the Volgo dashboard.
+You help the business owner with their own customers: who to call, what is on the calendar, what visitors asked about, and you write messages and quote texts.
 
-Regels:
-- Nederlands, "je", kort en concreet. Gebruik korte lijstjes als dat helpt. Geen emoji's.
-- Baseer je alleen op de gegevens hieronder. Staat iets er niet in, zeg dat eerlijk.
-- Verzin geen telefoonnummers, prijzen of afspraken.
+Rules:
+- Always answer in English. Be short and concrete. Use short lists when helpful. No emojis.
+- Base your answers only on the data below. If something is not in it, say so honestly.
+- Never make up phone numbers, prices or appointments.
 
-GEGEVENS VAN ${naamBedrijf.toUpperCase()}
+DATA FOR ${naamBedrijf.toUpperCase()}
 ${context}`;
 
     const messages = [
@@ -114,10 +123,10 @@ ${context}`;
       if (!res.ok) throw new Error(`Claude ${res.status}`);
       const out = (await res.json()) as { content: { type: string; text?: string }[] };
       const antwoord = out.content.filter((b) => b.type === "text").map((b) => b.text ?? "").join("\n").trim();
-      return { ok: true as const, antwoord: antwoord || "Ik heb daar even geen antwoord op. Probeer het anders te vragen." };
+      return { ok: true as const, antwoord: antwoord || "I don't have an answer to that right now. Try asking it differently." };
     } catch (err) {
       console.error("[assistent]", err);
-      return { ok: false as const, antwoord: "AVA is even niet bereikbaar. Probeer het over een minuut opnieuw." };
+      return { ok: false as const, antwoord: "AVA is temporarily unavailable. Please try again in a minute." };
     }
   });
 

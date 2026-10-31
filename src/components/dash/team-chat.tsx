@@ -110,8 +110,8 @@ export function TeamChat({ data }: { data: DashData }) {
       <aside className="v-chatapp__side">
         <div className="v-chatapp__group">
           <div className="v-chatapp__label">
-            Kanalen
-            <button aria-label="Nieuw kanaal" onClick={() => setNieuwKanaal("")} type="button">
+            Channels
+            <button aria-label="New channel" onClick={() => setNieuwKanaal("")} type="button">
               +
             </button>
           </div>
@@ -122,7 +122,7 @@ export function TeamChat({ data }: { data: DashData }) {
           ))}
           {nieuwKanaal !== null ? (
             <form className="v-chatapp__new" onSubmit={(e) => void kanaalOpslaan(e)}>
-              <input autoFocus maxLength={40} onBlur={() => !nieuwKanaal && setNieuwKanaal(null)} onChange={(e) => setNieuwKanaal(e.target.value)} placeholder="naam-van-kanaal" value={nieuwKanaal} />
+              <input autoFocus maxLength={40} onBlur={() => !nieuwKanaal && setNieuwKanaal(null)} onChange={(e) => setNieuwKanaal(e.target.value)} placeholder="channel-name" value={nieuwKanaal} />
             </form>
           ) : null}
         </div>
@@ -133,27 +133,27 @@ export function TeamChat({ data }: { data: DashData }) {
               <span className={`v-av v-av--sm v-av--${kleurVan(l.id)}`}>{initialen(l.naam)}</span> {l.naam}
             </button>
           ))}
-          {anderen.length === 0 ? <p className="v-chatapp__hint">Nodig je team uit om privé te chatten.</p> : null}
+          {anderen.length === 0 ? <p className="v-chatapp__hint">Invite your team to chat privately.</p> : null}
         </div>
         <button className="v-chatapp__invite" onClick={() => setUitnodigen(true)} type="button">
-          + Teamleden uitnodigen
+          + Invite team members
         </button>
       </aside>
 
       <section className="v-chatapp__main">
         <header className="v-chatapp__head">
           <h2>{titel}</h2>
-          <span className="v-muted v-small">{doel.soort === "kanaal" ? `${data.leden.length} ${data.leden.length === 1 ? "lid" : "leden"}` : "Privégesprek"}</span>
+          <span className="v-muted v-small">{doel.soort === "kanaal" ? `${data.leden.length} ${data.leden.length === 1 ? "member" : "members"}` : "Private chat"}</span>
           <button className="v-videobtn" onClick={() => void startVideo()} type="button">
             <svg aria-hidden="true" viewBox="0 0 20 20">
               <rect height="10" rx="2.5" width="11" x="2.5" y="5" />
               <path d="M13.5 9l4-2.5v7l-4-2.5" />
             </svg>
-            Videogesprek
+            Video call
           </button>
         </header>
         <div aria-live="polite" className="v-chatapp__msgs" ref={lijst} role="log">
-          {berichten.length === 0 ? <p className="v-chatapp__empty">Nog geen berichten. Zeg hallo tegen je team.</p> : null}
+          {berichten.length === 0 ? <p className="v-chatapp__empty">No messages yet. Say hello to your team.</p> : null}
           {berichten.map((b, i) => {
             const vorige = berichten[i - 1];
             const groep = vorige && vorige.afzender_id === b.afzender_id && sqlDate(b.created_at).getTime() - sqlDate(vorige.created_at).getTime() < 5 * 60000;
@@ -163,7 +163,7 @@ export function TeamChat({ data }: { data: DashData }) {
                 <div>
                   {!groep ? (
                     <p className="v-msgrow__meta">
-                      <strong>{b.afzender_id === me.id ? "Jij" : b.afzender}</strong> <time>{tijdAms(sqlDate(b.created_at))}</time>
+                      <strong>{b.afzender_id === me.id ? "You" : b.afzender}</strong> <time>{tijdAms(sqlDate(b.created_at))}</time>
                     </p>
                   ) : null}
                   {b.soort === "video" ? (
@@ -175,11 +175,11 @@ export function TeamChat({ data }: { data: DashData }) {
                         </svg>
                       </span>
                       <div>
-                        <strong>Videogesprek gestart</strong>
-                        <small>Iedereen met de link kan deelnemen</small>
+                        <strong>Video call started</strong>
+                        <small>Anyone with the link can join</small>
                       </div>
                       <a href={b.tekst} rel="noopener noreferrer" target="_blank">
-                        Deelnemen
+                        Join
                       </a>
                     </div>
                   ) : (
@@ -192,10 +192,10 @@ export function TeamChat({ data }: { data: DashData }) {
         </div>
         <form className="v-chatapp__composer" onSubmit={(e) => void verstuur(e)}>
           <label className="ava-sr" htmlFor="chat-tekst">
-            Bericht
+            Message
           </label>
-          <textarea id="chat-tekst" maxLength={4000} onChange={(e) => setTekst(e.target.value)} onKeyDown={onKey} placeholder={`Bericht aan ${titel}`} rows={1} value={tekst} />
-          <button aria-label="Versturen" className="ava-send" disabled={!tekst.trim()} type="submit">
+          <textarea id="chat-tekst" maxLength={4000} onChange={(e) => setTekst(e.target.value)} onKeyDown={onKey} placeholder={`Message ${titel}`} rows={1} value={tekst} />
+          <button aria-label="Send" className="ava-send" disabled={!tekst.trim()} type="submit">
             <svg aria-hidden="true" viewBox="0 0 16 16">
               <path d="M8 13V3.5M4 7l4-4 4 4" />
             </svg>
@@ -214,12 +214,12 @@ export function TeamChat({ data }: { data: DashData }) {
           }}
           role="presentation"
         >
-          <div aria-label="Teamleden uitnodigen" className="v-modal__card" role="dialog">
-            <h2>Teamleden uitnodigen</h2>
-            <p className="v-muted">Nodig zoveel mensen uit als je wilt. Iedereen krijgt een eigen account in jullie team.</p>
+          <div aria-label="Invite team members" className="v-modal__card" role="dialog">
+            <h2>Invite team members</h2>
+            <p className="v-muted">Invite as many people as you like. Everyone gets their own account in your team.</p>
             {uitnodiging ? (
               <>
-                <p className="v-auth__ok">{uitnodiging.gemaild ? "Uitnodiging per e-mail verstuurd" : "Uitnodiging klaar"}</p>
+                <p className="v-auth__ok">{uitnodiging.gemaild ? "Invitation sent by email" : "Invitation ready"}</p>
                 <div className="v-copy">
                   <input readOnly value={uitnodiging.link} />
                   <button
@@ -228,10 +228,10 @@ export function TeamChat({ data }: { data: DashData }) {
                     }}
                     type="button"
                   >
-                    {gekopieerd ? "Gekopieerd" : "Kopieer"}
+                    {gekopieerd ? "Copied" : "Copy"}
                   </button>
                 </div>
-                <p className="v-muted v-small">Stuur deze link naar je collega. Hij is 14 dagen geldig en werkt één keer.</p>
+                <p className="v-muted v-small">Send this link to your colleague. It is valid for 14 days and works once.</p>
                 <div className="v-modal__actions">
                   <button
                     className="v-btn-ghost"
@@ -241,7 +241,7 @@ export function TeamChat({ data }: { data: DashData }) {
                     }}
                     type="button"
                   >
-                    Nog iemand uitnodigen
+                    Invite someone else
                   </button>
                   <button
                     className="v-btn-dark"
@@ -251,22 +251,22 @@ export function TeamChat({ data }: { data: DashData }) {
                     }}
                     type="button"
                   >
-                    Klaar
+                    Done
                   </button>
                 </div>
               </>
             ) : (
               <form onSubmit={(e) => void nodigUit(e)}>
                 <div className="v-fld">
-                  <label htmlFor="inv-email">E-mailadres van je collega</label>
+                  <label htmlFor="inv-email">Your colleague's email address</label>
                   <input autoFocus id="inv-email" inputMode="email" name="email" type="email" />
                 </div>
                 <div className="v-modal__actions">
                   <button className="v-btn-ghost" onClick={() => setUitnodigen(false)} type="button">
-                    Annuleren
+                    Cancel
                   </button>
                   <button className="v-btn-dark" type="submit">
-                    Uitnodiging maken
+                    Create invitation
                   </button>
                 </div>
               </form>
@@ -277,7 +277,7 @@ export function TeamChat({ data }: { data: DashData }) {
                 <div className="v-team__row" key={l.id}>
                   <span className={`v-av v-av--sm v-av--${kleurVan(l.id)}`}>{initialen(l.naam)}</span>
                   <span>{l.naam}</span>
-                  <small>{l.rol === "eigenaar" ? "Eigenaar" : "Lid"}</small>
+                  <small>{l.rol === "eigenaar" ? "Owner" : "Member"}</small>
                 </div>
               ))}
             </div>

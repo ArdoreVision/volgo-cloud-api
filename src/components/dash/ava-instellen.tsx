@@ -60,7 +60,7 @@ export function AvaInstellen() {
     window.setTimeout(() => setOpgeslagen(false), 2500);
   }
 
-  if (!ava) return <p className="v-feed__empty">AVA wordt geladen…</p>;
+  if (!ava) return <p className="v-feed__empty">Loading AVA…</p>;
   const host = typeof window !== "undefined" ? window.location.origin : "";
   const code = `<script src="${host}/ava.js" data-key="${ava.inst.sleutel}" defer></script>`;
 
@@ -70,43 +70,43 @@ export function AvaInstellen() {
         <div>
           <h1>AVA</h1>
           <p>
-            {ava.aiActief ? "AVA voert echte gesprekken met AI." : "AVA draait in basismodus: een korte vaste intake. Met de Claude-koppeling voert AVA echte gesprekken."}
+            {ava.aiActief ? "AVA has real conversations using AI." : "AVA is running in basic mode: a short, fixed intake. With AI connected, AVA has real conversations."}
           </p>
         </div>
         <a className="v-addbtn" href={`/demo/${ava.inst.sleutel}`} rel="noopener" target="_blank">
-          Probeer AVA op een voorbeeldsite
+          Try AVA on a sample site
         </a>
       </header>
 
       <div className="v-dash__grid">
         <section className="v-dash__panel">
           <div className="v-dash__panel-head">
-            <h2>Meldingen</h2>
+            <h2>Notifications</h2>
           </div>
           <div className="v-toggles">
-            <Toggle aan={melding.chat} label="Nieuw gesprek" onChange={(v) => void wijzigMelding("chat", v)} uitleg="Een seintje zodra iemand AVA aanspreekt." />
-            <Toggle aan={melding.lead} label="Nieuwe lead" onChange={(v) => void wijzigMelding("lead", v)} uitleg="Als een bezoeker zijn gegevens achterlaat, met warmte." />
-            <Toggle aan={melding.heet_mail} label="E-mail bij een hete lead" onChange={(v) => void wijzigMelding("heet_mail", v)} uitleg="Direct een mail als iemand met warmte 75 of hoger zijn gegevens achterlaat." />
-            <Toggle aan={melding.email} label="E-mail bij elke lead" onChange={(v) => void wijzigMelding("email", v)} uitleg="Ook een mail bij minder warme leads." />
-            <Toggle aan={melding.samenvatting} label="Ochtendsamenvatting" onChange={(v) => void wijzigMelding("samenvatting", v)} uitleg="Elke ochtend om 7:00 een korte mail: nieuwe leads, wie je moet bellen en je afspraken." />
+            <Toggle aan={melding.chat} label="New conversation" onChange={(v) => void wijzigMelding("chat", v)} uitleg="A heads-up as soon as someone talks to AVA." />
+            <Toggle aan={melding.lead} label="New lead" onChange={(v) => void wijzigMelding("lead", v)} uitleg="When a visitor leaves their details, with a warmth score." />
+            <Toggle aan={melding.heet_mail} label="Email for hot leads" onChange={(v) => void wijzigMelding("heet_mail", v)} uitleg="An instant email when someone with warmth 75 or higher leaves their details." />
+            <Toggle aan={melding.email} label="Email for every lead" onChange={(v) => void wijzigMelding("email", v)} uitleg="Also get an email for less warm leads." />
+            <Toggle aan={melding.samenvatting} label="Morning summary" onChange={(v) => void wijzigMelding("samenvatting", v)} uitleg="A short email every morning at 7:00: new leads, who to call and your appointments." />
           </div>
-          {browser === "denied" ? <p className="v-muted v-small">Je browser blokkeert meldingen. Je ziet ze wel in het dashboard zelf.</p> : null}
+          {browser === "denied" ? <p className="v-muted v-small">Your browser blocks notifications. You will still see them in the dashboard.</p> : null}
         </section>
 
         <section className="v-dash__panel">
           <div className="v-dash__panel-head">
-            <h2>Op de website</h2>
+            <h2>On your website</h2>
           </div>
-          <p className="v-muted v-small">Volgo zet AVA in je website. Je hoeft zelf niets te doen. Bouw je de site zelf? Plak dan deze ene regel vlak voor &lt;/body&gt;.</p>
+          <p className="v-muted v-small">Volgo adds AVA to your website. You don't have to do anything. Building the site yourself? Paste this one line just before &lt;/body&gt;.</p>
           <div className="v-copy">
-            <input aria-label="Installatiecode" readOnly value={code} />
+            <input aria-label="Install code" readOnly value={code} />
             <button
               onClick={() => {
                 navigator.clipboard.writeText(code).then(() => setGekopieerd(true), () => setGekopieerd(false));
               }}
               type="button"
             >
-              {gekopieerd ? "Gekopieerd" : "Kopieer"}
+              {gekopieerd ? "Copied" : "Copy"}
             </button>
           </div>
         </section>
@@ -114,17 +114,17 @@ export function AvaInstellen() {
 
       <section className="v-dash__panel">
         <div className="v-dash__panel-head">
-          <h2>Zo praat AVA</h2>
+          <h2>How AVA talks</h2>
         </div>
         <form className="v-ava-form" onSubmit={(e) => void opslaan(e)}>
           <div className="v-row">
             <div className="v-fld">
-              <label htmlFor="ava-naam">Naam van de assistent</label>
+              <label htmlFor="ava-naam">Assistant name</label>
               <input defaultValue={ava.inst.naam} id="ava-naam" maxLength={30} name="naam" />
             </div>
             <div className="v-fld">
-              <span className="v-fld__label">Kleur</span>
-              <div className="v-swatches" role="radiogroup" aria-label="Kleur">
+              <span className="v-fld__label">Color</span>
+              <div className="v-swatches" role="radiogroup" aria-label="Color">
                 {KLEUREN.map((k) => (
                   <button aria-checked={kleur === k} aria-label={k} className="v-swatch" key={k} onClick={() => setKleur(k)} role="radio" style={{ background: k }} type="button" />
                 ))}
@@ -132,24 +132,24 @@ export function AvaInstellen() {
             </div>
           </div>
           <div className="v-fld">
-            <label htmlFor="ava-begroeting">Eerste bericht</label>
+            <label htmlFor="ava-begroeting">First message</label>
             <input defaultValue={ava.inst.begroeting} id="ava-begroeting" maxLength={300} name="begroeting" />
           </div>
           <div className="v-fld">
-            <label htmlFor="ava-info">Wat AVA over je bedrijf moet weten</label>
+            <label htmlFor="ava-info">What AVA should know about your business</label>
             <textarea
               defaultValue={ava.inst.bedrijfsinfo}
               id="ava-info"
               maxLength={4000}
               name="bedrijfsinfo"
-              placeholder="Bijv. diensten, werkgebied, openingstijden, hoe snel jullie terugbellen, wat jullie niet doen."
+              placeholder="E.g. services, service area, opening hours, how fast you call back, what you don't do."
               rows={6}
             />
           </div>
           <div className="v-modal__actions">
-            {opgeslagen ? <span className="v-auth__ok">Opgeslagen</span> : null}
+            {opgeslagen ? <span className="v-auth__ok">Saved</span> : null}
             <button className="v-btn-dark" type="submit">
-              Opslaan
+              Save
             </button>
           </div>
         </form>

@@ -13,7 +13,7 @@ export function mailOpmaak(kop: string, inhoud: string, knop?: { tekst: string; 
 <div style="font-size:15px;line-height:1.6;color:#334155">${inhoud}</div>
 ${knop ? `<p style="margin:26px 0 0"><a href="${knop.url}" style="display:inline-block;background:#1677d9;color:#fff;text-decoration:none;padding:12px 22px;border-radius:999px;font-weight:600;font-size:15px">${knop.tekst}</a></p>` : ""}
 </div>
-<p style="max-width:520px;margin:18px auto 0;text-align:center;font-size:12px;color:#94a3b8">Volgo is een dienst van Hanssens Cornerstone Capital · Vlissingen · KvK 98133438</p>
+<p style="max-width:520px;margin:18px auto 0;text-align:center;font-size:12px;color:#94a3b8">Volgo is a service by Hanssens Cornerstone Capital · Vlissingen, the Netherlands · KvK 98133438</p>
 </body></html>`;
 }
 

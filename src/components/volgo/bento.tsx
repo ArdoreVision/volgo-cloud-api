@@ -1,31 +1,31 @@
 export function Bento() {
   return (
-    <section aria-labelledby="wat-titel" className="v-bento-wrap" id="wat">
-      <h2 className="v-h2 v-center" id="wat-titel">
-        Alles wat je nodig hebt. Niets wat je zelf hoeft te doen.
+    <section aria-labelledby="what-title" className="v-bento-wrap" id="features">
+      <h2 className="v-h2 v-center" id="what-title">
+        Everything you get. Nothing you have to set up.
       </h2>
       <div className="v-bento">
         <article className="v-tile v-tile--site">
           <div className="v-tile__text">
-            <h3>Een nieuwe website</h3>
-            <p>Snel, strak en gemaakt om aanvragen binnen te halen. Op mobiel net zo goed als op desktop.</p>
+            <h3>A website built for you</h3>
+            <p>Fast, clean and made to turn visitors into inquiries. We build it and launch it with AVA inside. Already have a site you love? Add AVA with one line of code.</p>
           </div>
           <img alt="" height={600} loading="lazy" src="/assets/volgo/website.jpg" width={800} />
         </article>
         <article className="v-tile v-tile--ava">
           <div className="v-tile__text">
-            <h3>AVA, je AI-opvolger</h3>
-            <p>Beantwoordt, vraagt door en volgt op via e-mail of WhatsApp. Altijd in jouw naam.</p>
+            <h3>AVA on your site, 24/7</h3>
+            <p>Answers questions, asks what people need and collects their name and phone or email, always with permission.</p>
           </div>
           <img alt="" height={600} loading="lazy" src="/assets/volgo/meldingen.jpg" width={800} />
         </article>
         <article className="v-tile v-tile--dash">
-          <h3>Eén overzicht</h3>
-          <p>Zie per klant wat er binnenkwam, wat AVA deed en wie je zelf moet bellen.</p>
+          <h3>Leads ranked by warmth</h3>
+          <p>Every lead gets a score from 0 to 100. The ones ready to buy are always at the top, with the reason why.</p>
         </article>
         <article className="v-tile v-tile--care">
-          <h3>Wij regelen alles</h3>
-          <p>Bouwen, koppelen, onderhouden. Jij keurt de berichten één keer goed en wij doen de rest.</p>
+          <h3>Alerts that matter</h3>
+          <p>An email the moment a hot lead comes in, and a short summary every morning: who to call and what&apos;s in your agenda.</p>
         </article>
       </div>
     </section>

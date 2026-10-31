@@ -26,20 +26,20 @@ export const Route = createFileRoute("/api/ava")({
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
       POST: async ({ request }) => {
         const { DB } = bindings();
-        if (!DB) return json({ fout: "Niet beschikbaar" }, 503);
+        if (!DB) return json({ fout: "Unavailable" }, 503);
         let body: z.infer<typeof schema>;
         try {
           body = schema.parse(await request.json());
         } catch {
-          return json({ fout: "Ongeldig verzoek" }, 400);
+          return json({ fout: "Invalid request" }, 400);
         }
         const inst = await instellingenViaSleutel(DB, body.sleutel);
-        if (!inst) return json({ fout: "Onbekende sleutel" }, 404);
+        if (!inst) return json({ fout: "Unknown key" }, 404);
         if (body.actie === "config") {
           return json({ naam: inst.naam, begroeting: inst.begroeting, kleur: inst.kleur, bedrijf: inst.bedrijf });
         }
         const ipHash = await hashIp(request.headers.get("cf-connecting-ip") ?? "onbekend");
-        if ((await recentCount("chat_log", ipHash, 60)) >= 80) return json({ antwoord: "Je hebt veel berichten gestuurd. Probeer het straks opnieuw." });
+        if ((await recentCount("chat_log", ipHash, 60)) >= 80) return json({ antwoord: "You've sent a lot of messages. Please try again in a little while." });
         await DB.prepare("INSERT INTO chat_log (ip_hash) VALUES (?)").bind(ipHash).run();
         const res = await verwerkBericht(DB, inst, body.token, body.tekst);
         return json(res);

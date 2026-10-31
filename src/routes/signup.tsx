@@ -21,7 +21,7 @@ export const Route = createFileRoute("/signup")({
     ]);
     return { betaling, ingelogd };
   },
-  head: () => ({ meta: [{ title: "Account aanmaken · Volgo" }] }),
+  head: () => ({ meta: [{ title: "Create account · Volgo" }] }),
   component: Aanmelden,
 });
 
@@ -35,10 +35,10 @@ function Aanmelden() {
   if (!betaling || !isPlan(betaling.plan)) {
     return (
       <AuthShell>
-        <h1 className="v-auth__title">Kies eerst een abonnement.</h1>
-        <p className="v-auth__sub">Je maakt een account aan nadat je een abonnement hebt gekozen en afgerond.</p>
-        <a className="v-auth__btn" href="/pricing">Naar abonnementen</a>
-        <a className="v-auth__link" href="/login">Ik heb al een account</a>
+        <h1 className="v-auth__title">Choose a plan first.</h1>
+        <p className="v-auth__sub">You create your account after choosing a plan and completing checkout.</p>
+        <a className="v-auth__btn" href="/pricing">See plans</a>
+        <a className="v-auth__link" href="/login">I already have an account</a>
       </AuthShell>
     );
   }
@@ -48,19 +48,19 @@ function Aanmelden() {
   if (ingelogd) {
     const activeer = async () => {
       setBezig(true);
-      const r = await activeerAbonnement({ data: { token: betaling.token } }).catch(() => ({ ok: false as const, message: "Er ging iets mis." }));
+      const r = await activeerAbonnement({ data: { token: betaling.token } }).catch(() => ({ ok: false as const, message: "Something went wrong." }));
       if (r.ok) return void navigate({ to: "/dashboard" });
       setFout(r.message);
       setBezig(false);
     };
     return (
       <AuthShell>
-        <p className="v-auth__ok">Betaling gelukt · Volgo {p.naam}</p>
-        <h1 className="v-auth__title">Abonnement activeren</h1>
-        <p className="v-auth__sub">Je bent al ingelogd. We zetten Volgo {p.naam} op je bestaande account, met al je gegevens.</p>
+        <p className="v-auth__ok">Payment successful · Volgo {p.naam}</p>
+        <h1 className="v-auth__title">Activate your plan</h1>
+        <p className="v-auth__sub">You’re already logged in. We’ll add Volgo {p.naam} to your existing account, with all your data.</p>
         {fout ? <p className="v-err" role="alert">{fout}</p> : null}
         <button className="v-auth__btn" disabled={bezig} onClick={() => void activeer()} type="button">
-          {bezig ? "Even geduld…" : "Activeren en naar mijn dashboard"}
+          {bezig ? "One moment…" : "Activate and go to my dashboard"}
         </button>
       </AuthShell>
     );
@@ -70,9 +70,9 @@ function Aanmelden() {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const v = (k: string) => String(fd.get(k) ?? "").trim();
-    if (v("naam").length < 2 || v("bedrijf").length < 2) return setFout("Vul je naam en bedrijfsnaam in.");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v("email"))) return setFout("Vul een geldig e-mailadres in.");
-    if (String(fd.get("wachtwoord") ?? "").length < 8) return setFout("Kies een wachtwoord van minimaal 8 tekens.");
+    if (v("naam").length < 2 || v("bedrijf").length < 2) return setFout("Enter your name and company name.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v("email"))) return setFout("Enter a valid email address.");
+    if (String(fd.get("wachtwoord") ?? "").length < 8) return setFout("Choose a password of at least 8 characters.");
     setFout("");
     setBezig(true);
     try {
@@ -85,7 +85,7 @@ function Aanmelden() {
         setBezig(false);
       }
     } catch {
-      setFout("Er ging iets mis. Probeer het opnieuw.");
+      setFout("Something went wrong. Please try again.");
       setBezig(false);
     }
   }
@@ -93,39 +93,39 @@ function Aanmelden() {
   return (
     <AuthShell>
       <Steps actief={3} />
-      <p className="v-auth__ok">Betaling gelukt · Volgo {p.naam}</p>
-      <h1 className="v-auth__title">Maak je account aan.</h1>
-      <p className="v-auth__sub">Hiermee log je in op je bedrijfsdashboard.</p>
+      <p className="v-auth__ok">Payment successful · Volgo {p.naam}</p>
+      <h1 className="v-auth__title">Create your account.</h1>
+      <p className="v-auth__sub">You’ll use it to log in to your business dashboard.</p>
       <form className="v-auth__form" noValidate onSubmit={onSubmit}>
         <div className="v-fld">
-          <label htmlFor="naam">Je naam</label>
+          <label htmlFor="naam">Your name</label>
           <input autoComplete="name" id="naam" name="naam" />
         </div>
         <div className="v-fld">
-          <label htmlFor="bedrijf">Bedrijfsnaam</label>
+          <label htmlFor="bedrijf">Company name</label>
           <input autoComplete="organization" id="bedrijf" name="bedrijf" />
         </div>
         <div className="v-fld">
-          <label htmlFor="email">E-mailadres</label>
+          <label htmlFor="email">Email address</label>
           <input autoComplete="email" defaultValue={betaling.email} id="email" inputMode="email" name="email" type="email" />
         </div>
         <div className="v-fld">
-          <label htmlFor="wachtwoord">Wachtwoord</label>
+          <label htmlFor="wachtwoord">Password</label>
           <div className="v-pw">
             <input autoComplete="new-password" id="wachtwoord" minLength={8} name="wachtwoord" type={toon ? "text" : "password"} />
             <button onClick={() => setToon(!toon)} type="button">
-              {toon ? "Verberg" : "Toon"}
+              {toon ? "Hide" : "Show"}
             </button>
           </div>
-          <p className="v-hint">Minimaal 8 tekens.</p>
+          <p className="v-hint">At least 8 characters.</p>
         </div>
         <p className="v-hint v-akkoord">
-          Door je account aan te maken ga je akkoord met de <a href="/terms" target="_blank">algemene voorwaarden</a> en de{" "}
-          <a href="/dpa" target="_blank">verwerkersovereenkomst</a>.
+          By creating an account, you agree to the <a href="/terms" target="_blank">Terms of Service</a> and the{" "}
+          <a href="/dpa" target="_blank">Data Processing Agreement</a>.
         </p>
         {fout ? <p className="v-err" role="alert">{fout}</p> : null}
         <button className="v-auth__btn" disabled={bezig} type="submit">
-          {bezig ? "Account wordt aangemaakt" : "Account aanmaken"}
+          {bezig ? "Creating account…" : "Create account"}
         </button>
       </form>
     </AuthShell>

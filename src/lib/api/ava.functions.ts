@@ -8,7 +8,7 @@ import { bindings } from "../bindings.server";
 async function sessie() {
   const g = await huidigeGebruiker();
   const { DB, ANTHROPIC_API_KEY } = bindings();
-  if (!g || !DB) throw new Error("Niet ingelogd");
+  if (!g || !DB) throw new Error("Not logged in");
   return { g, DB, aiActief: Boolean(ANTHROPIC_API_KEY) };
 }
 

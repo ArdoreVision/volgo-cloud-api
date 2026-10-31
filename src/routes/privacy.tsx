@@ -8,8 +8,8 @@ import "@/volgo.css";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacyverklaring · Volgo" },
-      { name: "description", content: "Hoe Volgo omgaat met je gegevens." },
+      { title: "Privacy Policy · Volgo" },
+      { name: "description", content: "How Volgo handles your data." },
     ],
   }),
   component: Privacy,
@@ -20,46 +20,46 @@ function Privacy() {
     <div className="volgo">
       <Nav />
       <main className="v-legal">
-        <h1 className="v-h2">Privacyverklaring</h1>
-        <p className="v-legal__meta">Laatst bijgewerkt: 30 oktober 2026</p>
+        <h1 className="v-h2">Privacy Policy</h1>
+        <p className="v-legal__meta">Last updated: October 31, 2026</p>
 
-        <h2>Wie zijn wij</h2>
+        <h2>Who we are</h2>
         <p>
-          Volgo is een dienst van Hanssens Cornerstone Capital, gevestigd in Vlissingen, ingeschreven bij de KvK onder
-          nummer 98133438. Wij zijn verantwoordelijk voor de verwerking van je persoonsgegevens via deze website. Vragen?
-          Mail naar <a href="mailto:hanssenscornerstone@outlook.com">hanssenscornerstone@outlook.com</a>.
+          Volgo is a service by Hanssens Cornerstone Capital, based in Vlissingen, the Netherlands, registered with the Dutch
+          Chamber of Commerce (KvK) no. 98133438. We are responsible for processing your personal data through this website.
+          Questions? Email <a href="mailto:hanssenscornerstone@outlook.com">hanssenscornerstone@outlook.com</a>.
         </p>
 
-        <h2>Welke gegevens we verwerken</h2>
+        <h2>What data we process</h2>
         <ul>
-          <li>Wat je invult in het aanvraagformulier: naam, bedrijfsnaam, e-mailadres en, als je die geeft, telefoonnummer, website, branche en je bericht.</li>
-          <li>Wat je aan AVA, onze chatassistent, vertelt. Geef je toestemming voor een demo-aanvraag, dan bewaren we je contactgegevens en een korte samenvatting van het gesprek.</li>
-          <li>Een versleutelde code van je IP-adres, alleen om misbruik en spam te voorkomen. Uit die code is je IP-adres niet terug te halen.</li>
+          <li>What you enter in the request form: your name, company name, email address and, if you provide them, phone number, website, industry and message.</li>
+          <li>What you tell AVA, our chat assistant. If you agree to a demo request, we keep your contact details and a short summary of the conversation.</li>
+          <li>An encrypted code of your IP address, only to prevent abuse and spam. Your IP address cannot be recovered from this code.</li>
         </ul>
 
-        <h2>Waarom</h2>
+        <h2>Why</h2>
         <p>
-          We gebruiken je gegevens alleen om contact met je op te nemen over je aanvraag en om een demo in te plannen.
-          De grondslag is je toestemming en het nemen van stappen op jouw verzoek voordat een overeenkomst wordt gesloten.
-          We sturen je geen nieuwsbrieven en verkopen je gegevens nooit.
+          We only use your data to contact you about your request and to schedule a demo. The legal basis is your consent and
+          taking steps at your request before entering into a contract. We never send you newsletters and never sell your data.
         </p>
 
-        <h2>Wie helpen ons daarbij</h2>
+        <h2>Who helps us</h2>
         <ul>
-          <li>Hosting en database van deze website: Higgsfield en Cloudflare.</li>
-          <li>Het doorsturen van aanvragen naar onze inbox: Resend en FormSubmit.</li>
-          <li>De AI achter AVA: Anthropic (Claude). Je chatberichten worden naar Anthropic gestuurd om een antwoord te maken.</li>
+          <li>Hosting and database of this website: Cloudflare.</li>
+          <li>Forwarding requests to our inbox: Resend and FormSubmit.</li>
+          <li>Payments for subscriptions: Stripe.</li>
+          <li>The AI behind AVA: Anthropic (Claude). Your chat messages are sent to Anthropic to generate a reply.</li>
         </ul>
-        <p>Met deze partijen maken we afspraken over het zorgvuldig verwerken van je gegevens. Sommige verwerken gegevens buiten de EU; dat gebeurt dan met passende waarborgen.</p>
+        <p>We have agreements with these parties to handle your data with care. Some of them process data outside the EU; when that happens, appropriate safeguards are in place.</p>
 
-        <h2>Hoe lang</h2>
-        <p>Word je geen klant, dan verwijderen we je gegevens uiterlijk 12 maanden na je laatste contact met ons.</p>
+        <h2>How long</h2>
+        <p>If you don’t become a customer, we delete your data no later than 12 months after your last contact with us.</p>
 
-        <h2>Jouw rechten</h2>
+        <h2>Your rights</h2>
         <p>
-          Je mag je gegevens inzien, laten aanpassen of laten verwijderen, en je toestemming altijd intrekken. Stuur een
-          mail naar het adres hierboven, dan reageren we binnen vier weken. Ben je niet tevreden, dan kun je een klacht
-          indienen bij de Autoriteit Persoonsgegevens.
+          You may access, correct or delete your data, and withdraw your consent at any time. Email the address above and we’ll
+          respond within four weeks. If you’re not satisfied, you can file a complaint with the Dutch Data Protection Authority
+          (Autoriteit Persoonsgegevens).
         </p>
       </main>
       <Footer />

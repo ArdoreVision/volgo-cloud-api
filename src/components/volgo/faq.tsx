@@ -1,16 +1,18 @@
 const faqs = [
-  { q: "Wat kost het?", a: "Dat hangt af van wat je nodig hebt. In de gratis demo laten we zien wat Volgo voor jouw bedrijf doet en krijg je een vaste prijs, zonder verrassingen achteraf." },
-  { q: "Moet ik zelf iets technisch doen?", a: "Nee. Wij bouwen de website, koppelen AVA aan je e-mail of WhatsApp en houden alles bij. Jij keurt alleen de toon van de berichten goed." },
-  { q: "Kan ik mijn huidige website houden?", a: "Vaak wel. Dan bouwen we AVA in je bestaande site. Is je site verouderd, dan adviseren we eerlijk om hem te vernieuwen." },
-  { q: "Klinkt AVA niet als een robot?", a: "AVA schrijft in jouw toon en stelt alleen de vragen die jij belangrijk vindt. Wil een klant een mens spreken, dan krijg jij direct een seintje." },
-  { q: "Hoe zit het met privacy?", a: "Gegevens van je klanten worden alleen gebruikt om de aanvraag op te volgen. We leggen de afspraken vast in een verwerkersovereenkomst." },
+  { q: "What does it cost?", a: "Start is €149.95 per month and begins with 7 days free. Pro is €499.99 and Premium €999.99 per month. Prices exclude VAT and you can cancel any month." },
+  { q: "Do I need to do anything technical?", a: "No. We build your website with AVA inside. You only tell AVA about your business in your dashboard, which takes about two minutes." },
+  { q: "Can I keep my current website?", a: "Yes. Then you add AVA to your existing site with one line of code, which you'll find in your dashboard. We're happy to do it for you." },
+  { q: "Does AVA sound like a robot?", a: "AVA writes short, friendly messages in your visitor's own language, and honestly says it's an AI when asked. It never makes up prices or promises; it passes those questions to you." },
+  { q: "How do I know who to call first?", a: "AVA gives every lead a warmth score from 0 to 100 and shows why. The hottest leads are always on top, and you get an email when a hot one comes in." },
+  { q: "How do I cancel?", a: "In your dashboard under Subscription, click Manage subscription. You can update your card, download invoices or cancel there." },
+  { q: "What about privacy?", a: "Visitor details are only used to follow up on their question. We're the processor, you stay in control, and it's all set out in our Data Processing Agreement." },
 ];
 
 export function Faq() {
   return (
-    <section aria-labelledby="faq-titel" className="v-faq" id="vragen">
-      <h2 className="v-h2" id="faq-titel">
-        Vragen.
+    <section aria-labelledby="faq-title" className="v-faq" id="faq">
+      <h2 className="v-h2" id="faq-title">
+        Questions.
       </h2>
       <div className="v-faq__list">
         {faqs.map((f) => (

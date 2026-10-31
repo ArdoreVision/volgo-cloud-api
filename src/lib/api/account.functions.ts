@@ -31,15 +31,15 @@ async function stripe(path: string, init?: { method?: string; body?: URLSearchPa
 export const startBetaling = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ plan: z.string() }).parse(v))
   .handler(async ({ data }) => {
-    if (!isPlan(data.plan)) return { ok: false as const, message: "Onbekend abonnement." };
+    if (!isPlan(data.plan)) return { ok: false as const, message: "Unknown plan." };
     const plan = PLANS[data.plan];
     const { DB, STRIPE_SECRET_KEY } = bindings();
-    if (!DB) return { ok: false as const, message: "Database niet beschikbaar." };
+    if (!DB) return { ok: false as const, message: "Database unavailable." };
 
     if (STRIPE_SECRET_KEY) {
       const b = new URLSearchParams();
       b.set("mode", "subscription");
-      b.set("locale", "nl");
+      b.set("locale", "en");
       b.set("line_items[0][quantity]", "1");
       b.set("line_items[0][price_data][currency]", "eur");
       b.set("line_items[0][price_data][unit_amount]", String(plan.prijs));
@@ -59,7 +59,7 @@ export const startBetaling = createServerFn({ method: "POST" })
         return { ok: true as const, url: String(s.url) };
       } catch (err) {
         console.error("[betaling]", err);
-        return { ok: false as const, message: "Betalen is even niet mogelijk. Probeer het later opnieuw." };
+        return { ok: false as const, message: "Payments are temporarily unavailable. Please try again later." };
       }
     }
 
@@ -132,15 +132,15 @@ export const maakAccount = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const { DB } = bindings();
-    if (!DB) return { ok: false as const, message: "Database niet beschikbaar." };
+    if (!DB) return { ok: false as const, message: "Database unavailable." };
     const b = await DB.prepare("SELECT plan, status, gebruikt, testmodus, stripe_klant, stripe_abonnement FROM betalingen WHERE token = ?")
       .bind(data.token)
       .first<{ plan: string; status: string; gebruikt: number; testmodus: number; stripe_klant: string | null; stripe_abonnement: string | null }>();
     if (!b || b.status !== "betaald" || b.gebruikt || !isPlan(b.plan)) {
-      return { ok: false as const, message: "We konden je betaling niet vinden. Kies opnieuw een abonnement." };
+      return { ok: false as const, message: "We couldn’t find your payment. Please choose a plan again." };
     }
     const bestaat = await DB.prepare("SELECT id FROM gebruikers WHERE email = ?").bind(data.email).first();
-    if (bestaat) return { ok: false as const, message: "Er bestaat al een account met dit e-mailadres. Log in." };
+    if (bestaat) return { ok: false as const, message: "An account with this email address already exists. Please log in." };
 
     const plan = PLANS[b.plan];
     const hash = await hashWachtwoord(data.wachtwoord);
@@ -163,12 +163,12 @@ export const activeerAbonnement = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const g = await huidigeGebruiker();
     const { DB } = bindings();
-    if (!g || !DB) return { ok: false as const, message: "Log eerst in." };
-    if (g.rol !== "eigenaar") return { ok: false as const, message: "Alleen de eigenaar van het account kan het abonnement wijzigen." };
+    if (!g || !DB) return { ok: false as const, message: "Please log in first." };
+    if (g.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can change the subscription." };
     const b = await DB.prepare("SELECT plan, status, gebruikt, stripe_klant, stripe_abonnement FROM betalingen WHERE token = ?")
       .bind(data.token)
       .first<{ plan: string; status: string; gebruikt: number; stripe_klant: string | null; stripe_abonnement: string | null }>();
-    if (!b || b.status !== "betaald" || b.gebruikt || !isPlan(b.plan)) return { ok: false as const, message: "We konden je betaling niet vinden." };
+    if (!b || b.status !== "betaald" || b.gebruikt || !isPlan(b.plan)) return { ok: false as const, message: "We couldn’t find your payment." };
     await DB.batch([
       DB.prepare("UPDATE gebruikers SET plan = ?, status = 'actief', proef_tot = NULL, stripe_klant = COALESCE(NULLIF(?, ''), stripe_klant), stripe_abonnement = COALESCE(NULLIF(?, ''), stripe_abonnement) WHERE id = ?").bind(
         b.plan,
@@ -186,13 +186,13 @@ export const inloggen = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ email: z.string().trim().toLowerCase().max(200), wachtwoord: z.string().max(200) }).parse(v))
   .handler(async ({ data }) => {
     const { DB } = bindings();
-    if (!DB) return { ok: false as const, message: "Database niet beschikbaar." };
+    if (!DB) return { ok: false as const, message: "Database unavailable." };
     const ipHash = await hashIp(getRequestHeader("cf-connecting-ip") ?? "onbekend");
-    if ((await recentCount("chat_log", ipHash, 15)) >= 60) return { ok: false as const, message: "Te veel pogingen. Probeer het over een kwartier opnieuw." };
+    if ((await recentCount("chat_log", ipHash, 15)) >= 60) return { ok: false as const, message: "Too many attempts. Please try again in 15 minutes." };
     await DB.prepare("INSERT INTO chat_log (ip_hash) VALUES (?)").bind(ipHash).run();
     const g = await DB.prepare("SELECT id, wachtwoord FROM gebruikers WHERE email = ?").bind(data.email).first<{ id: number; wachtwoord: string }>();
     if (!g || !(await checkWachtwoord(data.wachtwoord, g.wachtwoord))) {
-      return { ok: false as const, message: "E-mailadres of wachtwoord klopt niet." };
+      return { ok: false as const, message: "Incorrect email address or password." };
     }
     await maakSessie(g.id);
     return { ok: true as const };

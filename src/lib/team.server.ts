@@ -10,13 +10,13 @@ function rng(seed: number) {
   return () => (s = (s * 16807) % 2147483647) / 2147483647;
 }
 
-const NAMEN = ["Sanne de Vries", "Mark Jansen", "Fatima El Amrani", "Pieter Bakker", "Lisa Visser", "Ahmed Yilmaz", "Eva Smit", "Tom de Boer", "Noor Mulder", "Jeroen Bos", "Sophie Dekker", "Daan Meijer", "Anouk Kok", "Bram Hendriks", "Lotte van Dijk", "Youssef Ouali", "Iris Peters", "Ruben Willems", "Emma Jacobs", "Sem de Graaf", "Julia Verbeek", "Thijs Kuipers", "Mila Brouwer", "Luuk van Leeuwen"];
-const ONDERWERPEN = ["Warmtepomp, vrijstaande woning", "Airco voor slaapkamer", "Cv-ketel vervangen", "Offerte zonnepanelen", "Ventilatie in nieuwbouw", "Storing vloerverwarming", "Hybride warmtepomp", "Thuisbatterij bij zonnepanelen", "Airco voor kantoor", "Onderhoud cv-ketel"];
-const KANALEN = ["Website", "WhatsApp", "E-mail", "Telefoon"];
+const NAMEN = ["Sarah Collins", "Mark Johnson", "Fatima El Amrani", "Peter Baker", "Lisa Fisher", "Ahmed Yilmaz", "Eva Smith", "Tom Brooks", "Nora Miller", "James Walsh", "Sophie Turner", "Daniel Moore", "Anna Cook", "Ben Harris", "Laura Dixon", "Youssef Ouali", "Iris Peters", "Ruben Wilson", "Emma Jacobs", "Sam Graham", "Julia Reed", "Thomas Cooper", "Mia Brown", "Luke Lawson"];
+const ONDERWERPEN = ["Heat pump, detached house", "Air conditioning for bedroom", "Replace central heating boiler", "Solar panel quote", "Ventilation in new build", "Underfloor heating fault", "Hybrid heat pump", "Home battery with solar panels", "Air conditioning for office", "Boiler maintenance"];
+const KANALEN = ["Website", "WhatsApp", "Email", "Phone"];
 const REDENEN: Record<string, string[]> = {
-  heet: ["Vroeg naar prijs en wanneer jullie kunnen starten", "Wil deze maand nog laten installeren", "Heeft al offertes vergeleken en wil beslissen", "Vroeg zelf om een afspraak bij hem thuis"],
-  warm: ["Vroeg naar subsidie en terugverdientijd", "Wil eerst advies over het type", "Reageerde snel op de herinnering van AVA"],
-  lauw: ["Oriënteert zich nog, geen haast", "Vroeg alleen naar algemene informatie"],
+  heet: ["Asked about price and when you can start", "Wants it installed this month", "Has compared quotes and wants to decide", "Asked for a home visit"],
+  warm: ["Asked about subsidies and payback time", "Wants advice on the type first", "Replied quickly to AVA's reminder"],
+  lauw: ["Still exploring, no rush", "Only asked for general information"],
 };
 
 export async function seedTeam(DB: D1Database, teamId: number) {
@@ -46,7 +46,7 @@ export async function seedTeam(DB: D1Database, teamId: number) {
 
   // Afspraken: komende 4 weken + een paar in het verleden
   const tijden = ["08:30", "09:00", "10:00", "11:30", "13:00", "14:30", "15:00", "16:30"];
-  const soorten = ["Adviesgesprek", "Opname op locatie", "Installatie", "Offertebespreking", "Onderhoud"];
+  const soorten = ["Consultation", "Site visit", "Installation", "Quote review", "Maintenance"];
   for (let i = 0; i < 18; i++) {
     const off = Math.floor(r() * 32) - 5;
     const t = pick(tijden);
@@ -62,22 +62,22 @@ export async function seedTeam(DB: D1Database, teamId: number) {
         `${pick(soorten)} · ${naam}`,
         `${d}T${t}`,
         `${d}T${eind}`,
-        pick(["Bij de klant thuis", "Op kantoor", "Videogesprek", "Bij de klant thuis"]),
-        "Ingepland door AVA",
+        pick(["At the customer's home", "At the office", "Video call", "At the customer's home"]),
+        "Scheduled by AVA",
       ),
     );
   }
 
   // AVA-gesprekken: 3 live, de rest afgerond
   const gesprekken: [string, string, string, string, number, number, number][] = [
-    ["Kevin Smit", "WhatsApp", "Wil een warmtepomp, vraagt naar levertijd", "live", 2, 9, 91],
-    ["Bezoeker uit Middelburg", "Website", "Vraagt naar subsidie op isolatie", "live", 1, 5, 64],
-    ["Hanna de Wit", "Website", "Airco voor 3 slaapkamers, wil prijsindicatie", "live", 3, 12, 78],
-    ["Rob Mertens", "E-mail", "Offerte zonnepanelen besproken, afspraak gepland", "afgerond", 45, 14, 86],
-    ["Bezoeker uit Goes", "Website", "Algemene vraag over onderhoud", "afgerond", 130, 4, 32],
-    ["Yara Bakker", "WhatsApp", "Storing cv-ketel, monteur ingepland", "afgerond", 210, 8, 88],
-    ["Joost Verhoef", "Website", "Vergelijkt warmtepompen, komt erop terug", "afgerond", 380, 10, 55],
-    ["Bezoeker uit Vlissingen", "Website", "Vroeg naar openingstijden", "afgerond", 900, 3, 18],
+    ["Kevin Smith", "WhatsApp", "Wants a heat pump, asks about delivery time", "live", 2, 9, 91],
+    ["Visitor from Middelburg", "Website", "Asks about insulation subsidies", "live", 1, 5, 64],
+    ["Hannah White", "Website", "Air conditioning for 3 bedrooms, wants a price estimate", "live", 3, 12, 78],
+    ["Rob Martin", "Email", "Discussed solar panel quote, appointment scheduled", "afgerond", 45, 14, 86],
+    ["Visitor from Goes", "Website", "General question about maintenance", "afgerond", 130, 4, 32],
+    ["Yara Baker", "WhatsApp", "Boiler fault, technician scheduled", "afgerond", 210, 8, 88],
+    ["Josh Hoffman", "Website", "Comparing heat pumps, will get back to you", "afgerond", 380, 10, 55],
+    ["Visitor from Vlissingen", "Website", "Asked about opening hours", "afgerond", 900, 3, 18],
   ];
   for (const [b, k, o, s, minGeleden, n, w] of gesprekken) {
     stmts.push(
@@ -104,7 +104,7 @@ export async function zorgVoorKanaal(DB: D1Database, teamId: number) {
   const k = await DB.prepare("SELECT id FROM kanalen WHERE team_id = ? LIMIT 1").bind(teamId).first();
   if (!k) {
     await DB.batch([
-      DB.prepare("INSERT INTO kanalen (team_id, naam) VALUES (?, 'algemeen')").bind(teamId),
+      DB.prepare("INSERT INTO kanalen (team_id, naam) VALUES (?, 'general')").bind(teamId),
       DB.prepare("INSERT INTO kanalen (team_id, naam) VALUES (?, 'leads')").bind(teamId),
     ]);
   }

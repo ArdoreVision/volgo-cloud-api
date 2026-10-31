@@ -13,7 +13,7 @@ export const Route = createFileRoute("/login")({
     if (await isIngelogd()) throw redirect({ to: "/dashboard" });
   },
   validateSearch: (s: Record<string, unknown>): { new?: string } => ({ new: s.new === "1" || s.new === 1 ? "1" : undefined }),
-  head: () => ({ meta: [{ title: "Inloggen · Volgo" }] }),
+  head: () => ({ meta: [{ title: "Log in · Volgo" }] }),
   component: Inloggen,
 });
 
@@ -36,7 +36,7 @@ function Inloggen() {
         setBezig(false);
       }
     } catch {
-      setFout("Er ging iets mis. Probeer het opnieuw.");
+      setFout("Something went wrong. Please try again.");
       setBezig(false);
     }
   }
@@ -44,28 +44,28 @@ function Inloggen() {
   return (
     <AuthShell>
       {nieuw ? <Steps actief={4} /> : null}
-      {nieuw ? <p className="v-auth__ok">Je account is aangemaakt</p> : null}
-      <h1 className="v-auth__title">Inloggen</h1>
-      <p className="v-auth__sub">Log in op je bedrijfsdashboard.</p>
+      {nieuw ? <p className="v-auth__ok">Your account has been created</p> : null}
+      <h1 className="v-auth__title">Log in</h1>
+      <p className="v-auth__sub">Log in to your business dashboard.</p>
       <form className="v-auth__form" onSubmit={onSubmit}>
         <div className="v-fld">
-          <label htmlFor="email">E-mailadres</label>
+          <label htmlFor="email">Email address</label>
           <input autoComplete="email" id="email" inputMode="email" name="email" required type="email" />
         </div>
         <div className="v-fld">
           <span className="v-fld__row">
-            <label htmlFor="wachtwoord">Wachtwoord</label>
-            <a href="/forgot-password">Vergeten?</a>
+            <label htmlFor="wachtwoord">Password</label>
+            <a href="/forgot-password">Forgot?</a>
           </span>
           <input autoComplete="current-password" id="wachtwoord" name="wachtwoord" required type="password" />
         </div>
         {fout ? <p className="v-err" role="alert">{fout}</p> : null}
         <button className="v-auth__btn" disabled={bezig} type="submit">
-          {bezig ? "Bezig met inloggen" : "Inloggen"}
+          {bezig ? "Logging in…" : "Log in"}
         </button>
       </form>
       <p className="v-auth__alt">
-        Nog geen account? <a href="/pricing">Kies een abonnement</a>
+        No account yet? <a href="/pricing">Choose a plan</a>
       </p>
     </AuthShell>
   );

@@ -9,7 +9,7 @@ import { dmKey } from "../team.server";
 async function sessie() {
   const g = await huidigeGebruiker();
   const { DB } = bindings();
-  if (!g || !DB) throw new Error("Niet ingelogd");
+  if (!g || !DB) throw new Error("Not logged in");
   return { g, DB };
 }
 
@@ -19,18 +19,18 @@ const doel = z.object({ kanaal_id: z.number().int().optional(), dm_met: z.number
 async function filter(DB: D1Like, teamId: number, mijnId: number, d: z.infer<typeof doel>) {
   if (d.kanaal_id) {
     const k = await DB.prepare("SELECT id FROM kanalen WHERE id = ? AND team_id = ?").bind(d.kanaal_id, teamId).first();
-    if (!k) throw new Error("Kanaal niet gevonden");
+    if (!k) throw new Error("Channel not found");
     return { sql: "kanaal_id = ?", waarde: d.kanaal_id as number | string, kanaal_id: d.kanaal_id, dm_key: null as string | null };
   }
   if (d.dm_met) {
     const lid = await DB.prepare("SELECT g.id FROM gebruikers g LEFT JOIN team_leden t ON t.gebruiker_id = g.id WHERE g.id = ? AND (g.id = ? OR t.team_id = ?)")
       .bind(d.dm_met, teamId, teamId)
       .first();
-    if (!lid) throw new Error("Teamlid niet gevonden");
+    if (!lid) throw new Error("Team member not found");
     const key = dmKey(mijnId, d.dm_met);
     return { sql: "dm_key = ?", waarde: key as number | string, kanaal_id: null as number | null, dm_key: key };
   }
-  throw new Error("Geen kanaal of persoon gekozen");
+  throw new Error("No channel or person selected");
 }
 type D1Like = NonNullable<ReturnType<typeof bindings>["DB"]>;
 
@@ -88,8 +88,8 @@ export const maakUitnodiging = createServerFn({ method: "POST" })
           body: JSON.stringify({
             from: "Volgo <onboarding@resend.dev>",
             to: [data.email],
-            subject: `${g.naam} nodigt je uit voor het team van ${g.bedrijf} op Volgo`,
-            html: `<div style="font-family:-apple-system,Helvetica,Arial,sans-serif;max-width:480px"><h1 style="font-size:22px">Je bent uitgenodigd</h1><p>${g.naam} nodigt je uit voor het team van ${g.bedrijf} op Volgo.</p><p><a href="${link}" style="display:inline-block;padding:12px 22px;border-radius:999px;background:#111318;color:#fff;text-decoration:none">Uitnodiging accepteren</a></p></div>`,
+            subject: `${g.naam} invited you to join the ${g.bedrijf} team on Volgo`,
+            html: `<div style="font-family:-apple-system,Helvetica,Arial,sans-serif;max-width:480px"><h1 style="font-size:22px">You're invited</h1><p>${g.naam} invited you to join the ${g.bedrijf} team on Volgo.</p><p><a href="${link}" style="display:inline-block;padding:12px 22px;border-radius:999px;background:#111318;color:#fff;text-decoration:none">Accept invitation</a></p></div>`,
           }),
         });
         gemaild = res.ok;
@@ -118,13 +118,13 @@ export const accepteerUitnodiging = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const { DB } = bindings();
-    if (!DB) return { ok: false as const, message: "Database niet beschikbaar." };
+    if (!DB) return { ok: false as const, message: "Database unavailable." };
     const u = await DB.prepare("SELECT team_id FROM uitnodigingen WHERE token = ? AND gebruikt = 0 AND created_at > datetime('now', '-14 days')").bind(data.token).first<{ team_id: number }>();
-    if (!u) return { ok: false as const, message: "Deze uitnodiging is verlopen of al gebruikt." };
+    if (!u) return { ok: false as const, message: "This invitation has expired or was already used." };
     const eigenaar = await DB.prepare("SELECT bedrijf, plan FROM gebruikers WHERE id = ?").bind(u.team_id).first<{ bedrijf: string; plan: string }>();
-    if (!eigenaar) return { ok: false as const, message: "Dit team bestaat niet meer." };
+    if (!eigenaar) return { ok: false as const, message: "This team no longer exists." };
     if (await DB.prepare("SELECT id FROM gebruikers WHERE email = ?").bind(data.email).first()) {
-      return { ok: false as const, message: "Er bestaat al een account met dit e-mailadres." };
+      return { ok: false as const, message: "An account with this email address already exists." };
     }
     const r = await DB.prepare("INSERT INTO gebruikers (email, naam, bedrijf, wachtwoord, plan, status) VALUES (?, ?, ?, ?, ?, 'actief')")
       .bind(data.email, data.naam, eigenaar.bedrijf, await hashWachtwoord(data.wachtwoord), eigenaar.plan)
@@ -144,7 +144,7 @@ export const maakAfspraak = createServerFn({ method: "POST" })
   .validator((v: unknown) =>
     z
       .object({ titel: z.string().trim().min(2).max(120), start: tijd, eind: tijd, locatie: z.string().trim().max(120).optional(), notitie: z.string().trim().max(1000).optional(), lead_id: z.number().int().optional() })
-      .refine((a) => a.eind > a.start, "Eindtijd moet na begintijd liggen")
+      .refine((a) => a.eind > a.start, "End time must be after start time")
       .parse(v),
   )
   .handler(async ({ data }) => {

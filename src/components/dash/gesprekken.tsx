@@ -34,8 +34,8 @@ export function Gesprekken({ data }: { data: DashData }) {
   return (
     <>
       <header className="v-dash__head">
-        <h1>Gesprekken</h1>
-        <p>Alles wat AVA met bezoekers van je website bespreekt. Live gesprekken lees je mee terwijl ze gebeuren.</p>
+        <h1>Conversations</h1>
+        <p>Everything AVA discusses with visitors to your website. Follow live conversations as they happen.</p>
       </header>
       <div className="v-convo">
         <aside className="v-convo__list">
@@ -47,12 +47,12 @@ export function Gesprekken({ data }: { data: DashData }) {
               </div>
               <p>{g.onderwerp}</p>
               <small>
-                <span className={`v-heat v-heat--mini v-heat--${warmteLabel(g.warmte).toLowerCase()}`}>{g.warmte}</span> {g.kanaal} · {g.berichten} berichten
-                {g.voorbeeld ? " · voorbeeld" : ""}
+                <span className={`v-heat v-heat--mini v-heat--${warmteLabel(g.warmte).toLowerCase()}`}>{g.warmte}</span> {g.kanaal} · {g.berichten} messages
+                {g.voorbeeld ? " · sample" : ""}
               </small>
             </button>
           ))}
-          {data.gesprekken.length === 0 ? <p className="v-feed__empty v-pad">Nog geen gesprekken. Zodra iemand AVA op je website aanspreekt, zie je het hier.</p> : null}
+          {data.gesprekken.length === 0 ? <p className="v-feed__empty v-pad">No conversations yet. As soon as someone talks to AVA on your website, you will see it here.</p> : null}
         </aside>
         <section className="v-convo__view">
           {detail ? (
@@ -61,18 +61,18 @@ export function Gesprekken({ data }: { data: DashData }) {
                 <div>
                   <h2>{detail.gesprek.bezoeker}</h2>
                   <p className="v-muted v-small">
-                    {detail.gesprek.kanaal} · gestart {tijdAms(sqlDate(detail.gesprek.gestart))} · laatste bericht {geleden(sqlDate(detail.gesprek.laatste), nu)}
+                    {detail.gesprek.kanaal} · started {tijdAms(sqlDate(detail.gesprek.gestart))} · last message {geleden(sqlDate(detail.gesprek.laatste), nu)}
                     {detail.gesprek.contact ? ` · ${detail.gesprek.contact}` : ""}
                   </p>
                 </div>
-                <span className={`v-heat v-heat--${warmteLabel(detail.gesprek.warmte).toLowerCase()}`} title="Warmte">
+                <span className={`v-heat v-heat--${warmteLabel(detail.gesprek.warmte).toLowerCase()}`} title="Warmth">
                   {detail.gesprek.warmte}
                 </span>
               </header>
               <div className="v-convo__msgs" role="log" aria-live="polite">
                 {detail.berichten.length === 0 ? (
                   <p className="v-feed__empty">
-                    {detail.gesprek.voorbeeld ? "Dit is een voorbeeldgesprek zonder berichten. Echte gesprekken tonen hier alles wat er gezegd is." : "Nog geen berichten."}
+                    {detail.gesprek.voorbeeld ? "This is a sample conversation without messages. Real conversations show everything that was said here." : "No messages yet."}
                   </p>
                 ) : null}
                 {detail.berichten.map((b) => (
@@ -84,10 +84,10 @@ export function Gesprekken({ data }: { data: DashData }) {
                   </div>
                 ))}
               </div>
-              {detail.gesprek.lead_id ? <p className="v-convo__lead">Deze bezoeker staat als lead in Aanvragen.</p> : null}
+              {detail.gesprek.lead_id ? <p className="v-convo__lead">This visitor is listed as a lead in Requests.</p> : null}
             </>
           ) : (
-            <p className="v-feed__empty v-pad">Kies een gesprek.</p>
+            <p className="v-feed__empty v-pad">Choose a conversation.</p>
           )}
         </section>
       </div>

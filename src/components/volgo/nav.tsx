@@ -4,28 +4,29 @@ export function Nav({ ingelogd = false }: { ingelogd?: boolean }) {
   return (
     <header className="v-nav">
       <div className="v-nav__inner">
-        <a aria-label="Volgo, naar boven" className="v-nav__brand" href="/#top">
+        <a aria-label="Volgo, back to top" className="v-nav__brand" href="/#top">
           <VolgoMark />
           <span>Volgo</span>
         </a>
-        <nav aria-label="Hoofdmenu" className="v-nav__links">
-          <a href="/#hoe">Hoe het werkt</a>
-          <a href="/pricing">Abonnementen</a>
-          <a href="/#vragen">Vragen</a>
-          {ingelogd ? null : <a href="/login">Inloggen</a>}
+        <nav aria-label="Main menu" className="v-nav__links">
+          <a href="/#how">How it works</a>
+          <a href="/#features">Features</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/#faq">FAQ</a>
+          {ingelogd ? null : <a href="/login">Log in</a>}
         </nav>
         {ingelogd ? null : (
           <a className="v-nav__login" href="/login">
-            Inloggen
+            Log in
           </a>
         )}
         {ingelogd ? (
           <a className="v-nav__cta" href="/dashboard">
-            Naar dashboard
+            Go to dashboard
           </a>
         ) : (
           <a className="v-nav__cta" href="/pricing">
-            Probeer gratis
+            Start free trial
           </a>
         )}
       </div>

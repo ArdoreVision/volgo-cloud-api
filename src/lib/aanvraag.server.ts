@@ -40,24 +40,24 @@ export async function saveAndMail(a: Aanvraag, ipHash: string): Promise<{ mailed
     await DB.prepare(
       "INSERT INTO aanvragen (naam, bedrijf, email, telefoon, website, branche, wens, bericht, ip_hash) VALUES (?,?,?,?,?,?,?,?,?)",
     )
-      .bind(a.naam, a.bedrijf, a.email, a.telefoon ?? "", a.website ?? "", a.branche ?? "", a.wens ?? "", `${a.bron === "chat" ? "[via AVA-chat] " : ""}${a.bericht ?? ""}`, ipHash)
+      .bind(a.naam, a.bedrijf, a.email, a.telefoon ?? "", a.website ?? "", a.branche ?? "", a.wens ?? "", `${a.bron === "chat" ? "[via AVA chat] " : ""}${a.bericht ?? ""}`, ipHash)
       .run();
   }
   if (!RESEND_API_KEY) return { mailed: false };
 
   const rows: [string, string][] = [
-    ["Naam", a.naam],
-    ["Bedrijf", a.bedrijf],
-    ["E-mail", a.email],
-    ["Telefoon", a.telefoon || "-"],
-    ["Huidige website", a.website || "-"],
-    ["Branche", a.branche || "-"],
-    ["Interesse", a.wens || "-"],
-    [a.bron === "chat" ? "Samenvatting gesprek" : "Bericht", a.bericht || "-"],
+    ["Name", a.naam],
+    ["Company", a.bedrijf],
+    ["Email", a.email],
+    ["Phone", a.telefoon || "-"],
+    ["Current website", a.website || "-"],
+    ["Industry", a.branche || "-"],
+    ["Interested in", a.wens || "-"],
+    [a.bron === "chat" ? "Conversation summary" : "Message", a.bericht || "-"],
   ];
   const html =
     `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#1d1d1f;max-width:560px">` +
-    `<p style="color:#1677d9;font-weight:600;margin:0 0 6px">Nieuwe demo-aanvraag via ${a.bron === "chat" ? "de AVA-chat" : "het formulier"}</p>` +
+    `<p style="color:#1677d9;font-weight:600;margin:0 0 6px">New demo request via ${a.bron === "chat" ? "the AVA chat" : "the form"}</p>` +
     `<h1 style="font-size:24px;margin:0 0 4px">${esc(a.naam)}</h1>` +
     `<p style="margin:0 0 18px;color:#6e6e73">${esc(a.bedrijf)}</p>` +
     `<table style="border-collapse:collapse;width:100%;font-size:14px">` +
@@ -67,16 +67,16 @@ export async function saveAndMail(a: Aanvraag, ipHash: string): Promise<{ mailed
           `<tr><td style="padding:10px 0;border-top:1px solid #e5e5ea;color:#6e6e73;width:35%;vertical-align:top">${k}</td><td style="padding:10px 0;border-top:1px solid #e5e5ea;white-space:pre-line">${esc(v)}</td></tr>`,
       )
       .join("") +
-    `</table><p style="font-size:13px;color:#6e6e73;margin-top:20px">Beantwoord deze mail om direct te reageren.</p></div>`;
+    `</table><p style="font-size:13px;color:#6e6e73;margin-top:20px">Reply to this email to respond directly.</p></div>`;
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "Volgo Aanvragen <onboarding@resend.dev>",
+        from: "Volgo Requests <onboarding@resend.dev>",
         to: [INBOX],
         reply_to: a.email,
-        subject: `Nieuwe demo-aanvraag${a.bron === "chat" ? " (AVA-chat)" : ""}: ${a.bedrijf} (${a.naam})`,
+        subject: `New demo request${a.bron === "chat" ? " (AVA chat)" : ""}: ${a.bedrijf} (${a.naam})`,
         html,
         text: rows.map(([k, v]) => `${k}: ${v}`).join("\n"),
       }),

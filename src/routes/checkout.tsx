@@ -10,7 +10,7 @@ export const Route = createFileRoute("/checkout")({
   validateSearch: (s: Record<string, unknown>): { token?: string } => ({ token: typeof s.token === "string" && s.token ? s.token : undefined }),
   loaderDeps: ({ search }) => ({ token: search.token ?? "" }),
   loader: ({ deps }) => (deps.token ? bekijkTestBetaling({ data: { token: deps.token } }) : null),
-  head: () => ({ meta: [{ title: "Betalen · Volgo" }] }),
+  head: () => ({ meta: [{ title: "Checkout · Volgo" }] }),
   component: Betalen,
 });
 
@@ -23,9 +23,9 @@ function Betalen() {
   if (!info || !isPlan(info.plan)) {
     return (
       <AuthShell>
-        <h1 className="v-auth__title">Deze betaling bestaat niet meer.</h1>
-        <p className="v-auth__sub">Kies opnieuw een abonnement om verder te gaan.</p>
-        <a className="v-auth__btn" href="/pricing">Naar abonnementen</a>
+        <h1 className="v-auth__title">This payment no longer exists.</h1>
+        <p className="v-auth__sub">Choose a plan again to continue.</p>
+        <a className="v-auth__btn" href="/pricing">See plans</a>
       </AuthShell>
     );
   }
@@ -41,34 +41,34 @@ function Betalen() {
   return (
     <AuthShell>
       <Steps actief={2} />
-      <p className="v-testbadge">Testmodus · er wordt niets afgeschreven</p>
+      <p className="v-testbadge">Test mode · you won’t be charged</p>
       <h1 className="v-auth__title">Volgo {p.naam}</h1>
       <div className="v-summary">
         <div>
-          <span>Abonnement</span>
+          <span>Plan</span>
           <strong>Volgo {p.naam}</strong>
         </div>
         <div>
-          <span>Prijs</span>
-          <strong>€ {p.prijsTekst} per maand</strong>
+          <span>Price</span>
+          <strong>€{p.prijsTekst} per month</strong>
         </div>
         {p.proefDagen ? (
           <div>
-            <span>Vandaag te betalen</span>
-            <strong>€ 0,00</strong>
+            <span>Due today</span>
+            <strong>€0.00</strong>
           </div>
         ) : null}
         <p className="v-summary__note">
           {p.proefDagen
-            ? `Je eerste ${p.proefDagen} dagen zijn gratis. Daarna betaal je € ${p.prijsTekst} per maand, exclusief btw.`
-            : `Je betaalt € ${p.prijsTekst} per maand, exclusief btw.`}
+            ? `Your first ${p.proefDagen} days are free. After that you pay €${p.prijsTekst} per month, excluding VAT.`
+            : `You pay €${p.prijsTekst} per month, excluding VAT.`}
         </p>
       </div>
       <button className="v-auth__btn" disabled={bezig} onClick={() => void rondAf()} type="button">
-        {bezig ? "Even geduld" : "Betaling afronden"}
+        {bezig ? "One moment…" : "Complete payment"}
       </button>
       <a className="v-auth__link" href="/pricing">
-        Ander abonnement kiezen
+        Choose a different plan
       </a>
     </AuthShell>
   );

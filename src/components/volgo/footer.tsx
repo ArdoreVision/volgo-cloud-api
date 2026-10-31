@@ -7,11 +7,11 @@ export function Footer() {
         <VolgoMark size={20} />
         <span>Volgo</span>
       </a>
-      <p>Een dienst van Hanssens Cornerstone Capital · Vlissingen · KvK 98133438</p>
-      <nav aria-label="Voettekst" className="v-footer__links">
-        <a href="/terms">Voorwaarden</a>
+      <p>A service by Hanssens Cornerstone Capital · Vlissingen, the Netherlands · KvK 98133438</p>
+      <nav aria-label="Footer" className="v-footer__links">
+        <a href="/terms">Terms</a>
         <a href="/privacy">Privacy</a>
-        <a href="/dpa">Verwerkersovereenkomst</a>
+        <a href="/dpa">Data Processing Agreement</a>
         <a href="/cookies">Cookies</a>
         <a href="mailto:hanssenscornerstone@outlook.com">Contact</a>
       </nav>

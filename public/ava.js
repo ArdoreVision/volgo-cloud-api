@@ -1,4 +1,4 @@
-/* AVA-chat van Volgo. Gebruik: <script src="https://…/ava.js" data-key="SLEUTEL" defer></script> */
+/* Volgo AVA chat. Usage: <script src="https://…/ava.js" data-key="SLEUTEL" defer></script> */
 (function () {
   "use strict";
   var script = document.currentScript;
@@ -60,11 +60,11 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
 @media (max-width:640px){.fab span{display:none}.fab{padding:6px}.panel{right:0;bottom:0;width:100%;height:100%;border-radius:0}}\
 ";
   root.innerHTML = "<style>" + css + "</style>" +
-    '<button class="fab" type="button" aria-label="Chat openen"><img alt="" src="' + BASE + '/assets/volgo/ava.png"><span class="lbl">Stel je vraag</span><i class="dot" hidden></i></button>' +
-    '<section class="panel" role="dialog" aria-label="Chat"><div class="head"><img alt="" src="' + BASE + '/assets/volgo/ava.png"><div><strong class="nm">AVA</strong><small><i></i><span class="sub">Reageert direct</span></small></div><button class="x" type="button" aria-label="Sluiten">×</button></div>' +
+    '<button class="fab" type="button" aria-label="Open chat"><img alt="" src="' + BASE + '/assets/volgo/ava.png"><span class="lbl">Ask a question</span><i class="dot" hidden></i></button>' +
+    '<section class="panel" role="dialog" aria-label="Chat"><div class="head"><img alt="" src="' + BASE + '/assets/volgo/ava.png"><div><strong class="nm">AVA</strong><small><i></i><span class="sub">Replies instantly</span></small></div><button class="x" type="button" aria-label="Close">×</button></div>' +
     '<div class="log" role="log" aria-live="polite"></div>' +
-    '<form><textarea rows="1" maxlength="1500" placeholder="Typ je vraag..." aria-label="Bericht"></textarea><button class="send" type="submit" aria-label="Versturen" disabled>↑</button></form>' +
-    '<p class="note">AI-assistent · <a href="' + BASE + '" target="_blank" rel="noopener">Volgo</a></p></section>';
+    '<form><textarea rows="1" maxlength="1500" placeholder="Type your question..." aria-label="Message"></textarea><button class="send" type="submit" aria-label="Send" disabled>↑</button></form>' +
+    '<p class="note">AI assistant · <a href="' + BASE + '" target="_blank" rel="noopener">Volgo</a></p></section>';
 
   var $ = function (s) { return root.querySelector(s); };
   var fab = $(".fab"), panel = $(".panel"), log = $(".log"), form = $("form"), ta = $("textarea"), send = $(".send");
@@ -88,7 +88,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     root.querySelector(".panel").style.setProperty("--c", c.kleur || "#1677d9");
     fab.style.setProperty("--c", c.kleur || "#1677d9");
     $(".nm").textContent = c.naam + " · " + c.bedrijf;
-    $(".lbl").textContent = "Vraag het " + c.naam;
+    $(".lbl").textContent = "Ask " + c.naam;
     render();
   }
   host.style.setProperty("--c", "#1677d9");
@@ -113,10 +113,10 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     post({ actie: "bericht", sleutel: KEY, token: state.token, tekst: t }).then(function (r) {
       typ.remove();
       if (r.token) state.token = r.token;
-      var a = r.antwoord || "Er ging iets mis. Probeer het nog eens.";
+      var a = r.antwoord || "Something went wrong. Please try again.";
       state.msgs.push({ r: "a", t: a }); save(state); bubble("a", a);
     }).catch(function () {
-      typ.remove(); bubble("a", "Geen verbinding. Probeer het zo nog eens.");
+      typ.remove(); bubble("a", "No connection. Please try again in a moment.");
     }).then(function () { busy = false; send.disabled = !ta.value.trim(); });
   }
 })();

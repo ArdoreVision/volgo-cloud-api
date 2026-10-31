@@ -24,7 +24,7 @@ export const verstuurAanvraag = createServerFn({ method: "POST" })
     if (data.hp || (data.ms > 0 && data.ms < 3000)) return { ok: true as const, mailed: true, inbox: INBOX };
     const ipHash = await hashIp(getRequestHeader("cf-connecting-ip") ?? "onbekend");
     if ((await recentCount("aanvragen", ipHash, 60)) >= 5) {
-      return { ok: false as const, message: "Je hebt al een paar aanvragen gedaan. Probeer het later opnieuw." };
+      return { ok: false as const, message: "You’ve already sent a few requests. Please try again later." };
     }
     const { mailed } = await saveAndMail({ ...data, bron: "formulier" }, ipHash);
     return { ok: true as const, mailed, inbox: INBOX };

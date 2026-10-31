@@ -2,7 +2,7 @@ import { bindings } from "./bindings.server";
 import { SITE_URL, esc, mailOpmaak, verstuurMail } from "./mail.server";
 
 const tijd = (iso: string) =>
-  new Date(iso.replace(" ", "T") + "Z").toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
+  new Date(iso.replace(" ", "T") + "Z").toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
 
 /** Elke ochtend: per team een korte mail met wat er is binnengekomen en wie je moet bellen. */
 export async function stuurOchtendSamenvattingen() {
@@ -42,18 +42,18 @@ export async function stuurOchtendSamenvattingen() {
     if (!nl && !ng && !heet.results.length && !afspraken.results.length) continue;
 
     const blokken: string[] = [
-      `<p style="margin:0 0 18px">Afgelopen 24 uur sprak AVA <strong>${ng}</strong> ${ng === 1 ? "bezoeker" : "bezoekers"} en kwamen er <strong>${nl}</strong> ${nl === 1 ? "nieuwe lead" : "nieuwe leads"} binnen.</p>`,
+      `<p style="margin:0 0 18px">In the last 24 hours AVA talked to <strong>${ng}</strong> ${ng === 1 ? "visitor" : "visitors"} and <strong>${nl}</strong> ${nl === 1 ? "new lead" : "new leads"} came in.</p>`,
     ];
     if (heet.results.length) {
       blokken.push(
-        `<p style="margin:0 0 6px;font-weight:600;color:#0b1220">Bel vandaag als eerste</p><ol style="margin:0 0 18px;padding-left:20px">${heet.results
-          .map((l) => `<li style="margin:0 0 6px"><strong>${esc(l.naam)}</strong> · warmte ${l.warmte}<br><span style="color:#64748b">${esc(l.onderwerp)}${l.laatste_actie ? ` · ${esc(l.laatste_actie)}` : ""}</span></li>`)
+        `<p style="margin:0 0 6px;font-weight:600;color:#0b1220">Call these first today</p><ol style="margin:0 0 18px;padding-left:20px">${heet.results
+          .map((l) => `<li style="margin:0 0 6px"><strong>${esc(l.naam)}</strong> · warmth ${l.warmte}<br><span style="color:#64748b">${esc(l.onderwerp)}${l.laatste_actie ? ` · ${esc(l.laatste_actie)}` : ""}</span></li>`)
           .join("")}</ol>`,
       );
     }
     if (afspraken.results.length) {
       blokken.push(
-        `<p style="margin:0 0 6px;font-weight:600;color:#0b1220">Vandaag in je agenda</p><ul style="margin:0;padding-left:20px">${afspraken.results
+        `<p style="margin:0 0 6px;font-weight:600;color:#0b1220">On your calendar today</p><ul style="margin:0;padding-left:20px">${afspraken.results
           .map((a) => `<li style="margin:0 0 4px">${tijd(a.start)} · ${esc(a.titel)}</li>`)
           .join("")}</ul>`,
       );
@@ -62,8 +62,8 @@ export async function stuurOchtendSamenvattingen() {
     for (const o of ontvangers.results) {
       const ok = await verstuurMail(
         o.email,
-        `Je ochtend bij ${t.bedrijf}: ${nl} ${nl === 1 ? "nieuwe lead" : "nieuwe leads"}`,
-        mailOpmaak(`Goedemorgen ${esc(o.naam.split(/\s+/)[0])}`, blokken.join(""), { tekst: "Open Volgo", url: `${SITE_URL}/dashboard` }),
+        `Your morning at ${t.bedrijf}: ${nl} ${nl === 1 ? "new lead" : "new leads"}`,
+        mailOpmaak(`Good morning, ${esc(o.naam.split(/\s+/)[0])}`, blokken.join(""), { tekst: "Open Volgo", url: `${SITE_URL}/dashboard` }),
       );
       if (ok) verstuurd++;
     }

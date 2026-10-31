@@ -812,3 +812,28 @@ button.v-dash__brand { border: 0; background: transparent; font: inherit; color:
 .v-al-account > div { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .v-al-account .v-btn-blauw { text-decoration: none; display: inline-block; }
 .v-al-account .v-dash__logout { margin: 0; }
+
+/* ---------- Landing v2 ---------- */
+.v-hero__fine { margin: 16px 0 0; font-size: 14px; color: var(--muted); }
+.v-inside, .v-how, .v-final { max-width: 1120px; margin: 0 auto; padding: clamp(64px, 9vw, 120px) 24px 0; }
+.v-inside .v-lede { margin-inline: auto; }
+.v-inside__grid { list-style: none; padding: 0; margin: 44px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.v-inside__grid li { background: var(--surface); border-radius: 24px; padding: 24px; }
+.v-inside__grid svg { width: 34px; height: 34px; padding: 7px; border-radius: 11px; background: #fff; fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.v-inside__grid h3 { margin: 16px 0 6px; font-size: 1.12rem; font-weight: 600; }
+.v-inside__grid p { margin: 0; color: var(--ink-2); line-height: 1.55; font-size: 15px; }
+.v-how__list { list-style: none; padding: 0; margin: 44px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; counter-reset: none; }
+.v-how__list li { position: relative; padding: 26px; border-radius: 24px; border: 1px solid var(--line); background: #fff; }
+.v-how__list span { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 600; font-family: var(--display); }
+.v-how__list h3 { margin: 16px 0 6px; font-size: 1.15rem; font-weight: 600; }
+.v-how__list p { margin: 0; color: var(--ink-2); line-height: 1.55; font-size: 15px; }
+.v-pricing--home { padding-bottom: 0; }
+a.v-plan__cta { display: block; text-align: center; text-decoration: none; box-sizing: border-box; }
+.v-final { text-align: center; padding-bottom: 40px; }
+.v-final .v-h2 { margin-inline: auto; }
+.v-final__actions { margin-top: 26px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+@media (max-width: 860px) {
+  .v-inside__grid, .v-how__list { grid-template-columns: 1fr; }
+}
+.v-how, .v-bento-wrap, .v-pricing--home { scroll-margin-top: 90px; }
+.v-billing { margin-top: 20px; display: grid; gap: 8px; justify-items: start; } .v-billing p { margin: 0; }

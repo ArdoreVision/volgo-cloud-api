@@ -4,29 +4,29 @@ import { LegalPage } from "@/components/volgo/legal";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/cookies")({
-  head: () => ({ meta: [{ title: "Cookieverklaring · Volgo" }, { name: "description", content: "Welke cookies Volgo gebruikt." }] }),
+  head: () => ({ meta: [{ title: "Cookie Policy · Volgo" }, { name: "description", content: "Which cookies Volgo uses." }] }),
   component: () => (
     <LegalPage
-      bijgewerkt="31 oktober 2026"
-      intro={<p>Kort gezegd: Volgo gebruikt geen tracking- of advertentiecookies. Daarom zie je ook geen cookiemelding.</p>}
-      titel="Cookieverklaring"
+      bijgewerkt="October 31, 2026"
+      intro={<p>In short: Volgo doesn’t use tracking or advertising cookies. That’s why you don’t see a cookie banner.</p>}
+      titel="Cookie Policy"
     >
-      <h2>Welke cookies we gebruiken</h2>
+      <h2>Which cookies we use</h2>
       <ul>
         <li>
-          <strong>volgo_sessie</strong>: houdt je ingelogd in het dashboard. Alleen gezet als je inlogt, maximaal 30 dagen geldig. Dit cookie is
-          noodzakelijk en daarvoor is geen toestemming nodig.
+          <strong>volgo_sessie</strong>: keeps you logged in to the dashboard. Only set when you log in, valid for up to 30 days.
+          This cookie is strictly necessary and does not require consent.
         </li>
       </ul>
-      <h2>Opslag in je browser</h2>
+      <h2>Storage in your browser</h2>
       <p>
-        De chat met AVA onthoudt in je browser een anonieme gesprekscode, zodat je gesprek niet verdwijnt als je naar een andere pagina gaat. Die code
-        bevat geen persoonsgegevens en wordt niet gebruikt om je te volgen.
+        The chat with AVA stores an anonymous conversation code in your browser, so your conversation doesn’t disappear when you
+        go to another page. This code contains no personal data and is not used to track you.
       </p>
-      <h2>Wat we niet doen</h2>
-      <p>Geen Google Analytics, geen Facebook-pixel, geen advertentienetwerken en geen verkoop van gegevens.</p>
+      <h2>What we don’t do</h2>
+      <p>No Google Analytics, no Facebook pixel, no ad networks, and we never sell data.</p>
       <p>
-        Meer over hoe we met gegevens omgaan staat in de <a href="/privacy">privacyverklaring</a>.
+        You can read more about how we handle data in our <a href="/privacy">Privacy Policy</a>.
       </p>
     </LegalPage>
   ),

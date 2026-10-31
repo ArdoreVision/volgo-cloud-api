@@ -1,30 +1,31 @@
 export function Hero() {
   return (
-    <section aria-labelledby="hero-titel" className="v-hero" id="top">
+    <section aria-labelledby="hero-title" className="v-hero" id="top">
       <div className="v-hero__card">
         <div className="v-hero__copy">
           <p className="v-pill-label">
             <span aria-hidden="true" className="v-pill-label__dot" />
-            Website + AI-opvolging in één
+            Website + AI assistant, in one
           </p>
-          <h1 className="v-hero__title" id="hero-titel">
-            Je website volgt nu zelf je klanten op.
+          <h1 className="v-hero__title" id="hero-title">
+            Your website now follows up on every customer.
           </h1>
           <p className="v-hero__sub">
-            Wij bouwen je een nieuwe website met AVA erin: een AI-assistent die elke aanvraag binnen een minuut
-            beantwoordt en opvolgt tot de afspraak staat.
+            Volgo builds your website with AVA inside. AVA chats with every visitor, day and night, collects their details and puts
+            your hottest leads at the top of your dashboard.
           </p>
           <div className="v-hero__actions">
             <a className="v-cta-primary" href="/pricing">
-              Probeer 7 dagen gratis
+              Start 7-day free trial
             </a>
             <a className="v-cta-ghost" href="/login">
-              Ik heb al een account
+              Log in
             </a>
           </div>
+          <p className="v-hero__fine">No setup on your side · Cancel any month</p>
         </div>
         <div className="v-hero__art">
-          <img alt="AVA, de AI-assistent van Volgo, naast een telefoon met berichten" height={900} src="/assets/volgo/hero.jpg" width={900} />
+          <img alt="AVA, Volgo's AI assistant, next to a phone with messages" height={900} src="/assets/volgo/hero.jpg" width={900} />
         </div>
       </div>
     </section>

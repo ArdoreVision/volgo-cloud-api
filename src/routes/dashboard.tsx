@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Account } from "@/components/dash/account";
 import { Agenda } from "@/components/dash/agenda";
+import { BillingButton } from "@/components/dash/billing-button";
 import { AvaInstellen } from "@/components/dash/ava-instellen";
 import { Gesprekken } from "@/components/dash/gesprekken";
 import { Home } from "@/components/dash/home";
@@ -30,16 +31,16 @@ type Tab = "home" | "overzicht" | "gesprekken" | "agenda" | "team" | "aanvragen"
 type Toast = { id: number; titel: string; tekst: string; tab: Tab; heet?: boolean };
 type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
 const STATUS_LABEL: Record<Status, string> = {
-  nieuw: "Nieuw",
-  opvolging: "AVA volgt op",
-  offerte: "Offerte",
-  afspraak: "Afspraak",
-  klant: "Klant",
-  verloren: "Verloren",
+  nieuw: "New",
+  opvolging: "AVA following up",
+  offerte: "Quote",
+  afspraak: "Appointment",
+  klant: "Customer",
+  verloren: "Lost",
 };
 
 const datum = (iso: string) =>
-  new Date(iso.replace(" ", "T") + "Z").toLocaleString("nl-NL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
+  new Date(iso.replace(" ", "T") + "Z").toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
 
 function Icon({ name }: { name: Tab | "uit" }) {
   const d: Record<string, string> = {
@@ -81,8 +82,8 @@ function Dashboard() {
       if (!r) return;
       sinds.current = r.nu;
       const nieuw: Toast[] = [];
-      if (r.meldChat) for (const c of r.chats) nieuw.push({ id: Math.random(), titel: "Nieuw gesprek met AVA", tekst: c.onderwerp, tab: "gesprekken" });
-      if (r.meldLead) for (const l of r.leads) nieuw.push({ id: Math.random(), titel: `Nieuwe lead: ${l.naam}`, tekst: `Warmte ${l.warmte} · ${l.onderwerp}`, tab: "aanvragen", heet: l.warmte >= 75 });
+      if (r.meldChat) for (const c of r.chats) nieuw.push({ id: Math.random(), titel: "New conversation with AVA", tekst: c.onderwerp, tab: "gesprekken" });
+      if (r.meldLead) for (const l of r.leads) nieuw.push({ id: Math.random(), titel: `New lead: ${l.naam}`, tekst: `Warmth ${l.warmte} · ${l.onderwerp}`, tab: "aanvragen", heet: l.warmte >= 75 });
       if (!r.chats.length && !r.leads.length) return;
       void router.invalidate();
       if (!nieuw.length) return;
@@ -115,20 +116,20 @@ function Dashboard() {
 
   const tabs: [Tab, string][] = [
     ["home", "Home"],
-    ["overzicht", "Overzicht"],
-    ["gesprekken", "Gesprekken"],
-    ["agenda", "Agenda"],
+    ["overzicht", "Overview"],
+    ["gesprekken", "Conversations"],
+    ["agenda", "Calendar"],
     ["team", "Team"],
-    ["aanvragen", "Aanvragen"],
+    ["aanvragen", "Requests"],
     ["ava", "AVA"],
-    ["abonnement", "Abonnement"],
+    ["abonnement", "Subscription"],
     ["account", "Account"],
   ];
 
   return (
     <div className="volgo v-dash">
       <aside className="v-dash__side">
-        <button aria-label="Volgo, naar home" className="v-nav__brand v-dash__brand" onClick={() => setTab("home")} type="button">
+        <button aria-label="Volgo, go to home" className="v-nav__brand v-dash__brand" onClick={() => setTab("home")} type="button">
           <VolgoMark />
           <span>Volgo</span>
         </button>
@@ -148,7 +149,7 @@ function Dashboard() {
             <strong>{g.bedrijf}</strong>
             <small>{plan.naam}</small>
           </div>
-          <button aria-label="Uitloggen" className="v-dash__out" onClick={() => void loguit()} type="button">
+          <button aria-label="Log out" className="v-dash__out" onClick={() => void loguit()} type="button">
             <Icon name="uit" />
           </button>
         </div>
@@ -157,7 +158,7 @@ function Dashboard() {
       <main className={`v-dash__main${tab === "team" ? " v-dash__main--full" : ""}${tab === "home" ? " v-dash__main--home" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
-            Je proefperiode loopt nog {proefDagen} {proefDagen === 1 ? "dag" : "dagen"}. Daarna gaat Volgo {plan.naam} automatisch verder voor € {plan.prijsTekst} per maand.
+            Your free trial has {proefDagen} {proefDagen === 1 ? "day" : "days"} left. After that, Volgo {plan.naam} continues automatically at €{plan.prijsTekst} per month.
           </p>
         ) : null}
 
@@ -171,16 +172,16 @@ function Dashboard() {
         {tab === "aanvragen" ? (
           <>
             <header className="v-dash__head">
-              <h1>Aanvragen</h1>
-              <p>AVA zet de warmste leads bovenaan. Pas de status aan als je zelf contact hebt gehad.</p>
+              <h1>Requests</h1>
+              <p>AVA puts the hottest leads at the top. Update the status once you have been in touch yourself.</p>
             </header>
             <section className="v-dash__panel v-dash__panel--flush">
               <div className="v-table" role="table">
                 <div className="v-table__row v-table__row--head" role="row">
-                  <span role="columnheader">Warmte</span>
-                  <span role="columnheader">Klant</span>
+                  <span role="columnheader">Warmth</span>
+                  <span role="columnheader">Customer</span>
                   <span role="columnheader">Via</span>
-                  <span role="columnheader">Binnen</span>
+                  <span role="columnheader">Received</span>
                   <span role="columnheader">Status</span>
                 </div>
                 {leads.map((l) => (
@@ -197,7 +198,7 @@ function Dashboard() {
                     <span role="cell">{l.kanaal}</span>
                     <span role="cell">{datum(l.created_at)}</span>
                     <span role="cell">
-                      <select aria-label={`Status van ${l.naam}`} className={`v-select v-pill--${l.status}`} onChange={(e) => void zetStatus(l.id, e.target.value as Status)} value={l.status}>
+                      <select aria-label={`Status of ${l.naam}`} className={`v-select v-pill--${l.status}`} onChange={(e) => void zetStatus(l.id, e.target.value as Status)} value={l.status}>
                         {(Object.keys(STATUS_LABEL) as Status[]).map((s) => (
                           <option key={s} value={s}>
                             {STATUS_LABEL[s]}
@@ -215,23 +216,21 @@ function Dashboard() {
         {tab === "abonnement" ? (
           <>
             <header className="v-dash__head">
-              <h1>Abonnement</h1>
+              <h1>Subscription</h1>
             </header>
             <section className="v-dash__panel v-plan-card">
               <p className="v-plan-card__name">Volgo {plan.naam}</p>
-              <p className="v-plan-card__price">€ {plan.prijsTekst} <span>per maand, excl. btw</span></p>
+              <p className="v-plan-card__price">€{plan.prijsTekst} <span>per month, excl. VAT</span></p>
               <p className="v-plan-card__state">
-                {g.status === "proef" ? `Proefperiode, nog ${proefDagen} ${proefDagen === 1 ? "dag" : "dagen"}` : "Actief"}
-                {g.testmodus ? " · testaccount" : ""}
+                {g.status === "proef" ? `Free trial, ${proefDagen} ${proefDagen === 1 ? "day" : "days"} left` : "Active"}
+                {g.testmodus ? " · test account" : ""}
               </p>
               <ul className="v-plan__list">
                 {plan.features.map((f) => (
                   <li key={f}>{f}</li>
                 ))}
               </ul>
-              <p className="v-plan-card__help">
-                Wil je je abonnement wijzigen of opzeggen? Mail naar <a href="mailto:hanssenscornerstone@outlook.com">hanssenscornerstone@outlook.com</a>.
-              </p>
+              {g.rol === "eigenaar" ? <BillingButton /> : <p className="v-plan-card__help">Only the account owner can manage the subscription.</p>}
             </section>
           </>
         ) : null}

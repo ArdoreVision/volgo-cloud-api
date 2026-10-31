@@ -9,7 +9,8 @@ import { Hero } from "@/components/volgo/hero";
 import { Nav } from "@/components/volgo/nav";
 import { Problem } from "@/components/volgo/problem";
 import { Sectors } from "@/components/volgo/sectors";
-import { Signup } from "@/components/volgo/signup";
+import { HowItWorks, Inside } from "@/components/volgo/inside";
+import { FinalCta, PricingPreview } from "@/components/volgo/pricing-preview";
 import { isIngelogd } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
 
@@ -27,9 +28,12 @@ function Index() {
         <Problem />
         <Demo />
         <Bento />
+        <Inside />
+        <HowItWorks />
+        <PricingPreview />
         <Sectors />
         <Faq />
-        <Signup />
+        <FinalCta />
       </main>
       <Footer />
       <AvaChat />

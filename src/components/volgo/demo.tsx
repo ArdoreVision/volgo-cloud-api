@@ -5,17 +5,16 @@ import { TryAvaButton } from "./ava-chat";
 type Msg = { from: "klant" | "ava" | "systeem"; text: string; time: string };
 
 const script: Msg[] = [
-  { from: "systeem", text: "Nieuwe aanvraag via je website: warmtepomp, vrijstaande woning", time: "09:41" },
-  { from: "ava", text: "Hoi Sanne, bedankt voor je aanvraag! Mag ik je twee korte vragen stellen, zodat we je meteen goed kunnen helpen?", time: "09:42" },
-  { from: "klant", text: "Ja hoor, zeg het maar.", time: "09:44" },
-  { from: "ava", text: "Top. Wanneer komt een adviseur je het best uit: dinsdagmiddag of donderdagochtend?", time: "09:44" },
-  { from: "klant", text: "Donderdag graag.", time: "09:47" },
-  { from: "systeem", text: "Afspraak ingepland: donderdag 10:00. Eigenaar ontving een melding.", time: "09:47" },
+  { from: "klant", text: "Hi, my boiler just broke down. Can you come by this week?", time: "21:14" },
+  { from: "ava", text: "Oh no, that's annoying! I'll make sure the team calls you first thing tomorrow. What's your name and phone number?", time: "21:14" },
+  { from: "klant", text: "Sanne de Vries, 06 12 34 56 78", time: "21:15" },
+  { from: "ava", text: "Thanks, Sanne. Is it okay if Northside Heating contacts you about this?", time: "21:15" },
+  { from: "klant", text: "Yes please!", time: "21:16" },
+  { from: "systeem", text: "Hot lead · warmth 92 · owner notified by email", time: "21:16" },
 ];
 
 export function Demo() {
-  // Alle berichten staan altijd in de pagina (ook zonder JavaScript).
-  // Na het laden spelen ze één keer na als een gesprek.
+  // All messages are in the page (also without JavaScript); after load they play once like a conversation.
   const [step, setStep] = useState(script.length);
   const played = useRef(false);
 
@@ -37,35 +36,35 @@ export function Demo() {
     <section aria-labelledby="demo-titel" className="v-demo" id="hoe">
       <div className="v-demo__copy">
         <h2 className="v-h2" id="demo-titel">
-          Zo klinkt AVA.
+          Meet AVA.
         </h2>
         <p className="v-lede">
-          Een klant vult je formulier in. Binnen een minuut krijgt hij een persoonlijk bericht, AVA stelt de juiste
-          vragen en plant de afspraak in je agenda. Jij krijgt alleen nog de melding.
+          A visitor opens the chat on your website at nine in the evening. AVA answers right away, asks the right questions and
+          gets their details. You see the lead in your dashboard, hottest first.
         </p>
         <ol className="v-steps">
           <li>
-            <strong>Reageert direct</strong>
-            <span>Dag en nacht, ook in het weekend.</span>
+            <strong>Answers instantly</strong>
+            <span>24/7, in your visitor&apos;s own language.</span>
           </li>
           <li>
-            <strong>Vraagt door</strong>
-            <span>Wat, waar en wanneer, in jouw toon.</span>
+            <strong>Asks the right questions</strong>
+            <span>What they need, their name and how to reach them, with permission.</span>
           </li>
           <li>
-            <strong>Volgt op</strong>
-            <span>Na stilte stuurt AVA vriendelijk een herinnering.</span>
+            <strong>Hands you the hot ones</strong>
+            <span>Every lead gets a warmth score. Hot leads land in your inbox straight away.</span>
           </li>
         </ol>
         <TryAvaButton />
       </div>
-      <div aria-label="Voorbeeldgesprek tussen AVA en een klant" className="v-phone" role="img">
+      <div aria-label="Example conversation between AVA and a website visitor" className="v-phone" role="img">
         <div className="v-phone__screen">
           <div className="v-phone__bar">
             <span className="v-phone__avatar" aria-hidden="true" />
             <div>
               <strong>AVA</strong>
-              <small>Assistent van Installatiebedrijf Noord</small>
+              <small>Assistant at Northside Heating</small>
             </div>
           </div>
           <ul className="v-chat">

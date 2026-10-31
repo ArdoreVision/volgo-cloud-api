@@ -5,16 +5,16 @@ import { type DashData, STATUS_LABEL, type Status, dagKey, geleden, plusDag, sql
 
 type Bereik = "dag" | "week" | "maand" | "60" | "90";
 const BEREIKEN: [Bereik, string, number][] = [
-  ["dag", "Vandaag", 1],
+  ["dag", "Today", 1],
   ["week", "Week", 7],
-  ["maand", "Maand", 30],
-  ["60", "60 dagen", 60],
-  ["90", "90 dagen", 90],
+  ["maand", "Month", 30],
+  ["60", "60 days", 60],
+  ["90", "90 days", 90],
 ];
 
 function Delta({ nu, vorig }: { nu: number; vorig: number }) {
-  if (vorig === 0 && nu === 0) return <em className="v-delta">gelijk</em>;
-  if (vorig === 0) return <em className="v-delta v-delta--up">nieuw</em>;
+  if (vorig === 0 && nu === 0) return <em className="v-delta">no change</em>;
+  if (vorig === 0) return <em className="v-delta v-delta--up">new</em>;
   const p = Math.round(((nu - vorig) / vorig) * 100);
   return <em className={`v-delta ${p > 0 ? "v-delta--up" : p < 0 ? "v-delta--down" : ""}`}>{p > 0 ? `+${p}%` : `${p}%`}</em>;
 }
@@ -88,13 +88,13 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
     <>
       <header className="v-dash__head v-dash__head--row">
         <div>
-          <h1>Welkom, {voornaam}.</h1>
+          <h1>Welcome, {voornaam}.</h1>
           <p>
-            {live.length ? `AVA praat nu met ${live.length} ${live.length === 1 ? "persoon" : "mensen"}` : "AVA staat klaar"} · {vandaagAfspraken.length}{" "}
-            {vandaagAfspraken.length === 1 ? "afspraak" : "afspraken"} vandaag
+            {live.length ? `AVA is talking to ${live.length} ${live.length === 1 ? "person" : "people"} right now` : "AVA is ready"} · {vandaagAfspraken.length}{" "}
+            {vandaagAfspraken.length === 1 ? "appointment" : "appointments"} today
           </p>
         </div>
-        <div aria-label="Periode" className="v-seg" role="tablist">
+        <div aria-label="Period" className="v-seg" role="tablist">
           {BEREIKEN.map(([id, label]) => (
             <button aria-selected={bereik === id} key={id} onClick={() => setBereik(id)} role="tab" type="button">
               {label}
@@ -103,26 +103,26 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
         </div>
       </header>
 
-      {data.leads.some((l) => l.voorbeeld) ? <p className="v-dash__note">Je ziet voorbeeldgegevens. Je echte cijfers verschijnen hier zodra AVA live staat op je website.</p> : null}
+      {data.leads.some((l) => l.voorbeeld) ? <p className="v-dash__note">You are looking at sample data. Your real numbers appear here as soon as AVA is live on your website.</p> : null}
 
-      <section aria-label="Cijfers" className="v-dash__stats">
+      <section aria-label="Numbers" className="v-dash__stats">
         <div className="v-stat">
-          <span>Nieuwe aanvragen</span>
+          <span>New requests</span>
           <strong>{stats.aanvragen[0]}</strong>
           <Delta nu={stats.aanvragen[0]} vorig={stats.aanvragen[1]} />
         </div>
         <div className="v-stat">
-          <span>Afspraken</span>
+          <span>Appointments</span>
           <strong>{stats.afspraken[0]}</strong>
           <Delta nu={stats.afspraken[0]} vorig={stats.afspraken[1]} />
         </div>
         <div className="v-stat">
-          <span>Klanten gewonnen</span>
+          <span>Customers won</span>
           <strong>{stats.klanten[0]}</strong>
           <Delta nu={stats.klanten[0]} vorig={stats.klanten[1]} />
         </div>
         <div className="v-stat v-stat--win">
-          <span>Conversie</span>
+          <span>Conversion</span>
           <strong>{stats.conversie[0]}%</strong>
           <Delta nu={stats.conversie[0]} vorig={stats.conversie[1]} />
         </div>
@@ -130,10 +130,10 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
 
       <section className="v-dash__panel">
         <div className="v-dash__panel-head">
-          <h2>Aanvragen {bereik === "dag" ? "per uur" : dagen > 30 ? "per week" : "per dag"}</h2>
-          <span className="v-muted">vergeleken met de periode ervoor</span>
+          <h2>Requests {bereik === "dag" ? "per hour" : dagen > 30 ? "per week" : "per day"}</h2>
+          <span className="v-muted">compared with the previous period</span>
         </div>
-        <div className="v-chart" role="img" aria-label={`Grafiek met ${stats.aanvragen[0]} aanvragen in deze periode`}>
+        <div className="v-chart" role="img" aria-label={`Chart with ${stats.aanvragen[0]} requests in this period`}>
           {stats.bars.map((b, i) => (
             <div className="v-chart__col" key={i} title={`${b.label}: ${b.waarde}`}>
               <div className="v-chart__bar" style={{ height: `${(b.waarde / max) * 100}%` }}>
@@ -151,7 +151,7 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
             <h2>
               <span aria-hidden="true" className="v-live-dot" /> AVA live
             </h2>
-            <span className="v-muted">ververst automatisch</span>
+            <span className="v-muted">updates automatically</span>
           </div>
           <ul className="v-ava">
             {live.map((g) => (
@@ -162,25 +162,25 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
                 </div>
                 <p>{g.onderwerp}</p>
                 <small>
-                  {g.kanaal} · gestart {tijdAms(sqlDate(g.gestart))} · {g.berichten} berichten · laatste bericht {geleden(sqlDate(g.laatste), nu)}
+                  {g.kanaal} · started {tijdAms(sqlDate(g.gestart))} · {g.berichten} messages · last message {geleden(sqlDate(g.laatste), nu)}
                 </small>
-                <div className="v-warmte" title={`Warmte ${g.warmte}`}>
+                <div className="v-warmte" title={`Warmth ${g.warmte}`}>
                   <i style={{ width: `${g.warmte}%` }} />
                 </div>
               </li>
             ))}
-            {live.length === 0 ? <li className="v-feed__empty">Op dit moment geen lopende gesprekken.</li> : null}
+            {live.length === 0 ? <li className="v-feed__empty">No live conversations right now.</li> : null}
             {recent.map((g) => (
               <li className="v-ava__item" key={g.id}>
                 <div className="v-ava__top">
                   <strong>{g.bezoeker}</strong>
                   <span className="v-muted">
-                    {tijdAms(sqlDate(g.gestart))} tot {tijdAms(sqlDate(g.laatste))}
+                    {tijdAms(sqlDate(g.gestart))} to {tijdAms(sqlDate(g.laatste))}
                   </span>
                 </div>
                 <p>{g.onderwerp}</p>
                 <small>
-                  {g.kanaal} · {g.berichten} berichten · {geleden(sqlDate(g.laatste), nu)}
+                  {g.kanaal} · {g.berichten} messages · {geleden(sqlDate(g.laatste), nu)}
                 </small>
               </li>
             ))}
@@ -189,12 +189,12 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
 
         <section className="v-dash__panel">
           <div className="v-dash__panel-head">
-            <h2>Warmste leads</h2>
+            <h2>Hottest leads</h2>
             <button onClick={() => openTab("aanvragen")} type="button">
-              Alles bekijken
+              View all
             </button>
           </div>
-          <p className="v-muted v-small">AVA zet bovenaan wie het meest klaar is om te kopen.</p>
+          <p className="v-muted v-small">AVA puts the people most ready to buy at the top.</p>
           <ol className="v-hot">
             {warmste.map((l) => (
               <li key={l.id}>
@@ -208,7 +208,7 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
             ))}
           </ol>
           <button className="v-linkbtn" onClick={() => openTab("agenda")} type="button">
-            Afspraak inplannen
+            Schedule appointment
           </button>
         </section>
       </div>

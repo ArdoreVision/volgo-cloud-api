@@ -5,7 +5,7 @@ import "@/volgo.css";
 
 // Voorbeeldwebsite van een klant met AVA erin: zo ziet een bezoeker het.
 export const Route = createFileRoute("/demo/$sleutel")({
-  head: () => ({ meta: [{ title: "Voorbeeldwebsite met AVA" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Sample website with AVA" }, { name: "robots", content: "noindex" }] }),
   component: Demo,
 });
 
@@ -21,19 +21,19 @@ function Demo() {
   return (
     <div className="volgo v-demo-site">
       <div className="v-demo-site__bar">
-        Voorbeeldwebsite · zo ziet AVA eruit op de site van je klant. <a href="/dashboard">Terug naar dashboard</a>
+        Sample website · this is how AVA looks on your website. <a href="/dashboard">Back to dashboard</a>
       </div>
       <header className="v-demo-site__nav">
-        <strong>Jouw bedrijf</strong>
+        <strong>Your business</strong>
         <nav>
-          <span>Diensten</span>
-          <span>Over ons</span>
+          <span>Services</span>
+          <span>About</span>
           <span>Contact</span>
         </nav>
       </header>
       <main className="v-demo-site__hero">
-        <h1>Vakwerk, op tijd en zonder gedoe.</h1>
-        <p>Dit is een voorbeeldpagina. Klik rechtsonder op AVA en stel een vraag, zoals een echte bezoeker. Het gesprek verschijnt live in je dashboard.</p>
+        <h1>Quality work, on time, no hassle.</h1>
+        <p>This is a sample page. Click AVA in the bottom right and ask a question like a real visitor would. The conversation appears live in your dashboard.</p>
       </main>
     </div>
   );

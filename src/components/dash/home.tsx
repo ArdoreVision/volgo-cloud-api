@@ -6,18 +6,18 @@ import { vraagAssistent } from "@/lib/api/assistent.functions";
 import { AanDeSlag } from "./aan-de-slag";
 
 const VOORBEELDEN = [
-  "Welke leads moet ik vandaag als eerste bellen?",
-  "Wat staat er deze week in mijn agenda?",
-  "Waar vroegen bezoekers de laatste dagen naar?",
-  "Schrijf een korte opvolgmail voor mijn warmste lead.",
+  "Which leads should I call first today?",
+  "What's on my calendar this week?",
+  "What have visitors been asking about lately?",
+  "Write a short follow-up email for my hottest lead.",
 ];
 
 function groet(d: Date) {
-  const uur = Number(new Intl.DateTimeFormat("nl-NL", { hour: "numeric", hour12: false, timeZone: "Europe/Amsterdam" }).format(d));
-  if (uur < 6) return "Goedenacht";
-  if (uur < 12) return "Goedemorgen";
-  if (uur < 18) return "Goedemiddag";
-  return "Goedenavond";
+  const uur = Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: "Europe/Amsterdam" }).format(d));
+  if (uur < 6) return "Good night";
+  if (uur < 12) return "Good morning";
+  if (uur < 18) return "Good afternoon";
+  return "Good evening";
 }
 
 type Bericht = { rol: "ik" | "ava"; tekst: string };
@@ -45,8 +45,8 @@ export function Home({ voornaam, bedrijf, openTab }: { voornaam: string; bedrijf
     lijst.current?.scrollTo({ top: lijst.current.scrollHeight, behavior: "smooth" });
   }, [berichten, bezig]);
 
-  const tijd = nu.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
-  const datum = nu.toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Amsterdam" });
+  const tijd = nu.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
+  const datum = nu.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Amsterdam" });
 
   async function stuur(vraag: string) {
     const v = vraag.trim();
@@ -59,7 +59,7 @@ export function Home({ voornaam, bedrijf, openTab }: { voornaam: string; bedrijf
       const r = await vraagAssistent({ data: { vraag: v, historie } });
       setBerichten((b) => [...b, { rol: "ava", tekst: r.antwoord }]);
     } catch {
-      setBerichten((b) => [...b, { rol: "ava", tekst: "Er ging iets mis. Probeer het opnieuw." }]);
+      setBerichten((b) => [...b, { rol: "ava", tekst: "Something went wrong. Please try again." }]);
     } finally {
       setBezig(false);
       veld.current?.focus();
@@ -93,7 +93,7 @@ export function Home({ voornaam, bedrijf, openTab }: { voornaam: string; bedrijf
         <h1>
           {groet(nu)}, {voornaam}
         </h1>
-        {leeg ? <p className="v-home__sub">Vraag AVA alles over je klanten, gesprekken en agenda van {bedrijf}.</p> : null}
+        {leeg ? <p className="v-home__sub">Ask AVA anything about {bedrijf}'s customers, conversations and calendar.</p> : null}
       </header>
 
       {!leeg ? (
@@ -107,7 +107,7 @@ export function Home({ voornaam, bedrijf, openTab }: { voornaam: string; bedrijf
           {bezig ? (
             <div className="v-home__msg v-home__msg--ava">
               <span className="v-home__ava" aria-hidden="true">A</span>
-              <p className="v-home__typen" aria-label="AVA denkt na">
+              <p className="v-home__typen" aria-label="AVA is thinking">
                 <i />
                 <i />
                 <i />
@@ -119,15 +119,15 @@ export function Home({ voornaam, bedrijf, openTab }: { voornaam: string; bedrijf
 
       <form className="v-home__balk" onSubmit={onSubmit}>
         <textarea
-          aria-label="Vraag aan AVA"
+          aria-label="Ask AVA"
           onChange={(e) => setTekst(e.target.value)}
           onKeyDown={onKey}
-          placeholder={leeg ? VOORBEELDEN[vb] : "Stel nog een vraag aan AVA"}
+          placeholder={leeg ? VOORBEELDEN[vb] : "Ask AVA another question"}
           ref={veld}
           rows={1}
           value={tekst}
         />
-        <button aria-label="Verstuur" disabled={bezig} type="submit">
+        <button aria-label="Send" disabled={bezig} type="submit">
           <svg aria-hidden="true" viewBox="0 0 20 20">
             <path d="M10 16V4M5 9l5-5 5 5" />
           </svg>

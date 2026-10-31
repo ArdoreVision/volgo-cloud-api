@@ -4,65 +4,66 @@ import { LegalPage } from "@/components/volgo/legal";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/dpa")({
-  head: () => ({ meta: [{ title: "Verwerkersovereenkomst · Volgo" }, { name: "description", content: "Hoe Volgo persoonsgegevens verwerkt voor klanten (AVG)." }] }),
+  head: () => ({ meta: [{ title: "Data Processing Agreement · Volgo" }, { name: "description", content: "How Volgo processes personal data on behalf of customers (GDPR)." }] }),
   component: () => (
     <LegalPage
-      bijgewerkt="31 oktober 2026"
+      bijgewerkt="October 31, 2026"
       intro={
         <p>
-          AVA spreekt met bezoekers van de website van de klant en legt daarbij persoonsgegevens vast. Voor die gegevens is de klant
-          verwerkingsverantwoordelijke en Volgo verwerker in de zin van artikel 28 AVG. Deze overeenkomst geldt automatisch bij elk abonnement.
+          AVA talks with visitors to the customer’s website and records personal data in the process. For that data, the customer
+          is the controller and Volgo is the processor within the meaning of Article 28 GDPR. This agreement applies automatically
+          to every subscription.
         </p>
       }
-      titel="Verwerkersovereenkomst"
+      titel="Data Processing Agreement"
     >
-      <h2>1. Partijen</h2>
+      <h2>1. Parties</h2>
       <p>
-        Verwerker: Hanssens Cornerstone Capital, handelend onder de naam Volgo, Vlissingen, KvK 98133438. Verwerkingsverantwoordelijke: de onderneming
-        met een Volgo-abonnement (de klant).
+        Processor: Hanssens Cornerstone Capital, trading as Volgo, Vlissingen, the Netherlands, Dutch Chamber of Commerce (KvK)
+        no. 98133438. Controller: the business with a Volgo subscription (the customer).
       </p>
 
-      <h2>2. Welke gegevens en waarvoor</h2>
+      <h2>2. What data, and for what purpose</h2>
       <ul>
-        <li><strong>Betrokkenen:</strong> bezoekers van de website van de klant die met AVA chatten, en teamleden van de klant.</li>
-        <li><strong>Gegevens:</strong> de inhoud van het chatgesprek, naam, telefoonnummer en e-mailadres als de bezoeker die geeft, het tijdstip, en een onomkeerbare code van het IP-adres tegen misbruik.</li>
-        <li><strong>Doel:</strong> vragen van bezoekers beantwoorden, aanvragen vastleggen, leads sorteren en tonen in het dashboard van de klant, en de klant daarover informeren.</li>
+        <li><strong>Data subjects:</strong> visitors to the customer’s website who chat with AVA, and the customer’s team members.</li>
+        <li><strong>Data:</strong> the content of the chat, name, phone number and email address if the visitor provides them, the time, and an irreversible code of the IP address to prevent abuse.</li>
+        <li><strong>Purpose:</strong> answering visitors’ questions, recording requests, ranking leads and showing them in the customer’s dashboard, and notifying the customer.</li>
       </ul>
-      <p>Volgo verwerkt de gegevens alleen in opdracht van de klant en gebruikt ze niet voor eigen doeleinden of om AI-modellen mee te trainen.</p>
+      <p>Volgo processes the data only on the customer’s instructions and does not use it for its own purposes or to train AI models.</p>
 
-      <h2>3. Beveiliging</h2>
+      <h2>3. Security</h2>
       <ul>
-        <li>Alle verbindingen zijn versleuteld (HTTPS). Wachtwoorden worden alleen versleuteld (gehasht) opgeslagen.</li>
-        <li>Alleen ingelogde leden van het team van de klant zien de gesprekken en leads van die klant.</li>
-        <li>Toegang door Volgo zelf vindt alleen plaats als dat nodig is voor support of onderhoud.</li>
+        <li>All connections are encrypted (HTTPS). Passwords are only stored encrypted (hashed).</li>
+        <li>Only logged-in members of the customer’s team can see that customer’s conversations and leads.</li>
+        <li>Volgo itself only accesses the data when needed for support or maintenance.</li>
       </ul>
 
-      <h2>4. Subverwerkers</h2>
-      <p>De klant geeft toestemming voor de inzet van deze subverwerkers. Bij een wijziging laten we dat vooraf weten; de klant mag dan bezwaar maken.</p>
+      <h2>4. Sub-processors</h2>
+      <p>The customer consents to the use of these sub-processors. We’ll announce any change in advance; the customer may then object.</p>
       <ul>
-        <li><strong>Cloudflare</strong>: hosting en database van de website en het dashboard.</li>
-        <li><strong>Anthropic</strong>: het AI-model (Claude) waarmee AVA antwoorden maakt. Gesprekstekst wordt alleen doorgegeven om een antwoord te maken.</li>
-        <li><strong>Resend</strong>: het versturen van meldingen per e-mail.</li>
-        <li><strong>Stripe</strong>: het verwerken van abonnementsbetalingen (alleen gegevens van de klant zelf).</li>
+        <li><strong>Cloudflare</strong>: hosting and database for the website and the dashboard.</li>
+        <li><strong>Anthropic</strong>: the AI model (Claude) AVA uses to write replies. Chat text is only passed on to generate a reply.</li>
+        <li><strong>Resend</strong>: sending email notifications.</li>
+        <li><strong>Stripe</strong>: processing subscription payments (only the customer’s own data).</li>
       </ul>
-      <p>Waar gegevens buiten de EER worden verwerkt, gebeurt dat op basis van het EU-VS Data Privacy Framework of standaardcontractbepalingen.</p>
+      <p>Where data is processed outside the EEA, this is done on the basis of the EU-US Data Privacy Framework or Standard Contractual Clauses.</p>
 
-      <h2>5. Bewaartermijn</h2>
+      <h2>5. Retention</h2>
       <p>
-        Gesprekken en leads blijven bewaard zolang het abonnement loopt, tenzij de klant ze eerder verwijdert. Na het einde van het abonnement
-        verwijderen we ze binnen 30 dagen, of geven we ze op verzoek eerst aan de klant mee.
+        Conversations and leads are kept for as long as the subscription runs, unless the customer deletes them earlier. After the
+        subscription ends, we delete them within 30 days, or first hand them over to the customer on request.
       </p>
 
-      <h2>6. Datalekken en verzoeken</h2>
+      <h2>6. Data breaches and requests</h2>
       <ul>
-        <li>Bij een datalek informeren we de klant zonder onnodige vertraging en binnen 48 uur nadat we het ontdekten, zodat de klant zijn meldplicht kan nakomen.</li>
-        <li>Vraagt een bezoeker om inzage of verwijdering, dan helpen we de klant om dat binnen de wettelijke termijn te doen.</li>
+        <li>In the event of a data breach, we inform the customer without undue delay and within 48 hours of discovering it, so the customer can meet its reporting obligation.</li>
+        <li>If a visitor asks for access or deletion, we help the customer do so within the legal deadline.</li>
       </ul>
 
-      <h2>7. Controle en geheimhouding</h2>
+      <h2>7. Audits and confidentiality</h2>
       <p>
-        Iedereen die bij Volgo toegang heeft tot de gegevens heeft een geheimhoudingsplicht. De klant mag op verzoek informatie krijgen die nodig is om
-        aan te tonen dat deze afspraken worden nageleefd.
+        Everyone at Volgo with access to the data is bound by confidentiality. On request, the customer may receive the
+        information needed to demonstrate that these agreements are being met.
       </p>
     </LegalPage>
   ),

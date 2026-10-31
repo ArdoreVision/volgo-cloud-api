@@ -16,34 +16,34 @@ export function AanDeSlag({ openTab }: { openTab: (t: "ava" | "team") => void })
   if (klaar === 3) return null;
 
   const stappen = [
-    { key: "info", klaar: d.stappen.info, titel: "Vertel AVA over je bedrijf", uitleg: "Diensten, werkgebied en openingstijden. Twee minuten werk.", knop: "Invullen", doe: () => openTab("ava") },
+    { key: "info", klaar: d.stappen.info, titel: "Tell AVA about your business", uitleg: "Services, service area and opening hours. Takes two minutes.", knop: "Fill in", doe: () => openTab("ava") },
     {
       key: "getest",
       klaar: d.stappen.getest,
-      titel: "Praat zelf met AVA",
-      uitleg: "Doe alsof je een klant bent en kijk hoe AVA reageert.",
-      knop: "Proberen",
+      titel: "Talk to AVA yourself",
+      uitleg: "Pretend to be a customer and see how AVA responds.",
+      knop: "Try it",
       doe: () => {
         window.open(`/demo/${d.sleutel}`, "_blank", "noopener");
         void markeerOnboarding({ data: { actie: "getest" } });
         setD({ ...d, stappen: { ...d.stappen, getest: true } });
       },
     },
-    { key: "team", klaar: d.stappen.team, titel: "Nodig je team uit", uitleg: "Collega's zien de leads en kunnen meechatten.", knop: "Uitnodigen", doe: () => openTab("team") },
+    { key: "team", klaar: d.stappen.team, titel: "Invite your team", uitleg: "Colleagues see the leads and can join the chat.", knop: "Invite", doe: () => openTab("team") },
   ];
 
   return (
-    <section aria-label="Aan de slag" className="v-start">
+    <section aria-label="Get started" className="v-start">
       <header className="v-start__kop">
         <div>
-          <strong>Aan de slag</strong>
-          <span>{klaar} van 3 klaar</span>
+          <strong>Get started</strong>
+          <span>{klaar} of 3 done</span>
         </div>
         <div aria-hidden="true" className="v-start__balk">
           <i style={{ width: `${(klaar / 3) * 100}%` }} />
         </div>
         <button
-          aria-label="Verbergen"
+          aria-label="Hide"
           className="v-start__weg"
           onClick={() => {
             setD({ ...d, verborgen: true });
@@ -64,7 +64,7 @@ export function AanDeSlag({ openTab }: { openTab: (t: "ava" | "team") => void })
               <strong>{s.titel}</strong>
               <small>{s.uitleg}</small>
             </div>
-            {s.klaar ? <em>Klaar</em> : <button onClick={s.doe} type="button">{s.knop}</button>}
+            {s.klaar ? <em>Done</em> : <button onClick={s.doe} type="button">{s.knop}</button>}
           </li>
         ))}
       </ol>

@@ -12,7 +12,7 @@ import "@/volgo.css";
 export const Route = createFileRoute("/pricing")({
   validateSearch: (s: Record<string, unknown>): { expired?: string } => ({ expired: s.expired === "1" || s.expired === 1 ? "1" : undefined }),
   loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "" })),
-  head: () => ({ meta: [{ title: "Abonnementen · Volgo" }] }),
+  head: () => ({ meta: [{ title: "Pricing · Volgo" }] }),
   component: Abonnement,
 });
 
@@ -33,7 +33,7 @@ function Abonnement() {
         setBezig(null);
       }
     } catch {
-      setFout("Er ging iets mis. Probeer het opnieuw.");
+      setFout("Something went wrong. Please try again.");
       setBezig(null);
     }
   }
@@ -46,42 +46,42 @@ function Abonnement() {
           {ingelogd && toegang ? (
             <div className="v-al-account">
               <p>
-                Je bent ingelogd als <strong>{email}</strong> en hebt al een abonnement.
+                You’re logged in as <strong>{email}</strong> and already have a subscription.
               </p>
               <div>
                 <a className="v-btn-blauw" href="/dashboard">
-                  Naar mijn dashboard
+                  Go to my dashboard
                 </a>
                 <button
                   className="v-dash__logout"
                   onClick={() => void uitloggen().then(() => window.location.reload())}
                   type="button"
                 >
-                  Uitloggen
+                  Log out
                 </button>
               </div>
             </div>
           ) : null}
           {verlopen ? (
-            <p className="v-melding">Je proefperiode of abonnement is afgelopen. Kies een abonnement om verder te gaan, al je gegevens staan nog klaar.</p>
+            <p className="v-melding">Your trial or subscription has ended. Choose a plan to continue — all your data is still here.</p>
           ) : null}
-          <h1 className="v-h2 v-center">Kies je abonnement.</h1>
-          <p className="v-lede v-center">Begin met 7 dagen gratis. Daarna betaal je per maand.</p>
+          <h1 className="v-h2 v-center">Choose your plan.</h1>
+          <p className="v-lede v-center">Start with 7 days free. Then pay monthly.</p>
         </header>
         <div className="v-plans">
           {(Object.keys(PLANS) as PlanId[]).map((id) => {
             const p = PLANS[id];
             return (
               <article className={`v-plan v-plan--${id}`} key={id}>
-                {id === "pro" ? <p className="v-plan__badge">Aanbevolen</p> : null}
+                {id === "pro" ? <p className="v-plan__badge">Recommended</p> : null}
                 <h2 className="v-plan__name">{p.naam}</h2>
                 <p className="v-plan__tag">{p.tagline}</p>
                 <p className="v-plan__price">
-                  <span>€ {p.prijsTekst}</span> per maand
+                  <span>€{p.prijsTekst}</span> per month
                 </p>
-                <p className="v-plan__trial">{p.proefDagen ? `Eerste ${p.proefDagen} dagen gratis` : "Direct starten"}</p>
+                <p className="v-plan__trial">{p.proefDagen ? `First ${p.proefDagen} days free` : "Start right away"}</p>
                 <button className={`v-plan__cta v-plan__cta--${id}`} disabled={bezig !== null} onClick={() => void kies(id)} type="button">
-                  {bezig === id ? "Even geduld" : p.proefDagen ? "Probeer 7 dagen gratis" : `Kies ${p.naam}`}
+                  {bezig === id ? "One moment…" : p.proefDagen ? "Try 7 days free" : `Choose ${p.naam}`}
                 </button>
                 <ul className="v-plan__list">
                   {p.features.map((f) => (
@@ -93,7 +93,7 @@ function Abonnement() {
           })}
         </div>
         {fout ? <p className="v-err v-err--c" role="alert">{fout}</p> : null}
-        <p className="v-pricing__note">Prijzen per maand, exclusief btw. Al een account? <a href="/login">Log in</a>.</p>
+        <p className="v-pricing__note">Prices per month, excluding VAT. Already have an account? <a href="/login">Log in</a>.</p>
       </main>
       <Footer />
       <AvaChat />
