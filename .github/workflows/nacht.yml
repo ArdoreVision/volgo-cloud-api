@@ -37,6 +37,10 @@ jobs:
               await p.waitForTimeout(2500);
               await p.close(); await c.close();
             }
+            { const c = await b.newContext({ ...devices['iPhone 13'] }); const p = await c.newPage();
+              await p.goto(U + '/voorbeeld/contractor?utm_source=tiktok', { waitUntil: 'networkidle' });
+              await p.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 300) { scrollTo(0, y); await new Promise((r) => setTimeout(r, 400)); } });
+              await p.waitForTimeout(23000); await c.close(); }
             log('5 bezoeken gedaan');
           }
           for (const [n, vp, m] of [['d', { width: 1440, height: 900 }, false], ['m', { width: 390, height: 844 }, true]]) {
