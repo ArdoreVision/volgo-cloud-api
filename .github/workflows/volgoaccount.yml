@@ -2,7 +2,10 @@ name: Volgo eigen AVA
 on:
   workflow_dispatch:
     inputs:
-      hash: { description: "wachtwoord-hash", required: true }
+      hash: { description: "wachtwoord-hash (alleen voor een nieuw account)", required: false, default: "" }
+      email: { description: "account", required: true }
+      sleutel: { description: "AVA-sleutel", required: true }
+      naam: { description: "naam van de assistent", required: false, default: "AVA" }
 jobs:
   v:
     runs-on: ubuntu-latest
@@ -13,7 +16,7 @@ jobs:
     steps:
       - run: |
           cd /tmp
-          M="volgo.app@outlook.com"; K="86aa08e701cb78322293f3a3"; T="(SELECT id FROM gebruikers WHERE email='$M')"
+          M="${{ inputs.email }}"; K="${{ inputs.sleutel }}"; T="(SELECT id FROM gebruikers WHERE email='$M')"
           cat > info.txt <<'INFO'
           Volgo (thevolgo.app) is a service by Hanssens Cornerstone Capital in Vlissingen, the Netherlands. It helps businesses that live from quotes (contractors, bathrooms, kitchens, heating, roofing, solar, landscaping, clinics and similar) get more customers with less work.
           What Volgo does: AVA, an AI assistant, goes on the business's own website with one line of code (WordPress, Wix, Shopify, Squarespace, Webflow or custom). AVA answers every visitor within seconds, 24/7, in their own language, gives price ranges the business sets, collects name and phone or email with permission, lets visitors book appointments in a calendar inside the chat (only free moments), and scores every lead 0-100 so buyers are on top. The business sees everything in its dashboard, gets an email for hot leads and a summary every morning, and can take over any chat.
@@ -26,7 +29,7 @@ jobs:
           sed -i 's/^          //' info.txt
           INFO_SQL=$(sed "s/'/''/g" info.txt)
           q() { npx -y wrangler@4 d1 execute volgo-db --remote --json --command "$1" 2>/dev/null; }
-          if [ "$(q "SELECT COUNT(*) n FROM gebruikers WHERE email='$M'" | jq -r '.[0].results[0].n')" = 1 ]; then
+          if [ "$(q "SELECT COUNT(*) n FROM gebruikers WHERE email='$M'" | jq -r '.[0].results[0].n')" = 1 ] || [ -z "$HASH" ]; then
             echo "::warning::VOLGO account bestond al, wachtwoord niet gewijzigd"
           else
             q "INSERT INTO gebruikers (email, naam, bedrijf, wachtwoord, plan, status, testmodus, functie) VALUES ('$M', 'Damien Hanssens', 'Volgo', '$HASH', 'premium', 'actief', 1, 'Founder')" > /dev/null
@@ -34,10 +37,18 @@ jobs:
             q "INSERT INTO kanalen (team_id, naam) SELECT id, 'leads' FROM gebruikers WHERE email='$M'" > /dev/null
             echo "::warning::VOLGO account aangemaakt"
           fi
+          # Remove test chats from this check (they start with the trial question and are from the last 30 minutes).
+          cat > t.sql <<SQL
+          DELETE FROM ava_berichten WHERE gesprek_id IN (SELECT id FROM ava_gesprekken WHERE team_id = $T AND gestart >= datetime('now','-30 minutes') AND onderwerp LIKE 'I''d like to start the 7-day free trial%');
+          DELETE FROM ava_gesprek_meta WHERE gesprek_id IN (SELECT id FROM ava_gesprekken WHERE team_id = $T AND gestart >= datetime('now','-30 minutes') AND onderwerp LIKE 'I''d like to start the 7-day free trial%');
+          DELETE FROM ava_gesprekken WHERE team_id = $T AND gestart >= datetime('now','-30 minutes') AND onderwerp LIKE 'I''d like to start the 7-day free trial%';
+          SQL
+          sed -i 's/^          //' t.sql
+          npx -y wrangler@4 d1 execute volgo-db --remote --file t.sql > /dev/null 2>&1 || true
           cat > a.sql <<SQL
           DELETE FROM ava_instellingen WHERE team_id = $T OR sleutel = '$K';
           INSERT INTO ava_instellingen (team_id, sleutel, naam, begroeting, bedrijfsinfo, kleur, boeken, tijdzone, open_dagen, open_van, open_tot, afspraak_duur, afspraak_soorten)
-            SELECT id, '$K', 'AVA', 'Hi! I''m AVA, Volgo''s assistant. Want to try Volgo free for 7 days, or book a call with the team first? Ask me anything.', '$INFO_SQL', '#1677d9', 1, 'Europe/Amsterdam', '1,2,3,4,5', '10:00', '18:00', 30, 'bellen' FROM gebruikers WHERE email = '$M';
+            SELECT id, '$K', '${{ inputs.naam }}', 'Hi! I''m ${{ inputs.naam }}, Volgo''s assistant. Want to try Volgo free for 7 days, or book a call with the team first? Ask me anything.', '$INFO_SQL', '#1677d9', 1, 'Europe/Amsterdam', '1,2,3,4,5', '08:00', '17:00', 30, 'bellen' FROM gebruikers WHERE email = '$M';
           SQL
           sed -i 's/^          //' a.sql
           npx -y wrangler@4 d1 execute volgo-db --remote --file a.sql > out.txt 2>&1 || { grep -i error out.txt | head -3 | sed 's/^/::warning::FOUT /'; exit 1; }
