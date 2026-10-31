@@ -558,3 +558,102 @@ export function Tijdlijn() {
     </section>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Live demo: the real sample website with the real AVA, inside a frame */
+/* ------------------------------------------------------------------ */
+
+type AvaVenster = Window & { VolgoAva?: { open: () => void; afspraak: () => void } };
+
+export function LiveDemo() {
+  const [modus, setModus] = useState<"desktop" | "mobiel">("desktop");
+  const [ref, zichtbaar] = useInView<HTMLDivElement>("300px 0px");
+  const box = useRef<HTMLDivElement>(null);
+  const frame = useRef<HTMLIFrameElement>(null);
+  const [schaal, setSchaal] = useState(0.8);
+  const BREED = modus === "desktop" ? 1280 : 390;
+  const HOOG = modus === "desktop" ? 780 : 800;
+
+  useEffect(() => {
+    if (window.innerWidth < 760) setModus("mobiel");
+  }, []);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const zet = () => setSchaal(Math.min(1, el.clientWidth / BREED));
+    zet();
+    const ro = new ResizeObserver(zet);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [BREED]);
+
+  const ava = (actie: "open" | "afspraak") => {
+    const w = frame.current?.contentWindow as AvaVenster | null | undefined;
+    w?.VolgoAva?.[actie]();
+  };
+
+  return (
+    <section aria-labelledby="live-titel" className="vx-sectie vx-live" id="demo">
+      <header className="vx-kop vx-kop--midden" data-reveal="">
+        <p className="vx-label">Live demo</p>
+        <h2 className="v-h2" id="live-titel">
+          Try AVA on a real website.
+        </h2>
+        <p className="v-lede">
+          A sample website of a contractor in Austin, Texas, with AVA exactly as your visitors see it. Scroll through the site, ask about prices, or book an
+          appointment: you only see the days and times that are still free.
+        </p>
+      </header>
+      <div className="vx-live__bediening" data-reveal="">
+        <div className="vx-tabs" role="tablist" aria-label="Screen size">
+          <button aria-selected={modus === "desktop"} onClick={() => setModus("desktop")} role="tab" type="button">
+            Desktop
+          </button>
+          <button aria-selected={modus === "mobiel"} onClick={() => setModus("mobiel")} role="tab" type="button">
+            Mobile
+          </button>
+        </div>
+        <div className="vx-live__knoppen">
+          <button onClick={() => ava("open")} type="button">
+            Open the chat
+          </button>
+          <button className="is-hoofd" onClick={() => ava("afspraak")} type="button">
+            Book an appointment
+          </button>
+          <a href="/voorbeeld/contractor" rel="noopener" target="_blank">
+            Open full screen ↗
+          </a>
+        </div>
+      </div>
+      <div className={`vx-live__toestel vx-live__toestel--${modus}`} data-reveal="" ref={ref}>
+        {modus === "desktop" ? (
+          <div aria-hidden="true" className="vx-live__chrome">
+            <i />
+            <i />
+            <i />
+            <span>bluebonnetbuild.com</span>
+          </div>
+        ) : (
+          <div aria-hidden="true" className="vx-live__notch" />
+        )}
+        <div className="vx-live__scherm" ref={box} style={{ height: HOOG * schaal }}>
+          {zichtbaar ? (
+            <iframe
+              ref={frame}
+              src="/voorbeeld/contractor?embed=1"
+              style={{ width: BREED, height: HOOG, transform: `scale(${schaal})` }}
+              title="Sample contractor website with AVA"
+            />
+          ) : (
+            <p className="vx-live__laden">Loading the sample website…</p>
+          )}
+        </div>
+      </div>
+      <ul className="vx-live__tips" data-reveal="">
+        <li>Try: “How much does a kitchen remodel cost?”</li>
+        <li>Try: “Do you work in Round Rock?”</li>
+        <li>Tap “Book an appointment” and pick a free moment</li>
+      </ul>
+    </section>
+  );
+}

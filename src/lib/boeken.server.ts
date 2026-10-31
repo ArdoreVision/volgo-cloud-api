@@ -44,28 +44,41 @@ async function bezet(DB: D1Database, team: number, van: string, tot: string) {
   ).results;
 }
 
-/** Free moments for the next `dagenVooruit` days, grouped per day (at least 2 hours from now). */
-export async function vrijeDagen(DB: D1Database, inst: Inst, dagenVooruit = 21, maxDagen = 10) {
+/**
+ * Calendar for the chat: 3 full weeks starting on Monday of this week (business time zone).
+ * Every day is listed; closed, past and fully booked days are marked so the chat can show them dimmed.
+ * Every slot of an open day is listed with vrij = true/false (taken or too soon).
+ */
+export async function vrijeDagen(DB: D1Database, inst: Inst, weken = 3) {
+  const nu = nuLokaal(inst.tijdzone);
   const vanaf = nuLokaal(inst.tijdzone, 120);
-  const begin = vanaf.slice(0, 10) + "T00:00";
-  const drukte = await bezet(DB, inst.team_id, vanaf, plus(begin, (dagenVooruit + 1) * 24 * 60));
+  const vandaag = nu.slice(0, 10);
+  const wd = naarDate(`${vandaag}T12:00`).getUTCDay();
+  const maandag = plus(`${vandaag}T00:00`, -((wd + 6) % 7) * 24 * 60);
+  const einde = plus(maandag, weken * 7 * 24 * 60);
+  const drukte = await bezet(DB, inst.team_id, maandag, einde);
   const open = openDagen(inst);
   const duur = inst.afspraak_duur;
   const stap = duur <= 30 ? 30 : 60;
-  const uit: { datum: string; weekdag: number; tijden: string[] }[] = [];
-  for (let d = 0; d <= dagenVooruit && uit.length < maxDagen; d++) {
-    const datum = plus(begin, d * 24 * 60).slice(0, 10);
+  const uit: { datum: string; weekdag: number; status: "voorbij" | "dicht" | "vol" | "open"; tijden: { t: string; vrij: boolean }[] }[] = [];
+  for (let d = 0; d < weken * 7; d++) {
+    const datum = plus(maandag, d * 24 * 60).slice(0, 10);
     const weekdag = naarDate(`${datum}T12:00`).getUTCDay();
-    if (!open.includes(weekdag)) continue;
-    const tijden: string[] = [];
+    if (datum < vandaag) {
+      uit.push({ datum, weekdag, status: "voorbij", tijden: [] });
+      continue;
+    }
+    if (!open.includes(weekdag)) {
+      uit.push({ datum, weekdag, status: "dicht", tijden: [] });
+      continue;
+    }
+    const tijden: { t: string; vrij: boolean }[] = [];
     for (let m = minuten(inst.open_van); m + duur <= minuten(inst.open_tot); m += stap) {
       const s = `${datum}T${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
-      if (s < vanaf) continue;
       const e = plus(s, duur);
-      if (drukte.some((b) => b.start < e && b.eind > s)) continue;
-      tijden.push(s.slice(11, 16));
+      tijden.push({ t: s.slice(11, 16), vrij: s >= vanaf && !drukte.some((b) => b.start < e && b.eind > s) });
     }
-    if (tijden.length) uit.push({ datum, weekdag, tijden });
+    uit.push({ datum, weekdag, status: tijden.some((x) => x.vrij) ? "open" : datum === vandaag ? "voorbij" : "vol", tijden });
   }
   return uit;
 }

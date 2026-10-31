@@ -6,7 +6,7 @@ import { Footer } from "@/components/volgo/footer";
 import { Hero } from "@/components/volgo/hero";
 import { Nav } from "@/components/volgo/nav";
 import { Inside } from "@/components/volgo/inside";
-import { Feiten, Marquee, Ranking, Rekenhulp, ScrollProgress, Tijdlijn, Voordelen, Voorbeelden, VoorNa, useReveal } from "@/components/volgo/landing";
+import { Feiten, LiveDemo, Marquee, Ranking, Rekenhulp, ScrollProgress, Tijdlijn, Voordelen, Voorbeelden, VoorNa, useReveal } from "@/components/volgo/landing";
 import { FinalCta, PricingPreview } from "@/components/volgo/pricing-preview";
 import { isIngelogd } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
@@ -29,6 +29,7 @@ function Index() {
         <VoorNa />
         <Voordelen />
         <Voorbeelden />
+        <LiveDemo />
         <Ranking />
         <Rekenhulp />
         <Tijdlijn />

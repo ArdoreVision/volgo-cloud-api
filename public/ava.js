@@ -15,8 +15,8 @@
   var T = TEKST[TAAL] || TEKST.en;
   // Texts for the appointment calendar inside the chat.
   var KAL = {
-    en: { chipBoek: "Book an appointment", chipPrijs: "What does it cost?", chipVraag: "I have a question", stap: "Step {n} of {m}", s1: "How would you like to meet?", s1h: "Tap one option.", bellen: ["Phone call", "We call you at the time you pick"], langs: ["Visit at your address", "We come to you, for example to measure"], kantoor: ["At our office", "You visit us"], s2: "Pick a day and time", s2h: "Only moments that are still free are shown. Tap a day, then a time.", vrij: "free", tz: "Times are in {tz} time", geen: "There are no free moments in the coming weeks. Type your phone number in the chat and we'll call you to plan.", s3: "Your details", s3h: "So we know who to expect and how to reach you.", naam: "Your name", contact: "Phone number or email", adres: "Address (street, number, town)", bevestig: "Confirm appointment", terug: "Back", bezig: "Booking…", klaar: "Booked", vandaag: "Today", morgen: "Tomorrow", laden: "Loading free moments…", nodig: "Please fill in all fields.", opnieuw: "Pick a time" },
-    nl: { chipBoek: "Afspraak maken", chipPrijs: "Wat kost het?", chipVraag: "Ik heb een vraag", stap: "Stap {n} van {m}", s1: "Hoe wil je afspreken?", s1h: "Tik op één keuze.", bellen: ["Telefoongesprek", "We bellen je op het moment dat jij kiest"], langs: ["Langskomen bij jou", "We komen bij je langs, bijvoorbeeld om op te meten"], kantoor: ["Bij ons op kantoor", "Jij komt bij ons langs"], s2: "Kies een dag en tijd", s2h: "Je ziet alleen momenten die nog vrij zijn. Tik op een dag, daarna op een tijd.", vrij: "vrij", tz: "Tijden zijn in {tz}-tijd", geen: "Er zijn de komende weken geen vrije momenten. Typ je telefoonnummer in de chat, dan bellen we je om te plannen.", s3: "Jouw gegevens", s3h: "Zodat we weten wie we verwachten en hoe we je bereiken.", naam: "Je naam", contact: "Telefoonnummer of e-mail", adres: "Adres (straat, nummer, plaats)", bevestig: "Afspraak bevestigen", terug: "Terug", bezig: "Bezig met boeken…", klaar: "Geboekt", vandaag: "Vandaag", morgen: "Morgen", laden: "Vrije momenten laden…", nodig: "Vul alle velden in.", opnieuw: "Kies een tijd" },
+    en: { chipBoek: "Book an appointment", chipPrijs: "What does it cost?", chipVraag: "I have a question", stap: "Step {n} of {m}", s1: "How would you like to meet?", s1h: "Tap one option.", bellen: ["Phone call", "We call you at the time you pick"], langs: ["Visit at your address", "We come to you, for example to measure"], kantoor: ["At our office", "You visit us"], s2: "Pick a day and time", s2h: "Light days still have room. Tap a day, then a time.", dicht: "Closed", vol: "Fully booked", beschikbaar: "Available", nietBeschikbaar: "Not available", vrij: "free", tz: "Times are in {tz} time", geen: "There are no free moments in the coming weeks. Type your phone number in the chat and we'll call you to plan.", s3: "Your details", s3h: "So we know who to expect and how to reach you.", naam: "Your name", contact: "Phone number or email", adres: "Address (street, number, town)", bevestig: "Confirm appointment", terug: "Back", bezig: "Booking…", klaar: "Booked", vandaag: "Today", morgen: "Tomorrow", laden: "Loading free moments…", nodig: "Please fill in all fields.", opnieuw: "Pick a time" },
+    nl: { chipBoek: "Afspraak maken", chipPrijs: "Wat kost het?", chipVraag: "Ik heb een vraag", stap: "Stap {n} van {m}", s1: "Hoe wil je afspreken?", s1h: "Tik op één keuze.", bellen: ["Telefoongesprek", "We bellen je op het moment dat jij kiest"], langs: ["Langskomen bij jou", "We komen bij je langs, bijvoorbeeld om op te meten"], kantoor: ["Bij ons op kantoor", "Jij komt bij ons langs"], s2: "Kies een dag en tijd", s2h: "Lichte dagen hebben nog plek. Tik op een dag, daarna op een tijd.", dicht: "Gesloten", vol: "Vol", beschikbaar: "Beschikbaar", nietBeschikbaar: "Niet beschikbaar", vrij: "vrij", tz: "Tijden zijn in {tz}-tijd", geen: "Er zijn de komende weken geen vrije momenten. Typ je telefoonnummer in de chat, dan bellen we je om te plannen.", s3: "Jouw gegevens", s3h: "Zodat we weten wie we verwachten en hoe we je bereiken.", naam: "Je naam", contact: "Telefoonnummer of e-mail", adres: "Adres (straat, nummer, plaats)", bevestig: "Afspraak bevestigen", terug: "Terug", bezig: "Bezig met boeken…", klaar: "Geboekt", vandaag: "Vandaag", morgen: "Morgen", laden: "Vrije momenten laden…", nodig: "Vul alle velden in.", opnieuw: "Kies een tijd" },
   };
   var K = KAL[TAAL] || KAL.en;
   window.__volgoAva = true;
@@ -104,6 +104,22 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
 .kal .dag{flex:none;min-width:70px;padding:9px 8px;border:0;border-radius:14px;background:#f5f7fa;text-align:center;cursor:pointer;color:#111318;font-size:13px;line-height:1.25}\
 .kal .dag b{display:block;font-size:14px}.kal .dag small{display:block;color:#6b7280;font-size:11.5px;margin-top:2px}\
 .kal .dag.aan{background:var(--c);color:#fff}.kal .dag.aan small{color:rgba(255,255,255,.85)}\
+.kal .mnd{font-size:14px;font-weight:700;margin:0 0 8px}\
+.kal .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}\
+.kal .wd{text-align:center;font-size:11px;font-weight:700;color:#9aa3af;text-transform:uppercase;padding-bottom:2px}\
+.kal .dg{aspect-ratio:1;border:0;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--c);color:#111318;font-size:14px;font-weight:700;cursor:pointer;transition:transform .12s}\
+.kal .dg:hover{transform:scale(1.06)}\
+.kal .dg.aan{background:var(--c);color:#fff}\
+.kal .dg.nu{text-decoration:underline;text-underline-offset:3px}\
+.kal .dg.weg{background:#2b313b;box-shadow:none;color:#6b7280;font-weight:500;cursor:not-allowed;opacity:.55}\
+.kal .dg.weg:hover{transform:none}\
+.kal .leg{display:flex;gap:14px;margin:8px 0 2px;font-size:11.5px;color:#6b7280}\
+.kal .leg span{display:flex;align-items:center;gap:5px}\
+.kal .leg i{width:10px;height:10px;border-radius:3px;background:#2b313b;opacity:.55}\
+.kal .leg i.vrij{background:#fff;box-shadow:inset 0 0 0 1.5px var(--c);opacity:1}\
+.kal .dagkop{margin:12px 0 6px;font-size:13px;font-weight:700}\
+.kal .tijd.weg{background:#eceef2;box-shadow:none;color:#a3aab5;text-decoration:line-through;cursor:not-allowed}\
+.kal .tijd.weg:hover{box-shadow:none;color:#a3aab5}\
 .kal .tijden{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}\
 .kal .tijd{padding:11px 0;border:0;border-radius:12px;background:#fff;box-shadow:inset 0 0 0 1.5px #e1e6ee;font-size:15px;font-weight:600;cursor:pointer;color:#111318}\
 .kal .tijd:hover{box-shadow:inset 0 0 0 2px var(--c);color:var(--c)}\
@@ -181,7 +197,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     var kaart = document.createElement("div"); kaart.className = "kal";
     kaart.innerHTML = '<p class="hulp">' + K.laden + "</p>";
     log.appendChild(kaart); log.scrollTop = log.scrollHeight;
-    var k = { stap: 1, soort: null, dag: 0, tijd: null, data: null, fout: "" };
+    var k = { stap: 1, soort: null, dag: null, tijd: null, data: null, fout: "" };
     function laad(dan) {
       post({ actie: "agenda", sleutel: KEY, token: state.token }).then(function (d) { k.data = d; if (dan) dan(); teken(); }).catch(function () { kaart.innerHTML = '<p class="err">' + T.net + "</p>"; });
     }
@@ -203,13 +219,26 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
         d.soorten.forEach(function (s) { h += '<button class="opt" type="button" data-soort="' + s + '">' + ICOON[s] + "<span><b>" + K[s][0] + "</b><small>" + K[s][1] + "</small></span></button>"; });
       } else if (k.stap === 2) {
         h = kop(2, K.s2, K.s2h);
-        if (!d.dagen.length) h += '<p class="hulp">' + K.geen + "</p>";
+        var eerste = -1;
+        d.dagen.forEach(function (dg, i) { if (eerste < 0 && dg.status === "open") eerste = i; });
+        if (eerste < 0) h += '<p class="hulp">' + K.geen + "</p>";
         else {
-          h += '<div class="dagen">';
-          d.dagen.forEach(function (dg, i) { var l = dagLabel(dg.datum); h += '<button class="dag' + (i === k.dag ? " aan" : "") + '" type="button" data-dag="' + i + '"><b>' + esc(l.wd) + "</b>" + esc(l.dt) + "<small>" + dg.tijden.length + " " + K.vrij + "</small></button>"; });
-          h += '</div><div class="tijden">';
-          d.dagen[k.dag].tijden.forEach(function (t) { h += '<button class="tijd" type="button" data-tijd="' + t + '">' + t + "</button>"; });
-          h += "</div>";
+          if (k.dag == null || !d.dagen[k.dag] || d.dagen[k.dag].status !== "open") k.dag = eerste;
+          var gekozen = d.dagen[k.dag];
+          var maand = new Date(gekozen.datum + "T12:00:00Z").toLocaleDateString(TAAL, { month: "long", year: "numeric", timeZone: "UTC" });
+          h += '<div class="mnd">' + esc(maand.charAt(0).toUpperCase() + maand.slice(1)) + "</div><div class=\"grid\">";
+          for (var w = 0; w < 7; w++) h += '<span class="wd">' + esc(new Date(Date.UTC(2024, 0, 1 + w)).toLocaleDateString(TAAL, { weekday: "narrow", timeZone: "UTC" })) + "</span>";
+          var vandaagIso = (function () { var n = new Date(); return n.getFullYear() + "-" + String(n.getMonth() + 1).padStart(2, "0") + "-" + String(n.getDate()).padStart(2, "0"); })();
+          d.dagen.forEach(function (dg, i) {
+            var nr = +dg.datum.slice(8, 10), kan = dg.status === "open";
+            var titel = kan ? dg.tijden.filter(function (x) { return x.vrij; }).length + " " + K.vrij : dg.status === "dicht" ? K.dicht : dg.status === "vol" ? K.vol : "";
+            h += '<button type="button" class="dg' + (kan ? "" : " weg") + (i === k.dag ? " aan" : "") + (dg.datum === vandaagIso ? " nu" : "") + '"' + (kan ? ' data-dag="' + i + '"' : " disabled") + ' title="' + esc(titel) + '" aria-label="' + esc(dg.datum + " " + titel) + '">' + nr + "</button>";
+          });
+          h += '</div><div class="leg"><span><i class="vrij"></i>' + K.beschikbaar + '</span><span><i></i>' + K.nietBeschikbaar + "</span></div>";
+          var l2 = dagLabel(gekozen.datum);
+          h += '<p class="dagkop">' + esc(l2.wd + " " + l2.dt) + "</p><div class=\"tijden\">";
+          gekozen.tijden.forEach(function (x) { h += '<button class="tijd' + (x.vrij ? "" : " weg") + '" type="button"' + (x.vrij ? ' data-tijd="' + x.t + '"' : " disabled") + ">" + x.t + "</button>"; });
+          h += "</div>" + (k.fout ? '<p class="err">' + esc(k.fout) + "</p>" : "");
           var eigen = ""; try { eigen = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) {}
           if (eigen && eigen !== d.tijdzone) h += '<p class="tz">' + K.tz.replace("{tz}", esc(d.tijdzone.split("/").pop().replace(/_/g, " "))) + "</p>";
         }
@@ -230,7 +259,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
       if (t.hasAttribute("data-terug")) { k.fout = ""; k.stap = k.stap === 3 ? 2 : 1; if (k.stap === 1) k.soort = null; teken(); }
       else if (t.hasAttribute("data-soort")) { k.soort = t.getAttribute("data-soort"); k.stap = 2; teken(); }
       else if (t.hasAttribute("data-dag")) { k.dag = +t.getAttribute("data-dag"); teken(); }
-      else if (t.hasAttribute("data-tijd")) { k.tijd = t.getAttribute("data-tijd"); k.stap = 3; teken(); setTimeout(function () { var i = kaart.querySelector("input"); if (i && !i.value) i.focus(); }, 50); }
+      else if (t.hasAttribute("data-tijd")) { k.fout = ""; k.tijd = t.getAttribute("data-tijd"); k.stap = 3; teken(); setTimeout(function () { var i = kaart.querySelector("input"); if (i && !i.value) i.focus(); }, 50); }
     });
     kaart.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -242,7 +271,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
       if (v("adres")) body.adres = v("adres");
       post(body).then(function (r) {
         if (r && r.token) state.token = r.token;
-        if (!r || !r.ok) { k.fout = (r && (r.reden || r.antwoord)) || T.fout; k.stap = 2; k.tijd = null; laad(); return; }
+        if (!r || !r.ok) { k.fout = (r && (r.reden || r.antwoord)) || T.fout; k.stap = 2; k.tijd = null; k.dag = null; laad(); return; }
         var l = dagLabel(dg.datum), sam = K[k.soort][0] + " · " + l.wd + " " + l.dt + " · " + k.tijd + "–" + eindTijd(k.tijd, k.data.duur);
         kaart.className = "kal ok";
         kaart.innerHTML = '<div class="sam">' + ICOON.kal + "<span><b>✓ " + K.klaar + "</b><br>" + esc(sam) + "</span></div>";

@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bluebonnet Build Co. · Sample website with AVA</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root { --navy:#0f1f2e; --navy-2:#1b3044; --oranje:#c2410c; --oranje-2:#ea580c; --room:#faf7f2; --steen:#efe9df; --tekst:#1c2733; --zacht:#5b6672; --lijn:#e4ddd1; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--room); color: var(--tekst); font: 400 16.5px/1.6 Inter, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { font-family: Archivo, Inter, sans-serif; letter-spacing: -0.02em; line-height: 1.08; margin: 0; }
+  a { color: inherit; }
+  .wrap { width: min(1180px, 100% - 40px); margin: 0 auto; }
+  .knop { display: inline-flex; align-items: center; gap: 10px; border: 0; cursor: pointer; font: 600 15.5px/1 Inter, sans-serif; padding: 16px 24px; border-radius: 10px; text-decoration: none; transition: transform .2s, background .2s, box-shadow .2s; }
+  .knop:hover { transform: translateY(-2px); }
+  .knop--oranje { background: var(--oranje); color: #fff; box-shadow: 0 10px 24px -10px rgba(194,65,12,.7); }
+  .knop--oranje:hover { background: var(--oranje-2); }
+  .knop--licht { background: rgba(255,255,255,.1); color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.35); }
+  .knop--rand { background: #fff; color: var(--navy); box-shadow: inset 0 0 0 1.5px var(--lijn); }
+
+  .balk { background: #111; color: #e8e8e8; font-size: 13px; text-align: center; padding: 8px 16px; }
+  .balk b { color: #fff; }
+  .embed .balk { display: none; }
+
+  .top { background: var(--navy); color: #cfd8e1; font-size: 13.5px; }
+  .top .wrap { display: flex; justify-content: space-between; gap: 16px; padding: 9px 0; }
+  .top span + span::before { content: "·"; margin: 0 10px; opacity: .5; }
+
+  header.nav { position: sticky; top: 0; z-index: 20; background: rgba(250,247,242,.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--lijn); }
+  header.nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 76px; }
+  .logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+  .logo i { width: 40px; height: 40px; border-radius: 10px; background: var(--navy); display: grid; place-items: center; }
+  .logo strong { font: 800 18px/1 Archivo, sans-serif; color: var(--navy); letter-spacing: -0.01em; }
+  .logo small { display: block; font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--zacht); margin-top: 4px; }
+  nav.links { display: flex; gap: 28px; font-size: 15px; font-weight: 500; }
+  nav.links a { text-decoration: none; color: var(--zacht); }
+  nav.links a:hover { color: var(--navy); }
+  .nav .acties { display: flex; gap: 10px; align-items: center; }
+  .nav .tel { font-weight: 600; color: var(--navy); text-decoration: none; font-size: 15px; }
+  .nav .knop { padding: 12px 18px; font-size: 14.5px; }
+
+  .hero { background: radial-gradient(120% 120% at 80% 0%, #24425e 0%, var(--navy) 55%); color: #fff; overflow: hidden; }
+  .hero .wrap { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; padding: 84px 0 96px; }
+  .hero .label { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: rgba(255,255,255,.08); font-size: 13.5px; color: #e9eef3; }
+  .hero .label i { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 4px rgba(74,222,128,.2); }
+  .hero h1 { font-size: clamp(42px, 5.6vw, 70px); font-weight: 800; margin: 22px 0 20px; }
+  .hero h1 em { font-style: normal; color: #fdba74; }
+  .hero p.sub { font-size: 19px; color: #c8d3de; max-width: 33em; margin: 0 0 32px; }
+  .hero .knoppen { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero .bewijs { display: flex; flex-wrap: wrap; gap: 26px; margin-top: 40px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,.12); }
+  .hero .bewijs b { display: block; font: 700 26px/1 Archivo, sans-serif; color: #fff; }
+  .hero .bewijs span { font-size: 13.5px; color: #a9b7c5; }
+
+  /* Hero visual: a kitchen drawn with CSS, plus a small project card */
+  .beeld { position: relative; aspect-ratio: 1 / 1.02; }
+  .keuken { position: absolute; inset: 0; border-radius: 22px; overflow: hidden; background: linear-gradient(180deg, #f3ede3 0 58%, #c9b8a0 58% 100%); box-shadow: 0 40px 80px -30px rgba(0,0,0,.6); }
+  .keuken .raam { position: absolute; left: 34%; top: 9%; width: 32%; height: 30%; border-radius: 6px; background: linear-gradient(180deg, #bfe0f5, #e7f3fb); box-shadow: inset 0 0 0 6px #fff; }
+  .keuken .raam::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 6px; margin-left: -3px; background: #fff; }
+  .keuken .kast-boven { position: absolute; top: 8%; height: 26%; width: 26%; background: #2d4a63; border-radius: 4px; }
+  .keuken .kast-boven.l { left: 4%; } .keuken .kast-boven.r { right: 4%; }
+  .keuken .kast-boven::after { content: ""; position: absolute; inset: 8px; background: repeating-linear-gradient(90deg, transparent 0 calc(50% - 1px), rgba(255,255,255,.18) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)); }
+  .keuken .blad { position: absolute; left: 0; right: 0; top: 55%; height: 4.5%; background: linear-gradient(90deg, #f7f4ef, #e9e3d9, #f7f4ef); box-shadow: 0 4px 0 rgba(0,0,0,.06); }
+  .keuken .kast-onder { position: absolute; left: 0; right: 0; top: 59.5%; height: 26%; background: #2d4a63; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; }
+  .keuken .kast-onder span { background: #345673; border-radius: 3px; position: relative; }
+  .keuken .kast-onder span::after { content: ""; position: absolute; top: 14%; left: 50%; width: 30%; height: 3px; margin-left: -15%; border-radius: 2px; background: #c9a227; }
+  .keuken .kraan { position: absolute; left: 47%; top: 43%; width: 6%; height: 12%; border: 4px solid #c9a227; border-bottom: 0; border-left: 0; border-radius: 0 14px 0 0; }
+  .keuken .lamp { position: absolute; top: 0; width: 10%; height: 18%; }
+  .keuken .lamp::before { content: ""; position: absolute; left: 50%; top: 0; width: 2px; height: 60%; background: #222; }
+  .keuken .lamp::after { content: ""; position: absolute; left: 10%; right: 10%; bottom: 0; height: 40%; border-radius: 50% 50% 4px 4px; background: #222; box-shadow: 0 16px 30px rgba(253,186,116,.6); }
+  .keuken .lamp.a { left: 30%; } .keuken .lamp.b { left: 60%; }
+  .projectkaart { position: absolute; left: -26px; bottom: 26px; width: 250px; padding: 16px; border-radius: 16px; background: #fff; color: var(--tekst); box-shadow: 0 24px 50px -16px rgba(0,0,0,.45); animation: dobber 6s ease-in-out infinite; }
+  .projectkaart small { display: block; font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--zacht); }
+  .projectkaart b { display: block; font: 700 17px/1.2 Archivo, sans-serif; margin: 4px 0 8px; }
+  .projectkaart .rij { display: flex; justify-content: space-between; font-size: 13.5px; color: var(--zacht); }
+  .projectkaart .rij strong { color: var(--tekst); }
+  .projectkaart .balkje { height: 6px; border-radius: 6px; background: var(--steen); margin-top: 10px; overflow: hidden; }
+  .projectkaart .balkje i { display: block; height: 100%; width: 72%; background: var(--oranje); border-radius: 6px; }
+  .sterkaart { position: absolute; right: -14px; top: 22px; padding: 12px 14px; border-radius: 14px; background: #fff; color: var(--tekst); font-size: 13.5px; box-shadow: 0 20px 40px -16px rgba(0,0,0,.45); animation: dobber 7s ease-in-out 1s infinite; }
+  .sterkaart b { display: block; font: 700 15px Archivo, sans-serif; }
+  @keyframes dobber { 50% { transform: translateY(-8px); } }
+
+  section { padding: 96px 0; }
+  .kop { max-width: 640px; margin-bottom: 48px; }
+  .kicker { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--oranje); font-weight: 700; }
+  .kop h2 { font-size: clamp(32px, 3.8vw, 48px); font-weight: 800; color: var(--navy); margin: 12px 0; }
+  .kop p { color: var(--zacht); font-size: 18px; margin: 0; }
+
+  .diensten .raster { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .dienst { background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 0 0 1px var(--lijn); display: flex; flex-direction: column; transition: transform .25s, box-shadow .25s; }
+  .dienst:hover { transform: translateY(-4px); box-shadow: 0 0 0 1px var(--lijn), 0 24px 40px -24px rgba(15,31,46,.35); }
+  .dienst .ico { width: 50px; height: 50px; border-radius: 12px; background: #fff1e8; color: var(--oranje); display: grid; place-items: center; margin-bottom: 20px; }
+  .dienst h3 { font-size: 22px; color: var(--navy); margin-bottom: 8px; }
+  .dienst p { color: var(--zacht); margin: 0 0 20px; font-size: 15.5px; flex: 1; }
+  .dienst .prijs { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--lijn); padding-top: 16px; font-size: 14px; color: var(--zacht); }
+  .dienst .prijs b { color: var(--navy); font-size: 16px; }
+  .dienst button { border: 0; background: none; color: var(--oranje); font: 600 14px Inter, sans-serif; cursor: pointer; padding: 0; }
+
+  .stappen { background: var(--navy); color: #fff; }
+  .stappen .kop h2 { color: #fff; } .stappen .kop p { color: #a9b7c5; }
+  .stappen ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; counter-reset: s; }
+  .stappen li { counter-increment: s; padding: 26px; border-radius: 18px; background: var(--navy-2); }
+  .stappen li::before { content: counter(s); display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--oranje); font: 700 17px Archivo, sans-serif; margin-bottom: 18px; }
+  .stappen h3 { font-size: 19px; margin-bottom: 8px; }
+  .stappen p { margin: 0; color: #b6c3cf; font-size: 15px; }
+
+  .gebied .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+  .steden { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 0; padding: 0; list-style: none; }
+  .steden li { padding: 9px 16px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 1px var(--lijn); font-weight: 500; font-size: 15px; }
+  .uren { background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 0 0 1px var(--lijn); }
+  .uren h3 { color: var(--navy); font-size: 22px; margin-bottom: 14px; }
+  .uren dl { display: grid; grid-template-columns: 1fr auto; gap: 10px 20px; margin: 0 0 22px; font-size: 15.5px; }
+  .uren dt { color: var(--zacht); } .uren dd { margin: 0; font-weight: 600; }
+
+  .cta { padding: 0 0 96px; }
+  .cta .blok { border-radius: 24px; padding: 56px; background: linear-gradient(120deg, var(--oranje), #9a3412); color: #fff; display: grid; grid-template-columns: 1.3fr 1fr; gap: 32px; align-items: center; }
+  .cta h2 { font-size: clamp(30px, 3.4vw, 44px); font-weight: 800; }
+  .cta p { margin: 12px 0 0; color: #ffe4d4; font-size: 17px; }
+  .cta .knoppen { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .cta .knop--wit { background: #fff; color: #9a3412; }
+
+  footer { background: var(--navy); color: #93a3b3; font-size: 14px; padding: 40px 0; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+
+  @media (max-width: 960px) {
+    nav.links, .nav .tel { display: none; }
+    .top .wrap span:nth-child(n+2) { display: none; }
+    .hero .wrap, .gebied .wrap, .cta .blok { grid-template-columns: 1fr; gap: 40px; }
+    .hero .wrap { padding: 48px 0 64px; }
+    .beeld { max-width: 460px; margin: 0 auto; width: 100%; }
+    .projectkaart { left: 8px; } .sterkaart { right: 8px; }
+    .diensten .raster, .stappen ol { grid-template-columns: 1fr 1fr; }
+    section { padding: 64px 0; }
+    .cta .blok { padding: 36px 26px; }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 16px; }
+    .nav .knop { padding: 11px 14px; font-size: 13.5px; }
+    .logo small { display: none; }
+    .diensten .raster, .stappen ol { grid-template-columns: 1fr; }
+    .hero p.sub { font-size: 17px; }
+    .hero .bewijs { gap: 18px; }
+    .hero .bewijs b { font-size: 21px; }
+    .projectkaart { width: 210px; padding: 12px; }
+  }
+</style>
+<script>if (/[?&]embed/.test(location.search)) document.documentElement.classList.add("embed");</script>
+</head>
+<body>
+<div class="balk"><b>Sample website by Volgo.</b> This company doesn't exist. Chat with AVA in the bottom right, ask about prices, or book an appointment.</div>
+<div class="top"><div class="wrap"><span>Licensed &amp; insured general contractor</span><span>Serving Greater Austin since 2011</span><span>Mon–Fri 7:30–5:30 · Sat 9–1</span></div></div>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#">
+      <i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fdba74" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg></i>
+      <span><strong>Bluebonnet Build Co.</strong><small>Austin, Texas</small></span>
+    </a>
+    <nav class="links"><a href="#services">Services</a><a href="#process">Process</a><a href="#area">Service area</a></nav>
+    <div class="acties">
+      <a class="tel" href="#" data-ava-open>(512) 555-0148</a>
+      <button class="knop knop--oranje" data-ava-book>Free estimate</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <span class="label"><i></i>Booking estimates for next month</span>
+        <h1>Remodeling done right. <em>On time, on budget.</em></h1>
+        <p class="sub">Kitchens, bathrooms, additions and outdoor living across Greater Austin. One project manager, a fixed written price, and a 2-year warranty on our work.</p>
+        <div class="knoppen">
+          <button class="knop knop--oranje" data-ava-book>Book a free estimate
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <button class="knop knop--licht" data-ava-open>Ask about prices</button>
+        </div>
+        <div class="bewijs">
+          <div><b>14 yrs</b><span>building in Austin</span></div>
+          <div><b>Fixed</b><span>written price up front</span></div>
+          <div><b>2-year</b><span>workmanship warranty</span></div>
+        </div>
+      </div>
+      <div class="beeld" aria-hidden="true">
+        <div class="keuken">
+          <div class="kast-boven l"></div><div class="raam"></div><div class="kast-boven r"></div>
+          <div class="lamp a"></div><div class="lamp b"></div>
+          <div class="kraan"></div><div class="blad"></div>
+          <div class="kast-onder"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="projectkaart">
+          <small>Current project · Cedar Park</small>
+          <b>Kitchen remodel</b>
+          <div class="rij"><span>Week 5 of 7</span><strong>On schedule</strong></div>
+          <div class="balkje"><i></i></div>
+        </div>
+        <div class="sterkaart"><b>Fixed price</b>No surprises after signing</div>
+      </div>
+    </div>
+  </div>
+
+  <section class="diensten" id="services">
+    <div class="wrap">
+      <div class="kop">
+        <div class="kicker">What we build</div>
+        <h2>Projects we do every week</h2>
+        <p>Typical price ranges for Greater Austin, labor and materials included. Your exact price follows a free estimate.</p>
+      </div>
+      <div class="raster">
+        <article class="dienst">
+          <div class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="9" rx="1"/><path d="M3 15h18M8 4h8v4H8zM12 8v3"/></svg></div>
+          <h3>Kitchen remodels</h3>
+          <p>Cabinets, counters, layout changes and lighting. Designed with you, built in 4 to 8 weeks.</p>
+          <div class="prijs"><span><b>$28k–$75k</b></span><button data-ava-book>Get an estimate →</button></div>
+        </article>
+        <article class="dienst">
+          <div class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M6 12V6a2 2 0 0 1 4 0"/></svg></div>
+          <h3>Bathroom remodels</h3>
+          <p>From a walk-in shower conversion to a full primary suite. Usually done in 2 to 4 weeks.</p>
+          <div class="prijs"><span><b>$14k–$38k</b></span><button data-ava-book>Get an estimate →</button></div>
+        </article>
+        <article class="dienst">
+          <div class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M14 20v-6h5"/></svg></div>
+          <h3>Additions &amp; conversions</h3>
+          <p>Extra bedrooms, garage conversions and second stories. Permits and inspections handled for you.</p>
+          <div class="prijs"><span>From <b>$90k</b></span><button data-ava-book>Get an estimate →</button></div>
+        </article>
+        <article class="dienst">
+          <div class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 10h18L12 4z"/><path d="M5 10v10M19 10v10M3 20h18M9 14h6"/></svg></div>
+          <h3>Decks &amp; covered patios</h3>
+          <p>Composite decks, pergolas and outdoor kitchens built for Texas summers. 1 to 3 weeks.</p>
+          <div class="prijs"><span><b>$9k–$40k</b></span><button data-ava-book>Get an estimate →</button></div>
+        </article>
+        <article class="dienst">
+          <div class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+          <h3>Whole-home remodels</h3>
+          <p>Open up the floor plan, new finishes throughout, one team from demo to final walkthrough.</p>
+          <div class="prijs"><span>Priced per project</span><button data-ava-book>Book a visit →</button></div>
+        </article>
+        <article class="dienst">
+          <div class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <h3>Not sure yet?</h3>
+          <p>Tell AVA what you have in mind. You'll get an honest price range in a minute, any time of day.</p>
+          <div class="prijs"><span>24/7</span><button data-ava-open>Ask AVA →</button></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="stappen" id="process">
+    <div class="wrap">
+      <div class="kop">
+        <div class="kicker">How it works</div>
+        <h2>From first call to final walkthrough</h2>
+        <p>No surprises. You always know what happens next and what it costs.</p>
+      </div>
+      <ol>
+        <li><h3>Free estimate</h3><p>A phone call or a visit at your home. Book it yourself in our chat.</p></li>
+        <li><h3>Fixed written quote</h3><p>Design and a fixed price within 5 business days.</p></li>
+        <li><h3>Permits &amp; schedule</h3><p>We pull permits and plan your start date, usually 4 to 6 weeks out.</p></li>
+        <li><h3>Build &amp; walkthrough</h3><p>Weekly updates, a clean site and a final walkthrough together.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="gebied" id="area">
+    <div class="wrap">
+      <div>
+        <div class="kicker">Service area</div>
+        <div class="kop" style="margin-bottom:0">
+          <h2>Greater Austin</h2>
+          <p>We work within about 30 miles of downtown Austin.</p>
+        </div>
+        <ul class="steden"><li>Austin</li><li>Round Rock</li><li>Cedar Park</li><li>Georgetown</li><li>Pflugerville</li><li>Leander</li><li>Lakeway</li><li>Bee Cave</li></ul>
+      </div>
+      <div class="uren">
+        <h3>Office &amp; showroom</h3>
+        <dl><dt>Monday – Friday</dt><dd>7:30 – 5:30</dd><dt>Saturday</dt><dd>9:00 – 1:00</dd><dt>Sunday</dt><dd>Closed</dd><dt>Address</dt><dd>S Lamar Blvd, Austin</dd></dl>
+        <button class="knop knop--oranje" data-ava-book>Book a visit or a call</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="cta">
+    <div class="wrap">
+      <div class="blok">
+        <div>
+          <h2>What will your project cost?</h2>
+          <p>Ask AVA, our online assistant, for a price range, or pick a time for a free estimate. Day or night.</p>
+        </div>
+        <div class="knoppen">
+          <button class="knop knop--wit" data-ava-book>Book a free estimate</button>
+          <button class="knop knop--licht" data-ava-open>Chat with AVA</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Bluebonnet Build Co. is a fictional company, made to show how AVA works.</span>
+    <span>The chat on this page is AVA by <a href="https://thevolgo.app" target="_top">Volgo</a>.</span>
+  </div>
+</footer>
+
+<script src="/ava.js" data-key="60adfde15d398c471ff29dd4" defer></script>
+</body>
+</html>
