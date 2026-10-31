@@ -1,15 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { AvaChat } from "@/components/volgo/ava-chat";
-import { Bento } from "@/components/volgo/bento";
-import { Demo } from "@/components/volgo/demo";
 import { Faq } from "@/components/volgo/faq";
 import { Footer } from "@/components/volgo/footer";
 import { Hero } from "@/components/volgo/hero";
 import { Nav } from "@/components/volgo/nav";
-import { Problem } from "@/components/volgo/problem";
-import { Sectors } from "@/components/volgo/sectors";
-import { HowItWorks, Inside } from "@/components/volgo/inside";
+import { Inside } from "@/components/volgo/inside";
+import { Feiten, Marquee, Ranking, Rekenhulp, ScrollProgress, Tijdlijn, Voordelen, Voorbeelden, VoorNa, useReveal } from "@/components/volgo/landing";
 import { FinalCta, PricingPreview } from "@/components/volgo/pricing-preview";
 import { isIngelogd } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
@@ -20,18 +17,23 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  useReveal();
   return (
     <div className="volgo">
+      <ScrollProgress />
       <Nav ingelogd={Route.useLoaderData().ingelogd} />
       <main>
         <Hero />
-        <Problem />
-        <Demo />
-        <Bento />
+        <Feiten />
+        <Marquee />
+        <VoorNa />
+        <Voordelen />
+        <Voorbeelden />
+        <Ranking />
+        <Rekenhulp />
+        <Tijdlijn />
         <Inside />
-        <HowItWorks />
         <PricingPreview />
-        <Sectors />
         <Faq />
         <FinalCta />
       </main>

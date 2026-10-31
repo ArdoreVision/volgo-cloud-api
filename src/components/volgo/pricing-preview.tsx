@@ -1,10 +1,12 @@
+import type { CSSProperties } from "react";
+
 import { INSTAGRAM, INSTAGRAM_DM } from "@/lib/contact";
 import { PLANS, START_STAPPEN, type PlanId } from "@/lib/plans";
 
 export function PricingPreview() {
   return (
     <section aria-labelledby="price-title" className="v-pricing v-pricing--home" id="pricing">
-      <header className="v-pricing__head">
+      <header className="v-pricing__head" data-reveal="">
         <h2 className="v-h2 v-center" id="price-title">
           Simple pricing.
         </h2>
@@ -14,7 +16,7 @@ export function PricingPreview() {
         {(Object.keys(PLANS) as PlanId[]).map((id) => {
           const p = PLANS[id];
           return (
-            <article className={`v-plan v-plan--${id}`} key={id}>
+            <article className={`v-plan v-plan--${id}`} data-reveal="" key={id} style={{ "--d": `${["start", "pro", "premium"].indexOf(id) * 110}ms` } as CSSProperties}>
               {p.badge ? <p className="v-plan__badge">{p.badge}</p> : null}
               <h3 className="v-plan__name">{p.naam}</h3>
               <p className="v-plan__tag">{p.tagline}</p>
@@ -49,11 +51,11 @@ export function PricingPreview() {
 
 export function FinalCta() {
   return (
-    <section aria-labelledby="cta-title" className="v-final">
+    <section aria-labelledby="cta-title" className="v-final" data-reveal="">
       <h2 className="v-h2 v-center" id="cta-title">
-        Turn more visitors into quotes.
+        More customers. Less chasing.
       </h2>
-      <p className="v-lede v-center">Every plan starts with 7 days free. Questions first? Ask AVA in the corner, or book a call: send BOOK in a DM to @{INSTAGRAM} on Instagram.</p>
+      <p className="v-lede v-center">AVA live on your website in 5 minutes, 7 days free. Questions first? Ask AVA in the corner, or book a call: send BOOK in a DM to @{INSTAGRAM} on Instagram.</p>
       <div className="v-final__actions">
         <a className="v-cta-primary" href="/pricing">
           Start 7-day free trial

@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 const items = [
   { t: "Home", d: "Ask AVA anything about your business. “Who should I call first today?” “Write a follow-up email to my hottest lead.”", i: "M10 3.5l1.6 4.1 4.4.3-3.4 2.8 1.1 4.3L10 12.6 6.3 15l1.1-4.3L4 7.9l4.4-.3z" },
   { t: "Live conversations", d: "See who AVA is talking to right now, what they asked and how long the chat has been going.", i: "M3.5 4.5h13v9h-6l-4 3v-3h-3z" },
@@ -11,13 +13,13 @@ const items = [
 export function Inside() {
   return (
     <section aria-labelledby="inside-title" className="v-inside">
-      <h2 className="v-h2 v-center" id="inside-title">
+      <h2 className="v-h2 v-center" data-reveal="" id="inside-title">
         Your own dashboard. Works like an app.
       </h2>
       <p className="v-lede v-center">Log in from your laptop or phone. Everything AVA does is right there.</p>
       <ul className="v-inside__grid">
-        {items.map((x) => (
-          <li key={x.t}>
+        {items.map((x, i) => (
+          <li data-reveal="" key={x.t} style={{ "--d": `${(i % 4) * 80}ms` } as CSSProperties}>
             <svg aria-hidden="true" viewBox="0 0 20 20">
               <path d={x.i} />
             </svg>

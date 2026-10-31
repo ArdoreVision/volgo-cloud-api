@@ -1,4 +1,6 @@
 const faqs = [
+  { q: "How quickly is AVA live?", a: "Usually within 5 minutes. You paste one line of code on your website (we have a guide for every platform, or we add it for you) and tell AVA about your services and prices in about two minutes. From that moment AVA answers your visitors." },
+  { q: "When do I pay?", a: "Not during the first 7 days. If you keep your plan, the first monthly payment is on day 7. Cancel before then in your dashboard and you pay nothing." },
   { q: "What does it cost?", a: "Start is €147, Pro €497 and Premium €997 per month, excluding VAT. Every plan starts with 7 days free; a payment card is required, and nothing is charged until the trial ends. Switch plans any time, cancel any month." },
   { q: "What's the difference between the plans?", a: "Start: 300 AVA conversations a month for one user. Pro: 1,000 conversations, 5 users, team chat and video calls, AVA trained on your services and prices, 90-day analytics. Premium: 5,000 conversations, unlimited users, AVA on multiple websites or locations and the fastest support." },
   { q: "Do I need to do anything technical?", a: "No. AVA goes on your website with one line of code, which we're happy to add for you. You only tell AVA about your business in your dashboard, which takes about two minutes." },
@@ -19,7 +21,7 @@ export function Faq() {
       </h2>
       <div className="v-faq__list">
         {faqs.map((f) => (
-          <details className="v-faq__item" key={f.q}>
+          <details className="v-faq__item" data-reveal="" key={f.q}>
             <summary>
               <span>{f.q}</span>
               <svg aria-hidden="true" viewBox="0 0 16 16">
