@@ -7,7 +7,7 @@ import { checkWachtwoord, hashWachtwoord, huidigeGebruiker, maakSessie, randomTo
 import { bindings } from "../bindings.server";
 import { esc, mailOpmaak, verstuurMail } from "../mail.server";
 
-const origin = () => `https://${getRequestHeader("host") ?? "volgo.damienhanssens.workers.dev"}`;
+const origin = () => `https://${getRequestHeader("host") ?? "thevolgo.app"}`;
 const sterk = z.string().min(8, "Kies een wachtwoord van minstens 8 tekens.").max(200);
 
 /** Stap 1: herstellink aanvragen. Zegt altijd hetzelfde, zodat niemand kan zien welke adressen een account hebben. */

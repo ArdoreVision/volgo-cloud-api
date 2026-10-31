@@ -1,6 +1,6 @@
 import { bindings } from "./bindings.server";
 
-export const SITE_URL = "https://volgo.damienhanssens.workers.dev";
+export const SITE_URL = "https://thevolgo.app";
 
 export const esc = (v: string) => v.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c);
 

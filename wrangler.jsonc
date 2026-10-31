@@ -8,6 +8,12 @@
   "observability": { "enabled": true },
   "assets": { "directory": "./dist/client", "binding": "ASSETS", "not_found_handling": "none" },
   // Elke ochtend 06:00 UTC (07:00 winter, 08:00 zomer): ochtendsamenvatting per mail.
+  // Eigen domein (Cloudflare maakt DNS en certificaat automatisch aan). workers.dev blijft ook werken.
+  "routes": [
+    { "pattern": "thevolgo.app", "custom_domain": true },
+    { "pattern": "www.thevolgo.app", "custom_domain": true }
+  ],
+  "workers_dev": true,
   "triggers": { "crons": ["0 6 * * *"] },
   "vars": { "HF_ENV": "production", "APP_SLUG": "volgo" },
   "d1_databases": [

@@ -9,7 +9,7 @@ import { PLANS, isPlan } from "../plans";
 import { seedTeam, zorgVoorKanaal } from "../team.server";
 
 function origin() {
-  const host = getRequestHeader("host") ?? "hanssens-cornerstone.higgsfield.app";
+  const host = getRequestHeader("host") ?? "thevolgo.app";
   return `https://${host}`;
 }
 
