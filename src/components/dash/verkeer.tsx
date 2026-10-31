@@ -93,7 +93,7 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
         <div>
           <h1>Traffic</h1>
           <p>
-            Who visits your website, where they come from and how many become leads. Measured by AVA, without cookies.
+            Who visits your website, where they come from and how many become leads. Measured by AVA, with your visitors’ permission.
             {d && d.live > 0 ? (
               <span className="v-vk__live">
                 <i /> {d.live} on your site now
