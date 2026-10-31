@@ -86,6 +86,16 @@ export const bewaarAgenda = createServerFn({ method: "POST" })
     return { ok: true, message: "Saved." };
   });
 
+/** Consent screen on the website: on = visitors choose first, and location/device details are kept for those who accept. */
+export const bewaarToestemming = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ aan: z.boolean() }).parse(v))
+  .handler(async ({ data }) => {
+    const { g, DB } = await sessie();
+    await instellingenVoorTeam(DB, g.team_id);
+    await DB.prepare("UPDATE ava_instellingen SET toestemming = ? WHERE team_id = ?").bind(data.aan ? 1 : 0, g.team_id).run();
+    return { ok: true };
+  });
+
 export const bewaarMeldingen = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ chat: z.boolean(), lead: z.boolean(), email: z.boolean(), heet_mail: z.boolean(), samenvatting: z.boolean() }).parse(v))
   .handler(async ({ data }) => {
@@ -108,10 +118,19 @@ export const haalGesprek = createServerFn({ method: "GET" })
       .bind(data.id, g.team_id)
       .first<{ id: number; bezoeker: string; kanaal: string; onderwerp: string; status: string; gestart: string; laatste: string; berichten: number; warmte: number; voorbeeld: number; contact: string | null; lead_id: number | null; overgenomen_door: number | null; overgenomen_naam: string | null; kan_chatten: number }>();
     if (!gesprek) return null;
+    // The visit this chat came from: where (with permission) and which pages they looked at first.
+    const meta = await DB.prepare("SELECT sessie, herkomst FROM ava_gesprek_meta WHERE gesprek_id = ?").bind(data.id).first<{ sessie: string | null; herkomst: string | null }>();
+    const bezoek = meta?.sessie
+      ? (
+          await DB.prepare("SELECT pad, titel, bron, duur, created_at FROM site_views WHERE team_id = ? AND sessie = ? ORDER BY id LIMIT 20")
+            .bind(g.team_id, meta.sessie)
+            .all<{ pad: string; titel: string | null; bron: string | null; duur: number; created_at: string }>()
+        ).results
+      : [];
     const berichten = (
       await DB.prepare("SELECT id, rol, tekst, created_at FROM ava_berichten WHERE gesprek_id = ? ORDER BY id").bind(data.id).all<{ id: number; rol: string; tekst: string; created_at: string }>()
     ).results;
-    return { gesprek, berichten };
+    return { gesprek, berichten, herkomst: meta?.herkomst ?? null, bezoek };
   });
 
 /** Chat list for the DM-style Conversations page, newest first, with the last message as preview. */

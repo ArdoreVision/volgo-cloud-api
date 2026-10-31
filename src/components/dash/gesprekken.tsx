@@ -203,6 +203,24 @@ export function Gesprekken({ data }: { data: DashData }) {
               </div>
 
               {g.lead_id ? <p className="v-dm__lead">✓ Saved as a lead in Requests</p> : null}
+              {detail.herkomst || detail.bezoek.length ? (
+                <details className="v-dm__bezoek">
+                  <summary>
+                    {detail.herkomst ? `📍 ${detail.herkomst}` : "Visit details"}
+                    {detail.bezoek.length ? ` · ${detail.bezoek.length} ${detail.bezoek.length === 1 ? "page" : "pages"} viewed` : ""}
+                    {detail.bezoek[0]?.bron ? ` · via ${detail.bezoek[0].bron}` : ""}
+                  </summary>
+                  <ol>
+                    {detail.bezoek.map((v, i) => (
+                      <li key={i}>
+                        <time>{tijdAms(sqlDate(v.created_at))}</time>
+                        <span>{v.titel || v.pad}</span>
+                        <small>{v.pad}</small>
+                      </li>
+                    ))}
+                  </ol>
+                </details>
+              ) : null}
 
               {kanChatten ? (
                 <form className={`v-dm__invoer${ikChat ? " is-jij" : ""}`} onSubmit={(e) => void stuur(e)}>

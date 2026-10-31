@@ -18,7 +18,14 @@ const json = (body: unknown, status = 200) =>
 const schema = z.discriminatedUnion("actie", [
   z.object({ actie: z.literal("config"), sleutel: z.string().max(64) }),
   z.object({ actie: z.literal("poll"), sleutel: z.string().max(64), token: z.string().max(64), na_id: z.number().int().min(0) }),
-  z.object({ actie: z.literal("bericht"), sleutel: z.string().max(64), token: z.string().max(64).optional(), tekst: z.string().trim().min(1).max(1500) }),
+  z.object({
+    actie: z.literal("bericht"),
+    sleutel: z.string().max(64),
+    token: z.string().max(64).optional(),
+    tekst: z.string().trim().min(1).max(1500),
+    sessie: z.string().max(40).optional(),
+    toestemming: z.boolean().optional(),
+  }),
   z.object({ actie: z.literal("agenda"), sleutel: z.string().max(64), token: z.string().max(64).optional() }),
   // Website analytics (no cookies): a page view, its time on page / scroll depth, and chat events.
   z.object({
@@ -31,6 +38,9 @@ const schema = z.discriminatedUnion("actie", [
     utm: z.string().max(80).optional(),
     host: z.string().max(200).optional(),
     breedte: z.number().int().min(0).max(10000).optional(),
+    toestemming: z.boolean().optional(),
+    vast: z.string().max(40).optional(),
+    taal: z.string().max(20).optional(),
   }),
   z.object({ actie: z.literal("ping"), sleutel: z.string().max(64), sessie: z.string().min(6).max(40), id: z.number().int().min(1), duur: z.number().min(0).max(100000), scroll: z.number().min(0).max(100) }),
   z.object({ actie: z.literal("event"), sleutel: z.string().max(64), sessie: z.string().min(6).max(40), soort: z.enum(["chat_open", "chat_bericht", "agenda_open", "geboekt"]) }),
@@ -43,8 +53,17 @@ const schema = z.discriminatedUnion("actie", [
     naam: z.string().trim().min(2).max(100),
     contact: z.string().trim().min(5).max(120),
     adres: z.string().trim().max(160).optional(),
+    sessie: z.string().max(40).optional(),
+    toestemming: z.boolean().optional(),
   }),
 ]);
+
+/** Links a chat to the visit it came from (pages viewed), and with permission: where the visitor is and on what device. */
+async function koppel(DB: NonNullable<ReturnType<typeof bindings>["DB"]>, request: Request, token: string | undefined, sessie?: string, toestemming?: boolean) {
+  if (!token || !sessie) return;
+  const herkomst = toestemming ? (await import("@/lib/verkeer.server")).herkomstTekst(request.headers, request.headers.get("user-agent") ?? "") : null;
+  await DB.prepare("UPDATE ava_gesprek_meta SET sessie = COALESCE(sessie, ?), herkomst = COALESCE(herkomst, ?) WHERE token = ?").bind(sessie, herkomst, token).run();
+}
 
 export const Route = createFileRoute("/api/ava")({
   server: {
@@ -74,7 +93,7 @@ export const Route = createFileRoute("/api/ava")({
         if (body.actie === "config") {
           const { actieveStijl } = await import("@/lib/stijl.server");
           const stijl = await actieveStijl(DB, inst.team_id);
-          return json({ naam: inst.naam, begroeting: inst.begroeting, kleur: inst.kleur, bedrijf: inst.bedrijf, boeken: Boolean(inst.boeken), ...stijl });
+          return json({ naam: inst.naam, begroeting: inst.begroeting, kleur: inst.kleur, bedrijf: inst.bedrijf, boeken: Boolean(inst.boeken), toestemming: Boolean(inst.toestemming), ...stijl });
         }
         if (body.actie === "poll") {
           return json(await pollGesprek(DB, inst.team_id, body.token, body.na_id));
@@ -95,7 +114,15 @@ export const Route = createFileRoute("/api/ava")({
           const { binnenLimiet } = await import("@/lib/limiet.server");
           if (!(await binnenLimiet(DB, `sv:${await hashIp(ip)}`, 60, 400))) return json({ ok: false });
           const { ANTHROPIC_API_KEY } = bindings();
+          const plek = v.locatieVan(request.headers);
           const id = await v.slaViewOp(DB, {
+            toestemming: body.toestemming,
+            vast: body.vast,
+            stad: plek.stad,
+            regio: plek.regio,
+            browser: v.browserVan(ua),
+            os: v.osVan(ua),
+            taal: body.taal,
             team: inst.team_id,
             bezoeker: await v.bezoekerId(ip, ua, inst.team_id, (ANTHROPIC_API_KEY ?? "volgo").slice(-24)),
             sessie: body.sessie,
@@ -121,9 +148,12 @@ export const Route = createFileRoute("/api/ava")({
         if (body.actie === "boek") {
           if (!inst.boeken) return json({ ok: false, reden: "Booking is switched off for this business." });
           if (!(await binnenLimiet(DB, `wb:${inst.team_id}:${ipHash}`, 60, 3))) return json({ ok: false, reden: "You've booked several appointments already. Please contact the business directly." });
-          return json(await boekViaChat(DB, inst, body.token, body));
+          const geboekt = await boekViaChat(DB, inst, body.token, body);
+          await koppel(DB, request, geboekt.token, body.sessie, body.toestemming);
+          return json(geboekt);
         }
         const res = await verwerkBericht(DB, inst, body.token, body.tekst);
+        await koppel(DB, request, res.token, body.sessie, body.toestemming);
         return json(res);
       },
     },

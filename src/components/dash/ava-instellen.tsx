@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { AgendaInstellingen } from "./agenda-instellingen";
 import type { FormEvent } from "react";
 
-import { bewaarAva, bewaarMeldingen, haalAva } from "@/lib/api/ava.functions";
+import { bewaarAva, bewaarMeldingen, bewaarToestemming, haalAva } from "@/lib/api/ava.functions";
 import { markeerOnboarding } from "@/lib/api/assistent.functions";
 
 import { InstallGuides } from "@/components/volgo/install-guides";
@@ -35,11 +35,13 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
   const [gekopieerd, setGekopieerd] = useState(false);
   const [melding, setMelding] = useState({ chat: true, lead: true, email: false, heet_mail: true, samenvatting: true });
   const [browser, setBrowser] = useState<string>("default");
+  const [toestemmingAan, setToestemmingAan] = useState(true);
 
   useEffect(() => {
     void haalAva().then((a) => {
       setAva(a);
       setKleur(a.inst.kleur);
+      setToestemmingAan(Boolean(a.inst.toestemming));
       setMelding({ chat: !!a.meldingen.chat, lead: !!a.meldingen.lead, email: !!a.meldingen.email, heet_mail: !!a.meldingen.heet_mail, samenvatting: !!a.meldingen.samenvatting });
     });
     if (typeof Notification !== "undefined") setBrowser(Notification.permission);
@@ -92,6 +94,18 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
   );
   if (deel === "installeren") return (
     <>
+        <section className="v-dash__panel">
+          <h2 className="v-sub">Visitor data and consent</h2>
+          <Toggle
+            aan={toestemmingAan}
+            label="Ask visitors for permission first"
+            onChange={(v) => {
+              setToestemmingAan(v);
+              void bewaarToestemming({ data: { aan: v } });
+            }}
+            uitleg="Visitors see a short consent screen before using your site. Those who accept: you see their city, region, device, browser, language, returning visits and the pages they viewed before chatting. Those who decline (or when this is off) are only counted anonymously."
+          />
+        </section>
         <section className="v-dash__panel">
           <div className="v-dash__panel-head">
             <h2>On your website</h2>

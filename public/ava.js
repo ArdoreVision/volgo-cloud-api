@@ -19,6 +19,12 @@
     nl: { chipBoek: "Afspraak maken", chipPrijs: "Wat kost het?", chipVraag: "Ik heb een vraag", stap: "Stap {n} van {m}", s1: "Hoe wil je afspreken?", s1h: "Tik op één keuze.", bellen: ["Telefoongesprek", "We bellen je op het moment dat jij kiest"], langs: ["Langskomen bij jou", "We komen bij je langs, bijvoorbeeld om op te meten"], kantoor: ["Bij ons op kantoor", "Jij komt bij ons langs"], insta: ["DM via Instagram", "Stuur ons een bericht op Instagram, wanneer het jou uitkomt"], instaT: "Stuur ons een DM op Instagram", instaH: "Tik op de knop om Instagram te openen. Zet in je bericht waar je hulp bij zoekt, we antwoorden daar.", instaK: "Instagram-DM openen", s2: "Kies een dag en tijd", s2h: "Lichte dagen hebben nog plek. Tik op een dag, daarna op een tijd.", dicht: "Gesloten", vol: "Vol", beschikbaar: "Beschikbaar", nietBeschikbaar: "Niet beschikbaar", vrij: "vrij", tz: "Tijden zijn in {tz}-tijd", geen: "Er zijn de komende weken geen vrije momenten. Typ je telefoonnummer in de chat, dan bellen we je om te plannen.", s3: "Jouw gegevens", s3h: "Zodat we weten wie we verwachten en hoe we je bereiken.", naam: "Je naam", contact: "Telefoonnummer of e-mail", adres: "Adres (straat, nummer, plaats)", bevestig: "Afspraak bevestigen", terug: "Terug", bezig: "Bezig met boeken…", klaar: "Geboekt", vandaag: "Vandaag", morgen: "Morgen", laden: "Vrije momenten laden…", nodig: "Vul alle velden in.", opnieuw: "Kies een tijd" },
   };
   var K = KAL[TAAL] || KAL.en;
+  // Consent screen: the visitor chooses before using the site (both choices let them in).
+  var OK = {
+    en: { t: "Before you continue", p: "{b} uses AVA to answer your questions and to understand how visitors use this website: your approximate location (city and country), device, browser, language and the pages you visit. This helps them help you faster. Nothing is sold or shared with others.", ja: "Accept", nee: "Only necessary", meer: "Privacy", klein: "You can visit the website either way." },
+    nl: { t: "Voordat je verdergaat", p: "{b} gebruikt AVA om je vragen te beantwoorden en om te zien hoe bezoekers deze website gebruiken: je globale locatie (stad en land), apparaat, browser, taal en de pagina's die je bekijkt. Zo kunnen ze je sneller helpen. Er wordt niets verkocht of gedeeld met anderen.", ja: "Accepteren", nee: "Alleen noodzakelijk", meer: "Privacy", klein: "Je kunt de website in beide gevallen bekijken." },
+  };
+  var O = OK[TAAL] || OK.en;
   window.__volgoAva = true;
   var KEY = script.getAttribute("data-key");
   var BASE = new URL(script.src).origin;
@@ -138,6 +144,15 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
 .kal .err{margin:8px 0 0;font-size:13px;color:#c4211b}\
 .kal.ok{background:#eefaf3;box-shadow:0 0 0 1px #bfe8cf}.kal.ok h4{color:#157a42}\
 .donker .kal{background:#1b2230;color:#eef1f6;box-shadow:none}.donker .kal .opt,.donker .kal .dag,.donker .kal input{background:#232a36;color:#eef1f6}.donker .kal .tijd{background:#1b2230;color:#eef1f6;box-shadow:inset 0 0 0 1.5px #334}.donker .chip{background:#1b2230;color:#eef1f6}\
+.ok-laag{position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;padding:16px;background:rgba(15,20,28,.45);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);animation:okin .3s ease both}\
+@keyframes okin{from{opacity:0}}\
+.ok-kaart{width:min(460px,100%);padding:24px;border-radius:24px;background:#fff;color:#111318;box-shadow:0 30px 80px rgba(0,0,0,.3);animation:pop .4s cubic-bezier(.34,1.56,.64,1)}\
+.ok-kaart h3{margin:0 0 8px;font-size:19px}\
+.ok-kaart p{margin:0 0 18px;font-size:14.5px;line-height:1.55;color:#3c4048}\
+.ok-knoppen{display:flex;gap:8px;flex-wrap:wrap}\
+.ok-knoppen button{flex:1;min-width:140px;padding:13px 16px;border:0;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer}\
+.ok-ja{background:var(--c);color:#fff}.ok-nee{background:#f1f3f6;color:#111318}\
+.ok-voet{display:flex;justify-content:space-between;gap:10px;margin-top:12px;font-size:12px;color:#6b7280}.ok-voet a{color:#6b7280}\
 @media (max-width:640px){.links .panel{left:0}.fab span{display:none}.fab{padding:6px}.panel{right:0;bottom:0;width:100%;height:100%;border-radius:0}}\
 ";
   root.innerHTML = "<style>" + css + "</style><div class=\"w\">" +
@@ -290,7 +305,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
       if (!v("naam") || !v("contact") || (k.soort === "langs" && !v("adres"))) { k.fout = K.nodig; teken(); return; }
       var knop = f.querySelector(".knop"); knop.disabled = true; knop.textContent = K.bezig;
       var dg = k.data.dagen[k.dag];
-      var body = { actie: "boek", sleutel: KEY, token: state.token, start: dg.datum + "T" + k.tijd, soort: k.soort, naam: v("naam"), contact: v("contact") };
+      var body = { actie: "boek", sleutel: KEY, token: state.token, start: dg.datum + "T" + k.tijd, soort: k.soort, naam: v("naam"), contact: v("contact"), sessie: SESSIE, toestemming: TOESTEMMING };
       if (v("adres")) body.adres = v("adres");
       post(body).then(function (r) {
         if (r && r.token) state.token = r.token;
@@ -325,7 +340,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   post({ actie: "config", sleutel: KEY }).then(function (c) {
     // Subscription ended: remove the chat from the website.
     if (c && c.uit) { host.remove(); return; }
-    if (c && !c.fout) { applyConfig(c); meten(); }
+    if (c && !c.fout) { applyConfig(c); toestemmingVragen(c); }
   }).catch(function () {});
   if (!state.msgs.length) setTimeout(function () { var d = $(".dot"); if (d && !panel.classList.contains("open")) d.hidden = false; }, 4000);
 
@@ -342,6 +357,35 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     try { if (navigator.sendBeacon && navigator.sendBeacon(API, new Blob([t], { type: "text/plain" }))) return; } catch (e) {}
     try { fetch(API, { method: "POST", body: t, keepalive: true, headers: { "content-type": "text/plain" } }); } catch (e) {}
   }
+  var KEUZE_SLEUTEL = "volgo-ok-" + KEY, TOESTEMMING = false, VAST = "";
+  function keuzeLezen() {
+    try { var k = JSON.parse(localStorage.getItem(KEUZE_SLEUTEL) || "null"); if (k && Date.now() - k.op < 180 * 864e5) return k.ja ? "ja" : "nee"; } catch (e) {}
+    return "";
+  }
+  function keuzeKlaar(ja) {
+    TOESTEMMING = !!ja;
+    if (ja) { try { VAST = localStorage.getItem("volgo-v") || ""; if (!VAST) { VAST = Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem("volgo-v", VAST); } } catch (e) {} }
+    meten();
+  }
+  function toestemmingVragen(c) {
+    var k = keuzeLezen();
+    var inFrame = false; try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+    if (!c.toestemming || NIET || inFrame) { keuzeKlaar(false); return; }
+    if (k) { keuzeKlaar(k === "ja"); return; }
+    var laag = document.createElement("div"); laag.className = "ok-laag"; laag.setAttribute("role", "dialog"); laag.setAttribute("aria-modal", "true");
+    laag.innerHTML = '<div class="ok-kaart"><h3></h3><p></p><div class="ok-knoppen"><button class="ok-nee" type="button"></button><button class="ok-ja" type="button"></button></div><div class="ok-voet"><span></span><a target="_blank" rel="noopener"></a></div></div>';
+    laag.querySelector("h3").textContent = O.t;
+    laag.querySelector("p").textContent = O.p.replace("{b}", c.bedrijf || "This website");
+    laag.querySelector(".ok-ja").textContent = O.ja;
+    laag.querySelector(".ok-nee").textContent = O.nee;
+    laag.querySelector(".ok-voet span").textContent = O.klein;
+    var a = laag.querySelector(".ok-voet a"); a.textContent = O.meer; a.href = BASE + "/privacy";
+    var kies = function (ja) { try { localStorage.setItem(KEUZE_SLEUTEL, JSON.stringify({ ja: ja, op: Date.now() })); } catch (e) {} laag.remove(); keuzeKlaar(ja); };
+    laag.querySelector(".ok-ja").addEventListener("click", function () { kies(true); });
+    laag.querySelector(".ok-nee").addEventListener("click", function () { kies(false); });
+    root.querySelector(".w").appendChild(laag);
+    setTimeout(function () { var b = laag.querySelector(".ok-ja"); if (b) b.focus(); }, 50);
+  }
   function actief() { return view.zicht + (view.sinds ? (Date.now() - view.sinds) / 1000 : 0); }
   function ping() { if (!NIET && view.id) beacon({ actie: "ping", sleutel: KEY, sessie: SESSIE, id: view.id, duur: Math.round(actief()), scroll: view.scroll }); }
   function gebeurtenis(soort) { if (!NIET) beacon({ actie: "event", sleutel: KEY, sessie: SESSIE, soort: soort }); }
@@ -355,7 +399,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     try { eerste = !sessionStorage.getItem("volgo-r"); sessionStorage.setItem("volgo-r", "1"); } catch (e) {}
     var utm = ""; try { utm = new URLSearchParams(location.search).get("utm_source") || ""; } catch (e) {}
     var huidig = view;
-    post({ actie: "view", sleutel: KEY, sessie: SESSIE, pad: pad.slice(0, 480), titel: (document.title || "").slice(0, 280), ref: eerste ? (document.referrer || "").slice(0, 480) : "", utm: utm.slice(0, 70), host: location.hostname, breedte: window.innerWidth || 0 })
+    post({ actie: "view", sleutel: KEY, sessie: SESSIE, pad: pad.slice(0, 480), titel: (document.title || "").slice(0, 280), ref: eerste ? (document.referrer || "").slice(0, 480) : "", utm: utm.slice(0, 70), host: location.hostname, breedte: window.innerWidth || 0, toestemming: TOESTEMMING, vast: TOESTEMMING ? VAST : undefined, taal: TOESTEMMING ? (navigator.language || "").slice(0, 12) : undefined })
       .then(function (r) { if (r && r.id) huidig.id = r.id; }).catch(function () {});
   }
   function meten() {
@@ -437,7 +481,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     if (!berichtGeteld) { berichtGeteld = true; gebeurtenis("chat_bericht"); }
     state.msgs.push({ r: "u", t: t }); save(state); bubble("u", t);
     var typ = document.createElement("p"); typ.className = "b a typ"; typ.innerHTML = "<span></span><span></span><span></span>"; log.appendChild(typ); log.scrollTop = log.scrollHeight;
-    post({ actie: "bericht", sleutel: KEY, token: state.token, tekst: t }).then(function (r) {
+    post({ actie: "bericht", sleutel: KEY, token: state.token, tekst: t, sessie: SESSIE, toestemming: TOESTEMMING }).then(function (r) {
       typ.remove();
       if (r.token) state.token = r.token;
       if (r.laatste_id) state.na = Math.max(state.na || 0, r.laatste_id);

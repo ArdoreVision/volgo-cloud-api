@@ -318,6 +318,7 @@ function Dashboard() {
                     <span role="cell">
                       <strong>{l.naam}</strong>
                       <small>{l.reden || l.onderwerp}</small>
+                      {l.herkomst ? <small className="v-herkomst">📍 {l.herkomst}</small> : null}
                     </span>
                     <span role="cell">{l.kanaal}</span>
                     <span role="cell">{datum(l.created_at)}</span>

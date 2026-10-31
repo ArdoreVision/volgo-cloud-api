@@ -318,13 +318,14 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
   const [leads, afspraken, gesprekken, leden, kanalen] = await Promise.all([
     DB.prepare(
       `SELECT l.id, l.created_at, l.naam, l.onderwerp, l.kanaal, l.status, l.laatste_actie, l.voorbeeld,
-              COALESCE(s.warmte, 50) AS warmte, s.reden
+              COALESCE(s.warmte, 50) AS warmte, s.reden,
+              (SELECT m.herkomst FROM ava_gesprek_meta m WHERE m.lead_id = l.id LIMIT 1) AS herkomst
        FROM klant_leads l LEFT JOIN lead_scores s ON s.lead_id = l.id
        WHERE l.gebruiker_id = ? AND l.created_at > datetime('now', ?)
        ORDER BY l.created_at DESC LIMIT 1000`,
     )
       .bind(team, `-${analyticsDagen * 2 + 1} days`)
-      .all<{ id: number; created_at: string; naam: string; onderwerp: string; kanaal: string; status: string; laatste_actie: string | null; voorbeeld: number; warmte: number; reden: string | null }>(),
+      .all<{ id: number; created_at: string; naam: string; onderwerp: string; kanaal: string; status: string; laatste_actie: string | null; voorbeeld: number; warmte: number; reden: string | null; herkomst: string | null }>(),
     DB.prepare("SELECT id, lead_id, titel, start, eind, locatie, notitie, voorbeeld FROM afspraken WHERE team_id = ? ORDER BY start")
       .bind(team)
       .all<{ id: number; lead_id: number | null; titel: string; start: string; eind: string; locatie: string | null; notitie: string | null; voorbeeld: number }>(),

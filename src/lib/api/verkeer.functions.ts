@@ -59,6 +59,36 @@ export const haalVerkeer = createServerFn({ method: "GET" })
         .first<{ n: number }>(),
     ]);
 
+    // With the visitor's permission: city/region, browser, system, language, returning visitors, and who is on the site right now.
+    const metOk = `${w} AND toestemming = 1`;
+    const [steden, browsers, systemen, talen, ok, terug, nuOp] = await Promise.all([
+      DB.prepare(`SELECT stad, regio, land, COUNT(DISTINCT sessie) AS n FROM site_views WHERE ${metOk} AND stad IS NOT NULL GROUP BY stad, regio, land ORDER BY n DESC LIMIT 10`)
+        .bind(team, van)
+        .all<{ stad: string; regio: string | null; land: string | null; n: number }>(),
+      DB.prepare(`SELECT browser AS naam, COUNT(DISTINCT sessie) AS n FROM site_views WHERE ${metOk} AND browser IS NOT NULL GROUP BY naam ORDER BY n DESC LIMIT 6`)
+        .bind(team, van)
+        .all<{ naam: string; n: number }>(),
+      DB.prepare(`SELECT os AS naam, COUNT(DISTINCT sessie) AS n FROM site_views WHERE ${metOk} AND os IS NOT NULL GROUP BY naam ORDER BY n DESC LIMIT 6`)
+        .bind(team, van)
+        .all<{ naam: string; n: number }>(),
+      DB.prepare(`SELECT substr(taal, 1, 2) AS naam, COUNT(DISTINCT sessie) AS n FROM site_views WHERE ${metOk} AND taal IS NOT NULL GROUP BY naam ORDER BY n DESC LIMIT 6`)
+        .bind(team, van)
+        .all<{ naam: string; n: number }>(),
+      DB.prepare(`SELECT COUNT(DISTINCT CASE WHEN toestemming = 1 THEN sessie END) AS ja, COUNT(DISTINCT sessie) AS alle FROM site_views WHERE ${w}`)
+        .bind(team, van)
+        .first<{ ja: number; alle: number }>(),
+      DB.prepare(`SELECT COUNT(*) AS n FROM (SELECT vast FROM site_views WHERE ${metOk} AND vast IS NOT NULL GROUP BY vast HAVING COUNT(DISTINCT dag) > 1)`)
+        .bind(team, van)
+        .first<{ n: number }>(),
+      DB.prepare(
+        `SELECT sessie, MAX(created_at) AS laatst, MAX(stad) AS stad, MAX(land) AS land, MAX(apparaat) AS apparaat, MAX(bron) AS bron,
+                (SELECT pad FROM site_views v2 WHERE v2.team_id = v.team_id AND v2.sessie = v.sessie ORDER BY v2.id DESC LIMIT 1) AS pad, COUNT(*) AS paginas
+         FROM site_views v WHERE team_id = ? AND created_at >= datetime('now', '-5 minutes') GROUP BY sessie ORDER BY laatst DESC LIMIT 12`,
+      )
+        .bind(team)
+        .all<{ sessie: string; laatst: string; stad: string | null; land: string | null; apparaat: string | null; bron: string | null; pad: string; paginas: number }>(),
+    ]);
+
     // Sessions with a single page view and under 10 seconds count as a bounce.
     const stuiter = await DB.prepare(
       `SELECT COUNT(*) AS n FROM (SELECT sessie FROM site_views WHERE ${w} GROUP BY sessie HAVING COUNT(*) = 1 AND SUM(duur) < 10)`,
@@ -90,5 +120,12 @@ export const haalVerkeer = createServerFn({ method: "GET" })
       agendaOpen: ev.agenda_open ?? 0,
       geboekt: ev.geboekt ?? 0,
       leads: leads?.n ?? 0,
+      steden: steden.results,
+      browsers: browsers.results,
+      systemen: systemen.results,
+      talen: talen.results,
+      toestemmingPct: ok?.alle ? Math.round((ok.ja / ok.alle) * 100) : 0,
+      terugkerend: terug?.n ?? 0,
+      nuOp: nuOp.results,
     };
   });

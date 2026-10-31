@@ -1595,3 +1595,24 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .v-dash[data-thema="donker"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), .v-dash[data-thema="donker"] textarea, .v-dash[data-thema="donker"] .v-select:not([class*="v-pill--"]) { background-color: #1a212c; }
 .v-dash[data-thema="donker"] ::-webkit-scrollbar-thumb { background: #2b3544; border-radius: 8px; }
 .v-dash[data-thema="donker"] ::-webkit-scrollbar { width: 10px; height: 10px; background: transparent; }
+
+/* Visitor origin: in Requests, in a chat, and live in Traffic */
+.v-herkomst { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; }
+.v-dm__bezoek { margin: 0 18px 8px; font-size: 12.5px; color: var(--muted); }
+.v-dm__bezoek summary { cursor: pointer; list-style: none; padding: 6px 10px; border-radius: 10px; background: var(--surface); width: fit-content; max-width: 100%; }
+.v-dm__bezoek summary::-webkit-details-marker { display: none; }
+.v-dm__bezoek ol { margin: 8px 0 0; padding: 0 0 0 4px; list-style: none; display: grid; gap: 4px; max-height: 160px; overflow-y: auto; }
+.v-dm__bezoek li { display: grid; grid-template-columns: 44px 1fr; column-gap: 8px; }
+.v-dm__bezoek li time { grid-row: span 2; font-variant-numeric: tabular-nums; }
+.v-dm__bezoek li span { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-dm__bezoek li small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-vk__nu { margin-bottom: 14px; }
+.v-vk__nu h2 { display: flex; align-items: center; gap: 8px; }
+.v-vk__nu h2 i { width: 9px; height: 9px; border-radius: 50%; background: #22c55e; animation: v-pulse 2s infinite; }
+.v-vk__nu ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.v-vk__nu li { display: grid; grid-template-columns: minmax(140px, 220px) 1fr auto; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--surface); font-size: 14px; animation: v-rol 0.4s var(--ease) both; }
+.v-vk__nu-plek { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-vk__nu-pad { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-vk__nu li small { color: var(--muted); white-space: nowrap; }
+.v-vk__groot { margin: 4px 0; font-family: var(--display); font-size: 2.2rem; font-weight: 650; }
+@media (max-width: 700px) { .v-vk__nu li { grid-template-columns: 1fr; gap: 2px; } }

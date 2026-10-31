@@ -15,6 +15,13 @@ const BEREIK: [number, string][] = [
 const getal = (n: number) => n.toLocaleString("en-GB");
 const tijd = (s: number) => (s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, "0")}s`);
 const vlag = (code: string) => (/^[A-Z]{2}$/.test(code) ? String.fromCodePoint(...[...code].map((c) => 0x1f1a5 + c.charCodeAt(0))) : "🌐");
+const taalNaam = (code: string) => {
+  try {
+    return new Intl.DisplayNames(["en"], { type: "language" }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+};
 const landNaam = (code: string) => {
   try {
     return code === "??" ? "Unknown" : (new Intl.DisplayNames(["en"], { type: "region" }).of(code) ?? code);
@@ -170,15 +177,49 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
             ))}
           </section>
 
+          {d.nuOp.length ? (
+            <section className="v-dash__panel v-vk__nu">
+              <h2 className="v-sub">
+                <i /> On your website right now
+              </h2>
+              <ul>
+                {d.nuOp.map((x) => (
+                  <li key={x.sessie}>
+                    <span className="v-vk__nu-plek">{x.stad ? `${vlag(x.land ?? "")} ${x.stad}` : `${vlag(x.land ?? "")} ${landNaam(x.land || "??")}`}</span>
+                    <span className="v-vk__nu-pad">{x.pad}</span>
+                    <small>
+                      {x.apparaat} · {x.paginas} {x.paginas === 1 ? "page" : "pages"}
+                      {x.bron && x.bron !== "Direct" ? ` · via ${x.bron}` : ""}
+                    </small>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
           <div className="v-vk__raster">
+            <Lijst
+              rijen={d.steden.map((s) => ({ naam: `${vlag(s.land ?? "")}  ${s.stad}${s.regio ? `, ${s.regio}` : ""}`, n: s.n }))}
+              titel="Cities and regions"
+            />
             <Lijst rijen={d.paginas.map((p) => ({ naam: p.pad, n: p.views, extra: `${tijd(p.duur)} · ${p.scroll}%` }))} titel="Top pages" />
             <Lijst rijen={d.bronnen} titel="Where visitors come from" />
             <Lijst rijen={d.apparaten} titel="Devices" />
             <Lijst rijen={d.landen} sleutel={(c) => `${vlag(c)}  ${landNaam(c)}`} titel="Countries" />
+            <Lijst rijen={d.browsers} titel="Browsers" />
+            <Lijst rijen={d.systemen} titel="Operating systems" />
+            <Lijst rijen={d.talen} sleutel={(c) => taalNaam(c)} titel="Languages" />
+            <section className="v-dash__panel v-vk__lijst">
+              <h2 className="v-sub">Visitors who said yes</h2>
+              <p className="v-vk__groot">{d.toestemmingPct}%</p>
+              <p className="v-muted v-small">
+                gave permission for location and device details. {d.terugkerend} returning {d.terugkerend === 1 ? "visitor" : "visitors"} in this period.
+              </p>
+            </section>
           </div>
           <p className="v-muted v-small v-vk__noot">
-            Privacy-friendly: no cookies, no IP addresses stored, and visitors who ask their browser not to be tracked are skipped. Data is kept for 13
-            months.
+            Visitors first choose in a consent screen. City, region, browser, system, language and returning visits are only stored for visitors who
+            accept; the others are only counted anonymously. No IP addresses are stored, browsers that ask not to be tracked are skipped, and data is kept
+            for 13 months.
           </p>
         </>
       ) : null}

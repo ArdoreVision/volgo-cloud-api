@@ -45,6 +45,12 @@ function Privacy() {
           or websites. If your browser asks websites not to track you (Do Not Track or Global Privacy Control), nothing is counted. Statistics are kept for 13
           months.
         </p>
+        <p>
+          Before you use such a website, AVA asks for your permission. Only if you accept, AVA also keeps your approximate location (city, region and
+          country, derived from your connection, never your exact address), your device, browser, operating system and language, a random code to
+          recognise you when you come back, and which pages you viewed before chatting. The business uses this only to understand its visitors and to help
+          you better. You can visit the website either way, and you can change your choice by clearing your browser data for that website.
+        </p>
 
         <h2>Why</h2>
         <p>

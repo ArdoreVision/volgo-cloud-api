@@ -41,12 +41,85 @@ export function bronVan(ref: string | undefined, utm: string | undefined, eigenH
   }
 }
 
+export function browserVan(ua: string) {
+  if (/Edg\//.test(ua)) return "Edge";
+  if (/OPR\/|Opera/.test(ua)) return "Opera";
+  if (/SamsungBrowser/.test(ua)) return "Samsung Internet";
+  if (/FBAN|FBAV|Instagram/.test(ua)) return /Instagram/.test(ua) ? "Instagram app" : "Facebook app";
+  if (/Firefox\/|FxiOS/.test(ua)) return "Firefox";
+  if (/Chrome\/|CriOS/.test(ua)) return "Chrome";
+  if (/Safari\//.test(ua)) return "Safari";
+  return "Other";
+}
+export function osVan(ua: string) {
+  if (/iPhone|iPad|iPod/.test(ua)) return "iOS";
+  if (/Android/.test(ua)) return "Android";
+  if (/Windows/.test(ua)) return "Windows";
+  if (/Mac OS X|Macintosh/.test(ua)) return "macOS";
+  if (/CrOS/.test(ua)) return "ChromeOS";
+  if (/Linux/.test(ua)) return "Linux";
+  return "Other";
+}
+const dec = (v: string | null) => {
+  try {
+    return v ? decodeURIComponent(v).slice(0, 80) : "";
+  } catch {
+    return "";
+  }
+};
+/** Approximate location from Cloudflare (city level), added by server.ts. */
+export function locatieVan(h: Headers) {
+  return { stad: dec(h.get("x-volgo-stad")), regio: dec(h.get("x-volgo-regio")), land: dec(h.get("x-volgo-land")) || (h.get("cf-ipcountry") ?? "") };
+}
+/** One readable line for the dashboard, e.g. "Austin, Texas, US · iPhone (iOS) · Safari". */
+export function herkomstTekst(h: Headers, ua: string) {
+  const l = locatieVan(h);
+  const plek = [l.stad, l.regio, l.land].filter(Boolean).join(", ");
+  return [plek, `${apparaatVan(ua)} (${osVan(ua)})`, browserVan(ua)].filter(Boolean).join(" · ").slice(0, 200);
+}
+
 export async function slaViewOp(
   DB: D1Database,
-  d: { team: number; bezoeker: string; sessie: string; pad: string; titel: string; bron: string; apparaat: string; land: string },
+  d: {
+    team: number;
+    bezoeker: string;
+    sessie: string;
+    pad: string;
+    titel: string;
+    bron: string;
+    apparaat: string;
+    land: string;
+    toestemming?: boolean;
+    vast?: string;
+    stad?: string;
+    regio?: string;
+    browser?: string;
+    os?: string;
+    taal?: string;
+  },
 ) {
-  const r = await DB.prepare("INSERT INTO site_views (team_id, dag, bezoeker, sessie, pad, titel, bron, apparaat, land) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
-    .bind(d.team, vandaag(), d.bezoeker, d.sessie, d.pad.slice(0, 300), d.titel.slice(0, 200), d.bron, d.apparaat, d.land.slice(0, 2))
+  const t = Boolean(d.toestemming);
+  const r = await DB.prepare(
+    "INSERT INTO site_views (team_id, dag, bezoeker, sessie, pad, titel, bron, apparaat, land, toestemming, vast, stad, regio, browser, os, taal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  )
+    .bind(
+      d.team,
+      vandaag(),
+      d.bezoeker,
+      d.sessie,
+      d.pad.slice(0, 300),
+      d.titel.slice(0, 200),
+      d.bron,
+      d.apparaat,
+      d.land.slice(0, 2),
+      t ? 1 : 0,
+      t ? (d.vast ?? null) : null,
+      t ? d.stad || null : null,
+      t ? d.regio || null : null,
+      t ? d.browser || null : null,
+      t ? d.os || null : null,
+      t ? (d.taal ?? "").slice(0, 12) || null : null,
+    )
     .run();
   return Number(r.meta?.last_row_id) || 0;
 }

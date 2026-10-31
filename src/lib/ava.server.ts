@@ -21,8 +21,9 @@ export type AvaInstellingen = {
   afspraak_duur: number;
   afspraak_soorten: string;
   instagram: string;
+  toestemming: number;
 };
-const KOLOMMEN = "a.team_id, a.sleutel, a.naam, a.begroeting, a.bedrijfsinfo, a.kleur, a.boeken, a.tijdzone, a.open_dagen, a.open_van, a.open_tot, a.afspraak_duur, a.afspraak_soorten, a.instagram, g.bedrijf";
+const KOLOMMEN = "a.team_id, a.sleutel, a.naam, a.begroeting, a.bedrijfsinfo, a.kleur, a.boeken, a.tijdzone, a.open_dagen, a.open_van, a.open_tot, a.afspraak_duur, a.afspraak_soorten, a.instagram, a.toestemming, g.bedrijf";
 
 export async function instellingenVoorTeam(DB: D1Database, teamId: number): Promise<AvaInstellingen> {
   const bestaand = await DB.prepare(
