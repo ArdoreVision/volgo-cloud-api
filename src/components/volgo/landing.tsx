@@ -397,8 +397,8 @@ export function Voorbeelden() {
         </ul>
         <div className="vx-vb__acties">
           <TryAvaButton />
-          <a className="v-cta-ghost" href="/voorbeeld/badkamer" rel="noopener" target="_blank">
-            Open a sample website
+          <a className="v-cta-ghost" href="#demo">
+            Try it on a website below
           </a>
         </div>
       </div>
@@ -587,6 +587,34 @@ export function LiveDemo() {
     return () => ro.disconnect();
   }, [BREED]);
 
+  // While you scroll the page, the sample website scrolls along inside the frame.
+  const baan = useRef<HTMLDivElement>(null);
+  const [afstand, setAfstand] = useState(0);
+  const meet = () => {
+    const doc = frame.current?.contentDocument?.documentElement;
+    if (doc) setAfstand(Math.max(0, (doc.scrollHeight - HOOG) * schaal));
+  };
+  useEffect(meet, [schaal, HOOG]);
+  useEffect(() => {
+    let raf = 0;
+    const zet = () => {
+      raf = 0;
+      const b = baan.current;
+      const w = frame.current?.contentWindow;
+      const doc = frame.current?.contentDocument?.documentElement;
+      if (!b || !w || !doc) return;
+      const r = b.getBoundingClientRect();
+      const ruimte = r.height - window.innerHeight * 0.92;
+      const p = ruimte > 0 ? Math.min(1, Math.max(0, (90 - r.top) / ruimte)) : 0;
+      w.scrollTo(0, p * Math.max(0, doc.scrollHeight - HOOG));
+    };
+    const op = () => {
+      if (!raf) raf = requestAnimationFrame(zet);
+    };
+    window.addEventListener("scroll", op, { passive: true });
+    return () => window.removeEventListener("scroll", op);
+  }, [HOOG]);
+
   const ava = (actie: "open" | "afspraak") => {
     const w = frame.current?.contentWindow as AvaVenster | null | undefined;
     w?.VolgoAva?.[actie]();
@@ -620,12 +648,11 @@ export function LiveDemo() {
           <button className="is-hoofd" onClick={() => ava("afspraak")} type="button">
             Book an appointment
           </button>
-          <a href="/voorbeeld/contractor" rel="noopener" target="_blank">
-            Open full screen ↗
-          </a>
         </div>
       </div>
-      <div className={`vx-live__toestel vx-live__toestel--${modus}`} data-reveal="" ref={ref}>
+      <div className="vx-live__baan" ref={baan} style={{ height: HOOG * schaal + (modus === "desktop" ? 90 : 120) + afstand }}>
+      <div className="vx-live__plak">
+      <div className={`vx-live__toestel vx-live__toestel--${modus}`} ref={ref}>
         {modus === "desktop" ? (
           <div aria-hidden="true" className="vx-live__chrome">
             <i />
@@ -639,6 +666,10 @@ export function LiveDemo() {
         <div className="vx-live__scherm" ref={box} style={{ height: HOOG * schaal }}>
           {zichtbaar ? (
             <iframe
+              onLoad={() => {
+                meet();
+                window.setTimeout(meet, 1500);
+              }}
               ref={frame}
               src="/voorbeeld/contractor?embed=1"
               style={{ width: BREED, height: HOOG, transform: `scale(${schaal})` }}
@@ -649,10 +680,13 @@ export function LiveDemo() {
           )}
         </div>
       </div>
+      </div>
+      </div>
       <ul className="vx-live__tips" data-reveal="">
         <li>Try: “How much does a kitchen remodel cost?”</li>
         <li>Try: “Do you work in Round Rock?”</li>
         <li>Tap “Book an appointment” and pick a free moment</li>
+        <li>Keep scrolling: the website scrolls along</li>
       </ul>
     </section>
   );

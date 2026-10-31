@@ -27,6 +27,8 @@
   .balk { background: #111; color: #e8e8e8; font-size: 13px; text-align: center; padding: 8px 16px; }
   .balk b { color: #fff; }
   .embed .balk { display: none; }
+  /* Inside the Volgo landing page the site scrolls along with the page, not on its own. */
+  html.embed { overflow: hidden; scroll-behavior: auto; }
 
   .top { background: var(--navy); color: #cfd8e1; font-size: 13.5px; }
   .top .wrap { display: flex; justify-content: space-between; gap: 16px; padding: 9px 0; }

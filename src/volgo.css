@@ -1434,3 +1434,6 @@ html:not(.v-js) .vx-tijd__lijst li > div { opacity: 1; }
 .vx-live__tips { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 18px auto 0; padding: 0; max-width: 900px; }
 .vx-live__tips li { padding: 8px 14px; border-radius: 999px; background: var(--sky-2); color: var(--ink-2); font-size: 13.5px; }
 @media (max-width: 700px) { .vx-live__bediening { justify-content: center; } .vx-live__knoppen { justify-content: center; } }
+.vx-live__baan { position: relative; }
+.vx-live__plak { position: sticky; top: 84px; }
+@media (max-width: 900px) { .vx-live__plak { top: 70px; } }
