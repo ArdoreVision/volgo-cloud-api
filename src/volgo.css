@@ -1180,3 +1180,51 @@ a.v-plan__cta { display: block; text-align: center; text-decoration: none; box-s
 .v-footer__rechts .v-footer__social { padding-left: 22px; border-left: 1px solid var(--line); }
 @media (max-width: 700px) { .v-footer__rechts .v-footer__social { padding-left: 0; border-left: 0; } }
 .v-pricing__boek .v-h2 { max-width: none; margin-inline: auto; text-align: center; }
+
+/* ---------- Profile: picture, top-right button and menu ---------- */
+.v-pf { flex: none; display: block; border-radius: 50%; object-fit: cover; }
+.v-pf--letters { display: grid; place-items: center; background: linear-gradient(135deg, #1677d9, #5c7cfa); color: #fff; font-weight: 600; letter-spacing: 0; }
+.v-dash { position: relative; }
+.v-dash__profiel { position: absolute; top: 18px; right: clamp(16px, 3vw, 32px); z-index: 40; }
+.v-dash__main { padding-top: max(clamp(24px, 4vw, 48px), 64px); }
+.v-dash__main--full { padding-top: 72px; }
+.v-profiel { position: relative; }
+.v-profiel__knop { display: block; padding: 3px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1px var(--line), 0 4px 14px rgba(17, 19, 24, 0.08); cursor: pointer; transition: transform 0.2s var(--spring), box-shadow 0.2s; }
+.v-profiel__knop:hover, .v-profiel__knop[aria-expanded="true"] { transform: scale(1.04); box-shadow: 0 0 0 2px var(--accent), 0 6px 18px rgba(22, 119, 217, 0.18); }
+.v-profiel__menu { position: absolute; right: 0; top: calc(100% + 10px); width: 290px; padding: 8px; border-radius: 20px; background: #fff; box-shadow: 0 0 0 1px var(--line), 0 18px 50px rgba(17, 19, 24, 0.16); display: grid; gap: 2px; animation: v-pf-in 0.18s var(--ease); }
+@keyframes v-pf-in { from { opacity: 0; transform: translateY(-6px) scale(0.98); } }
+.v-profiel__menu > button, .v-profiel__menu > a { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 11px 12px; border: 0; border-radius: 12px; background: transparent; color: var(--ink); font: inherit; font-size: 14.5px; text-align: left; text-decoration: none; cursor: pointer; }
+.v-profiel__menu > button:hover, .v-profiel__menu > a:hover { background: var(--surface); }
+.v-profiel__menu em { font-style: normal; font-size: 12px; font-weight: 600; color: var(--accent); background: var(--sky-2); padding: 2px 8px; border-radius: 999px; }
+.v-profiel__menu > .v-profiel__kop { justify-content: flex-start; gap: 12px; padding: 12px; margin-bottom: 4px; border-bottom: 1px solid var(--line); border-radius: 14px 14px 4px 4px; }
+.v-profiel__kop span { display: grid; min-width: 0; }
+.v-profiel__kop strong { font-size: 15.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-profiel__kop small { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-profiel__menu > .v-profiel__uit { color: var(--bad); }
+
+/* Sidebar card: your name and photo, opens your profile */
+.v-dash__me-knop { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.v-dash__me-knop small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+
+/* Profile page */
+.v-pf-kies { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; padding-bottom: 6px; }
+.v-pf-kies strong { font-size: 15px; }
+.v-pf-kies p { margin: 2px 0 10px; }
+.v-pf-kies__knoppen { display: flex; align-items: center; gap: 14px; }
+.v-pf-kies__upload { position: relative; overflow: hidden; margin: 0; padding: 9px 16px; font-size: 14px; cursor: pointer; }
+.v-pf-kies__upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.v-acc-info { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 24px; margin: 0; }
+.v-acc-info dt { font-size: 12.5px; color: var(--muted); }
+.v-acc-info dd { margin: 2px 0 0; font-size: 15px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.v-acc-info .v-linkbtn { margin: 0; }
+
+@media (max-width: 900px) {
+  .v-dash__profiel { position: fixed; top: 9px; right: 14px; z-index: 80; }
+  .v-dash__main { padding-top: 18px; }
+  .v-dash__main--full { padding-top: 0; }
+  .v-profiel__knop { padding: 2px; }
+  .v-profiel__knop .v-pf { width: 34px !important; height: 34px !important; }
+  .v-profiel__menu { position: fixed; top: 58px; right: 10px; width: min(300px, calc(100vw - 20px)); }
+  .v-acc-info { grid-template-columns: 1fr; }
+  .v-pf-kies { align-items: flex-start; }
+}

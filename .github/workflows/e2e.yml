@@ -142,6 +142,7 @@ jobs:
               await p.locator('.v-mnav button', { hasText: 'Calendar' }).click(); await p.waitForTimeout(800); await shot(p, 'm-agenda');
               await p.locator('.v-mnav button', { hasText: 'More' }).click(); await p.waitForTimeout(500); await shot(p, 'm-meer');
               await p.locator('.v-sheet__paneel button', { hasText: 'Settings' }).click(); await p.waitForTimeout(1200); await shot(p, 'm-settings');
+              await p.locator('.v-dash__profiel .v-profiel__knop').click(); await p.waitForTimeout(500); await shot(p, 'm-profiel'); await p.keyboard.press('Escape');
             }
             if (naam === 'desktop') {
               await p.locator('.v-dash__nav button', { hasText: 'Settings' }).click(); await p.locator('.v-instel__nav button', { hasText: 'Account' }).click();
@@ -185,6 +186,11 @@ jobs:
               log('ava stil: ' + (await p.locator('.v-dm__b--wij:not(.is-mens)').count()) + ' ava-berichten, laatste bezoeker: ' + (await p.locator('.v-dm__b--zij').last().textContent()).slice(0, 40));
               await p.locator('.v-dm__modus button', { hasText: 'AVA auto' }).click(); await p.waitForTimeout(1500);
               await bctx.close();
+              await p.locator('.v-dash__profiel .v-profiel__knop').click(); await p.waitForTimeout(400); await shot(p, 'profiel-menu');
+              await p.locator('.v-profiel__menu button', { hasText: 'Profile & account' }).click(); await p.waitForTimeout(600);
+              await p.fill('#acc-functie', 'Owner'); await p.locator('button', { hasText: 'Save profile' }).click(); await p.waitForTimeout(1500);
+              log('profiel: ' + (await p.locator('.v-ok-tekst, .v-err').first().textContent().catch(() => '?')) + ' | menu kop: ' + ((await p.locator('.v-dash__me-knop').innerText().catch(() => '?')).replace(/\n/g, ' ')));
+              await shot(p, 'profiel-pagina');
               await p.locator('.v-dash__nav button', { hasText: 'Settings' }).click(); await p.locator('.v-instel__nav button', { hasText: 'Subscription' }).click();
               await p.waitForSelector('.v-billing button'); await shot(p, 'subscription');
               await p.locator('.v-dash__nav button', { hasText: 'Team' }).click(); await p.waitForTimeout(800); await shot(p, 'team-start');

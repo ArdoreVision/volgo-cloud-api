@@ -76,6 +76,13 @@ export const wijzigAccount = createServerFn({ method: "POST" })
       .object({
         naam: z.string().trim().min(2).max(100),
         bedrijf: z.string().trim().min(2).max(120).optional(),
+        functie: z.string().trim().max(80).optional(),
+        // Profile photo: a small image resized in the browser, or "" to remove it.
+        foto: z
+          .string()
+          .max(200_000)
+          .refine((v) => v === "" || /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(v), "Invalid image")
+          .optional(),
       })
       .parse(v),
   )
@@ -85,6 +92,8 @@ export const wijzigAccount = createServerFn({ method: "POST" })
     if (!g || !DB) return { ok: false as const, message: "You’ve been logged out." };
     await DB.prepare("UPDATE gebruikers SET naam = ? WHERE id = ?").bind(data.naam, g.id).run();
     if (data.bedrijf && g.rol === "eigenaar") await DB.prepare("UPDATE gebruikers SET bedrijf = ? WHERE id = ?").bind(data.bedrijf, g.id).run();
+    if (data.functie !== undefined) await DB.prepare("UPDATE gebruikers SET functie = ? WHERE id = ?").bind(data.functie, g.id).run();
+    if (data.foto !== undefined) await DB.prepare("UPDATE gebruikers SET foto = ? WHERE id = ?").bind(data.foto || null, g.id).run();
     return { ok: true as const, message: "Saved." };
   });
 

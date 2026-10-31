@@ -314,6 +314,7 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
       ? g
       : await DB.prepare("SELECT plan, status, proef_tot, bedrijf, testmodus FROM gebruikers WHERE id = ?").bind(team).first<{ plan: string; status: string; proef_tot: string | null; bedrijf: string; testmodus: number }>();
 
+  const profiel = await DB.prepare("SELECT foto, functie FROM gebruikers WHERE id = ?").bind(g.id).first<{ foto: string | null; functie: string | null }>();
   const [leads, afspraken, gesprekken, leden, kanalen] = await Promise.all([
     DB.prepare(
       `SELECT l.id, l.created_at, l.naam, l.onderwerp, l.kanaal, l.status, l.laatste_actie, l.voorbeeld,
@@ -349,6 +350,8 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
       status: eigenaar?.status ?? g.status,
       proef_tot: eigenaar?.proef_tot ?? g.proef_tot,
       bedrijf: eigenaar?.bedrijf ?? g.bedrijf,
+      foto: profiel?.foto ?? "",
+      functie: profiel?.functie ?? "",
     },
     leads: leads.results,
     afspraken: afspraken.results,

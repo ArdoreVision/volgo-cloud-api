@@ -15,6 +15,7 @@ import { warmteLabel } from "@/components/dash/util";
 import { VolgoMark } from "@/components/volgo/logo";
 import { haalDashboard, uitloggen, zetLeadStatus } from "@/lib/api/account.functions";
 import { isAdmin } from "@/lib/api/admin.functions";
+import { ProfielFoto, ProfielKnop } from "@/components/dash/profiel";
 import { checkNieuw } from "@/lib/api/ava.functions";
 import { PLANS, isPlan } from "@/lib/plans";
 import "@/volgo.css";
@@ -179,13 +180,15 @@ function Dashboard() {
           ))}
         </nav>
         <div className="v-dash__me">
-          <span className="v-dash__avatar" aria-hidden="true">
-            {g.bedrijf.trim()[0]?.toUpperCase()}
-          </span>
-          <div>
-            <strong>{g.bedrijf}</strong>
-            <small>{plan.naam}</small>
-          </div>
+          <button aria-label="Your profile and account" className="v-dash__me-knop" onClick={() => setTab("account")} type="button">
+            <ProfielFoto foto={g.foto} maat={34} naam={g.naam} />
+            <div>
+              <strong>{g.naam}</strong>
+              <small>
+                {g.bedrijf} · {plan.naam}
+              </small>
+            </div>
+          </button>
           {admin ? (
             <a className="v-dash__admin" href="/admin">
               Admin
@@ -197,6 +200,9 @@ function Dashboard() {
         </div>
       </aside>
 
+      <div className="v-dash__profiel">
+        <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} />
+      </div>
       <main className={`v-dash__main${tab === "team" && plan.limieten.teamChat ? " v-dash__main--full" : ""}${tab === "home" ? " v-dash__main--home" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
@@ -287,7 +293,7 @@ function Dashboard() {
             {sub === "stijl" ? <AvaInstellen deel="stijl" /> : null}
             {sub === "installeren" ? <AvaInstellen deel="installeren" /> : null}
             {sub === "meldingen" ? <AvaInstellen deel="meldingen" /> : null}
-            {sub === "account" ? <Account g={g} leden={data.leden} loguit={() => void loguit()} /> : null}
+            {sub === "account" ? <Account g={g} leden={data.leden} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} /> : null}
             {sub === "abonnement" ? (
               <>
             <section className="v-dash__panel v-plan-card">
