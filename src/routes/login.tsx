@@ -12,7 +12,7 @@ export const Route = createFileRoute("/login")({
   beforeLoad: async () => {
     if (await isIngelogd()) throw redirect({ to: "/dashboard" });
   },
-  validateSearch: (s: Record<string, unknown>): { new?: string } => ({ new: s.new === "1" || s.new === 1 ? "1" : undefined }),
+  validateSearch: (s: Record<string, unknown>): { new?: number } => ({ new: s.new === "1" || s.new === 1 ? 1 : undefined }),
   head: () => ({ meta: [{ title: "Log in · Volgo" }] }),
   component: Inloggen,
 });

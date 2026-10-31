@@ -23,6 +23,9 @@ jobs:
           q() { npx -y wrangler@4 d1 execute volgo-db --remote --command "$1" > /dev/null 2>&1; }
           q "UPDATE gebruikers SET status='proef', proef_tot=datetime('now','-1 day') WHERE email='demo@volgo.test'"
           echo "::warning::GATE verlopen -> $(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' -b volgo_sessie=$TOKEN $U/dashboard)"
+          SL=$(npx -y wrangler@4 d1 execute volgo-db --remote --json --command "SELECT a.sleutel FROM ava_instellingen a JOIN gebruikers g ON g.id=a.team_id WHERE g.email='demo@volgo.test'" 2>/dev/null | grep -o '"sleutel": *"[a-f0-9]*"' | grep -o '[a-f0-9]\{8,\}')
+          echo "::warning::GATE widget verlopen -> $(curl -s -X POST $U/api/ava -H 'content-type: application/json' -d "{\"actie\":\"config\",\"sleutel\":\"$SL\"}")"
+          echo "::warning::GATE assistent verlopen -> $(curl -s -o /dev/null -w '%{http_code}' -b volgo_sessie=$TOKEN $U/api/ava -X POST -H 'content-type: application/json' -d "{\"actie\":\"bericht\",\"sleutel\":\"$SL\",\"tekst\":\"hoi\"}") $(curl -s $U/api/ava -X POST -H 'content-type: application/json' -d "{\"actie\":\"bericht\",\"sleutel\":\"$SL\",\"tekst\":\"hoi\"}" | head -c 90)"
           q "UPDATE gebruikers SET status='actief', proef_tot=NULL WHERE email='demo@volgo.test'"
           echo "::warning::GATE actief -> $(curl -s -o /dev/null -w '%{http_code}' -b volgo_sessie=$TOKEN $U/dashboard)"
           echo "::warning::GATE uitgelogd -> $(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' $U/dashboard)"
@@ -88,6 +91,11 @@ jobs:
             await p.waitForURL((u) => u.hostname.includes('stripe.com'), { timeout: 30000 }).then(() => log('portal geopend: ' + p.url().slice(0, 50))).catch(async () => log('portal fout: ' + (await p.locator('.v-billing .v-err').textContent().catch(() => '?'))));
             await shot(p, 'portal');
             await p.goBack().catch(() => {});
+            await p.goto(U + '/pricing', { waitUntil: 'networkidle' });
+            await p.locator('.v-plan__cta--pro').click();
+            await p.waitForURL('**/dashboard', { timeout: 30000 }).then(() => log('wissel naar pro: ok, ' + p.url())).catch(async () => log('wissel fout: ' + p.url() + ' ' + (await p.locator('.v-err').textContent().catch(() => '?'))));
+            await p.waitForTimeout(1500);
+            log('pakket na wissel: ' + (await p.locator('.v-dash__me small').textContent().catch(() => '?')));
             log('nieuwe klant -> ' + new URL(p.url()).pathname + ' | ' + (await p.locator('.v-home__groet h1').textContent()) + ' | banner: ' + ((await p.locator('.v-dash__banner').textContent().catch(() => '')) || '').slice(0, 60));
             await ctx.close();
           }

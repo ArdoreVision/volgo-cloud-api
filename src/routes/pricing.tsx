@@ -11,7 +11,7 @@ import { PLANS, START_STAPPEN, VERGELIJKING, type PlanId } from "@/lib/plans";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/pricing")({
-  validateSearch: (s: Record<string, unknown>): { expired?: string } => ({ expired: s.expired === "1" || s.expired === 1 ? "1" : undefined }),
+  validateSearch: (s: Record<string, unknown>): { expired?: number } => ({ expired: s.expired === "1" || s.expired === 1 ? 1 : undefined }),
   loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "", plan: "", eigenaar: false })),
   head: () => ({ meta: [{ title: "Pricing · Volgo" }] }),
   component: Abonnement,
