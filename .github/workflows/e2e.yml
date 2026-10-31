@@ -46,9 +46,24 @@ jobs:
             await p.locator('.v-hero__actions a', { hasText: '7 dagen' }).click();
             await p.waitForURL('**/abonnement');
             await p.locator('.v-plan__cta--start').click();
-            await p.waitForURL('**/betalen**');
-            await p.locator('.v-auth__btn').click();
-            await p.waitForURL('**/aanmelden**');
+            await p.waitForURL((u) => u.hostname.includes('stripe.com') || u.pathname.startsWith('/betalen'), { timeout: 30000 });
+            if (p.url().includes('stripe.com')) {
+              log('stripe checkout geopend');
+              await p.waitForSelector('#email', { timeout: 30000 });
+              await shot(p, 'stripe');
+              await p.fill('#email', mail);
+              await p.locator('#cardNumber').fill('4242424242424242');
+              await p.locator('#cardExpiry').fill('12 / 34');
+              await p.locator('#cardCvc').fill('123');
+              await p.locator('#billingName').fill('Test Klant');
+              if (await p.locator('#billingPostalCode').isVisible().catch(() => false)) await p.fill('#billingPostalCode', '4381AA');
+              await p.locator('.SubmitButton, button[type=submit]').first().click();
+              await p.waitForURL('**/aanmelden**', { timeout: 60000 }).catch(async (e) => { await shot(p, 'stripe-fout'); log('stripe bleef op ' + p.url()); throw e; });
+            } else {
+              log('LET OP: nog testbetaalpagina, geen Stripe');
+              await p.locator('.v-auth__btn').click();
+              await p.waitForURL('**/aanmelden**');
+            }
             await p.fill('#naam', 'Test Klant'); await p.fill('#bedrijf', 'Testbedrijf BV'); await p.fill('#email', mail); await p.fill('#wachtwoord', 'geheim12345');
             await p.locator('.v-auth__btn').click();
             await p.waitForURL('**/inloggen**');
