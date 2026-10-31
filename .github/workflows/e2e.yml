@@ -25,6 +25,27 @@ jobs:
           const U = process.env.U, T = process.env.TOKEN;
           const b = await chromium.launch();
           const log = (m) => console.log('::warning::E2E ' + m);
+          const shot = (p, n) => p.screenshot({ path: `/tmp/shots/${n}.png` });
+          // Uitgelogd: landingspagina, juridisch, wachtwoord vergeten
+          {
+            const ctx = await b.newContext({ viewport: { width: 1366, height: 860 }, deviceScaleFactor: 2 });
+            const p = await ctx.newPage();
+            p.on('pageerror', (e) => log('JS-fout: ' + e.message));
+            for (const r of ['/voorwaarden', '/verwerkersovereenkomst', '/cookies', '/privacy', '/wachtwoord-vergeten', '/og.png']) {
+              const res = await p.goto(U + r); log('pagina ' + r + ' ' + res.status());
+            }
+            await p.goto(U + '/wachtwoord-vergeten'); await shot(p, 'vergeten');
+            await p.fill('#email', 'demo@volgo.test'); await p.click('button[type=submit]');
+            await p.waitForSelector('.v-auth__ok, .v-err', { timeout: 15000 });
+            log('vergeten -> ' + (await p.locator('.v-auth__ok, .v-err').first().textContent()));
+            await p.goto(U + '/', { waitUntil: 'networkidle' });
+            const font = await p.evaluate(() => [getComputedStyle(document.querySelector('h1')).fontFamily, getComputedStyle(document.body.querySelector('.volgo')).fontFamily, document.fonts.check('600 40px "Bricolage Grotesque"')]);
+            log('fonts ' + JSON.stringify(font));
+            await shot(p, 'landing');
+            await p.goto(U + '/inloggen'); await shot(p, 'inloggen');
+            await p.goto(U + '/voorwaarden'); await shot(p, 'voorwaarden');
+            await ctx.close();
+          }
           for (const [naam, vp] of [['desktop', { width: 1366, height: 860 }], ['mobiel', { width: 390, height: 844 }]]) {
             const ctx = await b.newContext({ viewport: vp, deviceScaleFactor: 2 });
             await ctx.addCookies([{ name: 'volgo_sessie', value: T, domain: new URL(U).hostname, path: '/', httpOnly: true, secure: true, sameSite: 'Lax' }]);
@@ -32,19 +53,22 @@ jobs:
             p.on('pageerror', (e) => log(naam + ' JS-fout: ' + e.message));
             await p.goto(U + '/', { waitUntil: 'networkidle' });
             log(naam + ' / gaat naar ' + new URL(p.url()).pathname);
-            const h1 = await p.locator('.v-home__groet h1').textContent().catch(() => 'GEEN');
-            const ph = await p.locator('.v-home__balk textarea').getAttribute('placeholder').catch(() => 'GEEN');
-            log(naam + ' groet: ' + h1 + ' | voorbeeld: ' + ph);
-            await p.screenshot({ path: `/tmp/shots/${naam}-home.png` });
+            await p.waitForSelector('.v-start', { timeout: 10000 }).catch(() => log(naam + ' geen aan-de-slag'));
+            await shot(p, naam + '-home');
             if (naam === 'desktop') {
-              await p.locator('.v-dash__nav button', { hasText: 'Agenda' }).click();
-              await p.locator('.v-dash__brand').click();
-              log('logo terug naar home: ' + (await p.locator('.v-home__groet').count()));
-              await p.locator('.v-home__balk textarea').fill('Welke leads moet ik vandaag als eerste bellen?');
-              await p.keyboard.press('Enter');
+              await p.locator('.v-dash__nav button', { hasText: 'Account' }).click();
+              await p.waitForSelector('#acc-naam'); await shot(p, 'account');
+              await p.fill('#acc-naam', 'Damien Demo'); await p.locator('button', { hasText: 'Opslaan' }).click();
+              await p.waitForSelector('.v-ok-tekst, .v-err'); log('account opslaan -> ' + (await p.locator('.v-ok-tekst, .v-err').first().textContent()));
+              await p.fill('#acc-huidig', 'fout-wachtwoord'); await p.fill('#acc-nieuw', 'nieuwwachtwoord1'); await p.fill('#acc-herhaal', 'nieuwwachtwoord1');
+              await p.locator('button', { hasText: 'Wachtwoord wijzigen' }).click();
+              await p.waitForTimeout(2500); log('wachtwoord fout -> ' + (await p.locator('.v-err').last().textContent().catch(() => '?')));
+              await p.locator('.v-dash__nav button', { hasText: 'AVA' }).click();
+              await p.waitForSelector('.v-toggle'); log('toggles: ' + (await p.locator('.v-toggle strong').allTextContents()).join(' | '));
+              await p.locator('.v-dash__brand').click(); await p.waitForSelector('.v-home__groet');
+              await p.locator('.v-home__tips button').first().click();
               await p.waitForSelector('.v-home__msg--ava p:not(.v-home__typen)', { timeout: 40000 });
-              log('antwoord: ' + (await p.locator('.v-home__msg--ava p').last().textContent()).slice(0, 500).replace(/\n/g, ' / '));
-              await p.screenshot({ path: `/tmp/shots/${naam}-chat.png` });
+              await shot(p, 'desktop-chat');
             }
             await ctx.close();
           }
