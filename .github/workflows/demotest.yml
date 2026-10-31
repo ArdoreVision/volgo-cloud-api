@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       pw: { description: "wachtwoord demo", required: true }
+      chat: { description: "ook als bezoeker chatten", required: false, default: "ja" }
 permissions:
   contents: write
 jobs:
@@ -10,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PW: ${{ inputs.pw }}
+      CHAT: ${{ inputs.chat }}
       U: https://thevolgo.app
     steps:
       - run: |
@@ -39,9 +41,11 @@ jobs:
             log('bezoeker: ' + t + ' || AVA: ' + a.replace(/\n/g, ' ').slice(0, 330));
           };
           log('begroeting: ' + await p.locator('.b.a').first().textContent().catch(() => '?'));
+          if (process.env.CHAT === 'ja') {
           await vraag('Hoi, wat kost ongeveer een inloopdouche? Ons bad is 170 cm en we willen het eruit hebben.');
           await vraag('We wonen in Middelburg. Kunnen jullie in januari beginnen?');
           await vraag('Prima, ik ben Sanne de Wit, bel me maar op 06 12345678 voor een afspraak om in te meten.');
+          }
           await p.screenshot({ path: '/tmp/shots/chat.png' });
           // Eigenaar van het badkamerbedrijf logt in
           const e = await b.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
