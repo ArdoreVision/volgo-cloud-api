@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Badkamerstudio Noordzee · Voorbeeldwebsite met AVA</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Instrument+Sans:wght@400..600&display=swap">
+<style>
+  :root { --zand:#f5f1ea; --steen:#e8e1d5; --inkt:#1d2522; --zacht:#5d6863; --zee:#1f5f5b; --zee-d:#174845; --lijn:#ddd5c8; --wit:#fffdf9; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--zand); color: var(--inkt); font: 400 17px/1.6 "Instrument Sans", -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { font-family: "Fraunces", Georgia, serif; font-weight: 500; letter-spacing: -0.015em; line-height: 1.1; margin: 0; }
+  a { color: inherit; }
+  .wrap { width: min(1160px, 100% - 40px); margin: 0 auto; }
+  .btn { display: inline-flex; align-items: center; gap: 10px; border: 0; cursor: pointer; font: 600 15px/1 "Instrument Sans", sans-serif; padding: 16px 24px; border-radius: 999px; text-decoration: none; transition: transform .2s, background .2s; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn--zee { background: var(--zee); color: #fff; }
+  .btn--zee:hover { background: var(--zee-d); }
+  .btn--rand { background: transparent; color: var(--inkt); box-shadow: inset 0 0 0 1.5px var(--inkt); }
+
+  .demo-balk { background: var(--inkt); color: #e9efe9; font-size: 13.5px; text-align: center; padding: 9px 16px; }
+  .demo-balk b { color: #fff; }
+
+  header { position: sticky; top: 0; z-index: 10; background: rgba(245,241,234,.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--lijn); }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; height: 74px; }
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .logo i { width: 34px; height: 34px; border-radius: 9px; background: var(--zee); display: grid; place-items: center; }
+  .logo strong { font: 600 19px/1 "Fraunces", serif; }
+  .logo small { display: block; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--zacht); margin-top: 3px; }
+  nav { display: flex; gap: 30px; font-size: 15px; }
+  nav a { text-decoration: none; color: var(--zacht); }
+  nav a:hover { color: var(--inkt); }
+  header .btn { padding: 12px 20px; }
+
+  .hero { padding: 72px 0 90px; }
+  .hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 64px; align-items: center; }
+  .kicker { font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--zee); font-weight: 600; }
+  .hero h1 { font-size: clamp(42px, 5.6vw, 72px); margin: 18px 0 22px; }
+  .hero h1 em { font-style: italic; color: var(--zee); }
+  .hero p { font-size: 19px; color: var(--zacht); max-width: 30em; margin: 0 0 32px; }
+  .hero .knoppen { display: flex; gap: 12px; flex-wrap: wrap; }
+  .feiten { display: flex; gap: 36px; margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--lijn); }
+  .feiten b { display: block; font: 500 30px/1 "Fraunces", serif; }
+  .feiten span { font-size: 14px; color: var(--zacht); }
+
+  /* Badkamer-illustratie in CSS: tegels, spiegel, kraan, regendouche */
+  .beeld { position: relative; aspect-ratio: 4/4.6; border-radius: 28px; overflow: hidden; background: linear-gradient(180deg, #ece6db 0 62%, #d9d0c1 62% 100%); box-shadow: 0 30px 60px -30px rgba(29,37,34,.35); }
+  .beeld .tegels { position: absolute; inset: 0 0 38% 0; background-image: linear-gradient(rgba(255,255,255,.55) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(255,255,255,.55) 1.5px, transparent 1.5px); background-size: 64px 32px; }
+  .beeld .wand-groen { position: absolute; left: 0; top: 0; bottom: 38%; width: 42%; background: linear-gradient(160deg, #2b6f69, #1f5f5b); }
+  .beeld .wand-groen::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px); background-size: 22px 66px; }
+  .beeld .douchekop { position: absolute; left: 13%; top: 9%; width: 16%; height: 10px; border-radius: 6px; background: #c9b48a; }
+  .beeld .douchekop::before { content: ""; position: absolute; left: 50%; top: -60px; width: 4px; height: 60px; background: #c9b48a; }
+  .beeld .straal { position: absolute; left: 14%; top: calc(9% + 14px); width: 14%; height: 42%; background: repeating-linear-gradient(90deg, rgba(255,255,255,.35) 0 2px, transparent 2px 9px); mask: linear-gradient(#000, transparent); -webkit-mask: linear-gradient(#000, transparent); }
+  .beeld .glas { position: absolute; left: 41%; top: 6%; bottom: 38%; width: 3px; background: rgba(255,255,255,.7); }
+  .beeld .spiegel { position: absolute; right: 12%; top: 12%; width: 30%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fbfaf6, #dcd6cb); box-shadow: 0 0 0 6px #c9b48a, 0 12px 30px rgba(0,0,0,.12); }
+  .beeld .meubel { position: absolute; right: 8%; bottom: 38%; width: 38%; height: 16%; transform: translateY(100%); background: linear-gradient(#8a6a4b, #6f5339); border-radius: 6px; }
+  .beeld .meubel::before { content: ""; position: absolute; left: -4%; right: -4%; top: -14px; height: 14px; border-radius: 8px 8px 2px 2px; background: #fbfaf6; }
+  .beeld .meubel::after { content: ""; position: absolute; left: 50%; top: -48px; width: 5px; height: 36px; background: #c9b48a; border-radius: 3px; box-shadow: 10px 0 0 -1px transparent; }
+  .beeld .plant { position: absolute; left: 50%; bottom: 7%; width: 54px; height: 64px; background: #b9a68a; border-radius: 6px 6px 14px 14px; }
+  .beeld .plant::before { content: ""; position: absolute; left: -16px; right: -16px; bottom: 54px; height: 70px; background: radial-gradient(ellipse at 30% 70%, #3d7a5c 40%, transparent 41%), radial-gradient(ellipse at 70% 60%, #4f8c6b 40%, transparent 41%), radial-gradient(ellipse at 50% 30%, #2f6a4e 38%, transparent 39%); }
+  .beeld .label { position: absolute; left: 22px; bottom: 22px; background: var(--wit); border-radius: 16px; padding: 14px 18px; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+  .beeld .label b { display: block; font-size: 15px; }
+
+  section { padding: 96px 0; }
+  .kop { max-width: 640px; margin-bottom: 52px; }
+  .kop h2 { font-size: clamp(32px, 3.6vw, 48px); margin: 14px 0 14px; }
+  .kop p { color: var(--zacht); margin: 0; font-size: 18px; }
+
+  .diensten { background: var(--wit); }
+  .raster { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .kaart { background: var(--zand); border-radius: 22px; padding: 28px 24px 26px; display: flex; flex-direction: column; }
+  .kaart .ico { width: 46px; height: 46px; border-radius: 13px; background: var(--steen); display: grid; place-items: center; margin-bottom: 22px; }
+  .kaart h3 { font-size: 23px; margin-bottom: 10px; }
+  .kaart p { margin: 0 0 18px; color: var(--zacht); font-size: 15.5px; flex: 1; }
+  .kaart .prijs { font-size: 14px; color: var(--inkt); border-top: 1px solid var(--lijn); padding-top: 14px; }
+  .kaart .prijs b { font-weight: 600; }
+
+  .werkwijze .stappen { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; counter-reset: s; border-top: 1.5px solid var(--inkt); }
+  .stap { padding: 26px 26px 0 0; counter-increment: s; }
+  .stap::before { content: "0" counter(s); font: 500 15px/1 "Fraunces", serif; color: var(--zee); }
+  .stap h3 { font-size: 22px; margin: 16px 0 10px; }
+  .stap p { color: var(--zacht); margin: 0; font-size: 15.5px; }
+
+  .cta { padding: 0 0 96px; }
+  .cta .blok { background: var(--zee); color: #f1f6f4; border-radius: 30px; padding: 64px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; align-items: center; position: relative; overflow: hidden; }
+  .cta .blok::after { content: ""; position: absolute; right: -80px; top: -80px; width: 320px; height: 320px; border-radius: 50%; background: rgba(255,255,255,.06); }
+  .cta h2 { font-size: clamp(30px, 3.4vw, 46px); color: #fff; }
+  .cta p { margin: 16px 0 0; color: #cfe0dc; font-size: 17px; }
+  .cta .rechts { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; position: relative; z-index: 1; }
+  .cta .btn--wit { background: #fff; color: var(--zee-d); }
+  .cta small { color: #b8cfca; font-size: 13.5px; }
+
+  .proberen { background: var(--wit); border: 1px dashed var(--zee); border-radius: 20px; padding: 22px 26px; margin-top: 40px; font-size: 15px; color: var(--zacht); }
+  .proberen b { color: var(--inkt); }
+  .proberen ul { margin: 8px 0 0; padding-left: 20px; }
+
+  footer { border-top: 1px solid var(--lijn); padding: 40px 0; font-size: 14px; color: var(--zacht); }
+  footer .wrap { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+  @media (max-width: 960px) {
+    nav { display: none; }
+    .hero { padding: 40px 0 64px; }
+    .hero .wrap, .cta .blok { grid-template-columns: 1fr; gap: 40px; }
+    .raster, .werkwijze .stappen { grid-template-columns: 1fr 1fr; }
+    .stap { padding-bottom: 26px; }
+    .cta .blok { padding: 40px 28px; }
+    section { padding: 64px 0; }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 16px; }
+    header .btn { display: none; }
+    .raster, .werkwijze .stappen { grid-template-columns: 1fr; }
+    .feiten { gap: 22px; }
+    .feiten b { font-size: 24px; }
+    .hero p { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+<div class="demo-balk"><b>Voorbeeldwebsite van Volgo</b> · Dit bedrijf bestaat niet. Klik rechtsonder op de chat en vraag een offerte aan, net als een echte bezoeker.</div>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="#">
+      <i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-3z"/><path d="M6 12V6a2 2 0 0 1 4 0"/><path d="M7 20l-1 2M17 20l1 2"/></svg></i>
+      <span><strong>Badkamerstudio Noordzee</strong><small>Zeeland · sinds 2009</small></span>
+    </a>
+    <nav><a href="#diensten">Diensten</a><a href="#werkwijze">Werkwijze</a><a href="#contact">Contact</a></nav>
+    <button class="btn btn--zee" data-ava-open>Offerte aanvragen</button>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <div class="kicker">Badkamers op maat in heel Zeeland</div>
+        <h1>Uw nieuwe badkamer, <em>zonder gedoe</em>.</h1>
+        <p>Van ontwerp tot de laatste kitnaad: één vast team, één aanspreekpunt en een vaste prijs vooraf. De meeste badkamers zijn binnen 10 werkdagen klaar.</p>
+        <div class="knoppen">
+          <button class="btn btn--zee" data-ava-open>Vraag direct een prijsindicatie
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <a class="btn btn--rand" href="#diensten">Bekijk onze diensten</a>
+        </div>
+        <div class="feiten">
+          <div><b>10</b><span>werkdagen gemiddeld</span></div>
+          <div><b>5 jaar</b><span>garantie op het werk</span></div>
+          <div><b>Vast</b><span>prijs vooraf, geen verrassingen</span></div>
+        </div>
+      </div>
+      <div class="beeld" aria-hidden="true">
+        <div class="tegels"></div><div class="wand-groen"></div><div class="douchekop"></div><div class="straal"></div><div class="glas"></div>
+        <div class="spiegel"></div><div class="meubel"></div><div class="plant"></div>
+        <div class="label"><b>Inloopdouche + zwevend meubel</b>Voorbeeldontwerp</div>
+      </div>
+    </div>
+  </div>
+
+  <section class="diensten" id="diensten">
+    <div class="wrap">
+      <div class="kop">
+        <div class="kicker">Wat we doen</div>
+        <h2>Alles voor de badkamer, onder één dak</h2>
+        <p>U hoeft geen tegelzetter, loodgieter en elektricien los te regelen. Wij doen het complete werk, inclusief sloop en afvoer.</p>
+      </div>
+      <div class="raster">
+        <div class="kaart">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1f5f5b" stroke-width="1.8" stroke-linecap="round"><path d="M3 12h18v3a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5z"/><path d="M6 12V6a2 2 0 0 1 4 0"/></svg></div>
+          <h3>Complete badkamer</h3>
+          <p>Sloop, leidingwerk, tegels, sanitair en afwerking. Volledig verzorgd met een vaste opleverdatum.</p>
+          <div class="prijs">Vanaf <b>€ 9.500</b></div>
+        </div>
+        <div class="kaart">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1f5f5b" stroke-width="1.8" stroke-linecap="round"><path d="M7 3h6M10 3v4"/><path d="M6 7h8"/><path d="M8 11v2M11 11v3M14 11v2M9 16v2M13 16v2"/><path d="M18 3v18"/></svg></div>
+          <h3>Inloopdouche</h3>
+          <p>Bad eruit, ruime inloopdouche erin. Met vloerverwarming en een glazen wand zonder drempel.</p>
+          <div class="prijs">Vanaf <b>€ 4.250</b></div>
+        </div>
+        <div class="kaart">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1f5f5b" stroke-width="1.8" stroke-linecap="round"><path d="M7 4h7v6H7z"/><path d="M5 10h12a1 1 0 0 1 1 1 7 7 0 0 1-7 7H9a4 4 0 0 1-4-4z"/><path d="M9 18l-1 3h8l-1-3"/></svg></div>
+          <h3>Toilet renoveren</h3>
+          <p>Hangend toilet, nieuwe tegels en een fonteintje. Meestal in 2 tot 3 werkdagen klaar.</p>
+          <div class="prijs">Vanaf <b>€ 2.450</b></div>
+        </div>
+        <div class="kaart">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1f5f5b" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><path d="M12 8v6M8 11h8M10 21l2-7 2 7"/></svg></div>
+          <h3>Seniorenbadkamer</h3>
+          <p>Drempelvrij, beugels, een douchezitje en antislip. Veilig en mooi, zodat u langer thuis woont.</p>
+          <div class="prijs">Vanaf <b>€ 6.900</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="werkwijze" id="werkwijze">
+    <div class="wrap">
+      <div class="kop">
+        <div class="kicker">Zo werken we</div>
+        <h2>In vier stappen naar uw nieuwe badkamer</h2>
+      </div>
+      <div class="stappen">
+        <div class="stap"><h3>Uw wensen</h3><p>Vertel via de chat of telefoon wat u zoekt. U krijgt direct een eerste prijsindicatie.</p></div>
+        <div class="stap"><h3>Inmeten</h3><p>We komen gratis langs om in te meten en de mogelijkheden te bespreken.</p></div>
+        <div class="stap"><h3>Ontwerp &amp; prijs</h3><p>Binnen een week een 3D-ontwerp en een vaste prijs. Pas als u akkoord bent, plannen we in.</p></div>
+        <div class="stap"><h3>Verbouwing</h3><p>Eén vast team, stofschermen en elke dag een opgeruimde werkplek. Daarna 5 jaar garantie.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="cta" id="contact">
+    <div class="wrap">
+      <div class="blok">
+        <div>
+          <h2>Benieuwd wat uw badkamer gaat kosten?</h2>
+          <p>Onze assistent stelt u een paar korte vragen en geeft direct een eerlijke indicatie. Dag en nacht, ook in het weekend.</p>
+        </div>
+        <div class="rechts">
+          <button class="btn btn--wit" data-ava-open>Start de chat</button>
+          <small>Liever bellen? 0118 000 000 · ma t/m vr 8:00 tot 17:00</small>
+        </div>
+      </div>
+      <div class="proberen">
+        <b>Probeer het als bezoeker</b>, bijvoorbeeld:
+        <ul>
+          <li>"Wat kost een inloopdouche ongeveer? Ons bad is 170 cm."</li>
+          <li>"Kunnen jullie in maart beginnen? We wonen in Middelburg."</li>
+          <li>"Ik wil een seniorenbadkamer voor mijn moeder, kunnen jullie langskomen?"</li>
+        </ul>
+        Geef daarna je naam en telefoonnummer: het gesprek verschijnt dan als warme lead in het Volgo-dashboard van dit bedrijf.
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Badkamerstudio Noordzee is een fictief voorbeeldbedrijf.</span>
+    <span>De chat op deze pagina is AVA van <a href="https://thevolgo.app">Volgo</a>.</span>
+  </div>
+</footer>
+
+<script src="/ava.js" data-key="1819740e8895534532232832" defer></script>
+</body>
+</html>

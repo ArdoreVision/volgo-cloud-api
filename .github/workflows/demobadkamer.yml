@@ -1,0 +1,41 @@
+name: Demo badkamerbedrijf
+on:
+  workflow_dispatch:
+    inputs:
+      hash: { description: "wachtwoord-hash", required: true }
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      HASH: ${{ inputs.hash }}
+    steps:
+      - run: |
+          cd /tmp
+          M="badkamer-demo@volgo.test"; T="(SELECT id FROM gebruikers WHERE email='$M')"
+          cat > d.sql <<SQL
+          DELETE FROM ava_instellingen WHERE team_id = $T OR sleutel = '1819740e8895534532232832';
+          DELETE FROM kanalen WHERE team_id = $T;
+          DELETE FROM gebruikers WHERE email = '$M';
+          INSERT INTO gebruikers (email, naam, bedrijf, wachtwoord, plan, status, testmodus) VALUES ('$M', 'Demo Eigenaar', 'Badkamerstudio Noordzee', '$HASH', 'pro', 'actief', 1);
+          INSERT INTO kanalen (team_id, naam) SELECT id, 'general' FROM gebruikers WHERE email = '$M';
+          INSERT INTO kanalen (team_id, naam) SELECT id, 'leads' FROM gebruikers WHERE email = '$M';
+          INSERT INTO ava_instellingen (team_id, sleutel, naam, begroeting, bedrijfsinfo, kleur) SELECT id, '1819740e8895534532232832', 'Noor',
+            'Hoi! Ik ben Noor van Badkamerstudio Noordzee. Waar kan ik je mee helpen? Ik geef je graag direct een prijsindicatie.',
+            'Badkamerstudio Noordzee (fictief voorbeeldbedrijf) verbouwt badkamers en toiletten in heel Zeeland (Vlissingen, Middelburg, Goes, Zierikzee, Terneuzen en omgeving). Eén vast team doet alles: sloop en afvoer, leidingwerk, elektra, tegelwerk, sanitair en afwerking.
+          Diensten en richtprijzen inclusief btw, materiaal en montage:
+          - Complete badkamer (circa 6 m2): vanaf 9.500 euro, gemiddeld 12.000 tot 16.000 euro. Doorlooptijd meestal 8 tot 10 werkdagen.
+          - Inloopdouche in plaats van bad: vanaf 4.250 euro, inclusief glazen wand, thermostaatkraan en tegelwerk. 3 tot 5 werkdagen.
+          - Toilet renoveren met hangend toilet en fonteintje: vanaf 2.450 euro. 2 tot 3 werkdagen.
+          - Seniorenbadkamer (drempelvrij, beugels, douchezitje, antislip): vanaf 6.900 euro. Vaak deels vergoed via de Wmo van de gemeente.
+          - Elektrische vloerverwarming: plus ongeveer 750 euro.
+          Werkwijze: 1) wensen via chat of telefoon, 2) gratis inmeten aan huis, 3) binnen een week een 3D-ontwerp met vaste prijs, 4) uitvoering. 5 jaar garantie op het werk. Aanbetaling 30 procent bij akkoord.
+          Planning: inmeten kan meestal binnen 1 week, uitvoering start nu over ongeveer 6 tot 8 weken.
+          Showroom: Badkamerstudio Noordzee, op afspraak, ma t/m vr 8:00 tot 17:00, zaterdag 10:00 tot 15:00.
+          Doel van het gesprek: vraag wat de bezoeker wil (soort klus, afmetingen, woonplaats, gewenste startdatum), geef een eerlijke prijsindicatie op basis van de richtprijzen en stel een gratis inmeetafspraak voor. Vraag naam en telefoonnummer zodat een adviseur terugbelt. Beloof nooit een exacte prijs; die volgt na het inmeten.',
+            '#1f5f5b' FROM gebruikers WHERE email = '$M';
+          SQL
+          sed -i 's/^          //' d.sql
+          npx -y wrangler@4 d1 execute volgo-db --remote --file d.sql > out.txt 2>&1 || { grep -i "error" out.txt | head -3 | sed 's/^/::warning::FOUT /'; exit 1; }
+          echo "::warning::DEMO $(npx -y wrangler@4 d1 execute volgo-db --remote --json --command "SELECT g.id, g.bedrijf, g.plan, g.status, a.naam, a.sleutel FROM gebruikers g JOIN ava_instellingen a ON a.team_id = g.id WHERE g.email='$M'" 2>/dev/null | jq -c '.[0].results')"

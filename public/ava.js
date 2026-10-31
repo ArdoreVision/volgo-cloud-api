@@ -127,6 +127,9 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   fab.addEventListener("click", open);
   $(".x").addEventListener("click", close);
   root.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+  // Any button on the website with data-ava-open (e.g. "Request a quote") opens AVA. Also available as window.VolgoAva.open().
+  window.VolgoAva = { open: open, close: close };
+  document.addEventListener("click", function (e) { var t = e.target && e.target.closest && e.target.closest("[data-ava-open]"); if (t) { e.preventDefault(); open(); } });
   ta.addEventListener("input", function () { send.disabled = !ta.value.trim() || busy; });
   ta.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); verstuur(); } });
   form.addEventListener("submit", function (e) { e.preventDefault(); verstuur(); });
