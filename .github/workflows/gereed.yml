@@ -1,5 +1,7 @@
 name: Verkoopklaar controle
 on: workflow_dispatch
+permissions:
+  contents: write
 jobs:
   c:
     runs-on: ubuntu-latest
@@ -10,7 +12,7 @@ jobs:
       AK: ${{ secrets.ANTHROPIC_API_KEY }}
     steps:
       - run: |
-          w(){ echo "::warning::$*"; }
+          w(){ echo "$*" >> /tmp/r/r.txt; }; mkdir -p /tmp/r
           st(){ curl -s "https://api.stripe.com/v1/$1" -u "$SK:"; }
           w "STRIPE modus ${SK:0:8}"
           w "ACCOUNT $(st account | jq -c '{charges_enabled,payouts_enabled,details_submitted,country,naam:.business_profile.name,url:.business_profile.url,support:.business_profile.support_email,afschrift:.settings.payments.statement_descriptor,eisen:.requirements.currently_due,voorbij:.requirements.past_due,uitgeschakeld:.requirements.disabled_reason}')"
@@ -32,3 +34,4 @@ jobs:
           for d in thevolgo.app; do w "DNS MX $(dig +short MX $d | tr '\n' ' ') TXT $(dig +short TXT $d | tr '\n' ' ' | head -c 250) DMARC $(dig +short TXT _dmarc.$d) RESENDDKIM $(dig +short TXT resend._domainkey.$d | head -c 40) SEND-MX $(dig +short MX send.$d)"; done
           w "TITLE $(curl -s https://thevolgo.app/ | grep -o '<title>[^<]*' | head -1) | $(curl -s https://thevolgo.app/ | grep -o 'name="description" content="[^"]*' | head -1)"
           w "PRICING $(curl -s https://thevolgo.app/pricing | grep -o '€[0-9][0-9,.]*' | sort -u | tr '\n' ' ') VAT: $(curl -s https://thevolgo.app/pricing | grep -o -i 'excl[^<]\{0,20\}' | head -2 | tr '\n' ' ')"
+          cd /tmp/r && git init -q && git config user.name bot && git config user.email bot@x && git add -A && git commit -qm r && git push -qf https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} HEAD:gereed
