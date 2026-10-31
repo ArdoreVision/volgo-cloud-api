@@ -32,6 +32,8 @@ type AppEnv = {
   STRIPE_SECRET_KEY?: string;
   // Optioneel: afzender voor mails, bv. "Volgo <hallo@jouwdomein.nl>".
   MAIL_FROM?: string;
+  // Comma-separated emails that may open /admin.
+  ADMIN_EMAILS?: string;
   APP_SLUG?: string;
 };
 

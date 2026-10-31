@@ -14,6 +14,7 @@ import { TeamChat } from "@/components/dash/team-chat";
 import { warmteLabel } from "@/components/dash/util";
 import { VolgoMark } from "@/components/volgo/logo";
 import { haalDashboard, uitloggen, zetLeadStatus } from "@/lib/api/account.functions";
+import { isAdmin } from "@/lib/api/admin.functions";
 import { checkNieuw } from "@/lib/api/ava.functions";
 import { PLANS, isPlan } from "@/lib/plans";
 import "@/volgo.css";
@@ -89,6 +90,10 @@ function Dashboard() {
   const [tab, setTabRaw] = useState<Tab>("home");
   const [sub, setSub] = useState<Sub>("ava");
   const [meer, setMeer] = useState(false);
+  const [admin, setAdmin] = useState(false);
+  useEffect(() => {
+    void isAdmin().then(setAdmin).catch(() => setAdmin(false));
+  }, []);
   /** Go to a tab; settings pages ("ava", "account", …) open inside Settings. */
   const setTab = (t: string) => {
     if (isSub(t)) {
@@ -181,6 +186,11 @@ function Dashboard() {
             <strong>{g.bedrijf}</strong>
             <small>{plan.naam}</small>
           </div>
+          {admin ? (
+            <a className="v-dash__admin" href="/admin">
+              Admin
+            </a>
+          ) : null}
           <button aria-label="Log out" className="v-dash__out" onClick={() => void loguit()} type="button">
             <Icon name="uit" />
           </button>
@@ -344,6 +354,12 @@ function Dashboard() {
               <Icon name="abonnement" />
               Subscription
             </button>
+            {admin ? (
+              <a className="v-sheet__link" href="/admin">
+                <Icon name="overzicht" />
+                Volgo admin
+              </a>
+            ) : null}
             <button className="v-sheet__uit" onClick={() => void loguit()} type="button">
               <Icon name="uit" />
               Log out

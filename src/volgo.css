@@ -1046,3 +1046,32 @@ a.v-plan__cta { display: block; text-align: center; text-decoration: none; box-s
 .v-leden li:first-child { border-top: 0; }
 .v-leden li > div { flex: 1; min-width: 0; display: grid; }
 .v-leden small { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- Admin ---------- */
+.v-admin { min-height: 100dvh; background: var(--surface); }
+.v-admin__top { display: flex; justify-content: space-between; align-items: center; padding: 14px clamp(16px, 4vw, 40px); background: #fff; border-bottom: 1px solid var(--line); }
+.v-admin__top .v-dash__logout { margin: 0; text-decoration: none; padding: 9px 16px; font-size: 14px; }
+.v-admin__main { max-width: 1200px; margin: 0 auto; padding: clamp(16px, 4vw, 40px); }
+.v-admin__cijfers { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-bottom: 20px; }
+.v-admin__cijfers div { background: #fff; border-radius: 18px; padding: 16px; }
+.v-admin__cijfers span { display: block; font-size: 13px; color: var(--muted); }
+.v-admin__cijfers strong { display: block; margin-top: 4px; font-family: var(--display); font-size: 1.8rem; font-weight: 600; }
+.v-admin__lijst { display: grid; gap: 12px; }
+.v-admin__aanvraag header { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.v-admin__aanvraag h2 { margin: 0; font-size: 1.2rem; }
+.v-admin__aanvraag a { color: var(--accent); }
+.v-admin__meta { margin: 12px 0 8px; color: var(--ink-2); font-size: 14.5px; }
+.v-admin__zoek { width: 100%; box-sizing: border-box; margin-bottom: 12px; padding: 12px 14px; border: 0; border-radius: 12px; background: var(--surface); font: inherit; font-size: 15px; }
+.v-admin__tabel { overflow-x: auto; }
+.v-admin__rij { display: grid; grid-template-columns: 2.2fr 0.8fr 1.3fr 1fr 0.6fr 0.6fr 1fr; gap: 10px; align-items: center; min-width: 820px; padding: 12px 4px; border-top: 1px solid var(--line); font-size: 14.5px; }
+.v-admin__rij--kop { border-top: 0; color: var(--muted); font-size: 12.5px; font-weight: 500; }
+.v-admin__rij strong { display: block; font-weight: 600; }
+.v-admin__rij small { display: block; color: var(--muted); font-size: 12.5px; }
+.v-badge { font-style: normal; display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: var(--surface); color: var(--ink-2); }
+.v-badge--groen { background: #e7f7ee; color: #157a42; }
+.v-badge--blauw { background: var(--sky-2); color: var(--accent); }
+.v-badge--rood { background: #fdecec; color: var(--bad); }
+@media (max-width: 900px) { .v-admin__cijfers { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.v-dash__admin { font-size: 12px; font-weight: 600; color: var(--accent); text-decoration: none; padding: 4px 8px; border-radius: 8px; background: var(--sky-2); }
+.v-sheet__link { display: flex; align-items: center; gap: 14px; padding: 14px 12px; border-radius: 14px; font-size: 16px; color: var(--accent); text-decoration: none; }
+.v-sheet__link .v-dash__icon { display: block !important; width: 22px; height: 22px; stroke: var(--accent); }

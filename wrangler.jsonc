@@ -15,7 +15,7 @@
   ],
   "workers_dev": true,
   "triggers": { "crons": ["0 6 * * *"] },
-  "vars": { "HF_ENV": "production", "APP_SLUG": "volgo" },
+  "vars": { "HF_ENV": "production", "APP_SLUG": "volgo", "ADMIN_EMAILS": "damienhanssens@outlook.com,hanssenscornerstone@outlook.com,volgo.app@outlook.com" },
   "d1_databases": [
     { "binding": "DB", "database_name": "volgo-db", "database_id": "__D1_ID__", "migrations_dir": "migrations" }
   ]
