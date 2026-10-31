@@ -1,0 +1,34 @@
+name: Verkoopklaar controle
+on: workflow_dispatch
+jobs:
+  c:
+    runs-on: ubuntu-latest
+    env:
+      SK: ${{ secrets.STRIPE_SECRET_KEY }}
+      R: ${{ secrets.RESEND_API_KEY }}
+      CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      AK: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - run: |
+          w(){ echo "::warning::$*"; }
+          st(){ curl -s "https://api.stripe.com/v1/$1" -u "$SK:"; }
+          w "STRIPE modus ${SK:0:8}"
+          w "ACCOUNT $(st account | jq -c '{charges_enabled,payouts_enabled,details_submitted,country,naam:.business_profile.name,url:.business_profile.url,support:.business_profile.support_email,afschrift:.settings.payments.statement_descriptor,eisen:.requirements.currently_due,voorbij:.requirements.past_due,uitgeschakeld:.requirements.disabled_reason}')"
+          w "TAX $(st tax/settings | jq -c '{status,defaults,head:.head_office.address.country,missing:.status_details}')"
+          w "TAXREG $(st 'tax/registrations?limit=10' | jq -c '[.data[]?|{country,status}]')"
+          w "PORTAL $(st 'billing_portal/configurations?limit=3' | jq -c '[.data[]?|{id,active,is_default,cancel:.features.subscription_cancel.enabled,update:.features.subscription_update.enabled,invoices:.features.invoice_history.enabled,pm:.features.payment_method_update.enabled,tos:.business_profile.terms_of_service_url,pp:.business_profile.privacy_policy_url}]')"
+          w "WEBHOOKS $(st 'webhook_endpoints?limit=10' | jq -c '[.data[]?|{url,status}]')"
+          w "ABO $(st 'subscriptions?limit=20&status=all' | jq -c '[.data[]?|{status,plan:.metadata.plan,trial_end}]')"
+          w "BALANCE $(st balance | jq -c '{available:[.available[]|{amount,currency}],pending:[.pending[]|{amount,currency}]}')"
+          w "EMAILS $(st account | jq -c '{email}')"
+          if [ -n "$R" ]; then w "RESEND $(curl -s https://api.resend.com/domains -H "Authorization: Bearer $R" | jq -c '[.data[]?|{name,status,region}]')"; fi
+          w "ANTHROPIC lengte ${#AK}"
+          for u in / /pricing /terms /privacy /cookies /dpa /login /signup /forgot-password /ava.js /robots.txt /sitemap.xml /og.png /manifest.webmanifest /voorbeeld/contractor.html /voorbeeld/badkamer.html /demo/x; do
+            r=$(curl -s -o /tmp/b -w "%{http_code} %{size_download}B %{time_total}s" "https://thevolgo.app$u"); w "PAGINA $u $r"; done
+          w "HEADERS $(curl -sI https://thevolgo.app/ | grep -i -E 'strict-transport|content-security|x-frame|x-content-type|referrer-policy' | tr -d '\r' | tr '\n' ' ')"
+          w "WWW $(curl -s -o /dev/null -w '%{http_code} -> %{redirect_url}' https://www.thevolgo.app/)"
+          w "HTTP $(curl -s -o /dev/null -w '%{http_code} -> %{redirect_url}' http://thevolgo.app/)"
+          w "AVA $(curl -s -X POST https://thevolgo.app/api/ava -H 'Content-Type: application/json' -H 'Origin: https://thevolgo.app' -d '{"actie":"config","sleutel":"c2c0abaa339e5c0a8c9e4064"}' | head -c 300)"
+          for d in thevolgo.app; do w "DNS MX $(dig +short MX $d | tr '\n' ' ') TXT $(dig +short TXT $d | tr '\n' ' ' | head -c 250) DMARC $(dig +short TXT _dmarc.$d) RESENDDKIM $(dig +short TXT resend._domainkey.$d | head -c 40) SEND-MX $(dig +short MX send.$d)"; done
+          w "TITLE $(curl -s https://thevolgo.app/ | grep -o '<title>[^<]*' | head -1) | $(curl -s https://thevolgo.app/ | grep -o 'name="description" content="[^"]*' | head -1)"
+          w "PRICING $(curl -s https://thevolgo.app/pricing | grep -o '€[0-9][0-9,.]*' | sort -u | tr '\n' ' ') VAT: $(curl -s https://thevolgo.app/pricing | grep -o -i 'excl[^<]\{0,20\}' | head -2 | tr '\n' ' ')"
