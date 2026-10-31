@@ -1,6 +1,0 @@
-/* Basis. Het eigenlijke ontwerp staat in volgo.css. */
-*, *::before, *::after { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
-body { background: #ffffff; color: #111318; }
-img, svg { max-width: 100%; }
-button, input, select, textarea { font: inherit; }
