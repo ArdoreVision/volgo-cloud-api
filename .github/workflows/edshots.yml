@@ -27,9 +27,15 @@ jobs:
           await p.waitForSelector('.v-ed__zij'); await p.waitForTimeout(4000);
           const fr = p.frameLocator('.v-ed__scherm iframe');
           log('fab zichtbaar: ' + await fr.locator('#volgo-ava').count());
+          const pf = p.frames().find((f) => f.url().includes('ava-preview'));
+          log('preview url: ' + (pf && pf.url()));
+          log('ava.js heeft preview: ' + (await (await fetch('https://thevolgo.app/ava.js')).text()).includes('data-preview'));
+          const kh = async () => pf ? await pf.evaluate(() => { const h = document.getElementById('volgo-ava'); return h ? h.shadowRoot.querySelector('.w').className : 'geen'; }) : '?';
+          log('klassen start: ' + await kh());
           await p.screenshot({ path: '/tmp/shots/1-start.png' });
           await p.locator('.v-ed__kaarten button', { hasText: 'Chat icon' }).click(); await p.waitForTimeout(800);
           await p.screenshot({ path: '/tmp/shots/2-icoon.png' });
+          log('klassen na icoon: ' + await kh());
           await p.locator('.v-ed__groepkop', { hasText: 'Chat window' }).click();
           await p.locator('.v-ed__kaarten button', { hasText: 'Sharp' }).click();
           await p.locator('.v-seg button', { hasText: 'Large' }).click();
