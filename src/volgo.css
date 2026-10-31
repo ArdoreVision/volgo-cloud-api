@@ -1040,3 +1040,4 @@ a.v-plan__cta { display: block; text-align: center; text-decoration: none; box-s
 }
 @keyframes v-fade { from { opacity: 0; } }
 @keyframes v-omhoog { from { transform: translateY(100%); } }
+@media (max-width: 900px) { .v-dash { align-content: start; grid-template-rows: auto 1fr; } .v-dash__side { align-self: start; } }
