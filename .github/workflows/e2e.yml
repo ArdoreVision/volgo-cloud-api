@@ -1,0 +1,61 @@
+name: Volgo browsertest
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      U: https://volgo.damienhanssens.workers.dev
+    steps:
+      - uses: actions/checkout@v4
+      - name: Demo-sessie maken
+        run: |
+          TOKEN=$(openssl rand -hex 32)
+          HASH=$(printf '%s' "$TOKEN" | sha256sum | cut -d' ' -f1)
+          echo "TOKEN=$TOKEN" >> $GITHUB_ENV
+          npx -y wrangler@4 d1 execute volgo-db --remote --command "UPDATE gebruikers SET naam='Damien Demo' WHERE email='demo@volgo.test'; INSERT INTO sessies (token_hash, gebruiker_id, verloopt) SELECT '$HASH', id, datetime('now','+1 day') FROM gebruikers WHERE email='demo@volgo.test';" > /dev/null
+      - name: Browser
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y >/dev/null && npm i playwright@1 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
+          cat > t.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const U = process.env.U, T = process.env.TOKEN;
+          const b = await chromium.launch();
+          const log = (m) => console.log('::warning::E2E ' + m);
+          for (const [naam, vp] of [['desktop', { width: 1366, height: 860 }], ['mobiel', { width: 390, height: 844 }]]) {
+            const ctx = await b.newContext({ viewport: vp, deviceScaleFactor: 2 });
+            await ctx.addCookies([{ name: 'volgo_sessie', value: T, domain: new URL(U).hostname, path: '/', httpOnly: true, secure: true, sameSite: 'Lax' }]);
+            const p = await ctx.newPage();
+            p.on('pageerror', (e) => log(naam + ' JS-fout: ' + e.message));
+            await p.goto(U + '/', { waitUntil: 'networkidle' });
+            log(naam + ' / gaat naar ' + new URL(p.url()).pathname);
+            const h1 = await p.locator('.v-home__groet h1').textContent().catch(() => 'GEEN');
+            const ph = await p.locator('.v-home__balk textarea').getAttribute('placeholder').catch(() => 'GEEN');
+            log(naam + ' groet: ' + h1 + ' | voorbeeld: ' + ph);
+            await p.screenshot({ path: `/tmp/shots/${naam}-home.png` });
+            if (naam === 'desktop') {
+              await p.locator('.v-dash__nav button', { hasText: 'Agenda' }).click();
+              await p.locator('.v-dash__brand').click();
+              log('logo terug naar home: ' + (await p.locator('.v-home__groet').count()));
+              await p.locator('.v-home__balk textarea').fill('Welke leads moet ik vandaag als eerste bellen?');
+              await p.keyboard.press('Enter');
+              await p.waitForSelector('.v-home__msg--ava p:not(.v-home__typen)', { timeout: 40000 });
+              log('antwoord: ' + (await p.locator('.v-home__msg--ava p').last().textContent()).slice(0, 500).replace(/\n/g, ' / '));
+              await p.screenshot({ path: `/tmp/shots/${naam}-chat.png` });
+            }
+            await ctx.close();
+          }
+          await b.close();
+          JS
+          mkdir -p /tmp/shots && node t.mjs
+      - name: Screenshots bewaren
+        if: always()
+        run: |
+          git config user.name "volgo-bot"; git config user.email "bot@volgo.local"
+          git fetch origin testshots 2>/dev/null && git checkout testshots || git checkout --orphan testshots
+          git rm -rq . 2>/dev/null || true
+          cp /tmp/shots/*.png . 2>/dev/null || true
+          git add *.png 2>/dev/null && git commit -qm "screenshots" && git push -qf origin HEAD:testshots || true
