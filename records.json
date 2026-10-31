@@ -1,0 +1,35 @@
+[
+  {
+    "record": "DKIM",
+    "name": "resend._domainkey",
+    "value": "p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCy34QMo4z9BBaRpSXzp44byfzbRWhxY1bRhddwBlPCIBUxx7qZmVVUKjWqo6GMH0mJjDIDZcs+72SlCJKZ8qBFKpl3SfSmo1+XT8IUfKxi8C3UWpp252IJChUysb0tHLpoHmM+8gJbdwURSXWJbwaRfiv34s0lF9JdR/Xc0AuqYwIDAQAB",
+    "type": "TXT",
+    "status": "pending",
+    "ttl": "Auto"
+  },
+  {
+    "record": "SPF",
+    "name": "send",
+    "type": "MX",
+    "ttl": "Auto",
+    "status": "pending",
+    "value": "feedback-smtp.eu-west-1.amazonses.com",
+    "priority": 10
+  },
+  {
+    "record": "SPF",
+    "name": "send",
+    "value": "v=spf1 include:amazonses.com ~all",
+    "type": "TXT",
+    "ttl": "Auto",
+    "status": "pending"
+  },
+  {
+    "record": "SPF",
+    "name": "rsend",
+    "value": "send.forge.rmta.net",
+    "type": "CNAME",
+    "status": "verified",
+    "ttl": "Auto"
+  }
+]
