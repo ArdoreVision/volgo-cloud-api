@@ -1,0 +1,31 @@
+name: Stripe proefperiode testen
+on: workflow_dispatch
+jobs:
+  klok:
+    runs-on: ubuntu-latest
+    env:
+      K: ${{ secrets.STRIPE_SECRET_KEY }}
+    steps:
+      - run: |
+          [[ "$K" == sk_test_* ]] || { echo "::warning::KLOK alleen met testsleutel"; exit 0; }
+          s() { curl -s "https://api.stripe.com/v1/$1" -u "$K:" "${@:2}"; }
+          NU=$(date +%s)
+          P=$(s products -d "name=Volgo Start (klokproef)" | jq -r .id)
+          for kaart in pm_card_visa pm_card_chargeCustomerFail; do
+            C=$(s test_helpers/test_clocks -d frozen_time=$NU -d name=volgo-$kaart | jq -r .id)
+            CU=$(s customers -d test_clock=$C -d payment_method=$kaart -d "invoice_settings[default_payment_method]=$kaart" | jq -r .id)
+            # zelfde opzet als Volgo checkout: 147 euro per maand, 7 dagen proef
+            SUB=$(s subscriptions -d customer=$CU -d "items[0][price_data][currency]=eur" -d "items[0][price_data][product]=$P" -d "items[0][price_data][unit_amount]=14700" -d "items[0][price_data][recurring][interval]=month" -d trial_period_days=7)
+            ID=$(echo "$SUB" | jq -r .id)
+            I0=$(s "invoices?subscription=$ID" | jq -c '[.data[] | {bedrag:.amount_paid, status}]')
+            echo "::warning::KLOK $kaart dag 0: status $(echo "$SUB" | jq -r .status), proef tot $(date -u -d @$(echo "$SUB" | jq -r .trial_end) '+%d-%m %H:%M'), facturen $I0"
+            s test_helpers/test_clocks/$C/advance -d frozen_time=$((NU + 6*86400)) > /dev/null
+            for i in $(seq 1 30); do [ "$(s test_helpers/test_clocks/$C | jq -r .status)" = ready ] && break; sleep 3; done
+            echo "::warning::KLOK $kaart dag 6: status $(s subscriptions/$ID | jq -r .status), betaald tot nu $(s "invoices?subscription=$ID" | jq '[.data[].amount_paid] | add')"
+            s test_helpers/test_clocks/$C/advance -d frozen_time=$((NU + 8*86400)) > /dev/null
+            for i in $(seq 1 40); do [ "$(s test_helpers/test_clocks/$C | jq -r .status)" = ready ] && break; sleep 3; done
+            sleep 5
+            echo "::warning::KLOK $kaart dag 8: status $(s subscriptions/$ID | jq -r .status), facturen $(s "invoices?subscription=$ID" | jq -c '[.data[] | {bedrag:.amount_due, betaald:.amount_paid, status, poging:.attempt_count}]')"
+            s test_helpers/test_clocks/$C -X DELETE > /dev/null
+          done
+          s products/$P -d active=false > /dev/null
