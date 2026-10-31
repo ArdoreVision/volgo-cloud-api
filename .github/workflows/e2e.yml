@@ -38,6 +38,9 @@ jobs:
           import { chromium } from 'playwright';
           const U = process.env.U, T = process.env.TOKEN;
           const b = await chromium.launch();
+          // Visitors choose in the consent screen first; for the tests: "only necessary" on thevolgo.app.
+          const nieuw = b.newContext.bind(b);
+          b.newContext = async (o) => { const c = await nieuw(o); await c.addInitScript(() => { try { localStorage.setItem('volgo-ok-c2c0abaa339e5c0a8c9e4064', JSON.stringify({ ja: false, op: Date.now() })); } catch (e) {} }); return c; };
           const log = (m) => console.log('::warning::E2E ' + m);
           const shot = (p, n) => p.screenshot({ path: `/tmp/shots/${n}.png` });
           // Nieuwe klant: landing -> abonnement -> betalen -> account -> inloggen -> dashboard
