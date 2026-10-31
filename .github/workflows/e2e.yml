@@ -46,7 +46,7 @@ jobs:
             await p.locator('.v-hero__actions a', { hasText: '7 dagen' }).click();
             await p.waitForURL('**/abonnement');
             await p.locator('.v-plan__cta--start').click();
-            await p.waitForURL((u) => u.hostname.includes('stripe.com') || u.pathname.startsWith('/betalen'), { timeout: 30000 });
+            await p.waitForURL((u) => u.hostname.includes('stripe.com') || u.pathname.startsWith('/betalen'), { timeout: 30000 }).catch(async (e) => { log('na kiezen: ' + p.url() + ' | ' + (await p.locator('.v-err').textContent().catch(() => 'geen fout'))); throw e; });
             if (p.url().includes('stripe.com')) {
               log('stripe checkout geopend');
               await p.waitForSelector('#email', { timeout: 30000 });
