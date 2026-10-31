@@ -1,0 +1,21 @@
+name: Code controleren
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  tsc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install > /dev/null 2>&1
+      - name: TypeScript
+        run: |
+          npx tsc --noEmit -p . > tsc.txt 2>&1 || true
+          echo "::warning::TSC $(grep -c 'error TS' tsc.txt) fouten"
+          mkdir -p /tmp/out && cp tsc.txt /tmp/out/
+      - name: Uitvoer bewaren
+        run: |
+          git config user.name "volgo-bot"; git config user.email "bot@volgo.local"
+          git checkout --orphan ci-logs; git rm -rq . ; cp /tmp/out/tsc.txt .; git add tsc.txt; git commit -qm logs; git push -qf origin HEAD:ci-logs
