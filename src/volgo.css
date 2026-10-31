@@ -743,3 +743,4 @@ button.v-dash__brand { border: 0; background: transparent; font: inherit; color:
   .v-home { padding: 8px 0 16px; }
   .v-home__msg p { max-width: 92%; }
 }
+.v-home__balk textarea:focus, .v-home__balk textarea:focus-visible { outline: none !important; box-shadow: none !important; border: 0 !important; }
