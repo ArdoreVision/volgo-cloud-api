@@ -278,6 +278,6 @@ ${meta.lead_id ? "- Deze bezoeker is al doorgegeven als lead; vraag niet opnieuw
     msgs.push({ role: "assistant", content: out.content });
     msgs.push({ role: "user", content: uses.map((u) => ({ type: "tool_result", tool_use_id: u.id ?? "", content: "Bijgewerkt." })) });
   }
-  const antwoord = teksten.join("\n\n").trim();
+  const antwoord = (teksten[0] ?? "").trim();
   return { antwoord, update };
 }
