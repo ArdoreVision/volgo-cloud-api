@@ -1,0 +1,17 @@
+name: Mail controleren
+on: workflow_dispatch
+jobs:
+  m:
+    runs-on: ubuntu-latest
+    env:
+      R: ${{ secrets.RESEND_API_KEY }}
+    steps:
+      - run: |
+          ID=5eb3e58d-e1cf-43fa-9642-00ee3366b3b2
+          echo "::warning::DNS DKIM=$(dig +short TXT resend._domainkey.thevolgo.app @1.1.1.1 | head -c 30) SPF=$(dig +short TXT send.thevolgo.app @1.1.1.1) MX=$(dig +short MX send.thevolgo.app @1.1.1.1) CNAME=$(dig +short CNAME rsend.thevolgo.app @1.1.1.1)"
+          curl -s -X POST "https://api.resend.com/domains/$ID/verify" -H "Authorization: Bearer $R" >/dev/null
+          for i in $(seq 1 40); do d=$(curl -s "https://api.resend.com/domains/$ID" -H "Authorization: Bearer $R"); s=$(echo "$d" | jq -r .status); [ "$s" = verified ] && break; sleep 15; done
+          echo "::warning::STATUS $s $(echo "$d" | jq -c '[.records[]|{record,status}]')"
+          if [ "$s" = verified ]; then
+            echo "::warning::TESTMAIL $(curl -s -X POST https://api.resend.com/emails -H "Authorization: Bearer $R" -H 'Content-Type: application/json' --data-raw '{"from":"Volgo <hallo@thevolgo.app>","to":["volgo.app@outlook.com"],"reply_to":"volgo.app@outlook.com","subject":"Volgo mail works ✓","html":"<p>This test email was sent from hallo@thevolgo.app. Password resets, team invites, lead alerts and the morning summary now go out from this address.</p>"}')"
+          fi
