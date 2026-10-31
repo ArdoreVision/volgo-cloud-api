@@ -1,3 +1,4 @@
+import { BookCall } from "@/components/volgo/book-call";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
@@ -93,7 +94,7 @@ export function Website() {
           </ol>
           <div className="v-website__samenvatting">
             <p>
-              <strong>Your request</strong> · we'll reach you by {a.contact === "call" ? `phone (${a.telefoon})` : "chat and email"}
+              <strong>Your request</strong> · we'll reach you by {a.contact === "call" ? "a call (send BOOK in a DM to @damienhanssens on Instagram to pick a time)" : "chat and email"}
               {a.domein ? ` · domain: ${a.domein}` : ""}
             </p>
             <p className="v-website__wensen">{a.wensen}</p>
@@ -126,12 +127,7 @@ export function Website() {
                 </button>
               </div>
             </div>
-            {contact === "call" ? (
-              <div className="v-fld">
-                <label htmlFor="w-tel">Phone number</label>
-                <input autoComplete="tel" id="w-tel" inputMode="tel" name="telefoon" placeholder="+31 6 12345678" />
-              </div>
-            ) : null}
+            {contact === "call" ? <BookCall compact /> : null}
             <div className="v-row">
               <div className="v-fld">
                 <label htmlFor="w-domein">

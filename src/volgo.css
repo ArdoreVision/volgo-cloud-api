@@ -1156,3 +1156,17 @@ a.v-plan__cta { display: block; text-align: center; text-decoration: none; box-s
 .v-admin__rij--betaal { grid-template-columns: 2.2fr 0.9fr 0.9fr 1.1fr 1fr; min-width: 640px; }
 .v-admin__link { color: var(--accent); text-decoration: none; font-weight: 500; }
 @media (max-width: 900px) { .v-admin__omzetcijfers { grid-template-columns: repeat(2, minmax(0, 1fr)); } .v-admin__omzetcijfers .is-groot { grid-column: 1 / -1; } }
+
+/* Book a call via Instagram DM ("BOOK") */
+.v-book { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; padding: 20px 22px; border-radius: 22px; background: linear-gradient(135deg, #fff5f9, #fff8f1); box-shadow: 0 0 0 1px #f6dbe6; text-align: left; }
+.v-book__ico { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; color: #fff; background: linear-gradient(45deg, #f9a03f, #e1306c 55%, #833ab4); }
+.v-book__tekst strong { display: block; font-size: 16px; }
+.v-book__tekst p { margin: 3px 0 0; font-size: 14.5px; color: var(--ink-2); }
+.v-book__woord { padding: 1px 7px; border-radius: 6px; background: #fff; box-shadow: 0 0 0 1px #f0c9d8; letter-spacing: 0.04em; }
+.v-book__knop { display: inline-flex; align-items: center; padding: 12px 18px; border-radius: 999px; background: var(--ink); color: #fff; font-weight: 600; font-size: 14.5px; text-decoration: none; white-space: nowrap; }
+.v-book__knop:hover { background: #000; }
+.v-book.is-compact { grid-template-columns: auto 1fr; margin: 4px 0 8px; padding: 16px; }
+.v-book.is-compact .v-book__knop { grid-column: 1 / -1; justify-content: center; }
+.v-pricing__boek { max-width: 820px; margin: 64px auto 8px; display: grid; gap: 20px; }
+.v-pricing__boek .v-h2 { margin: 0; font-size: clamp(1.6rem, 3vw, 2.2rem); }
+@media (max-width: 700px) { .v-book { grid-template-columns: auto 1fr; } .v-book__knop { grid-column: 1 / -1; justify-content: center; } }

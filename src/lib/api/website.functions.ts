@@ -39,7 +39,6 @@ export const stuurWebsiteAanvraag = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { g, DB, plan } = await sessie();
     if (!plan.limieten.website) return { ok: false as const, message: "A custom website is part of Pro and Premium." };
-    if (data.contact === "call" && data.telefoon.length < 6) return { ok: false as const, message: "Add a phone number so we can call you." };
     await DB.prepare("INSERT INTO website_aanvragen (team_id, contact, telefoon, domein, huidige_site, wensen) VALUES (?, ?, ?, ?, ?, ?)")
       .bind(g.team_id, data.contact, data.telefoon, data.domein, data.huidige_site, data.wensen)
       .run();
@@ -50,7 +49,7 @@ export const stuurWebsiteAanvraag = createServerFn({ method: "POST" })
       mailOpmaak(
         `Website request from ${esc(g.bedrijf)}`,
         `<p><strong>${esc(g.naam)}</strong> · ${esc(g.email)}${data.telefoon ? ` · ${esc(data.telefoon)}` : ""}</p>
-         <p>Prefers: <strong>${data.contact === "call" ? "a call" : "chat / email"}</strong> · Plan: ${plan.naam}</p>
+         <p>Prefers: <strong>${data.contact === "call" ? "a call (will DM BOOK on Instagram)" : "chat / email"}</strong> · Plan: ${plan.naam}</p>
          <p>Domain: ${esc(data.domein || "none yet")} · Current site: ${esc(data.huidige_site || "none")}</p>
          <p style="white-space:pre-wrap;background:#f5f7fa;padding:12px;border-radius:10px">${esc(data.wensen)}</p>`,
       ),

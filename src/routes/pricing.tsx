@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { AvaChat } from "@/components/volgo/ava-chat";
+import { BookCall } from "@/components/volgo/book-call";
 import { Footer } from "@/components/volgo/footer";
 import { Nav } from "@/components/volgo/nav";
 import { accountStatus } from "@/lib/api/assistent.functions";
@@ -200,6 +201,10 @@ function Abonnement() {
               </tbody>
             </table>
           </div>
+        </section>
+        <section className="v-pricing__boek" aria-label="Book a call">
+          <h2 className="v-h2 v-center">Rather talk it through first?</h2>
+          <BookCall />
         </section>
         <p className="v-pricing__note">Prices per month, excluding VAT. Already have an account? <a href="/login">Log in</a>.</p>
       </main>
