@@ -36,3 +36,19 @@ jobs:
           npx -y wrangler@4 d1 execute volgo-db --remote --file op.sql > out.txt 2>&1 || { tail -5 out.txt | while read l; do echo "::warning::FOUT $l"; done; exit 1; }
           echo "::warning::NA $(q "SELECT COUNT(*) n, (SELECT COUNT(*) FROM gebruikers) totaal, (SELECT COUNT(*) FROM website_aanvragen) aanvragen FROM gebruikers WHERE email LIKE 'test%@volgo.test'" | jq -c '.[0].results')"
           echo "::warning::OVER $(q "SELECT email, plan, status FROM gebruikers" | jq -c '.[0].results')"
+      - name: Stripe-testabonnementen van verwijderde accounts stoppen
+        env:
+          K: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: |
+          [[ "$K" == sk_test_* ]] || { echo "::warning::STRIPE live: niets gestopt"; exit 0; }
+          cd /tmp
+          npx -y wrangler@4 d1 execute volgo-db --remote --json --command "SELECT stripe_klant FROM gebruikers WHERE COALESCE(stripe_klant,'') != ''" 2>/dev/null | jq -r '.[0].results[].stripe_klant' > houden.txt
+          n=0
+          for st in trialing active past_due; do
+            curl -s "https://api.stripe.com/v1/subscriptions?status=$st&limit=100" -u "$K:" | jq -r '.data[] | .id + " " + .customer' > subs.txt
+            while read sub klant; do
+              grep -qx "$klant" houden.txt && continue
+              curl -s -X DELETE "https://api.stripe.com/v1/subscriptions/$sub" -u "$K:" > /dev/null; n=$((n+1))
+            done < subs.txt
+          done
+          echo "::warning::STRIPE $n testabonnementen gestopt, $(wc -l < houden.txt) gehouden"
