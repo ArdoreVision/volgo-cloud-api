@@ -162,7 +162,12 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
         const u = r.update;
         if (typeof u.warmte === "number") warmte = Math.max(0, Math.min(100, Math.round(u.warmte)));
         if (u.onderwerp) await DB.prepare("UPDATE ava_gesprekken SET onderwerp = ? WHERE id = ?").bind(String(u.onderwerp).slice(0, 120), gid).run();
-        if (u.naam) await DB.prepare("UPDATE ava_gesprek_meta SET naam = ? WHERE gesprek_id = ?").bind(String(u.naam).slice(0, 100), gid).run();
+        if (u.naam) {
+          await DB.batch([
+            DB.prepare("UPDATE ava_gesprek_meta SET naam = ? WHERE gesprek_id = ?").bind(String(u.naam).slice(0, 100), gid),
+            DB.prepare("UPDATE ava_gesprekken SET bezoeker = ? WHERE id = ?").bind(String(u.naam).slice(0, 60), gid),
+          ]);
+        }
         if (u.contact) await DB.prepare("UPDATE ava_gesprek_meta SET contact = ? WHERE gesprek_id = ?").bind(String(u.contact).slice(0, 120), gid).run();
         if (u.lead_klaar && !meta.lead_id && (u.contact || meta.contact)) {
           await maakLead(DB, gid, team, {
@@ -264,8 +269,9 @@ YOUR GOAL
 - Help visitors quickly and kindly. Keep it short (3 sentences max), no emojis.
 - ALWAYS reply in the same language the visitor writes in (a Dutch visitor gets Dutch, an English visitor gets English). In Dutch, use the informal "je".
 - Understand what they need; ask at most one thing per message.
-- When someone wants help: ask for their name and phone number or email address, then explicitly ask whether ${inst.bedrijf} may contact them.
-- After every message in which you learn something new, call the gesprek_bijwerken tool. Only set lead_klaar to true when the visitor gave contact details AND said yes to being contacted.
+- When someone wants help: ask for their name and phone number or email address, and whether ${inst.bedrijf} may contact them.
+- If the visitor asks to be called, emailed or visited themselves, or offers their details for that purpose (e.g. "call me on 06..."), that IS permission: don't ask again, thank them and say the team will be in touch.
+- After every message in which you learn something new, call the gesprek_bijwerken tool. Set lead_klaar to true as soon as the visitor gave contact details AND gave permission to be contacted (explicitly or by asking for contact themselves).
 - Warmth (0-100): how ready is the visitor to buy? 80+ = wants it soon, asks about price/scheduling; 50-79 = serious interest; below 50 = just exploring.
 
 RULES
