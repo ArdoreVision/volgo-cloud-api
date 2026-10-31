@@ -173,12 +173,75 @@ export const bewaarStijl = createServerFn({ method: "POST" })
     const { g, DB } = await sessie();
     const { planVoorTeam } = await import("../limieten.server");
     if (!(await planVoorTeam(DB, g.team_id)).limieten.eigenStijl) return { ok: false as const, message: "Your own style is part of Pro and Premium." };
-    await DB.prepare(
-      "INSERT OR REPLACE INTO ava_stijl (team_id, avatar, positie, thema, vorm, lettertype, knoptekst, branding) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-    )
-      .bind(g.team_id, data.avatar, data.positie, data.thema, data.vorm, data.lettertype, data.knoptekst, data.branding ? 1 : 0)
-      .run();
+    await slaStijlOp(DB, g.team_id, data);
     return { ok: true as const, message: "" };
+  });
+
+async function slaStijlOp(DB: NonNullable<ReturnType<typeof bindings>["DB"]>, team: number, d: z.infer<typeof stijlSchema>) {
+  await DB.prepare(
+    "INSERT OR REPLACE INTO ava_stijl (team_id, avatar, positie, thema, vorm, lettertype, knoptekst, branding, knop, grootte, afstand, zij, uitnodiging) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  )
+    .bind(team, d.avatar, d.positie, d.thema, d.vorm, d.lettertype, d.knoptekst, d.branding ? 1 : 0, d.knop, d.grootte, d.afstand, d.zij, d.uitnodiging)
+    .run();
+}
+
+/** Editor ("Customize"): everything the editor shows, in one go. */
+export const haalOntwerp = createServerFn({ method: "GET" }).handler(async () => {
+  const { g, DB } = await sessie();
+  const inst = await instellingenVoorTeam(DB, g.team_id);
+  const site = await DB.prepare("SELECT site_url FROM ava_instellingen WHERE team_id = ?").bind(g.team_id).first<{ site_url: string }>();
+  const { haalStijl, STANDAARD_STIJL } = await import("../stijl.server");
+  const { planVoorTeam } = await import("../limieten.server");
+  const magStijl = (await planVoorTeam(DB, g.team_id)).limieten.eigenStijl;
+  const stijl = (await haalStijl(DB, g.team_id)) ?? { ...STANDAARD_STIJL, branding: !magStijl };
+  return { sleutel: inst.sleutel, naam: inst.naam, kleur: inst.kleur, begroeting: inst.begroeting, bedrijf: inst.bedrijf, site: site?.site_url ?? "", stijl, magStijl };
+});
+
+/** Editor: save colour, greeting, website address and (Pro/Premium) the style. */
+export const bewaarOntwerp = createServerFn({ method: "POST" })
+  .validator((v: unknown) =>
+    z
+      .object({
+        kleur: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+        begroeting: z.string().trim().min(5).max(300),
+        site: z.union([z.literal(""), z.string().trim().max(300).regex(/^https:\/\/[^\s]+$/)]),
+        stijl: stijlSchema,
+      })
+      .parse(v),
+  )
+  .handler(async ({ data }) => {
+    const { g, DB } = await sessie();
+    await instellingenVoorTeam(DB, g.team_id);
+    await DB.prepare("UPDATE ava_instellingen SET kleur = ?, begroeting = ?, site_url = ? WHERE team_id = ?").bind(data.kleur, data.begroeting, data.site, g.team_id).run();
+    const { planVoorTeam } = await import("../limieten.server");
+    if ((await planVoorTeam(DB, g.team_id)).limieten.eigenStijl) await slaStijlOp(DB, g.team_id, data.stijl);
+    return { ok: true as const };
+  });
+
+/** Editor: can this website be shown inside the preview? (Some sites forbid being shown in a frame.) */
+export const controleerSite = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ url: z.string().trim().max(300) }).parse(v))
+  .handler(async ({ data }) => {
+    await sessie();
+    let u: URL;
+    try {
+      u = new URL(/^https?:\/\//i.test(data.url) ? data.url : `https://${data.url}`);
+    } catch {
+      return { ok: false as const, reden: "That doesn't look like a web address." };
+    }
+    u.protocol = "https:";
+    if (!/\./.test(u.hostname) || /^(localhost|127\.|10\.|192\.168\.|169\.254\.)/.test(u.hostname)) return { ok: false as const, reden: "That doesn't look like a public website." };
+    try {
+      const r = await fetch(u.toString(), { redirect: "follow", headers: { "user-agent": "Mozilla/5.0 (Volgo preview check)" }, signal: AbortSignal.timeout(8000) });
+      const xfo = (r.headers.get("x-frame-options") ?? "").toLowerCase();
+      const csp = (r.headers.get("content-security-policy") ?? "").toLowerCase();
+      const fa = /frame-ancestors([^;]*)/.exec(csp)?.[1]?.trim() ?? "";
+      const geblokt = xfo.includes("deny") || xfo.includes("sameorigin") || (fa !== "" && !fa.includes("*") && !fa.includes("thevolgo.app"));
+      const eind = r.url || u.toString();
+      return { ok: true as const, url: eind.startsWith("https://") ? eind : u.toString(), inbedden: !geblokt, bereikbaar: r.ok };
+    } catch {
+      return { ok: true as const, url: u.toString(), inbedden: false, bereikbaar: false };
+    }
   });
 
 // ── A person takes over a conversation from AVA ─────────────────

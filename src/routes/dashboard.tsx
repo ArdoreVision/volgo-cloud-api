@@ -6,6 +6,7 @@ import { Account } from "@/components/dash/account";
 import { Agenda } from "@/components/dash/agenda";
 import { BillingButton } from "@/components/dash/billing-button";
 import { Upsell } from "@/components/dash/upsell";
+import { OntwerpEditor } from "@/components/dash/ontwerp";
 import { Website } from "@/components/dash/website";
 import { AvaInstellen } from "@/components/dash/ava-instellen";
 import { Gesprekken } from "@/components/dash/gesprekken";
@@ -34,7 +35,7 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-type Tab = "home" | "website" | "overzicht" | "verkeer" | "gesprekken" | "agenda" | "team" | "aanvragen" | "instellingen";
+type Tab = "home" | "ontwerp" | "website" | "overzicht" | "verkeer" | "gesprekken" | "agenda" | "team" | "aanvragen" | "instellingen";
 type Sub = "ava" | "stijl" | "installeren" | "meldingen" | "account" | "abonnement";
 const SUBS: [Sub, string][] = [
   ["ava", "AVA"],
@@ -63,6 +64,7 @@ function Icon({ name }: { name: Tab | "uit" | "meer" | "ava" | "abonnement" | "a
   const d: Record<string, string> = {
     home: "M10 3.5l1.6 4.1 4.4.3-3.4 2.8 1.1 4.3L10 12.6 6.3 15l1.1-4.3L4 7.9l4.4-.3z",
     website: "M3 4.5h14v11H3zM3 7.5h14M6 6h.01M8 6h.01",
+    ontwerp: "M4 16l3.5-1 8.3-8.3a1.6 1.6 0 0 0-2.3-2.3L5.2 12.7zM12.5 5.5l2.3 2.3",
     instellingen: "M10 7.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6zM10 2.5l1.3 2 2.3-.6.6 2.3 2.2 1-1 2.2 1 2.2-2.2 1-.6 2.3-2.3-.6-1.3 2-1.3-2-2.3.6-.6-2.3-2.2-1 1-2.2-1-2.2 2.2-1 .6-2.3 2.3.6z",
     meer: "M4.5 10h.01M10 10h.01M15.5 10h.01",
     overzicht: "M3 10.5 10 4l7 6.5V17a1 1 0 0 1-1 1h-3.5v-5h-5v5H4a1 1 0 0 1-1-1z",
@@ -200,6 +202,7 @@ function Dashboard() {
     ["aanvragen", "Requests"],
     ["agenda", "Calendar"],
     ["team", "Team"],
+    ["ontwerp", "Customize"],
     ["website", "Website"],
     ["instellingen", "Settings"],
   ];
@@ -210,6 +213,14 @@ function Dashboard() {
     ["aanvragen", "Leads"],
     ["agenda", "Calendar"],
   ];
+
+  // Customize: a full-screen editor, like Shopify's theme editor.
+  if (tab === "ontwerp")
+    return (
+      <div className="volgo v-dash v-dash--editor" data-thema={thema}>
+        <OntwerpEditor terug={() => setTab("home")} />
+      </div>
+    );
 
   return (
     <div className="volgo v-dash" data-thema={thema} onPointerDown={rimpel}>
@@ -352,7 +363,17 @@ function Dashboard() {
               ))}
             </nav>
             {sub === "ava" ? <AvaInstellen deel="praten" /> : null}
-            {sub === "stijl" ? <AvaInstellen deel="stijl" /> : null}
+            {sub === "stijl" ? (
+              <section className="v-dash__panel v-ed-kaart">
+                <div>
+                  <h2>Design AVA on your own website</h2>
+                  <p className="v-muted">Open the editor to see your website with AVA on it. Change the button, shape, colours, size and position and watch it update live, on desktop and mobile.</p>
+                </div>
+                <button className="v-btn-blauw" onClick={() => setTab("ontwerp")} type="button">
+                  Open the editor
+                </button>
+              </section>
+            ) : null}
             {sub === "installeren" ? <AvaInstellen deel="installeren" /> : null}
             {sub === "meldingen" ? <AvaInstellen deel="meldingen" /> : null}
             {sub === "account" ? <Account g={g} leden={data.leden} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} /> : null}
@@ -417,7 +438,7 @@ function Dashboard() {
         <div className="v-sheet" onClick={() => setMeer(false)} role="presentation">
           <div aria-label="More" className="v-sheet__paneel" onClick={(e) => e.stopPropagation()} role="dialog">
             <span aria-hidden="true" className="v-sheet__greep" />
-            {(["overzicht", "verkeer", "team", "website", "instellingen"] as Tab[]).map((id) => (
+            {(["overzicht", "verkeer", "team", "ontwerp", "website", "instellingen"] as Tab[]).map((id) => (
               <button key={id} onClick={() => setTab(id)} type="button">
                 <Icon name={id} />
                 {tabs.find((t) => t[0] === id)?.[1]}

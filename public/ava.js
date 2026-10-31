@@ -153,10 +153,21 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
 .ok-knoppen button{flex:1;min-width:140px;padding:13px 16px;border:0;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer}\
 .ok-ja{background:var(--c);color:#fff}.ok-nee{background:#f1f3f6;color:#111318}\
 .ok-voet{display:flex;justify-content:space-between;gap:10px;margin-top:12px;font-size:12px;color:#6b7280}.ok-voet a{color:#6b7280}\
-@media (max-width:640px){.links .panel{left:0}.fab span{display:none}.fab{padding:6px}.panel{right:0;bottom:0;width:100%;height:100%;border-radius:0}}\
+.fab .ico{display:none;width:26px;height:26px}\
+.knop-bol .fab{padding:5px}.knop-bol .fab .lbl{display:none}.knop-bol .fab img{width:54px;height:54px}.knop-bol .dot{left:46px}\
+.knop-icoon .fab{padding:0;width:62px;height:62px;justify-content:center;background:var(--c);color:#fff}.knop-icoon .fab img,.knop-icoon .fab .lbl{display:none}.knop-icoon .fab .ico{display:block}.knop-icoon .dot{top:2px;left:44px;background:#e5484d}\
+.zacht .fab{border-radius:22px}.zacht .fab img{border-radius:16px}.zacht .panel{border-radius:22px}.zacht .b{border-radius:16px}.zacht form{border-radius:16px}.zacht .head img{border-radius:12px}.zacht .send{border-radius:12px}\
+.knop-icoon.strak .fab{border-radius:16px}.knop-icoon.zacht .fab{border-radius:22px}\
+.fab,.panel{bottom:var(--off,18px)}.fab,.panel,.teaser{right:var(--zij,18px)}.links .fab,.links .panel,.links .teaser{right:auto;left:var(--zij,18px)}\
+.g-compact .panel{width:min(340px,calc(100vw - 36px));height:min(520px,calc(100vh - 100px))}\
+.g-groot .panel{width:min(430px,calc(100vw - 36px));height:min(690px,calc(100vh - 60px))}\
+.teaser{position:fixed;bottom:calc(var(--off,18px) + 78px);z-index:2147483000;max-width:260px;padding:12px 34px 12px 14px;border-radius:18px;background:#fff;color:#111318;font-size:14.5px;line-height:1.4;box-shadow:0 0 0 1px rgba(17,19,24,.06),0 14px 40px rgba(17,19,24,.18);cursor:pointer;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}\
+.teaser button{position:absolute;top:6px;right:6px;width:24px;height:24px;border:0;border-radius:50%;background:rgba(17,19,24,.06);cursor:pointer;font-size:14px;line-height:1;color:#111318}\
+.strak .teaser{border-radius:12px}.donker .teaser{background:#161b24;color:#f3f5f8}.donker .teaser button{background:rgba(255,255,255,.1);color:#f3f5f8}\
+@media (max-width:640px){.teaser{max-width:calc(100vw - 110px)}.links .panel{left:0}.fab span{display:none}.fab{padding:6px}.panel{right:0;bottom:0;width:100%;height:100%;border-radius:0}}\
 ";
   root.innerHTML = "<style>" + css + "</style><div class=\"w\">" +
-    '<button class="fab" type="button" aria-label="' + T.open + '"><img alt="" src="' + BASE + '/assets/volgo/ava.png"><span class="lbl">' + T.vraag + '</span><i class="dot" hidden></i></button>' +
+    '<button class="fab" type="button" aria-label="' + T.open + '"><img alt="" src="' + BASE + '/assets/volgo/ava.png"><span class="lbl">' + T.vraag + '</span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/></svg><i class="dot" hidden></i></button>' +
     '<section class="panel" role="dialog" aria-label="Chat"><div class="head"><img alt="" src="' + BASE + '/assets/volgo/ava.png"><div><strong class="nm">AVA</strong><small><i></i><span class="sub">' + T.snel + '</span></small></div><button class="x" type="button" aria-label="' + T.sluit + '">×</button></div>' +
     '<div class="log" role="log" aria-live="polite"></div>' +
     '<form><textarea rows="1" maxlength="1500" placeholder="' + T.typ + '" aria-label="' + T.typ + '"></textarea><button class="send" type="submit" aria-label="' + T.stuur + '" disabled>↑</button></form>' +
@@ -321,6 +332,28 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     });
     laad();
   }
+  // Short invitation bubble next to the chat button (optional).
+  var PREVIEW = script.getAttribute("data-preview") === "1";
+  var teaserTekst = "", teaserTimer = 0;
+  function teaserZetten(t) {
+    teaserTekst = String(t || "").slice(0, 90);
+    var oud = $(".teaser"); if (oud) oud.remove();
+    clearTimeout(teaserTimer);
+    if (!teaserTekst) return;
+    var weg = false; try { weg = sessionStorage.getItem("volgo-t-" + KEY) === "1"; } catch (e) {}
+    if (weg && !PREVIEW) return;
+    teaserTimer = setTimeout(function () {
+      if (panel.classList.contains("open") || $(".teaser")) return;
+      var d = document.createElement("div"); d.className = "teaser"; d.setAttribute("role", "button");
+      d.innerHTML = '<span></span><button type="button" aria-label="' + T.sluit + '">×</button>';
+      d.querySelector("span").textContent = teaserTekst;
+      d.addEventListener("click", function (e) {
+        if (e.target.tagName === "BUTTON") { try { sessionStorage.setItem("volgo-t-" + KEY, "1"); } catch (x) {} d.remove(); e.stopPropagation(); return; }
+        d.remove(); open();
+      });
+      $(".w").appendChild(d);
+    }, PREVIEW ? 300 : 5000);
+  }
   function applyConfig(c) {
     config = c;
     host.style.setProperty("--c", c.kleur || "#1677d9");
@@ -330,17 +363,33 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     $(".lbl").textContent = c.knoptekst || T.vraagNaam + c.naam;
     // Own style (Pro and Premium): photo, position, theme, shape, font, no Volgo mention.
     var w = $(".w");
-    w.className = "w" + (c.positie === "links" ? " links" : "") + (c.thema === "donker" ? " donker" : "") + (c.vorm === "strak" ? " strak" : "") + (c.lettertype === "website" ? " wf" : "");
+    var donker = c.thema === "donker" || (c.thema === "auto" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+    w.className = "w" + (c.positie === "links" ? " links" : "") + (donker ? " donker" : "") + (c.vorm === "strak" ? " strak" : c.vorm === "zacht" ? " zacht" : "") + (c.lettertype === "website" ? " wf" : "") +
+      " knop-" + (c.knop || "pil") + " g-" + (c.grootte || "normaal");
+    host.style.setProperty("--off", Math.max(8, Math.min(140, +c.afstand || 18)) + "px");
+    host.style.setProperty("--zij", Math.max(8, Math.min(60, +c.zij || 18)) + "px");
+    teaserZetten(c.uitnodiging || "");
     if (c.lettertype === "website") { try { host.style.fontFamily = getComputedStyle(document.body).fontFamily; } catch (e) {} }
-    if (c.avatar) Array.prototype.forEach.call(root.querySelectorAll(".fab img,.head img"), function (img) { img.src = c.avatar; });
+    var foto = c.avatar || BASE + "/assets/volgo/ava.png";
+    Array.prototype.forEach.call(root.querySelectorAll(".fab img,.head img"), function (img) { if (img.getAttribute("src") !== foto) img.src = foto; });
     var merk = $(".merk"); if (merk) merk.hidden = c.branding === false;
     render();
   }
   host.style.setProperty("--c", "#1677d9");
+  // Live preview in the Volgo dashboard editor: the style comes from the editor, nothing is measured.
+  if (PREVIEW) window.addEventListener("message", function (e) {
+    if (e.origin !== BASE || !e.data || !e.data.volgo) return;
+    if (e.data.volgo === "stijl" && config) applyConfig(Object.assign({}, config, e.data.c));
+    if (e.data.volgo === "open") open();
+    if (e.data.volgo === "dicht") close();
+  });
   post({ actie: "config", sleutel: KEY }).then(function (c) {
     // Subscription ended: remove the chat from the website.
     if (c && c.uit) { host.remove(); return; }
-    if (c && !c.fout) { applyConfig(c); toestemmingVragen(c); }
+    if (c && !c.fout) {
+      if (PREVIEW) { applyConfig(c); try { parent.postMessage({ volgo: "klaar" }, "*"); } catch (e) {} return; }
+      applyConfig(c); toestemmingVragen(c);
+    }
   }).catch(function () {});
   if (!state.msgs.length) setTimeout(function () { var d = $(".dot"); if (d && !panel.classList.contains("open")) d.hidden = false; }, 4000);
 
@@ -426,7 +475,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   }
 
   var chatGeteld = false, berichtGeteld = false;
-  function open() { if (!chatGeteld) { chatGeteld = true; gebeurtenis("chat_open"); } panel.classList.add("open"); fab.classList.add("open"); $(".dot").hidden = true; setTimeout(function () { ta.focus(); }, 250); }
+  function open() { var tz = $(".teaser"); if (tz) tz.remove(); if (!chatGeteld) { chatGeteld = true; gebeurtenis("chat_open"); } panel.classList.add("open"); fab.classList.add("open"); $(".dot").hidden = true; setTimeout(function () { ta.focus(); }, 250); }
   function close() { panel.classList.remove("open"); fab.classList.remove("open"); }
   fab.addEventListener("click", open);
   $(".x").addEventListener("click", close);
