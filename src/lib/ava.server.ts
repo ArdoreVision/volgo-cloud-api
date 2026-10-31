@@ -259,7 +259,7 @@ ${meta.lead_id ? "- Deze bezoeker is al doorgegeven als lead; vraag niet opnieuw
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model: CLAUDE_MODEL || "claude-haiku-5-5", max_tokens: 400, system, tools: [tool], messages: msgs }),
+      body: JSON.stringify({ model: CLAUDE_MODEL || "claude-haiku-5-5", max_tokens: 1200, thinking: { type: "disabled" }, system, tools: [tool], messages: msgs }),
       signal: AbortSignal.timeout(25000),
     });
     if (!res.ok) throw new Error(`Claude ${res.status}`);
@@ -267,14 +267,17 @@ ${meta.lead_id ? "- Deze bezoeker is al doorgegeven als lead; vraag niet opnieuw
   };
 
   let update: Update | null = null;
-  let out = await call();
-  if (out.stop_reason === "tool_use") {
-    const use = out.content.find((b) => b.type === "tool_use");
-    update = (use?.input ?? null) as Update | null;
+  const teksten: string[] = [];
+  for (let ronde = 0; ronde < 3; ronde++) {
+    const out = await call();
+    const tekst = out.content.filter((b) => b.type === "text").map((b) => b.text ?? "").join("\n").trim();
+    if (tekst) teksten.push(tekst);
+    const uses = out.content.filter((b) => b.type === "tool_use");
+    for (const u of uses) update = { ...(update ?? {}), ...((u.input ?? {}) as Update) };
+    if (out.stop_reason !== "tool_use" || !uses.length) break;
     msgs.push({ role: "assistant", content: out.content });
-    msgs.push({ role: "user", content: [{ type: "tool_result", tool_use_id: use?.id ?? "", content: "Bijgewerkt." }] });
-    out = await call();
+    msgs.push({ role: "user", content: uses.map((u) => ({ type: "tool_result", tool_use_id: u.id ?? "", content: "Bijgewerkt." })) });
   }
-  const antwoord = out.content.filter((b) => b.type === "text").map((b) => b.text ?? "").join("\n").trim();
+  const antwoord = teksten.join("\n\n").trim();
   return { antwoord, update };
 }
