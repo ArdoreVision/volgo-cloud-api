@@ -1,0 +1,69 @@
+name: Herkomst testen
+on:
+  workflow_dispatch:
+    inputs:
+      pw: { description: "wachtwoord demo", required: true }
+permissions:
+  contents: write
+jobs:
+  t:
+    runs-on: ubuntu-latest
+    env:
+      PW: ${{ inputs.pw }}
+    steps:
+      - run: |
+          mkdir -p /tmp/pw /tmp/shots && cd /tmp/pw && npm init -y >/dev/null && npm i playwright@1 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
+          cat > t.mjs <<'JS'
+          import { chromium, devices } from 'playwright';
+          const log = (m) => console.log('::warning::HERK ' + m);
+          const b = await chromium.launch();
+          const U = 'https://thevolgo.app';
+          // Visitor 1 accepts, browses and chats (real phone user agent, so not filtered as a bot)
+          {
+            const c = await b.newContext({ ...devices['iPhone 13'], locale: 'en-US' }); const p = await c.newPage();
+            await p.goto(U + '/voorbeeld/contractor?utm_source=google', { waitUntil: 'networkidle' }); await p.waitForTimeout(1500);
+            log('toestemmingsscherm zichtbaar: ' + await p.locator('#volgo-ava .ok-laag').count());
+            await p.screenshot({ path: '/tmp/shots/1-toestemming-mobiel.png' });
+            await p.locator('#volgo-ava .ok-ja').click(); await p.waitForTimeout(1200);
+            await p.evaluate(() => history.pushState({}, '', '/voorbeeld/contractor#services')); await p.waitForTimeout(1500);
+            await p.evaluate(() => history.pushState({}, '', '/voorbeeld/contractor#area')); await p.waitForTimeout(1500);
+            await p.locator('#volgo-ava .fab').click(); await p.waitForTimeout(600);
+            await p.locator('#volgo-ava textarea').fill('Hi, how much is a bathroom remodel? We live in Round Rock.'); await p.keyboard.press('Enter');
+            await p.locator('#volgo-ava .b.a:not(.typ)').nth(1).waitFor({ timeout: 60000 }); await p.waitForTimeout(1500);
+            await c.close();
+          }
+          // Visitor 2 declines
+          {
+            const c = await b.newContext({ ...devices['Pixel 7'] }); const p = await c.newPage();
+            await p.goto(U + '/voorbeeld/contractor', { waitUntil: 'networkidle' }); await p.waitForTimeout(1200);
+            await p.locator('#volgo-ava .ok-nee').click(); await p.waitForTimeout(2500);
+            log('na weigeren scherm weg: ' + ((await p.locator('#volgo-ava .ok-laag').count()) === 0));
+            await c.close();
+          }
+          // Desktop consent screen look
+          {
+            const c = await b.newContext({ viewport: { width: 1440, height: 900 }, userAgent: devices['Desktop Chrome'].userAgent }); const p = await c.newPage();
+            await p.goto(U + '/', { waitUntil: 'networkidle' }); await p.waitForTimeout(2500);
+            await p.screenshot({ path: '/tmp/shots/2-toestemming-landing.png' });
+            await c.close();
+          }
+          // Owner dashboard
+          {
+            const c = await b.newContext({ viewport: { width: 1440, height: 900 } }); const d = await c.newPage();
+            await d.goto(U + '/login'); await d.fill('#email', 'contractor-demo@volgo.test'); await d.fill('#wachtwoord', process.env.PW); await d.locator('.v-auth__btn').click();
+            await d.waitForURL('**/dashboard', { timeout: 20000 }); await d.waitForTimeout(1500);
+            await d.locator('.v-dash__nav button', { hasText: 'Traffic' }).click(); await d.waitForTimeout(2500);
+            log('traffic: ' + (await d.locator('main').innerText()).replace(/\n/g, ' | ').slice(0, 900));
+            await d.screenshot({ path: '/tmp/shots/3-traffic.png', fullPage: true });
+            await d.locator('.v-dash__nav button', { hasText: 'Chats' }).click(); await d.waitForTimeout(2500);
+            await d.locator('.v-dm__item').first().click(); await d.waitForTimeout(2000);
+            await d.locator('.v-dm__bezoek summary').click().catch(() => log('geen bezoekinfo in chat'));
+            await d.waitForTimeout(500);
+            log('chat herkomst: ' + (await d.locator('.v-dm__bezoek').innerText().catch(() => '?')).replace(/\n/g, ' | '));
+            await d.screenshot({ path: '/tmp/shots/4-chat.png' });
+            await c.close();
+          }
+          await b.close();
+          JS
+          node t.mjs
+          cd /tmp/shots && git init -q && git config user.name bot && git config user.email bot@x && git add -A && git commit -qm s && git push -qf https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} HEAD:herkshots

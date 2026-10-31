@@ -164,7 +164,7 @@ jobs:
               const key = await p.locator('input[aria-label="Install code"]').inputValue();
               const sleutel = key.match(/data-key="([^"]+)"/)[1];
               const bctx = await b.newContext({ viewport: { width: 1280, height: 860 } });
-              const p2 = await bctx.newPage(); await p2.goto(U + '/demo/' + sleutel, { waitUntil: 'networkidle' }); await p2.waitForTimeout(2000);
+              const p2 = await bctx.newPage(); await p2.goto(U + '/demo/' + sleutel, { waitUntil: 'networkidle' }); await p2.waitForTimeout(2000); await p2.locator('#volgo-ava .ok-ja').click({ timeout: 6000 }).catch(() => {});
               await p2.locator('#volgo-ava .fab').click(); await p2.waitForTimeout(800);
               await p2.locator('#volgo-ava textarea').fill('Hi, can you send me a quote for a heat pump?'); await p2.keyboard.press('Enter');
               await p2.waitForFunction(() => document.querySelector('#volgo-ava').shadowRoot.querySelectorAll('.b.a:not(.typ)').length >= 2, null, { timeout: 40000 });

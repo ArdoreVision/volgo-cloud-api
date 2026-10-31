@@ -18,7 +18,7 @@ jobs:
           for (const [n, vp, m] of [['d', { width: 1440, height: 900 }, false], ['m', { width: 390, height: 844 }, true]]) {
             const c = await b.newContext({ viewport: vp, deviceScaleFactor: m ? 2 : 1, isMobile: m, hasTouch: m });
             const p = await c.newPage(); p.on('pageerror', (e) => log('JS-fout ' + e.message));
-            await p.goto('https://thevolgo.app/', { waitUntil: 'networkidle' }); await p.waitForTimeout(2000);
+            await p.goto('https://thevolgo.app/', { waitUntil: 'networkidle' }); await p.waitForTimeout(2000); await p.locator('#volgo-ava .ok-ja').click({ timeout: 6000 }).catch(() => {});
             await p.locator('.v-hero__actions a', { hasText: '7-day' }).click();
             await p.locator('#volgo-ava .b.a:not(.typ)').nth(1).waitFor({ timeout: 60000 });
             await p.waitForTimeout(800);
