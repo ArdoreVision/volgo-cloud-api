@@ -17,8 +17,9 @@ export function Wereldbol({ maat = 260 }: { maat?: number }) {
     ctx.scale(dpr, dpr);
 
     // Evenly spread dots on a sphere (Fibonacci lattice), thinned out to suggest land masses.
-    const N = 1400;
-    const punten: [number, number, number][] = [];
+    const N = 1800;
+    // [x, y, z, land]: sea dots are faint, land dots are brighter and bigger.
+    const punten: [number, number, number, number][] = [];
     const gouden = Math.PI * (3 - Math.sqrt(5));
     const land = (lat: number, lon: number) =>
       Math.sin(lon * 1.7 + 0.6) * Math.cos(lat * 2.3) + Math.sin(lat * 3.1 + lon * 0.9) * 0.6 + Math.cos(lon * 3.3 - lat) * 0.35 > 0.15;
@@ -28,11 +29,12 @@ export function Wereldbol({ maat = 260 }: { maat?: number }) {
       const t = gouden * i;
       const x = Math.cos(t) * r;
       const z = Math.sin(t) * r;
-      if (land(Math.asin(y), Math.atan2(z, x))) punten.push([x, y, z]);
+      punten.push([x, y, z, land(Math.asin(y), Math.atan2(z, x)) ? 1 : 0]);
     }
     // A few "lead" pulses at fixed places on the globe.
     const pings = Array.from({ length: 7 }, (_, i) => {
-      const p = punten[(i * 197 + 41) % punten.length]!;
+      const landPunten = punten.filter((q) => q[3]);
+      const p = landPunten[(i * 197 + 41) % landPunten.length]!;
       return { p, fase: i * 0.9 };
     });
 
@@ -69,7 +71,7 @@ export function Wereldbol({ maat = 260 }: { maat?: number }) {
       const sinA = Math.sin(hoek);
       const cosK = Math.cos(kanteling);
       const sinK = Math.sin(kanteling);
-      const proj = ([x, y, z]: [number, number, number]) => {
+      const proj = ([x, y, z]: [number, number, number, number?]) => {
         const x1 = x * cosA + z * sinA;
         const z1 = -x * sinA + z * cosA;
         const y2 = y * cosK - z1 * sinK;
@@ -86,11 +88,16 @@ export function Wereldbol({ maat = 260 }: { maat?: number }) {
 
       for (const p of punten) {
         const [sx, sy, z] = proj(p);
-        if (z < -0.15) continue;
-        const a = Math.max(0, (z + 0.15) / 1.15);
+        if (z < -0.1) continue;
+        const a = Math.max(0, (z + 0.1) / 1.1);
         ctx.beginPath();
-        ctx.arc(sx, sy, 0.6 + a * 1.05, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${kleur}, ${0.12 + a * 0.75})`;
+        if (p[3]) {
+          ctx.arc(sx, sy, 0.8 + a * 1.2, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${kleur}, ${0.18 + a * 0.75})`;
+        } else {
+          ctx.arc(sx, sy, 0.5 + a * 0.5, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${kleur}, ${0.05 + a * 0.16})`;
+        }
         ctx.fill();
       }
 

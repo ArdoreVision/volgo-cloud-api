@@ -1464,7 +1464,17 @@ html:not(.v-js) .vx-tijd__lijst li > div { opacity: 1; }
 html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b; }
 .v-dash[data-thema="donker"] .v-dash__side { background: #10161f; border-color: var(--line); }
 .v-dash[data-thema="donker"] .v-dash__avatar { background: #253043; color: #cfe2ff; }
-.v-dash[data-thema="donker"] input, .v-dash[data-thema="donker"] textarea, .v-dash[data-thema="donker"] select { color: var(--ink); }
+.v-dash[data-thema="donker"] input, .v-dash[data-thema="donker"] textarea, .v-dash[data-thema="donker"] select:not([class*="v-pill--"]) { color: var(--ink); }
+/* Night mode: things that are dark-on-light by day become light-on-dark, and stay readable */
+.v-dash[data-thema="donker"] :is(.v-addbtn, .v-btn-dark, .v-chatapp__invite, .v-auth__btn) { background: #eef1f6; color: #0b0f15; }
+.v-dash[data-thema="donker"] .v-stat--win { background: linear-gradient(150deg, #1d4ed8, #2563eb); }
+.v-dash[data-thema="donker"] .v-seg { background: #1c2430; }
+.v-dash[data-thema="donker"] .v-seg button[aria-selected="true"] { background: #2b3544; color: #fff; box-shadow: none; }
+.v-dash[data-thema="donker"] .v-pill--afspraak { background: rgba(139, 92, 246, 0.18); color: #c4b5fd; }
+.v-dash[data-thema="donker"] .v-pill--klant { background: rgba(34, 197, 94, 0.16); color: #6ee7a0; }
+.v-dash[data-thema="donker"] .v-pill--nieuw { background: rgba(77, 156, 255, 0.16); color: #8cc0ff; }
+.v-dash[data-thema="donker"] .v-pill--verloren { background: #1c2430; color: var(--muted); }
+.v-dash[data-thema="donker"] select option { background: #161c26; color: #eef1f6; }
 .v-dash[data-thema="donker"] .v-mnav, .v-dash[data-thema="donker"] .v-sheet__paneel { background: rgba(16, 22, 31, 0.94); border-color: var(--line); }
 @media (max-width: 900px) { .v-dash[data-thema="donker"] .v-dash__side { background: rgba(16, 22, 31, 0.9); } }
 .v-dash[data-thema="donker"] .v-btn-dark, .v-dash[data-thema="donker"] .v-cta-primary { background: #eef1f6; color: #0b0f15; }
