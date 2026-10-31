@@ -1140,3 +1140,19 @@ a.v-plan__cta { display: block; text-align: center; text-decoration: none; box-s
   .v-dm__berichten { padding: 14px 12px 8px; }
   .v-dm__invoer { margin: 6px 10px 10px; }
 }
+
+/* Admin: revenue */
+.v-admin__test { margin: 0 0 14px; padding: 12px 16px; border-radius: 14px; background: #fff7e6; color: #7a5200; font-size: 14px; }
+.v-admin__omzetcijfers { display: grid; grid-template-columns: 1.4fr repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.v-admin__omzetcijfers div { background: #fff; border-radius: 18px; padding: 18px; }
+.v-admin__omzetcijfers span { display: block; font-size: 13px; color: var(--muted); }
+.v-admin__omzetcijfers strong { display: block; margin-top: 4px; font-family: var(--display); font-size: 1.8rem; font-weight: 600; }
+.v-admin__omzetcijfers small { display: block; margin-top: 2px; font-size: 12.5px; color: var(--muted); }
+.v-admin__omzetcijfers .is-groot { background: var(--ink); color: #fff; }
+.v-admin__omzetcijfers .is-groot span { color: rgba(255, 255, 255, 0.7); }
+.v-admin__omzetcijfers .is-groot strong { font-size: 2.3rem; }
+.v-admin__omzetcijfers .is-rood strong { color: var(--bad); }
+.v-admin__h2 { margin: 0 0 8px; font-size: 1.15rem; }
+.v-admin__rij--betaal { grid-template-columns: 2.2fr 0.9fr 0.9fr 1.1fr 1fr; min-width: 640px; }
+.v-admin__link { color: var(--accent); text-decoration: none; font-weight: 500; }
+@media (max-width: 900px) { .v-admin__omzetcijfers { grid-template-columns: repeat(2, minmax(0, 1fr)); } .v-admin__omzetcijfers .is-groot { grid-column: 1 / -1; } }

@@ -40,6 +40,10 @@ jobs:
           await c.addCookies([{ name: 'volgo_sessie', value: process.env.T2, domain: 'thevolgo.app', path: '/', httpOnly: true, secure: true, sameSite: 'Lax' }]);
           const p = await c.newPage(); await p.goto(process.env.U + '/admin', { waitUntil: 'networkidle' });
           console.log('::warning::ADMIN pagina ' + new URL(p.url()).pathname + ' | ' + (await p.locator('.v-admin__cijfers').innerText().catch(() => 'geen')).replace(/\n/g, ' '));
+          await p.waitForSelector('.v-admin__omzetcijfers, .v-admin__omzet .v-err', { timeout: 30000 }).catch(() => {});
+          console.log('::warning::ADMIN omzet | ' + (await p.locator('.v-admin__omzet').innerText().catch(() => 'geen')).replace(/\n/g, ' | ').slice(0, 500));
+          await p.screenshot({ path: '/tmp/admin-omzet.png' });
+          await p.locator('.v-instel__nav button', { hasText: 'Website requests' }).click(); await p.waitForTimeout(500);
           await p.screenshot({ path: '/tmp/admin-aanvragen.png' });
           await p.locator('.v-instel__nav button', { hasText: 'Customers' }).click(); await p.waitForTimeout(500); await p.screenshot({ path: '/tmp/admin-klanten.png' });
           await b.close();
