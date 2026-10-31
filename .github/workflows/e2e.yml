@@ -52,6 +52,7 @@ jobs:
             await p.fill('#naam', 'Test Klant'); await p.fill('#bedrijf', 'Testbedrijf BV'); await p.fill('#email', mail); await p.fill('#wachtwoord', 'geheim12345');
             await p.locator('.v-auth__btn').click();
             await p.waitForURL('**/inloggen**');
+            await p.waitForSelector('text=Je account is aangemaakt');
             await p.fill('#email', mail); await p.fill('#wachtwoord', 'geheim12345'); await p.locator('.v-auth__btn').click();
             await p.waitForURL('**/dashboard', { timeout: 20000 }).catch(async () => { log('login fout: ' + p.url() + ' | ' + (await p.locator('main').innerText()).replace(/\n/g, ' / ').slice(0, 300)); await shot(p, 'loginfout'); throw new Error('stop'); });
             await p.waitForSelector('.v-home__groet');
