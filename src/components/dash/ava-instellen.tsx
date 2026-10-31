@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+
+import { AgendaInstellingen } from "./agenda-instellingen";
 import type { FormEvent } from "react";
 
 import { bewaarAva, bewaarMeldingen, haalAva } from "@/lib/api/ava.functions";
@@ -169,6 +171,7 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
           </div>
         </form>
       </section>
+      <AgendaInstellingen inst={ava.inst} />
     </>
   );
 }

@@ -47,6 +47,37 @@ export const bewaarAva = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/** Appointments AVA lets visitors book in the chat: on/off, opening days and hours, duration, kinds and time zone. */
+export const bewaarAgenda = createServerFn({ method: "POST" })
+  .validator((v: unknown) =>
+    z
+      .object({
+        boeken: z.boolean(),
+        open_dagen: z.array(z.number().int().min(0).max(6)).min(1).max(7),
+        open_van: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+        open_tot: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+        afspraak_duur: z.number().int().min(15).max(240),
+        afspraak_soorten: z.array(z.enum(["bellen", "langs", "kantoor"])).min(1).max(3),
+        tijdzone: z.string().max(60),
+      })
+      .refine((d) => d.open_van < d.open_tot, "Opening time must be before closing time"),
+  )
+  .handler(async ({ data }) => {
+    const { g, DB } = await sessie();
+    try {
+      new Intl.DateTimeFormat("en", { timeZone: data.tijdzone });
+    } catch {
+      return { ok: false, message: "Unknown time zone." };
+    }
+    await instellingenVoorTeam(DB, g.team_id);
+    await DB.prepare(
+      "UPDATE ava_instellingen SET boeken = ?, open_dagen = ?, open_van = ?, open_tot = ?, afspraak_duur = ?, afspraak_soorten = ?, tijdzone = ? WHERE team_id = ?",
+    )
+      .bind(data.boeken ? 1 : 0, [...new Set(data.open_dagen)].sort().join(","), data.open_van, data.open_tot, data.afspraak_duur, [...new Set(data.afspraak_soorten)].join(","), data.tijdzone, g.team_id)
+      .run();
+    return { ok: true, message: "Saved." };
+  });
+
 export const bewaarMeldingen = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ chat: z.boolean(), lead: z.boolean(), email: z.boolean(), heet_mail: z.boolean(), samenvatting: z.boolean() }).parse(v))
   .handler(async ({ data }) => {
