@@ -5,7 +5,7 @@
 <body><iframe id="site" title="Your website" referrerpolicy="no-referrer"></iframe>
 <script>
 (function () {
-  var q = new URLSearchParams(location.search), u = q.get("u") || "", k = (q.get("k") || "").replace(/[^a-zA-Z0-9]/g, "");
+  var q = new URLSearchParams(location.search), u = q.get("u") || "", k = (q.get("k") || "").replace(/[^a-zA-Z0-9_-]/g, "");
   document.getElementById("site").src = /^https:\/\/[^\s]+$/.test(u) ? u : "/voorbeeld/jouw-site.html";
   if (!k) return;
   var s = document.createElement("script"); s.src = "/ava.js"; s.setAttribute("data-key", k); s.setAttribute("data-preview", "1");
