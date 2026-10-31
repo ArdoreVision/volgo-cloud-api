@@ -19,6 +19,11 @@ jobs:
           T1=$(openssl rand -hex 32); H1=$(printf '%s' "$T1" | sha256sum | cut -d' ' -f1)
           q "INSERT INTO sessies (token_hash, gebruiker_id, verloopt) SELECT '$H1', id, datetime('now','+10 minutes') FROM gebruikers WHERE email='demo@volgo.test'" > /dev/null
           echo "::warning::ADMIN gewone klant -> $(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' -b volgo_sessie=$T1 $U/admin)"
+          if [ -z "$ADMIN_ID" ]; then
+            q "UPDATE gebruikers SET email='volgo.app@outlook.com' WHERE email='demo@volgo.test'" > /dev/null
+            echo "TERUG=1" >> $GITHUB_ENV
+            ADMIN_ID=$(q "SELECT id FROM gebruikers WHERE email='volgo.app@outlook.com'" | jq -r '.[0].results[0].id')
+          fi
           if [ -n "$ADMIN_ID" ]; then
             T2=$(openssl rand -hex 32); H2=$(printf '%s' "$T2" | sha256sum | cut -d' ' -f1)
             q "INSERT INTO sessies (token_hash, gebruiker_id, verloopt) VALUES ('$H2', $ADMIN_ID, datetime('now','+10 minutes'))" > /dev/null
@@ -43,7 +48,9 @@ jobs:
       - name: Opruimen en bewaren
         if: always()
         run: |
-          cd /tmp; [ -n "$H2" ] && npx -y wrangler@4 d1 execute volgo-db --remote --command "DELETE FROM sessies WHERE token_hash = '$H2'" > /dev/null 2>&1 || true
+          cd /tmp; [ "$TERUG" = 1 ] && npx -y wrangler@4 d1 execute volgo-db --remote --command "UPDATE gebruikers SET email='demo@volgo.test' WHERE email='volgo.app@outlook.com'" > /dev/null 2>&1
+          echo "::warning::ADMIN demo terug: $(npx -y wrangler@4 d1 execute volgo-db --remote --json --command "SELECT COUNT(*) n FROM gebruikers WHERE email='demo@volgo.test'" 2>/dev/null | jq -r '.[0].results[0].n')"
+          [ -n "$H2" ] && npx -y wrangler@4 d1 execute volgo-db --remote --command "DELETE FROM sessies WHERE token_hash = '$H2'" > /dev/null 2>&1 || true
           cd $GITHUB_WORKSPACE 2>/dev/null || cd /tmp
           git init -q /tmp/r && cd /tmp/r && git config user.name bot && git config user.email bot@x
           cp /tmp/admin-*.png . 2>/dev/null || true
