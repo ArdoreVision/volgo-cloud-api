@@ -33,6 +33,8 @@ type AppEnv = {
   // Optioneel: afzender voor mails, bv. "Volgo <hallo@jouwdomein.nl>".
   MAIL_FROM?: string;
   MAIL_REPLY_TO?: string;
+  /** "aan" = Stripe Tax rekent btw automatisch (NL 21%, EU-bedrijven verlegd, buiten de EU geen btw). */
+  BTW?: string;
   // Comma-separated emails that may open /admin.
   ADMIN_EMAILS?: string;
   APP_SLUG?: string;

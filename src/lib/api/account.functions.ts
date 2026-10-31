@@ -66,6 +66,7 @@ export const startBetaling = createServerFn({ method: "POST" })
             u.set("items[0][price_data][unit_amount]", String(plan.prijs));
             u.set("items[0][price_data][recurring][interval]", "month");
             u.set("proration_behavior", "create_prorations");
+            if (bindings().BTW === "aan") u.set("automatic_tax[enabled]", "true");
             u.set("metadata[plan]", plan.id);
             await stripe(`subscriptions/${encodeURIComponent(huidig.stripe_abonnement)}`, { method: "POST", body: u });
             await DB.prepare("UPDATE gebruikers SET plan = ?, stripe_check = NULL WHERE id = ?").bind(plan.id, ik.team_id).run();
@@ -100,6 +101,13 @@ export const startBetaling = createServerFn({ method: "POST" })
       b.set("adaptive_pricing[enabled]", "false"); // altijd in euro's
       b.set("billing_address_collection", "required");
       b.set("tax_id_collection[enabled]", "true");
+      if (bindings().BTW === "aan") {
+        b.set("automatic_tax[enabled]", "true");
+        if (bestaand?.stripe_klant) {
+          b.set("customer_update[address]", "auto");
+          b.set("customer_update[name]", "auto");
+        }
+      }
       b.set("success_url", `${origin()}/signup?session_id={CHECKOUT_SESSION_ID}`);
       b.set("cancel_url", `${origin()}/pricing`);
       try {
