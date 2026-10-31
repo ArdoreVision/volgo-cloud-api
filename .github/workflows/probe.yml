@@ -7,11 +7,12 @@ jobs:
       STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
     steps:
       - run: |
-          for u in https://thevolgo.app/ https://www.thevolgo.app/ https://thevolgo.app/og.png https://volgo.damienhanssens.workers.dev/; do
-            echo "::warning::PROBE $u $(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' --max-time 20 $u)"
-          done
-          r=$(curl -s https://api.stripe.com/v1/balance -u "$STRIPE_SECRET_KEY:")
-          echo "::warning::STRIPE sleutel begint ${STRIPE_SECRET_KEY:0:8} lengte ${#STRIPE_SECRET_KEY} | $(echo "$r" | head -c 300 | tr '\n' ' ')"
-          r=$(curl -s https://api.stripe.com/v1/checkout/sessions -u "$STRIPE_SECRET_KEY:" -d mode=subscription -d locale=nl -d "line_items[0][quantity]=1" -d "line_items[0][price_data][currency]=eur" -d "line_items[0][price_data][unit_amount]=14995" -d "line_items[0][price_data][recurring][interval]=month" -d "line_items[0][price_data][product_data][name]=Volgo Start" -d "subscription_data[trial_period_days]=7" -d "metadata[plan]=start" -d "success_url=https://thevolgo.app/signup?session_id={CHECKOUT_SESSION_ID}" -d "cancel_url=https://thevolgo.app/pricing" -d "managed_payments[enabled]=false" -d billing_address_collection=required -d "tax_id_collection[enabled]=true")
-          echo "::warning::CHECKOUT $(echo "$r" | grep -o '"message": *"[^"]*"\|"url": *"[^"]*"' | head -3 | tr '\n' ' ')"
-          echo "::warning::DNS $(dig +short thevolgo.app | tr '\n' ' ')"
+          echo "::warning::STRIPE soort ${STRIPE_SECRET_KEY:0:8} lengte ${#STRIPE_SECRET_KEY}"
+          a=$(curl -s https://api.stripe.com/v1/account -u "$STRIPE_SECRET_KEY:")
+          echo "::warning::ACCOUNT $(echo "$a" | jq -c '{id,charges_enabled,payouts_enabled,details_submitted,country,default_currency,naam:.business_profile.name,afschrift:.settings.payments.statement_descriptor,url:.business_profile.url,eisen:.requirements.currently_due,fout:.error.message}')"
+          p=$(curl -s "https://api.stripe.com/v1/payment_method_configurations?limit=3" -u "$STRIPE_SECRET_KEY:")
+          echo "::warning::METHODES $(echo "$p" | jq -c '[.data[]? | {naam:.name, kaart:.card.available, ideal:.ideal.available, sepa:.sepa_debit.available, bancontact:.bancontact.available}]')"
+          c=$(curl -s "https://api.stripe.com/v1/billing_portal/configurations?limit=5" -u "$STRIPE_SECRET_KEY:")
+          echo "::warning::PORTAL $(echo "$c" | jq -c '[.data[]? | {id, meta:.metadata}]')"
+          s=$(curl -s "https://api.stripe.com/v1/subscriptions?limit=5&status=all" -u "$STRIPE_SECRET_KEY:")
+          echo "::warning::ABO $(echo "$s" | jq -c '[.data[]? | {status, livemode}]')"
