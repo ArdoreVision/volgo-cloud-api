@@ -16,10 +16,10 @@ jobs:
           TOKEN=$(openssl rand -hex 32)
           HASH=$(printf '%s' "$TOKEN" | sha256sum | cut -d' ' -f1)
           echo "TOKEN=$TOKEN" >> $GITHUB_ENV
-          npx -y wrangler@4 d1 execute volgo-db --remote --command "UPDATE gebruikers SET naam='Damien Demo' WHERE email='demo@volgo.test'; INSERT INTO sessies (token_hash, gebruiker_id, verloopt) SELECT '$HASH', id, datetime('now','+1 day') FROM gebruikers WHERE email='demo@volgo.test';" > /dev/null
+          npx -y wrangler@4 d1 execute volgo-db --remote --command "UPDATE gebruikers SET naam='Damien Demo' WHERE email='demo@volgo.test'; INSERT INTO sessies (token_hash, gebruiker_id, verloopt) SELECT '$HASH', id, datetime('now','+1 day') FROM gebruikers WHERE email='demo@volgo.test';" > w.log 2>&1 || { tail -8 w.log | sed 's/^/::error::/'; exit 1; }
       - name: Browser
         run: |
-          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y >/dev/null && npm i playwright@1 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
+          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y >/dev/null && { npm i playwright@1 && npx playwright install --with-deps chromium; } > i.log 2>&1 || { tail -8 i.log | sed 's/^/::error::/'; exit 1; }
           cat > t.mjs <<'JS'
           import { chromium } from 'playwright';
           const U = process.env.U, T = process.env.TOKEN;
@@ -50,7 +50,7 @@ jobs:
           }
           await b.close();
           JS
-          mkdir -p /tmp/shots && node t.mjs
+          mkdir -p /tmp/shots && node t.mjs 2>&1 | tee n.log; c=${PIPESTATUS[0]}; [ $c = 0 ] || { grep -v '^::' n.log | tail -8 | sed 's/^/::error::/'; exit 1; }
       - name: Screenshots bewaren
         if: always()
         run: |
