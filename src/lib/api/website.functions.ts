@@ -49,7 +49,7 @@ export const stuurWebsiteAanvraag = createServerFn({ method: "POST" })
       mailOpmaak(
         `Website request from ${esc(g.bedrijf)}`,
         `<p><strong>${esc(g.naam)}</strong> · ${esc(g.email)}${data.telefoon ? ` · ${esc(data.telefoon)}` : ""}</p>
-         <p>Prefers: <strong>${data.contact === "call" ? "a call (will DM BOOK on Instagram)" : "chat / email"}</strong> · Plan: ${plan.naam}</p>
+         <p>Prefers: <strong>${data.contact === "call" ? "a call (will DM PLAN on Instagram)" : "chat / email"}</strong> · Plan: ${plan.naam}</p>
          <p>Domain: ${esc(data.domein || "none yet")} · Current site: ${esc(data.huidige_site || "none")}</p>
          <p style="white-space:pre-wrap;background:#f5f7fa;padding:12px;border-radius:10px">${esc(data.wensen)}</p>`,
       ),

@@ -1523,3 +1523,8 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .v-home__msg { animation: v-rol 0.45s var(--ease) both; }
 @media (max-width: 900px) { .v-home__bol { max-height: 200px; } .v-home__bol .v-bol { width: 190px !important; height: 190px !important; } }
 @media (prefers-reduced-motion: reduce) { .v-dash__main, .v-home__chat, .v-home__msg, .v-home__bol { animation: none; } }
+.v-dash .v-book { background: linear-gradient(135deg, rgba(225, 48, 108, 0.07), rgba(249, 160, 63, 0.07)); }
+.v-dash .v-book button.v-book__knop { border: 0; font: inherit; font-weight: 600; cursor: pointer; }
+.v-dash[data-thema="donker"] .v-book { box-shadow: 0 0 0 1px #3a2a33; }
+.v-dash[data-thema="donker"] .v-book__woord { background: #222a36; box-shadow: 0 0 0 1px #4a3442; }
+.v-dash[data-thema="donker"] .v-book__knop { background: #eef1f6; color: #0b0f15; }

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
+import { openPlanDm } from "./plan-call";
+
 /** Round profile picture, or initials when there is no photo. */
 export function ProfielFoto({ naam, foto, maat = 36 }: { naam: string; foto?: string | null; maat?: number }) {
   const letters =
@@ -50,12 +52,14 @@ type G = { naam: string; bedrijf: string; email: string; foto?: string; functie?
 export function ProfielKnop({
   g,
   planNaam,
+  planCall = false,
   admin,
   openTab,
   loguit,
 }: {
   g: G;
   planNaam: string;
+  planCall?: boolean;
   admin: boolean;
   openTab: (t: string) => void;
   loguit: () => void;
@@ -104,6 +108,18 @@ export function ProfielKnop({
           <button onClick={() => ga("ava")} role="menuitem" type="button">
             Settings
           </button>
+          {planCall ? (
+            <button
+              onClick={() => {
+                setOpen(false);
+                openPlanDm();
+              }}
+              role="menuitem"
+              type="button"
+            >
+              Plan a call with Volgo <em>PLAN</em>
+            </button>
+          ) : null}
           {admin ? (
             <a href="/admin" role="menuitem">
               Volgo admin

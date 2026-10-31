@@ -16,6 +16,7 @@ import { warmteLabel } from "@/components/dash/util";
 import { VolgoMark } from "@/components/volgo/logo";
 import { haalDashboard, uitloggen, zetLeadStatus } from "@/lib/api/account.functions";
 import { isAdmin } from "@/lib/api/admin.functions";
+import { PlanCall } from "@/components/dash/plan-call";
 import { ProfielFoto, ProfielKnop } from "@/components/dash/profiel";
 import { checkNieuw } from "@/lib/api/ava.functions";
 import { PLANS, isPlan } from "@/lib/plans";
@@ -257,7 +258,7 @@ function Dashboard() {
             </svg>
           </span>
         </button>
-        <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} />
+        <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={plan.id !== "start"} planNaam={plan.naam} />
       </div>
       <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${tab === "team" && plan.limieten.teamChat ? " v-dash__main--full" : ""}${tab === "home" ? " v-dash__main--home" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
@@ -352,6 +353,11 @@ function Dashboard() {
             {sub === "account" ? <Account g={g} leden={data.leden} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} /> : null}
             {sub === "abonnement" ? (
               <>
+            {plan.id !== "start" ? (
+              <section className="v-dash__panel">
+                <PlanCall />
+              </section>
+            ) : null}
             <section className="v-dash__panel v-plan-card">
               <p className="v-plan-card__name">Volgo {plan.naam}</p>
               <p className="v-plan-card__price">€{plan.prijsTekst} <span>per month, excl. VAT</span></p>

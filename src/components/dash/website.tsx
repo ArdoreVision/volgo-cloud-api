@@ -1,9 +1,9 @@
-import { BookCall } from "@/components/volgo/book-call";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
 import { haalWebsite, stuurWebsiteAanvraag } from "@/lib/api/website.functions";
 
+import { PlanCall } from "./plan-call";
 import { Upsell } from "./upsell";
 
 type Data = Awaited<ReturnType<typeof haalWebsite>>;
@@ -94,7 +94,7 @@ export function Website() {
           </ol>
           <div className="v-website__samenvatting">
             <p>
-              <strong>Your request</strong> · we'll reach you by {a.contact === "call" ? "a call (send BOOK in a DM to @thevolgo.app on Instagram to pick a time)" : "chat and email"}
+              <strong>Your request</strong> · we'll reach you by {a.contact === "call" ? "a call (send PLAN in a DM to @thevolgo.app on Instagram to pick a time)" : "chat and email"}
               {a.domein ? ` · domain: ${a.domein}` : ""}
             </p>
             <p className="v-website__wensen">{a.wensen}</p>
@@ -127,7 +127,7 @@ export function Website() {
                 </button>
               </div>
             </div>
-            {contact === "call" ? <BookCall compact /> : null}
+            {contact === "call" ? <PlanCall compact /> : null}
             <div className="v-row">
               <div className="v-fld">
                 <label htmlFor="w-domein">

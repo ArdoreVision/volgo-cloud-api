@@ -7,3 +7,6 @@ export const BOEK_WOORD = "BOOK";
 /** Volgo's own social accounts (footer). */
 export const VOLGO_INSTAGRAM = "https://www.instagram.com/thevolgo.app/";
 export const VOLGO_X = "https://x.com/VolgoApp";
+
+/** In the dashboard (Pro and Premium) customers plan a call by sending PLAN in an Instagram DM. */
+export const PLAN_WOORD = "PLAN";
