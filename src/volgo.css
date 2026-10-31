@@ -1179,3 +1179,4 @@ a.v-plan__cta { display: block; text-align: center; text-decoration: none; box-s
 .v-footer__rechts { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 22px; }
 .v-footer__rechts .v-footer__social { padding-left: 22px; border-left: 1px solid var(--line); }
 @media (max-width: 700px) { .v-footer__rechts .v-footer__social { padding-left: 0; border-left: 0; } }
+.v-pricing__boek .v-h2 { max-width: none; margin-inline: auto; text-align: center; }
