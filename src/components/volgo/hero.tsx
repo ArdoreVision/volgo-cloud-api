@@ -15,7 +15,7 @@ export function Hero() {
             ready to buy at the top of your list. You spend less time on emails and calls, and only call the buyers.
           </p>
           <div className="v-hero__actions">
-            <a className="v-cta-primary" href="/pricing">
+            <a className="v-cta-primary" data-ava-ask="I'd like to start the 7-day free trial. Which plan fits my business?" href="/pricing">
               Start 7-day free trial
             </a>
             <a className="v-cta-ghost" href="#demo">

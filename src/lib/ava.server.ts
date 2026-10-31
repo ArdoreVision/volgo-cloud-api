@@ -456,7 +456,7 @@ ${boekTekst}`;
     for (const u of uses) {
       if (u.name === "agenda_tonen" && boeken) {
         agenda = true;
-        resultaten.push({ type: "tool_result", tool_use_id: u.id ?? "", content: "The calendar is now shown under your message. In one or two short sentences, tell the visitor to pick a day and time below." });
+        resultaten.push({ type: "tool_result", tool_use_id: u.id ?? "", content: "The calendar is now shown under your message and asks for their details itself. In one or two short sentences, tell the visitor to pick a day and time below. Don't ask for name, phone or email now." });
       } else {
         update = { ...(update ?? {}), ...((u.input ?? {}) as Update) };
         resultaten.push({ type: "tool_result", tool_use_id: u.id ?? "", content: "Updated." });

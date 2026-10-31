@@ -88,7 +88,7 @@ export function agendaInstructies(inst: Inst) {
   const soorten = soortenVan(inst).map((s) => SOORTEN[s].toLowerCase()).join(", ");
   return `APPOINTMENTS
 - Visitors can book a ${inst.afspraak_duur}-minute appointment themselves (${soorten}) in a small calendar inside this chat. It only shows moments that are still free.
-- As soon as someone wants an appointment, a call back, a visit, a measuring visit or a quote visit, call the agenda_tonen tool. Then tell them in one or two short, friendly sentences that they can pick a day and time below, in 3 easy steps. Never list dates or times yourself and never promise a time.
+- As soon as someone wants an appointment, a call back, a visit, a measuring visit or a quote visit, call the agenda_tonen tool. Then tell them in one or two short, friendly sentences that they can pick a day and time below, in 3 easy steps. Don't ask for their name or contact details then: the calendar asks for them. Never list dates or times yourself and never promise a time.
 - If they say the calendar doesn't work for them, take their name and phone number so the team can call to plan (and update the conversation as usual).`;
 }
 

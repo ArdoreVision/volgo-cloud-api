@@ -60,6 +60,7 @@
 .log{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:8px}\
 .b{max-width:84%;padding:10px 14px;border-radius:20px;font-size:15px;line-height:1.45;white-space:pre-line;word-break:break-word;animation:pop .3s cubic-bezier(.34,1.56,.64,1)}\
 .b.a{align-self:flex-start;background:#fff;color:#111318;box-shadow:0 1px 2px rgba(17,19,24,.08);border-bottom-left-radius:6px}\
+.b a{color:var(--c);font-weight:600;text-decoration:underline;text-underline-offset:2px;word-break:break-all}\
 .b.u{align-self:flex-end;background:var(--c);color:#fff;border-bottom-right-radius:6px}\
 .b.h{align-self:flex-start;background:#fff;color:#111318;box-shadow:0 1px 2px rgba(17,19,24,.08);border-bottom-left-radius:6px;border-left:3px solid #1f9d55}\
 .b.h b{display:block;font-size:12px;color:#1f9d55;margin-bottom:2px}\
@@ -126,6 +127,8 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
 .kal .tz{margin:10px 0 0;font-size:12px;color:#6b7280}\
 .kal .sam{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;background:#eef4ff;margin-bottom:12px;font-size:14px}\
 .kal .sam svg{flex:none;width:22px;height:22px;color:var(--c)}\
+.kal form{display:block;margin:0;padding:0;background:none;box-shadow:none;border-radius:0}\
+.kal form:focus-within{background:none;box-shadow:none}\
 .kal label{display:block;margin:0 0 8px;font-size:12.5px;color:#6b7280;font-weight:600}\
 .kal input{display:block;width:100%;margin-top:4px;padding:11px 12px;border:0;border-radius:12px;background:#f5f7fa;box-shadow:inset 0 0 0 1px #e7eaf0;font-size:16px;color:#111318;outline:none}\
 .kal input:focus{background:#fff;box-shadow:inset 0 0 0 2px var(--c)}\
@@ -148,10 +151,21 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   var fab = $(".fab"), panel = $(".panel"), log = $(".log"), form = $("form"), ta = $("textarea"), send = $(".send");
   var config = null, busy = false;
 
+  // Web addresses in AVA's answers become clickable links (safe: only http/https).
+  function linkjes(el, tekst) {
+    String(tekst).split(/(https?:\/\/[^\s<>"')]+)/g).forEach(function (stuk, i) {
+      if (i % 2) {
+        var url = stuk.replace(/[.,!?;:]+$/, ""), rest = stuk.slice(url.length);
+        var a = document.createElement("a"); a.href = url; a.textContent = url.replace(/^https?:\/\//, ""); a.target = "_top"; a.rel = "noopener";
+        el.appendChild(a); if (rest) el.appendChild(document.createTextNode(rest));
+      } else if (stuk) el.appendChild(document.createTextNode(stuk));
+    });
+  }
   function bubble(rol, tekst, wie) {
     var p = document.createElement("p");
     p.className = "b " + (rol === "u" ? "u" : rol === "h" ? "h" : rol === "s" ? "s" : "a");
     if (rol === "h" && wie) { var n = document.createElement("b"); n.textContent = wie; p.appendChild(n); p.appendChild(document.createTextNode(tekst)); }
+    else if (rol === "a" || rol === "h") linkjes(p, tekst);
     else p.textContent = tekst;
     log.appendChild(p);
     log.scrollTop = log.scrollHeight;
@@ -312,12 +326,15 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   $(".x").addEventListener("click", close);
   root.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
   // Any button on the website with data-ava-open (e.g. "Request a quote") opens AVA. Also available as window.VolgoAva.open().
-  window.VolgoAva = { open: open, close: close, afspraak: function () { open(); kalender(); } };
+  // Ask a question for the visitor, e.g. from a "Start free trial" button.
+  function vraag(t) { if (!t) return; var ch = log.querySelector(".chips"); if (ch) ch.remove(); setTimeout(function () { if (busy) return; ta.value = t; verstuur(); }, 350); }
+  window.VolgoAva = { open: open, close: close, afspraak: function () { open(); kalender(); }, vraag: function (t) { open(); vraag(t); } };
   document.addEventListener("click", function (e) {
-    var t = e.target && e.target.closest && e.target.closest("[data-ava-open],[data-ava-book]");
+    var t = e.target && e.target.closest && e.target.closest("[data-ava-open],[data-ava-book],[data-ava-ask]");
     if (!t) return;
     e.preventDefault(); open();
     if (t.hasAttribute("data-ava-book") && config && config.boeken) kalender();
+    if (t.hasAttribute("data-ava-ask")) vraag(t.getAttribute("data-ava-ask"));
   });
   ta.addEventListener("input", function () { send.disabled = !ta.value.trim() || busy; });
   ta.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); verstuur(); } });

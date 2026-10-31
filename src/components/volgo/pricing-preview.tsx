@@ -23,7 +23,7 @@ export function PricingPreview() {
               <p className="v-plan__price">
                 <span>€{p.prijsTekst}</span> per month
               </p>
-              <a className={`v-plan__cta v-plan__cta--${id}`} href="/pricing">
+              <a className={`v-plan__cta v-plan__cta--${id}`} data-ava-ask={`I'd like to start the 7-day free trial of Volgo ${p.naam}.`} href="/pricing">
                 Start free trial
               </a>
               <p className="v-plan__kaart">7 days free · Payment card required</p>
@@ -55,13 +55,13 @@ export function FinalCta() {
       <h2 className="v-h2 v-center" id="cta-title">
         More customers. Less chasing.
       </h2>
-      <p className="v-lede v-center">AVA live on your website in 5 minutes, 7 days free. Questions first? Ask AVA in the corner, or send us a DM on Instagram (@{INSTAGRAM}) starting with BOOK to plan a call.</p>
+      <p className="v-lede v-center">AVA live on your website in 5 minutes, 7 days free. Questions first? Ask AVA in the corner, or book a call with the team right in the chat. Prefer Instagram? DM @{INSTAGRAM}.</p>
       <div className="v-final__actions">
-        <a className="v-cta-primary" href="/pricing">
+        <a className="v-cta-primary" data-ava-ask="I'd like to start the 7-day free trial. Which plan fits my business?" href="/pricing">
           Start 7-day free trial
         </a>
-        <a className="v-cta-ghost" href={INSTAGRAM_DM} rel="noopener noreferrer" target="_blank">
-          DM us on Instagram
+        <a className="v-cta-ghost" data-ava-book="" href={INSTAGRAM_DM} rel="noopener noreferrer" target="_blank">
+          Book a call
         </a>
       </div>
     </section>

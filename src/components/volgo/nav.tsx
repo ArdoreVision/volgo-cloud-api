@@ -26,7 +26,7 @@ export function Nav({ ingelogd = false }: { ingelogd?: boolean }) {
             Go to dashboard
           </a>
         ) : (
-          <a className="v-nav__cta" href="/pricing">
+          <a className="v-nav__cta" data-ava-ask="I'd like to start the 7-day free trial. Which plan fits my business?" href="/pricing">
             Start free trial
           </a>
         )}
