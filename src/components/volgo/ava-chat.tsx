@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 /** Volgo's own AVA (the same chat our customers get), on thevolgo.app. Leads and booked calls land in the Volgo dashboard. */
-export const VOLGO_AVA_SLEUTEL = "86aa08e701cb78322293f3a3";
+export const VOLGO_AVA_SLEUTEL = "c2c0abaa339e5c0a8c9e4064";
 
 type AvaApi = { open: () => void; afspraak: () => void; vraag: (t: string) => void };
 const api = () => (typeof window !== "undefined" ? (window as unknown as { VolgoAva?: AvaApi }).VolgoAva : undefined);
