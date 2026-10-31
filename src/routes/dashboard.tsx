@@ -96,7 +96,7 @@ function Dashboard() {
       setTabRaw("instellingen");
     } else setTabRaw(t as Tab);
     setMeer(false);
-    if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   };
   const [toasts, setToasts] = useState<Toast[]>([]);
   const sinds = useRef(data.nu.slice(0, 19).replace("T", " "));
@@ -228,6 +228,9 @@ function Dashboard() {
                   <span role="columnheader">Received</span>
                   <span role="columnheader">Status</span>
                 </div>
+                {leads.length === 0 ? (
+                  <p className="v-feed__empty v-pad">No requests yet. As soon as a visitor leaves their details with AVA, they appear here, hottest first.</p>
+                ) : null}
                 {leads.map((l) => (
                   <div className="v-table__row" key={l.id} role="row">
                     <span role="cell">
