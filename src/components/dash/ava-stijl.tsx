@@ -7,11 +7,16 @@ import { Upsell } from "./upsell";
 type Stijl = {
   avatar: string | null;
   positie: "rechts" | "links";
-  thema: "licht" | "donker";
-  vorm: "rond" | "strak";
+  thema: "licht" | "donker" | "auto";
+  vorm: "rond" | "zacht" | "strak";
   lettertype: "systeem" | "website";
   knoptekst: string;
   branding: boolean;
+  knop: "pil" | "bol" | "icoon";
+  grootte: "compact" | "normaal" | "groot";
+  afstand: number;
+  zij: number;
+  uitnodiging: string;
 };
 
 /** Resize an uploaded photo to a 160×160 square, small enough to store. */
@@ -111,8 +116,8 @@ export function AvaStijl({ begin, mag, naam, kleur }: { begin: Stijl; mag: boole
             <label htmlFor="stijl-knop">Button text</label>
             <input id="stijl-knop" maxLength={30} onChange={(e) => zet("knoptekst", e.target.value)} placeholder={`Ask ${naam}`} value={s.knoptekst} />
           </div>
-          <Keuze label="Theme" onChange={(v) => zet("thema", v)} opties={[["licht", "Light"], ["donker", "Dark"]]} waarde={s.thema} />
-          <Keuze label="Shape" onChange={(v) => zet("vorm", v)} opties={[["rond", "Round"], ["strak", "Sharp"]]} waarde={s.vorm} />
+          <Keuze label="Theme" onChange={(v) => zet("thema", v)} opties={[["licht", "Light"], ["donker", "Dark"], ["auto", "Auto"]]} waarde={s.thema} />
+          <Keuze label="Shape" onChange={(v) => zet("vorm", v)} opties={[["rond", "Round"], ["zacht", "Soft"], ["strak", "Sharp"]]} waarde={s.vorm} />
           <Keuze label="Position" onChange={(v) => zet("positie", v)} opties={[["rechts", "Bottom right"], ["links", "Bottom left"]]} waarde={s.positie} />
           <Keuze label="Font" onChange={(v) => zet("lettertype", v)} opties={[["website", "My website's font"], ["systeem", "Standard"]]} waarde={s.lettertype} />
           <label className="v-toggle">
