@@ -1705,3 +1705,11 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
   .v-ed__doek { padding: 12px; }
   .v-ed__doek.is-mobiel .v-ed__scherm { width: min(390px, 100%); }
 }
+
+/* Demo video */
+.vx-video { max-width: 1160px; }
+.vx-video__kader { margin: 36px auto 0; max-width: 1040px; border-radius: 18px; overflow: hidden; background: #0b0d12; box-shadow: 0 0 0 1px var(--line), 0 50px 100px -40px rgba(17, 19, 24, 0.5); }
+.vx-video__kader video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #0b0d12; }
+.vx-video__noot { margin: 18px auto 0; max-width: 60ch; text-align: center; color: var(--muted); font-size: 14.5px; line-height: 1.5; }
+.vx-video__noot a { color: var(--accent); text-decoration: none; font-weight: 500; }
+.vx-video__noot a:hover { text-decoration: underline; }

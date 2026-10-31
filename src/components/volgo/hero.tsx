@@ -18,8 +18,8 @@ export function Hero() {
             <a className="v-cta-primary" data-ava-ask="I'd like to start the 7-day free trial. Which plan fits my business?" href="/pricing">
               Start 7-day free trial
             </a>
-            <a className="v-cta-ghost" href="#demo">
-              Try the live demo
+            <a className="v-cta-ghost" href="#video">
+              Watch the 48-second demo
               <svg aria-hidden="true" viewBox="0 0 16 16">
                 <path d="M8 3v10M4 9l4 4 4-4" />
               </svg>

@@ -112,6 +112,59 @@ export function Feiten() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Demo video: 48 seconds, AVA catches a roofing lead at 9 PM          */
+/* ------------------------------------------------------------------ */
+
+export function DemoVideo() {
+  const [ref, zichtbaar] = useInView<HTMLDivElement>("-10% 0px");
+  const video = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = video.current;
+    if (!v || !zichtbaar || rustig()) return;
+    v.play().catch(() => {});
+  }, [zichtbaar]);
+
+  return (
+    <section aria-labelledby="dv-titel" className="vx-sectie vx-video" id="video">
+      <header className="vx-kop vx-kop--midden" data-reveal="">
+        <p className="vx-label">48-second demo</p>
+        <h2 className="v-h2" id="dv-titel">
+          Watch AVA catch a lead at 9 PM.
+        </h2>
+        <p className="v-lede">
+          A homeowner asks a roofing contractor for a quote after closing time. AVA answers, qualifies, takes the phone number, and the owner finds a hot
+          lead waiting in the morning.
+        </p>
+      </header>
+      <div className="vx-video__kader" data-reveal="" ref={ref}>
+        <div aria-hidden="true" className="vx-live__chrome">
+          <i />
+          <i />
+          <i />
+          <span>ridgelineroofing.example · 9:14 PM</span>
+        </div>
+        <video
+          aria-label="Demo: AVA answers a roofing quote request at night and the lead appears in the Volgo dashboard"
+          controls
+          loop
+          muted
+          playsInline
+          poster="/assets/volgo/demo-poster.jpg"
+          preload="metadata"
+          ref={video}
+        >
+          <source src="/assets/volgo/demo.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <p className="vx-video__noot" data-reveal="">
+        Captions are built in, so it plays without sound. Example business, real product.{" "}
+        <a href="#demo">Want to try it yourself? Jump to the live demo.</a>
+      </p>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Sectors marquee                                                     */
 /* ------------------------------------------------------------------ */
 
