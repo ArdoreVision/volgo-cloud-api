@@ -21,7 +21,11 @@ export function apparaatVan(ua: string, breedte?: number) {
 
 /** Where the visit came from: utm_source, else the referring website (own site = direct). */
 export function bronVan(ref: string | undefined, utm: string | undefined, eigenHost: string) {
-  if (utm) return utm.toLowerCase().slice(0, 40);
+  if (utm) {
+    const u = utm.trim().toLowerCase();
+    const bekend: Record<string, string> = { google: "Google", bing: "Bing", facebook: "Facebook", fb: "Facebook", instagram: "Instagram", ig: "Instagram", tiktok: "TikTok", linkedin: "LinkedIn", x: "X", twitter: "X", youtube: "YouTube", newsletter: "Newsletter", email: "Email" };
+    return bekend[u] ?? (u.charAt(0).toUpperCase() + u.slice(1)).slice(0, 40);
+  }
   if (!ref) return "Direct";
   try {
     const h = new URL(ref).hostname.replace(/^www\./, "").toLowerCase();
