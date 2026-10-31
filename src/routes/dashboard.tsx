@@ -35,17 +35,53 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-type Tab = "home" | "ontwerp" | "website" | "overzicht" | "verkeer" | "gesprekken" | "agenda" | "team" | "aanvragen" | "instellingen";
-type Sub = "ava" | "stijl" | "installeren" | "meldingen" | "account" | "abonnement";
+type Tab = "home" | "aanvragen" | "gesprekken" | "agenda" | "overzicht" | "verkeer" | "ava" | "ontwerp" | "installeren" | "website" | "team" | "instellingen";
+type Sub = "meldingen" | "account" | "abonnement";
 const SUBS: [Sub, string][] = [
-  ["ava", "AVA"],
-  ["stijl", "Style"],
-  ["installeren", "Install"],
   ["meldingen", "Notifications"],
   ["account", "Account"],
   ["abonnement", "Subscription"],
 ];
 const isSub = (t: string): t is Sub => SUBS.some(([id]) => id === t);
+/** Old names other parts of the app may still use. */
+const ALIAS: Record<string, Tab> = { stijl: "ontwerp" };
+
+/** The sidebar, in the order you use it: today's work first, then insight, then everything about AVA and your site, then the workspace. */
+const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
+  { items: [["home", "Home"]] },
+  {
+    kop: "Today",
+    items: [
+      ["aanvragen", "Leads"],
+      ["gesprekken", "Chats"],
+      ["agenda", "Calendar"],
+    ],
+  },
+  {
+    kop: "Insights",
+    items: [
+      ["overzicht", "Overview"],
+      ["verkeer", "Traffic"],
+    ],
+  },
+  {
+    kop: "AVA & website",
+    items: [
+      ["ava", "Train AVA"],
+      ["ontwerp", "Appearance"],
+      ["installeren", "Install"],
+      ["website", "Your website"],
+    ],
+  },
+  {
+    kop: "Workspace",
+    items: [
+      ["team", "Team"],
+      ["instellingen", "Settings"],
+    ],
+  },
+];
+const TABS: [Tab, string][] = GROEPEN.flatMap((g) => g.items);
 type Toast = { id: number; titel: string; tekst: string; tab: Tab; heet?: boolean };
 type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
 const STATUS_LABEL: Record<Status, string> = {
@@ -60,7 +96,7 @@ const STATUS_LABEL: Record<Status, string> = {
 const datum = (iso: string) =>
   new Date(iso.replace(" ", "T") + "Z").toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
 
-function Icon({ name }: { name: Tab | "uit" | "meer" | "ava" | "abonnement" | "account" }) {
+function Icon({ name }: { name: Tab | "uit" | "meer" | "abonnement" | "account" }) {
   const d: Record<string, string> = {
     home: "M10 3.5l1.6 4.1 4.4.3-3.4 2.8 1.1 4.3L10 12.6 6.3 15l1.1-4.3L4 7.9l4.4-.3z",
     website: "M3 4.5h14v11H3zM3 7.5h14M6 6h.01M8 6h.01",
@@ -76,6 +112,7 @@ function Icon({ name }: { name: Tab | "uit" | "meer" | "ava" | "abonnement" | "a
     aanvragen: "M3 5h14M3 10h14M3 15h9",
     abonnement: "M3 6h14v9H3zM3 9h14",
     account: "M10 10a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4zM3.5 17.5c.8-3 3.4-4.8 6.5-4.8s5.7 1.8 6.5 4.8",
+    installeren: "M7 6.5 3.5 10 7 13.5M13 6.5l3.5 3.5-3.5 3.5M11.3 4.5 8.7 15.5",
     uit: "M8 4H4v12h4M12 6.5 15.5 10 12 13.5M15.5 10H8",
   };
   return (
@@ -95,7 +132,8 @@ function Dashboard() {
   const router = useRouter();
   const navigate = useNavigate();
   const [tab, setTabRaw] = useState<Tab>("home");
-  const [sub, setSub] = useState<Sub>("ava");
+  const [sub, setSub] = useState<Sub>("account");
+  const vorige = useRef<Tab>("home");
   const [meer, setMeer] = useState(false);
   const [admin, setAdmin] = useState(false);
   // Day or night mode: remembered per device, follows the phone/computer setting the first time.
@@ -145,10 +183,14 @@ function Dashboard() {
   }, []);
   /** Go to a tab; settings pages ("ava", "account", …) open inside Settings. */
   const setTab = (t: string) => {
-    if (isSub(t)) {
-      setSub(t);
+    const doel = ALIAS[t] ?? t;
+    if (isSub(doel)) {
+      setSub(doel);
       setTabRaw("instellingen");
-    } else setTabRaw(t as Tab);
+    } else {
+      if (doel !== "ontwerp") vorige.current = doel as Tab;
+      setTabRaw(doel as Tab);
+    }
     setMeer(false);
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   };
@@ -194,23 +236,12 @@ function Dashboard() {
     void navigate({ to: "/login", search: {} });
   }
 
-  const tabs: [Tab, string][] = [
-    ["home", "Home"],
-    ["overzicht", "Overview"],
-    ["verkeer", "Traffic"],
-    ["gesprekken", "Chats"],
-    ["aanvragen", "Requests"],
-    ["agenda", "Calendar"],
-    ["team", "Team"],
-    ["ontwerp", "Customize"],
-    ["website", "Website"],
-    ["instellingen", "Settings"],
-  ];
-  // Mobile: four main tabs at the bottom, the rest under "More".
+  const nieuweLeads = leads.filter((l) => l.status === "nieuw").length;
+  // Mobile: four main tabs at the bottom, the rest grouped under "More".
   const mobiel: [Tab, string][] = [
     ["home", "Home"],
-    ["gesprekken", "Chats"],
     ["aanvragen", "Leads"],
+    ["gesprekken", "Chats"],
     ["agenda", "Calendar"],
   ];
 
@@ -218,7 +249,7 @@ function Dashboard() {
   if (tab === "ontwerp")
     return (
       <div className="volgo v-dash v-dash--editor" data-thema={thema}>
-        <OntwerpEditor terug={() => setTab("home")} />
+        <OntwerpEditor terug={() => setTab(vorige.current)} />
       </div>
     );
 
@@ -230,11 +261,17 @@ function Dashboard() {
           <span>Volgo</span>
         </button>
         <nav aria-label="Dashboard" className="v-dash__nav">
-          {tabs.map(([id, label]) => (
-            <button aria-current={tab === id ? "page" : undefined} key={id} onClick={() => setTab(id)} type="button">
-              <Icon name={id} />
-              {label}
-            </button>
+          {GROEPEN.map((groep, gi) => (
+            <div className="v-dash__groep" key={groep.kop ?? gi}>
+              {groep.kop ? <p className="v-dash__kop">{groep.kop}</p> : null}
+              {groep.items.map(([id, label]) => (
+                <button aria-current={tab === id ? "page" : undefined} key={id} onClick={() => setTab(id)} type="button">
+                  <Icon name={id} />
+                  {label}
+                  {id === "aanvragen" && nieuweLeads > 0 ? <span className="v-dash__badge">{nieuweLeads}</span> : null}
+                </button>
+              ))}
+            </div>
           ))}
         </nav>
         <div className="v-dash__me">
@@ -287,6 +324,24 @@ function Dashboard() {
         {tab === "gesprekken" ? <Gesprekken data={data} /> : null}
         {tab === "agenda" ? <Agenda data={data} /> : null}
         {tab === "website" ? <Website /> : null}
+        {tab === "ava" ? (
+          <>
+            <header className="v-dash__head">
+              <h1>Train AVA</h1>
+              <p>Tell AVA about your services, prices and area. The more it knows, the better it answers and the warmer your leads.</p>
+            </header>
+            <AvaInstellen deel="praten" />
+          </>
+        ) : null}
+        {tab === "installeren" ? (
+          <>
+            <header className="v-dash__head">
+              <h1>Install</h1>
+              <p>Put AVA on your website in a few minutes, or let us do it for you.</p>
+            </header>
+            <AvaInstellen deel="installeren" />
+          </>
+        ) : null}
         {tab === "team" ? (
           plan.limieten.teamChat ? (
             <TeamChat data={data} />
@@ -304,7 +359,7 @@ function Dashboard() {
         {tab === "aanvragen" ? (
           <>
             <header className="v-dash__head">
-              <h1>Requests</h1>
+              <h1>Leads</h1>
               <p>AVA puts the hottest leads at the top. Update the status once you have been in touch yourself.</p>
             </header>
             <section className="v-dash__panel v-dash__panel--flush">
@@ -317,7 +372,7 @@ function Dashboard() {
                   <span role="columnheader">Status</span>
                 </div>
                 {leads.length === 0 ? (
-                  <p className="v-feed__empty v-pad">No requests yet. As soon as a visitor leaves their details with AVA, they appear here, hottest first.</p>
+                  <p className="v-feed__empty v-pad">No leads yet. As soon as a visitor leaves their details with AVA, they appear here, hottest first.</p>
                 ) : null}
                 {leads.map((l) => (
                   <div className="v-table__row" key={l.id} role="row">
@@ -353,7 +408,7 @@ function Dashboard() {
           <>
             <header className="v-dash__head">
               <h1>Settings</h1>
-              <p>Everything you can adjust, in one place.</p>
+              <p>Notifications, your account and your subscription.</p>
             </header>
             <nav aria-label="Settings" className="v-instel__nav">
               {SUBS.map(([id, label]) => (
@@ -362,19 +417,6 @@ function Dashboard() {
                 </button>
               ))}
             </nav>
-            {sub === "ava" ? <AvaInstellen deel="praten" /> : null}
-            {sub === "stijl" ? (
-              <section className="v-dash__panel v-ed-kaart">
-                <div>
-                  <h2>Design AVA on your own website</h2>
-                  <p className="v-muted">Open the editor to see your website with AVA on it. Change the button, shape, colours, size and position and watch it update live, on desktop and mobile.</p>
-                </div>
-                <button className="v-btn-blauw" onClick={() => setTab("ontwerp")} type="button">
-                  Open the editor
-                </button>
-              </section>
-            ) : null}
-            {sub === "installeren" ? <AvaInstellen deel="installeren" /> : null}
             {sub === "meldingen" ? <AvaInstellen deel="meldingen" /> : null}
             {sub === "account" ? <Account g={g} leden={data.leden} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} /> : null}
             {sub === "abonnement" ? (
@@ -438,16 +480,23 @@ function Dashboard() {
         <div className="v-sheet" onClick={() => setMeer(false)} role="presentation">
           <div aria-label="More" className="v-sheet__paneel" onClick={(e) => e.stopPropagation()} role="dialog">
             <span aria-hidden="true" className="v-sheet__greep" />
-            {(["overzicht", "verkeer", "team", "ontwerp", "website", "instellingen"] as Tab[]).map((id) => (
-              <button key={id} onClick={() => setTab(id)} type="button">
-                <Icon name={id} />
-                {tabs.find((t) => t[0] === id)?.[1]}
-              </button>
+            {GROEPEN.filter((gr) => gr.kop && gr.kop !== "Today").map((groep) => (
+              <div className="v-sheet__groep" key={groep.kop}>
+                <p className="v-sheet__kop">{groep.kop}</p>
+                {groep.items.map(([id]) => (
+                  <button key={id} onClick={() => setTab(id)} type="button">
+                    <Icon name={id} />
+                    {TABS.find((t) => t[0] === id)?.[1]}
+                  </button>
+                ))}
+                {groep.kop === "Workspace" ? (
+                  <button onClick={() => setTab("abonnement")} type="button">
+                    <Icon name="abonnement" />
+                    Subscription
+                  </button>
+                ) : null}
+              </div>
             ))}
-            <button onClick={() => setTab("abonnement")} type="button">
-              <Icon name="abonnement" />
-              Subscription
-            </button>
             {admin ? (
               <a className="v-sheet__link" href="/admin">
                 <Icon name="overzicht" />
