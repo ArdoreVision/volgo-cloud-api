@@ -20,9 +20,3 @@ jobs:
       - run: grep 'error TS' tsc.txt | sed -n '10,18p' | sed 's/^/::warning::B /' || true
       - run: grep 'error TS' tsc.txt | sed -n '19,27p' | sed 's/^/::warning::C /' || true
       - run: grep 'error TS' tsc.txt | sed -n '28,36p' | sed 's/^/::warning::D /' || true
-      - run: |
-          mkdir -p /tmp/out && cp tsc.txt /tmp/out/
-      - name: Uitvoer bewaren
-        run: |
-          git config user.name "volgo-bot"; git config user.email "bot@volgo.local"
-          git checkout --orphan ci-logs; git rm -rq . ; cp /tmp/out/tsc.txt .; git add tsc.txt; git commit -qm logs; git push -qf origin HEAD:ci-logs
