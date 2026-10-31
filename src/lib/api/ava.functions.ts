@@ -75,6 +75,22 @@ export const haalGesprek = createServerFn({ method: "GET" })
     return { gesprek, berichten };
   });
 
+/** Chat list for the DM-style Conversations page, newest first, with the last message as preview. */
+export const haalGesprekken = createServerFn({ method: "GET" }).handler(async () => {
+  const { g, DB } = await sessie();
+  const r = await DB.prepare(
+    `SELECT g.id, g.bezoeker, g.onderwerp, g.status, g.laatste, g.warmte, g.voorbeeld, m.overgenomen_naam, m.lead_id,
+            (SELECT b.tekst FROM ava_berichten b WHERE b.gesprek_id = g.id ORDER BY b.id DESC LIMIT 1) AS laatste_tekst,
+            (SELECT b.rol FROM ava_berichten b WHERE b.gesprek_id = g.id ORDER BY b.id DESC LIMIT 1) AS laatste_rol,
+            datetime('now') AS nu
+     FROM ava_gesprekken g LEFT JOIN ava_gesprek_meta m ON m.gesprek_id = g.id
+     WHERE g.team_id = ? ORDER BY g.laatste DESC LIMIT 60`,
+  )
+    .bind(g.team_id)
+    .all<{ id: number; bezoeker: string; onderwerp: string; status: string; laatste: string; warmte: number; voorbeeld: number; overgenomen_naam: string | null; lead_id: number | null; laatste_tekst: string | null; laatste_rol: string | null; nu: string }>();
+  return r.results;
+});
+
 // Voor meldingen: wat is er nieuw sinds het laatste moment dat het dashboard keek?
 export const checkNieuw = createServerFn({ method: "GET" })
   .validator((v: unknown) => z.object({ sinds: z.string().regex(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/) }).parse(v))

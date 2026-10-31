@@ -1,49 +1,88 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent, KeyboardEvent } from "react";
 
-import { haalGesprek, neemGesprekOver, stuurMensBericht } from "@/lib/api/ava.functions";
+import { haalGesprek, haalGesprekken, neemGesprekOver, stuurMensBericht } from "@/lib/api/ava.functions";
 
-import { type DashData, geleden, sqlDate, tijdAms, warmteLabel } from "./util";
+import { type DashData, geleden, sqlDate, tijdAms } from "./util";
 
 type Detail = NonNullable<Awaited<ReturnType<typeof haalGesprek>>>;
+type Item = Awaited<ReturnType<typeof haalGesprekken>>[number];
+
+const KLEUREN = ["#1677d9", "#7c3aed", "#0f9d76", "#d9480f", "#c2255c", "#0b7285", "#5c7cfa", "#b08900"];
+const initialen = (n: string) =>
+  n
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]!.toUpperCase())
+    .join("") || "?";
+
+function Avatar({ naam, id, live }: { naam: string; id: number; live?: boolean }) {
+  return (
+    <span className="v-dm__av" style={{ background: KLEUREN[id % KLEUREN.length] }}>
+      {initialen(naam === "Website visitor" || naam === "Websitebezoeker" ? "?" : naam)}
+      {live ? <i aria-label="Online" /> : null}
+    </span>
+  );
+}
+
+/** Short time for the chat list: 14:05 today, otherwise "3 Nov". */
+function kortTijd(d: Date, nu: number) {
+  return nu - d.getTime() < 20 * 3600 * 1000 ? tijdAms(d) : d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Europe/Amsterdam" });
+}
 
 export function Gesprekken({ data }: { data: DashData }) {
-  const [actief, setActief] = useState<number | null>(data.gesprekken[0]?.id ?? null);
+  const [items, setItems] = useState<Item[] | null>(null);
+  const [actief, setActief] = useState<number | null>(null);
   const [detail, setDetail] = useState<Detail | null>(null);
   const [nu, setNu] = useState(() => Date.parse(data.nu));
   const [tekst, setTekst] = useState("");
-  const [mobielDetail, setMobielDetail] = useState(false);
+  const [open, setOpen] = useState(false); // mobile: chat open instead of list
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
   const lijst = useRef<HTMLDivElement>(null);
+
+  // Chat list refreshes by itself, so new visitors appear without reloading.
+  const laadLijst = useCallback(async () => {
+    const r = await haalGesprekken().catch(() => null);
+    if (!r) return;
+    setItems(r);
+    if (r[0]) setNu(sqlDate(r[0].nu).getTime());
+    setActief((a) => a ?? (window.matchMedia("(max-width: 900px)").matches ? null : (r[0]?.id ?? null)));
+  }, []);
+  useEffect(() => {
+    void laadLijst();
+    const id = window.setInterval(() => void laadLijst(), 4000);
+    return () => window.clearInterval(id);
+  }, [laadLijst]);
 
   const laad = useCallback(async () => {
     if (actief === null) return;
     const d = await haalGesprek({ data: { id: actief } }).catch(() => null);
     setDetail(d);
-    setNu(Date.now());
   }, [actief]);
-
   useEffect(() => {
     if (actief === null) return;
     setDetail(null);
     setFout("");
+    setTekst("");
     void laad();
-    // Faster refresh while you're chatting yourself.
     const id = window.setInterval(() => void laad(), 2500);
     return () => window.clearInterval(id);
   }, [actief, laad]);
 
   const aantal = detail?.berichten.length ?? 0;
   useEffect(() => {
-    lijst.current?.scrollTo({ top: lijst.current.scrollHeight, behavior: "smooth" });
-  }, [aantal]);
+    lijst.current?.scrollTo({ top: lijst.current.scrollHeight });
+  }, [aantal, detail?.gesprek.id]);
 
-  async function overnemen(aan: boolean) {
-    if (!detail) return;
+  const ikChat = Boolean(detail?.gesprek.overgenomen_door);
+
+  async function zetModus(zelf: boolean) {
+    if (!detail || bezig || zelf === ikChat) return;
     setBezig(true);
-    await neemGesprekOver({ data: { id: detail.gesprek.id, aan } }).catch(() => null);
-    await laad();
+    await neemGesprekOver({ data: { id: detail.gesprek.id, aan: zelf } }).catch(() => null);
+    await Promise.all([laad(), laadLijst()]);
     setBezig(false);
   }
   async function stuur(e?: FormEvent) {
@@ -51,13 +90,15 @@ export function Gesprekken({ data }: { data: DashData }) {
     const t = tekst.trim();
     if (!t || !detail || bezig) return;
     setBezig(true);
+    // Typing while AVA is on? Then you take over automatically.
+    if (!ikChat) await neemGesprekOver({ data: { id: detail.gesprek.id, aan: true } }).catch(() => null);
     setTekst("");
     const r = await stuurMensBericht({ data: { id: detail.gesprek.id, tekst: t } }).catch(() => ({ ok: false as const, message: "Not sent. Try again." }));
     if (!r.ok) {
       setFout(r.message);
       setTekst(t);
     } else setFout("");
-    await laad();
+    await Promise.all([laad(), laadLijst()]);
     setBezig(false);
   }
   function onKey(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -67,121 +108,125 @@ export function Gesprekken({ data }: { data: DashData }) {
     }
   }
 
-  const isLive = (laatste: string, status: string) => status === "live" && nu - sqlDate(laatste).getTime() < 10 * 60000;
+  const isLive = (g: { laatste: string; status: string }) => g.status === "live" && nu - sqlDate(g.laatste).getTime() < 10 * 60000;
+  const g = detail?.gesprek;
+  const kanChatten = Boolean(g?.kan_chatten);
+  const berichten = detail?.berichten ?? [];
 
   return (
     <>
       <header className="v-dash__head">
-        <h1>Conversations</h1>
-        <p>Everything AVA discusses with visitors to your website. Follow live conversations as they happen.</p>
+        <h1>Chats</h1>
+        <p>Everyone talking to AVA on your website, live. Open a chat and switch between AVA and yourself.</p>
       </header>
-      <div className={`v-convo${mobielDetail ? " is-detail" : ""}`}>
-        <aside className="v-convo__list">
-          {data.gesprekken.map((g) => (
-            <button aria-current={actief === g.id} className="v-convo__item" key={g.id} onClick={() => {
-                setActief(g.id);
-                setMobielDetail(true);
-              }}
-              type="button"
-            >
-              <div className="v-convo__row">
-                <strong>{g.bezoeker}</strong>
-                {g.overgenomen_naam ? (
-                  <span className="v-mens-badge">{g.overgenomen_naam} is chatting</span>
-                ) : isLive(g.laatste, g.status) ? (
-                  <span className="v-live-badge">Live</span>
-                ) : (
-                  <time>{tijdAms(sqlDate(g.laatste))}</time>
-                )}
-              </div>
-              <p>{g.onderwerp}</p>
-              <small>
-                <span className={`v-heat v-heat--mini v-heat--${warmteLabel(g.warmte).toLowerCase()}`}>{g.warmte}</span> {g.kanaal} · {g.berichten} messages
-                {g.voorbeeld ? " · sample" : ""}
-              </small>
-            </button>
-          ))}
-          {data.gesprekken.length === 0 ? <p className="v-feed__empty v-pad">No conversations yet. As soon as someone talks to AVA on your website, you will see it here.</p> : null}
+      <div className={`v-dm${open ? " is-open" : ""}`}>
+        <aside className="v-dm__list" aria-label="Chats">
+          {items === null ? <p className="v-dm__leeg">Loading…</p> : null}
+          {items?.length === 0 ? <p className="v-dm__leeg">No chats yet. As soon as someone talks to AVA on your website, they appear here.</p> : null}
+          {items?.map((c) => {
+            const live = isLive(c);
+            const wie = c.laatste_rol === "bezoeker" ? "" : c.laatste_rol === "mens" ? "You: " : c.laatste_rol === "systeem" ? "" : "AVA: ";
+            return (
+              <button
+                aria-current={actief === c.id}
+                className={`v-dm__item${live ? " is-live" : ""}`}
+                key={c.id}
+                onClick={() => {
+                  setActief(c.id);
+                  setOpen(true);
+                }}
+                type="button"
+              >
+                <Avatar id={c.id} live={live} naam={c.bezoeker} />
+                <span className="v-dm__wat">
+                  <span className="v-dm__rij">
+                    <strong>{c.bezoeker}</strong>
+                    <time>{kortTijd(sqlDate(c.laatste), nu)}</time>
+                  </span>
+                  <span className="v-dm__rij">
+                    <span className="v-dm__voorbeeld">{c.laatste_tekst ? wie + c.laatste_tekst : c.onderwerp}</span>
+                    {c.overgenomen_naam ? <em className="v-dm__tag v-dm__tag--jij">You</em> : live ? <em className="v-dm__tag">AVA</em> : null}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
         </aside>
-        <section className="v-convo__view">
-          {detail ? (
+
+        <section className="v-dm__chat">
+          {g ? (
             <>
-              <header className="v-convo__head">
-                <button aria-label="Back to all chats" className="v-convo__terug" onClick={() => setMobielDetail(false)} type="button">
+              <header className="v-dm__kop">
+                <button aria-label="Back to chats" className="v-dm__terug" onClick={() => setOpen(false)} type="button">
                   ‹
                 </button>
-                <div>
-                  <h2>{detail.gesprek.bezoeker}</h2>
-                  <p className="v-muted v-small">
-                    {detail.gesprek.kanaal} · started {tijdAms(sqlDate(detail.gesprek.gestart))} · last message {geleden(sqlDate(detail.gesprek.laatste), nu)}
-                    {detail.gesprek.contact ? ` · ${detail.gesprek.contact}` : ""}
-                  </p>
+                <Avatar id={g.id} live={isLive(g)} naam={g.bezoeker} />
+                <div className="v-dm__wie">
+                  <strong>{g.bezoeker}</strong>
+                  <small>
+                    {isLive(g) ? "Online now" : `Last message ${geleden(sqlDate(g.laatste), nu)}`}
+                    {g.contact ? ` · ${g.contact}` : ""}
+                  </small>
                 </div>
-                <div className="v-convo__acties">
-                  <span className={`v-heat v-heat--${warmteLabel(detail.gesprek.warmte).toLowerCase()}`} title="Warmth">
-                    {detail.gesprek.warmte}
-                  </span>
-                  {detail.gesprek.kan_chatten ? (
-                    detail.gesprek.overgenomen_door ? (
-                      <button className="v-dash__logout" disabled={bezig} onClick={() => void overnemen(false)} type="button">
-                        Hand back to AVA
-                      </button>
-                    ) : (
-                      <button className="v-btn-blauw" disabled={bezig} onClick={() => void overnemen(true)} type="button">
-                        Take over
-                      </button>
-                    )
-                  ) : null}
-                </div>
-              </header>
-              {detail.gesprek.overgenomen_door ? (
-                <p className="v-convo__mens">
-                  <strong>{detail.gesprek.overgenomen_naam}</strong> is chatting. AVA is paused in this conversation; the visitor sees your messages live.
-                </p>
-              ) : null}
-              <div className="v-convo__msgs" ref={lijst} role="log" aria-live="polite">
-                {detail.berichten.length === 0 ? (
-                  <p className="v-feed__empty">
-                    {detail.gesprek.voorbeeld ? "This is a sample conversation without messages. Real conversations show everything that was said here." : "No messages yet."}
-                  </p>
+                {kanChatten ? (
+                  <div className="v-dm__modus" role="group" aria-label="Who answers">
+                    <button aria-pressed={!ikChat} disabled={bezig} onClick={() => void zetModus(false)} type="button">
+                      AVA auto
+                    </button>
+                    <button aria-pressed={ikChat} disabled={bezig} onClick={() => void zetModus(true)} type="button">
+                      Take over
+                    </button>
+                  </div>
                 ) : null}
-                {detail.berichten.map((b) =>
-                  b.rol === "systeem" ? (
-                    <p className="v-tb-systeem" key={b.id}>
-                      {b.tekst} · {tijdAms(sqlDate(b.created_at))}
-                    </p>
-                  ) : (
-                    <div className={`v-tb v-tb--${b.rol === "bezoeker" ? "bezoeker" : b.rol === "mens" ? "mens" : "ava"}`} key={b.id}>
+              </header>
+
+              <div className="v-dm__berichten" ref={lijst} role="log" aria-live="polite">
+                {berichten.length === 0 ? <p className="v-dm__leeg">{g.voorbeeld ? "Sample chat without messages." : "No messages yet."}</p> : null}
+                {berichten.map((b, i) => {
+                  if (b.rol === "systeem") return <p className="v-dm__sys" key={b.id}>{b.tekst}</p>;
+                  const kant = b.rol === "bezoeker" ? "zij" : "wij";
+                  const volgende = berichten[i + 1];
+                  const laatsteVanReeks = !volgende || volgende.rol !== b.rol;
+                  return (
+                    <div className={`v-dm__b v-dm__b--${kant}${b.rol === "mens" ? " is-mens" : ""}`} key={b.id}>
                       <p>{b.tekst}</p>
-                      <time>
-                        {b.rol === "bezoeker" ? detail.gesprek.bezoeker : b.rol === "mens" ? "You (team)" : "AVA"} · {tijdAms(sqlDate(b.created_at))}
-                      </time>
+                      {laatsteVanReeks ? (
+                        <time>
+                          {b.rol === "mens" ? "You" : b.rol === "bezoeker" ? "" : "AVA"}
+                          {b.rol === "bezoeker" ? "" : " · "}
+                          {tijdAms(sqlDate(b.created_at))}
+                        </time>
+                      ) : null}
                     </div>
-                  ),
-                )}
+                  );
+                })}
               </div>
-              {detail.gesprek.lead_id ? <p className="v-convo__lead">This visitor is listed as a lead in Requests.</p> : null}
-              {detail.gesprek.overgenomen_door ? (
-                <form className="v-convo__invoer" onSubmit={(e) => void stuur(e)}>
+
+              {g.lead_id ? <p className="v-dm__lead">✓ Saved as a lead in Requests</p> : null}
+
+              {kanChatten ? (
+                <form className={`v-dm__invoer${ikChat ? " is-jij" : ""}`} onSubmit={(e) => void stuur(e)}>
                   <textarea
-                    aria-label="Your message to the visitor"
+                    aria-label="Your message"
                     onChange={(e) => setTekst(e.target.value)}
                     onKeyDown={onKey}
-                    placeholder={`Message ${detail.gesprek.bezoeker}…`}
+                    placeholder={ikChat ? `Message ${g.bezoeker}…` : "AVA is answering. Type here to take over…"}
                     rows={1}
                     value={tekst}
                   />
-                  <button disabled={bezig || !tekst.trim()} type="submit">
-                    Send
+                  <button aria-label="Send" disabled={bezig || !tekst.trim()} type="submit">
+                    <svg fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeWidth="2.4" viewBox="0 0 24 24" width="18">
+                      <path d="M12 19V5M5 12l7-7 7 7" />
+                    </svg>
                   </button>
                 </form>
-              ) : detail.gesprek.kan_chatten ? (
-                <p className="v-convo__hint">Want to answer yourself? Click Take over. AVA pauses and you chat directly with the visitor.</p>
               ) : null}
-              {fout ? <p className="v-err">{fout}</p> : null}
+              {fout ? <p className="v-err v-dm__fout">{fout}</p> : null}
             </>
           ) : (
-            <p className="v-feed__empty v-pad">Choose a conversation.</p>
+            <div className="v-dm__niks">
+              <p>Choose a chat on the left.</p>
+            </div>
           )}
         </section>
       </div>

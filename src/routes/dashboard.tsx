@@ -148,7 +148,7 @@ function Dashboard() {
   const tabs: [Tab, string][] = [
     ["home", "Home"],
     ["overzicht", "Overview"],
-    ["gesprekken", "Conversations"],
+    ["gesprekken", "Chats"],
     ["aanvragen", "Requests"],
     ["agenda", "Calendar"],
     ["team", "Team"],

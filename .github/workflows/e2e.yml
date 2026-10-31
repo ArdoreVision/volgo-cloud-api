@@ -137,7 +137,7 @@ jobs:
             await shot(p, naam + '-home');
             if (naam === 'mobiel') {
               await p.locator('.v-mnav button', { hasText: 'Chats' }).click(); await p.waitForTimeout(1200); await shot(p, 'm-chats');
-              if (await p.locator('.v-convo__item').count()) { await p.locator('.v-convo__item').first().click(); await p.waitForTimeout(1500); await shot(p, 'm-chat-open'); await p.locator('.v-convo__terug').click(); }
+              if (await p.locator('.v-dm__item').count()) { await p.locator('.v-dm__item').first().click(); await p.waitForTimeout(1500); await shot(p, 'm-chat-open'); await p.locator('.v-dm__terug').click(); }
               await p.locator('.v-mnav button', { hasText: 'Leads' }).click(); await p.waitForTimeout(800); await shot(p, 'm-leads');
               await p.locator('.v-mnav button', { hasText: 'Calendar' }).click(); await p.waitForTimeout(800); await shot(p, 'm-agenda');
               await p.locator('.v-mnav button', { hasText: 'More' }).click(); await p.waitForTimeout(500); await shot(p, 'm-meer');
@@ -169,21 +169,21 @@ jobs:
               await p2.locator('#volgo-ava .fab').click(); await p2.waitForTimeout(800);
               await p2.locator('#volgo-ava textarea').fill('Hi, can you send me a quote for a heat pump?'); await p2.keyboard.press('Enter');
               await p2.waitForFunction(() => document.querySelector('#volgo-ava').shadowRoot.querySelectorAll('.b.a:not(.typ)').length >= 2, null, { timeout: 40000 });
-              await p.locator('.v-dash__nav button', { hasText: 'Conversations' }).click();
-              await p.waitForSelector('.v-convo__item'); await p.reload({ waitUntil: 'networkidle' }); await p.locator('.v-dash__nav button', { hasText: 'Conversations' }).click();
-              await p.locator('.v-convo__item').first().click(); await p.waitForTimeout(1500);
-              log('gekozen gesprek: ' + (await p.locator('.v-convo__head h2').textContent()) + ' / berichten: ' + (await p.locator('.v-tb').count()));
-              await p.locator('.v-convo__acties button', { hasText: 'Take over' }).click();
-              await p.waitForSelector('.v-convo__invoer textarea', { timeout: 15000 });
-              await p.fill('.v-convo__invoer textarea', 'Hi! This is Damien from the team. I can send you a quote today. What is your postcode?');
-              await p.locator('.v-convo__invoer button').click();
+              await p.locator('.v-dash__nav button', { hasText: 'Chats' }).click();
+              await p.waitForSelector('.v-dm__item'); await p.reload({ waitUntil: 'networkidle' }); await p.locator('.v-dash__nav button', { hasText: 'Chats' }).click();
+              await p.locator('.v-dm__item').first().click(); await p.waitForTimeout(1500);
+              log('gekozen gesprek: ' + (await p.locator('.v-dm__wie strong').textContent()) + ' / berichten: ' + (await p.locator('.v-dm__b').count()));
+              await p.locator('.v-dm__modus button', { hasText: 'Take over' }).click();
+              await p.waitForSelector('.v-dm__invoer textarea', { timeout: 15000 });
+              await p.fill('.v-dm__invoer textarea', 'Hi! This is Damien from the team. I can send you a quote today. What is your postcode?');
+              await p.locator('.v-dm__invoer button').click();
               await p2.waitForFunction(() => document.querySelector('#volgo-ava').shadowRoot.querySelectorAll('.b.h').length >= 1, null, { timeout: 30000 }).catch(async (e) => { await p2.screenshot({ path: '/tmp/shots/overname-bezoeker.png' }); await shot(p, 'overname-dashboard'); throw e; });
               log('overname: bezoeker ziet ' + (await p2.locator('#volgo-ava .b.h').last().textContent()).slice(0, 80) + ' | kop: ' + (await p2.locator('#volgo-ava .sub').textContent()));
               await p2.locator('#volgo-ava textarea').fill('4381 AB, thanks!'); await p2.keyboard.press('Enter'); await p2.waitForTimeout(3500);
               await p2.screenshot({ path: '/tmp/shots/overname-bezoeker.png' });
               await p.waitForTimeout(3000); await shot(p, 'overname-dashboard');
-              log('ava stil: ' + (await p.locator('.v-tb--ava').count()) + ' ava-berichten, laatste bezoeker: ' + (await p.locator('.v-tb--bezoeker').last().textContent()).slice(0, 40));
-              await p.locator('.v-convo__acties button', { hasText: 'Hand back' }).click(); await p.waitForTimeout(1500);
+              log('ava stil: ' + (await p.locator('.v-dm__b--wij:not(.is-mens)').count()) + ' ava-berichten, laatste bezoeker: ' + (await p.locator('.v-dm__b--zij').last().textContent()).slice(0, 40));
+              await p.locator('.v-dm__modus button', { hasText: 'AVA auto' }).click(); await p.waitForTimeout(1500);
               await bctx.close();
               await p.locator('.v-dash__nav button', { hasText: 'Settings' }).click(); await p.locator('.v-instel__nav button', { hasText: 'Subscription' }).click();
               await p.waitForSelector('.v-billing button'); await shot(p, 'subscription');
