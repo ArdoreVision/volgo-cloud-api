@@ -12,4 +12,6 @@ jobs:
           done
           r=$(curl -s https://api.stripe.com/v1/balance -u "$STRIPE_SECRET_KEY:")
           echo "::warning::STRIPE sleutel begint ${STRIPE_SECRET_KEY:0:8} lengte ${#STRIPE_SECRET_KEY} | $(echo "$r" | head -c 300 | tr '\n' ' ')"
+          r=$(curl -s https://api.stripe.com/v1/checkout/sessions -u "$STRIPE_SECRET_KEY:" -d mode=subscription -d locale=nl -d "line_items[0][quantity]=1" -d "line_items[0][price_data][currency]=eur" -d "line_items[0][price_data][unit_amount]=14995" -d "line_items[0][price_data][recurring][interval]=month" -d "line_items[0][price_data][product_data][name]=Volgo Start" -d "subscription_data[trial_period_days]=7" -d "metadata[plan]=start" -d "success_url=https://thevolgo.app/aanmelden?session_id={CHECKOUT_SESSION_ID}" -d "cancel_url=https://thevolgo.app/abonnement")
+          echo "::warning::CHECKOUT $(echo "$r" | grep -o '"message": *"[^"]*"\|"url": *"[^"]*"' | head -3 | tr '\n' ' ')"
           echo "::warning::DNS $(dig +short thevolgo.app | tr '\n' ' ')"
