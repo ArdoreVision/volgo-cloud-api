@@ -126,6 +126,15 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
   const gid = meta.gesprek_id;
   await DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'bezoeker', ?)").bind(gid, tekst).run();
 
+  // Taken over by a person in the dashboard? Then AVA stays quiet; the person answers.
+  const mens = await DB.prepare("SELECT overgenomen_naam FROM ava_gesprek_meta WHERE gesprek_id = ? AND overgenomen_door IS NOT NULL")
+    .bind(gid)
+    .first<{ overgenomen_naam: string }>();
+  if (mens) {
+    await DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), status = 'live', berichten = berichten + 1 WHERE id = ?").bind(gid).run();
+    return { token, antwoord: "", mens: mens.overgenomen_naam, laatste_id: await laatsteId(DB, gid) };
+  }
+
   const historie = (
     await DB.prepare("SELECT rol, tekst FROM ava_berichten WHERE gesprek_id = ? ORDER BY id").bind(gid).all<{ rol: string; tekst: string }>()
   ).results;
@@ -209,7 +218,24 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
     DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'ava', ?)").bind(gid, antwoord),
     DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), status = 'live', berichten = berichten + 2, warmte = ? WHERE id = ?").bind(warmte, gid),
   ]);
-  return { token, antwoord };
+  return { token, antwoord, mens: null as string | null, laatste_id: await laatsteId(DB, gid) };
+}
+
+async function laatsteId(DB: D1Database, gid: number) {
+  const r = await DB.prepare("SELECT MAX(id) AS id FROM ava_berichten WHERE gesprek_id = ?").bind(gid).first<{ id: number | null }>();
+  return r?.id ?? 0;
+}
+
+/** For the website chat: new messages from a person (or system notes) since na_id. */
+export async function pollGesprek(DB: D1Database, team: number, token: string, naId: number) {
+  const m = await DB.prepare("SELECT m.gesprek_id, m.overgenomen_naam, m.overgenomen_door FROM ava_gesprek_meta m JOIN ava_gesprekken g ON g.id = m.gesprek_id WHERE m.token = ? AND g.team_id = ?")
+    .bind(token, team)
+    .first<{ gesprek_id: number; overgenomen_naam: string | null; overgenomen_door: number | null }>();
+  if (!m) return { berichten: [], mens: null as string | null, laatste_id: naId };
+  const rows = await DB.prepare("SELECT id, rol, tekst FROM ava_berichten WHERE gesprek_id = ? AND id > ? AND rol IN ('mens', 'systeem') ORDER BY id LIMIT 50")
+    .bind(m.gesprek_id, naId)
+    .all<{ id: number; rol: string; tekst: string }>();
+  return { berichten: rows.results, mens: m.overgenomen_door ? m.overgenomen_naam : null, laatste_id: Math.max(naId, ...rows.results.map((b) => b.id)) };
 }
 
 type Update = { naam?: string; contact?: string; onderwerp?: string; warmte?: number; reden?: string; lead_klaar?: boolean };

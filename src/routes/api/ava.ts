@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { hashIp, recentCount } from "@/lib/aanvraag.server";
-import { instellingenViaSleutel, verwerkBericht } from "@/lib/ava.server";
+import { instellingenViaSleutel, pollGesprek, verwerkBericht } from "@/lib/ava.server";
 import { bindings } from "@/lib/bindings.server";
 
 // Openbare API voor de AVA-chat op websites van klanten (aangeroepen door /ava.js).
@@ -17,6 +17,7 @@ const json = (body: unknown, status = 200) =>
 
 const schema = z.discriminatedUnion("actie", [
   z.object({ actie: z.literal("config"), sleutel: z.string().max(64) }),
+  z.object({ actie: z.literal("poll"), sleutel: z.string().max(64), token: z.string().max(64), na_id: z.number().int().min(0) }),
   z.object({ actie: z.literal("bericht"), sleutel: z.string().max(64), token: z.string().max(64).optional(), tekst: z.string().trim().min(1).max(1500) }),
 ]);
 
@@ -39,6 +40,9 @@ export const Route = createFileRoute("/api/ava")({
           const { actieveStijl } = await import("@/lib/stijl.server");
           const stijl = await actieveStijl(DB, inst.team_id);
           return json({ naam: inst.naam, begroeting: inst.begroeting, kleur: inst.kleur, bedrijf: inst.bedrijf, ...stijl });
+        }
+        if (body.actie === "poll") {
+          return json(await pollGesprek(DB, inst.team_id, body.token, body.na_id));
         }
         const ipHash = await hashIp(request.headers.get("cf-connecting-ip") ?? "onbekend");
         if ((await recentCount("chat_log", ipHash, 60)) >= 80) return json({ antwoord: "You've sent a lot of messages. Please try again in a little while." });

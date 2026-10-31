@@ -958,3 +958,18 @@ a.v-plan__cta { display: block; text-align: center; text-decoration: none; box-s
 .v-website__intro em { font-style: normal; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: #fff; font-size: 11.5px; font-weight: 700; }
 .v-website__form { display: grid; gap: 16px; max-width: 720px; }
 .v-website__form textarea { width: 100%; }
+
+/* ---------- Take over ---------- */
+.v-convo__acties { display: flex; align-items: center; gap: 10px; }
+.v-convo__acties button { margin: 0; padding: 9px 16px; font-size: 14px; }
+.v-convo__mens { margin: 0; padding: 10px 16px; background: #fff7e6; color: #7a5200; font-size: 14px; border-bottom: 1px solid var(--line); }
+.v-mens-badge { padding: 3px 9px; border-radius: 999px; background: #fff1d6; color: #8a5a00; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.v-tb--mens { align-self: flex-start; }
+.v-tb--mens p { background: #1f9d55 !important; color: #fff !important; }
+.v-tb-systeem { align-self: center; margin: 4px 0; padding: 4px 12px; border-radius: 999px; background: var(--surface); color: var(--muted); font-size: 12.5px; }
+.v-convo__invoer { display: flex; gap: 8px; align-items: flex-end; margin: 10px 14px 14px; padding: 6px 6px 6px 14px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
+.v-convo__invoer:focus-within { border-color: #1f9d55; }
+.v-convo__invoer textarea { flex: 1; min-width: 0; border: 0; outline: 0 !important; box-shadow: none !important; resize: none; font: inherit; font-size: 15px; padding: 8px 0; background: transparent; field-sizing: content; max-height: 140px; }
+.v-convo__invoer button { border: 0; border-radius: 12px; padding: 10px 16px; background: #1f9d55; color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+.v-convo__invoer button:disabled { opacity: 0.45; cursor: default; }
+.v-convo__hint { margin: 10px 14px 14px; font-size: 13.5px; color: var(--muted); }

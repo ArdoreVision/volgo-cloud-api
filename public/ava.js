@@ -45,6 +45,10 @@
 .b{max-width:84%;padding:10px 14px;border-radius:20px;font-size:15px;line-height:1.45;white-space:pre-line;word-break:break-word;animation:pop .3s cubic-bezier(.34,1.56,.64,1)}\
 .b.a{align-self:flex-start;background:#fff;color:#111318;box-shadow:0 1px 2px rgba(17,19,24,.08);border-bottom-left-radius:6px}\
 .b.u{align-self:flex-end;background:var(--c);color:#fff;border-bottom-right-radius:6px}\
+.b.h{align-self:flex-start;background:#fff;color:#111318;box-shadow:0 1px 2px rgba(17,19,24,.08);border-bottom-left-radius:6px;border-left:3px solid #1f9d55}\
+.b.h b{display:block;font-size:12px;color:#1f9d55;margin-bottom:2px}\
+.b.s{align-self:center;background:rgba(17,19,24,.05);color:#6b7280;font-size:12.5px;padding:5px 12px}\
+.donker .b.h{background:#1b2230;color:#eef1f6}.donker .b.s{background:rgba(255,255,255,.07);color:#9aa3af}\
 @keyframes pop{from{transform:scale(.92) translateY(6px)}}\
 .typ{display:inline-flex;gap:4px;padding:14px 16px}\
 .typ span{width:7px;height:7px;border-radius:50%;background:#9aa3af;animation:d 1.2s infinite}\
@@ -82,17 +86,18 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   var fab = $(".fab"), panel = $(".panel"), log = $(".log"), form = $("form"), ta = $("textarea"), send = $(".send");
   var config = null, busy = false;
 
-  function bubble(rol, tekst) {
+  function bubble(rol, tekst, wie) {
     var p = document.createElement("p");
-    p.className = "b " + (rol === "u" ? "u" : "a");
-    p.textContent = tekst;
+    p.className = "b " + (rol === "u" ? "u" : rol === "h" ? "h" : rol === "s" ? "s" : "a");
+    if (rol === "h" && wie) { var n = document.createElement("b"); n.textContent = wie; p.appendChild(n); p.appendChild(document.createTextNode(tekst)); }
+    else p.textContent = tekst;
     log.appendChild(p);
     log.scrollTop = log.scrollHeight;
   }
   function render() {
     log.innerHTML = "";
     if (config) bubble("a", config.begroeting);
-    state.msgs.forEach(function (m) { bubble(m.r, m.t); });
+    state.msgs.forEach(function (m) { bubble(m.r, m.t, m.w); });
   }
   function applyConfig(c) {
     config = c;
@@ -122,6 +127,32 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   ta.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); verstuur(); } });
   form.addEventListener("submit", function (e) { e.preventDefault(); verstuur(); });
 
+  // A team member can take over the chat from the dashboard: fetch their messages.
+  var mens = null;
+  function zetKop() {
+    var sub = $(".sub");
+    if (sub) sub.textContent = mens ? mens + " from the team is here" : "Replies instantly";
+  }
+  function poll() {
+    if (!state.token) return;
+    post({ actie: "poll", sleutel: KEY, token: state.token, na_id: state.na || 0 }).then(function (r) {
+      if (!r || !r.berichten) return;
+      (r.berichten || []).forEach(function (b) {
+        var rol = b.rol === "mens" ? "h" : "s";
+        var m = { r: rol, t: b.tekst, w: rol === "h" ? (r.mens || "Team") : undefined };
+        state.msgs.push(m); bubble(m.r, m.t, m.w);
+        if (!panel.classList.contains("open")) { var d = $(".dot"); if (d) d.hidden = false; }
+      });
+      state.na = Math.max(state.na || 0, r.laatste_id || 0);
+      if (mens !== r.mens) { mens = r.mens; zetKop(); }
+      save(state);
+    }).catch(function () {});
+  }
+  (function lus() {
+    poll();
+    setTimeout(lus, panel.classList.contains("open") ? 3000 : 12000);
+  })();
+
   function verstuur() {
     var t = ta.value.trim();
     if (!t || busy) return;
@@ -131,6 +162,8 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     post({ actie: "bericht", sleutel: KEY, token: state.token, tekst: t }).then(function (r) {
       typ.remove();
       if (r.token) state.token = r.token;
+      if (r.laatste_id) state.na = Math.max(state.na || 0, r.laatste_id);
+      if (r.mens) { mens = r.mens; zetKop(); save(state); return; }
       var a = r.antwoord || "Something went wrong. Please try again.";
       state.msgs.push({ r: "a", t: a }); save(state); bubble("a", a);
     }).catch(function () {

@@ -265,9 +265,11 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
     DB.prepare("SELECT id, lead_id, titel, start, eind, locatie, notitie, voorbeeld FROM afspraken WHERE team_id = ? ORDER BY start")
       .bind(team)
       .all<{ id: number; lead_id: number | null; titel: string; start: string; eind: string; locatie: string | null; notitie: string | null; voorbeeld: number }>(),
-    DB.prepare("SELECT id, bezoeker, kanaal, onderwerp, status, gestart, laatste, berichten, warmte, voorbeeld FROM ava_gesprekken WHERE team_id = ? ORDER BY laatste DESC LIMIT 30")
+    DB.prepare(
+      "SELECT g.id, g.bezoeker, g.kanaal, g.onderwerp, g.status, g.gestart, g.laatste, g.berichten, g.warmte, g.voorbeeld, m.overgenomen_naam FROM ava_gesprekken g LEFT JOIN ava_gesprek_meta m ON m.gesprek_id = g.id WHERE g.team_id = ? ORDER BY g.laatste DESC LIMIT 30",
+    )
       .bind(team)
-      .all<{ id: number; bezoeker: string; kanaal: string; onderwerp: string; status: string; gestart: string; laatste: string; berichten: number; warmte: number; voorbeeld: number }>(),
+      .all<{ id: number; bezoeker: string; kanaal: string; onderwerp: string; status: string; gestart: string; laatste: string; berichten: number; warmte: number; voorbeeld: number; overgenomen_naam: string | null }>(),
     DB.prepare(
       `SELECT g.id, g.naam, g.email, COALESCE(t.rol, 'eigenaar') AS rol FROM gebruikers g
        LEFT JOIN team_leden t ON t.gebruiker_id = g.id

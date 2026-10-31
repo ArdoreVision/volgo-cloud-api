@@ -61,11 +61,12 @@ export const haalGesprek = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { g, DB } = await sessie();
     const gesprek = await DB.prepare(
-      `SELECT g.id, g.bezoeker, g.kanaal, g.onderwerp, g.status, g.gestart, g.laatste, g.berichten, g.warmte, g.voorbeeld, m.contact, m.lead_id
+      `SELECT g.id, g.bezoeker, g.kanaal, g.onderwerp, g.status, g.gestart, g.laatste, g.berichten, g.warmte, g.voorbeeld, m.contact, m.lead_id,
+              m.overgenomen_door, m.overgenomen_naam, m.token IS NOT NULL AS kan_chatten
        FROM ava_gesprekken g LEFT JOIN ava_gesprek_meta m ON m.gesprek_id = g.id WHERE g.id = ? AND g.team_id = ?`,
     )
       .bind(data.id, g.team_id)
-      .first<{ id: number; bezoeker: string; kanaal: string; onderwerp: string; status: string; gestart: string; laatste: string; berichten: number; warmte: number; voorbeeld: number; contact: string | null; lead_id: number | null }>();
+      .first<{ id: number; bezoeker: string; kanaal: string; onderwerp: string; status: string; gestart: string; laatste: string; berichten: number; warmte: number; voorbeeld: number; contact: string | null; lead_id: number | null; overgenomen_door: number | null; overgenomen_naam: string | null; kan_chatten: number }>();
     if (!gesprek) return null;
     const berichten = (
       await DB.prepare("SELECT id, rol, tekst, created_at FROM ava_berichten WHERE gesprek_id = ? ORDER BY id").bind(data.id).all<{ id: number; rol: string; tekst: string; created_at: string }>()
@@ -102,5 +103,48 @@ export const bewaarStijl = createServerFn({ method: "POST" })
     )
       .bind(g.team_id, data.avatar, data.positie, data.thema, data.vorm, data.lettertype, data.knoptekst, data.branding ? 1 : 0)
       .run();
+    return { ok: true as const, message: "" };
+  });
+
+// ── A person takes over a conversation from AVA ─────────────────
+async function eigenGesprek(DB: NonNullable<ReturnType<typeof bindings>["DB"]>, team: number, id: number) {
+  return DB.prepare("SELECT g.id FROM ava_gesprekken g JOIN ava_gesprek_meta m ON m.gesprek_id = g.id WHERE g.id = ? AND g.team_id = ?").bind(id, team).first();
+}
+
+export const neemGesprekOver = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ id: z.number().int(), aan: z.boolean() }).parse(v))
+  .handler(async ({ data }) => {
+    const { g, DB } = await sessie();
+    if (!(await eigenGesprek(DB, g.team_id, data.id))) return { ok: false as const };
+    const voornaam = g.naam.split(/\s+/)[0] || g.naam;
+    if (data.aan) {
+      await DB.batch([
+        DB.prepare("UPDATE ava_gesprek_meta SET overgenomen_door = ?, overgenomen_naam = ? WHERE gesprek_id = ?").bind(g.id, voornaam, data.id),
+        DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'systeem', ?)").bind(data.id, `${voornaam} joined the chat`),
+      ]);
+    } else {
+      await DB.batch([
+        DB.prepare("UPDATE ava_gesprek_meta SET overgenomen_door = NULL, overgenomen_naam = NULL WHERE gesprek_id = ?").bind(data.id),
+        DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'systeem', ?)").bind(data.id, `${voornaam} left the chat. AVA is back to help.`),
+      ]);
+    }
+    return { ok: true as const };
+  });
+
+export const stuurMensBericht = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ id: z.number().int(), tekst: z.string().trim().min(1).max(2000) }).parse(v))
+  .handler(async ({ data }) => {
+    const { g, DB } = await sessie();
+    const m = await DB.prepare(
+      "SELECT m.overgenomen_door FROM ava_gesprek_meta m JOIN ava_gesprekken g ON g.id = m.gesprek_id WHERE m.gesprek_id = ? AND g.team_id = ?",
+    )
+      .bind(data.id, g.team_id)
+      .first<{ overgenomen_door: number | null }>();
+    if (!m) return { ok: false as const, message: "Conversation not found." };
+    if (!m.overgenomen_door) return { ok: false as const, message: "Take over the conversation first." };
+    await DB.batch([
+      DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'mens', ?)").bind(data.id, data.tekst),
+      DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), status = 'live', berichten = berichten + 1 WHERE id = ?").bind(data.id),
+    ]);
     return { ok: true as const, message: "" };
   });
