@@ -56,7 +56,15 @@ jobs:
               await p.locator('#cardExpiry').fill('12 / 34');
               await p.locator('#cardCvc').fill('123');
               await p.locator('#billingName').fill('Test Klant');
-              if (await p.locator('#billingPostalCode').isVisible().catch(() => false)) await p.fill('#billingPostalCode', '4381AA');
+              if (await p.locator('#billingCountry').isVisible().catch(() => false)) await p.selectOption('#billingCountry', 'NL');
+              await p.waitForTimeout(800);
+              const vul = async (sel, v) => { if (await p.locator(sel).isVisible().catch(() => false)) await p.fill(sel, v); };
+              const handmatig = p.locator('button:has-text("handmatig"), button:has-text("manually"), .AddressAutocomplete-manual-entry .Link');
+              if (await handmatig.first().isVisible().catch(() => false)) await handmatig.first().click();
+              await vul('#billingAddressLine1', 'Bellamypark 1');
+              await vul('#billingPostalCode', '4381 CG');
+              await vul('#billingLocality', 'Vlissingen');
+              await shot(p, 'stripe-ingevuld');
               await p.locator('.SubmitButton, button[type=submit]').first().click();
               await p.waitForURL('**/aanmelden**', { timeout: 60000 }).catch(async (e) => { await shot(p, 'stripe-fout'); log('stripe bleef op ' + p.url()); throw e; });
             } else {
