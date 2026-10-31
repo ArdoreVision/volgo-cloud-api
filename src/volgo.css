@@ -837,3 +837,4 @@ a.v-plan__cta { display: block; text-align: center; text-decoration: none; box-s
 }
 .v-how, .v-bento-wrap, .v-pricing--home { scroll-margin-top: 90px; }
 .v-billing { margin-top: 20px; display: grid; gap: 8px; justify-items: start; } .v-billing p { margin: 0; }
+.v-final .v-lede { margin-inline: auto; }
