@@ -41,7 +41,7 @@ jobs:
           const log = (m) => console.log('::warning::E2E ' + m);
           const shot = (p, n) => p.screenshot({ path: `/tmp/shots/${n}.png` });
           // Nieuwe klant: landing -> abonnement -> betalen -> account -> inloggen -> dashboard
-          {
+          nieuw: {
             const ctx = await b.newContext({ viewport: { width: 1366, height: 860 } });
             const p = await ctx.newPage();
             p.on('console', (m) => m.type() === 'error' && log('console: ' + m.text().slice(0, 200)));
@@ -56,6 +56,11 @@ jobs:
               log('stripe checkout geopend');
               await p.waitForSelector('#email', { timeout: 30000 });
               await shot(p, 'stripe');
+              if (p.url().includes('cs_live_')) {
+                const tekst = (await p.locator('body').innerText()).replace(/\n/g, ' ');
+                log('LIVE checkout geopend, geen betaling gedaan | ' + (tekst.match(/€\s?[\d.,]+/g) || []).slice(0, 3).join(' ') + ' | ' + tekst.slice(0, 160));
+                await ctx.close(); break nieuw;
+              }
               await p.fill('#email', mail);
               if (!(await p.locator('#cardNumber').isVisible().catch(() => false))) await p.locator('[data-testid="card-accordion-item-button"], #payment-method-accordion-item-title-card, label:has-text("Card")').first().click({ force: true });
               await p.waitForSelector('#cardNumber', { state: 'visible', timeout: 15000 });

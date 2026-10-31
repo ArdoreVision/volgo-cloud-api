@@ -149,8 +149,9 @@ export const controleerBetaling = createServerFn({ method: "GET" })
         const meta = (s.metadata ?? {}) as Record<string, string>;
         const details = (s.customer_details ?? {}) as Record<string, string>;
         if (s.status !== "complete" || !isPlan(meta.plan)) return null;
-        await DB.prepare("INSERT INTO betalingen (token, plan, status, email, stripe_klant, stripe_abonnement) VALUES (?, ?, 'betaald', ?, ?, ?)")
-          .bind(data.session_id, meta.plan, details.email ?? "", String(s.customer ?? ""), String(s.subscription ?? ""))
+        // testmodus = 1 for payments made with a Stripe test key, so they never count as real revenue.
+        await DB.prepare("INSERT INTO betalingen (token, plan, status, email, stripe_klant, stripe_abonnement, testmodus) VALUES (?, ?, 'betaald', ?, ?, ?, ?)")
+          .bind(data.session_id, meta.plan, details.email ?? "", String(s.customer ?? ""), String(s.subscription ?? ""), s.livemode ? 0 : 1)
           .run();
         return { token: data.session_id, plan: meta.plan, email: details.email ?? "" };
       } catch (err) {
@@ -184,7 +185,7 @@ export const maakAccount = createServerFn({ method: "POST" })
     const b = await DB.prepare("SELECT plan, status, gebruikt, testmodus, stripe_klant, stripe_abonnement FROM betalingen WHERE token = ?")
       .bind(data.token)
       .first<{ plan: string; status: string; gebruikt: number; testmodus: number; stripe_klant: string | null; stripe_abonnement: string | null }>();
-    if (!b || b.status !== "betaald" || b.gebruikt || !isPlan(b.plan) || (STRIPE_SECRET_KEY && b.testmodus)) {
+    if (!b || b.status !== "betaald" || b.gebruikt || !isPlan(b.plan) || (STRIPE_SECRET_KEY && b.testmodus && (!b.stripe_abonnement || STRIPE_SECRET_KEY.startsWith("sk_live")))) {
       return { ok: false as const, message: "We couldn’t find your payment. Please choose a plan again." };
     }
     const bestaat = await DB.prepare("SELECT id FROM gebruikers WHERE email = ?").bind(data.email).first();
@@ -215,11 +216,14 @@ export const activeerAbonnement = createServerFn({ method: "POST" })
     const { DB } = bindings();
     if (!g || !DB) return { ok: false as const, message: "Please log in first." };
     if (g.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can change the subscription." };
-    const b = await DB.prepare("SELECT plan, status, gebruikt, stripe_klant, stripe_abonnement FROM betalingen WHERE token = ?")
+    const b = await DB.prepare("SELECT plan, status, gebruikt, testmodus, stripe_klant, stripe_abonnement FROM betalingen WHERE token = ?")
       .bind(data.token)
-      .first<{ plan: string; status: string; gebruikt: number; stripe_klant: string | null; stripe_abonnement: string | null }>();
+      .first<{ plan: string; status: string; gebruikt: number; testmodus: number; stripe_klant: string | null; stripe_abonnement: string | null }>();
     if (!b || b.status !== "betaald" || b.gebruikt || !isPlan(b.plan)) return { ok: false as const, message: "We couldn’t find your payment." };
     const { STRIPE_SECRET_KEY } = bindings();
+    if (STRIPE_SECRET_KEY && b.testmodus && (!b.stripe_abonnement || STRIPE_SECRET_KEY.startsWith("sk_live"))) {
+      return { ok: false as const, message: "This was a test payment. Please choose your plan again." };
+    }
     // With Stripe: the checkout must have been started for this account (no stacking a new free trial).
     if (STRIPE_SECRET_KEY) {
       const sessie = (await stripe(`checkout/sessions/${encodeURIComponent(data.token)}`).catch(() => null)) as { metadata?: Record<string, string> } | null;
@@ -240,10 +244,11 @@ export const activeerAbonnement = createServerFn({ method: "POST" })
       if (del && !del.ok && del.status >= 500) console.error("[reactivate] old subscription not canceled", oud.stripe_abonnement, del.status);
     }
     await DB.batch([
-      DB.prepare("UPDATE gebruikers SET plan = ?, status = 'actief', proef_tot = NULL, stripe_check = NULL, stripe_klant = COALESCE(NULLIF(?, ''), stripe_klant), stripe_abonnement = COALESCE(NULLIF(?, ''), stripe_abonnement) WHERE id = ?").bind(
+      DB.prepare("UPDATE gebruikers SET plan = ?, status = 'actief', proef_tot = NULL, stripe_check = NULL, stripe_klant = COALESCE(NULLIF(?, ''), stripe_klant), stripe_abonnement = COALESCE(NULLIF(?, ''), stripe_abonnement), testmodus = ? WHERE id = ?").bind(
         b.plan,
         b.stripe_klant ?? "",
         b.stripe_abonnement ?? "",
+        b.testmodus ? 1 : 0,
         g.team_id,
       ),
     ]);
