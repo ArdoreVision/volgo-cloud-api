@@ -20,6 +20,9 @@ import { isAdmin } from "@/lib/api/admin.functions";
 import { PlanCall } from "@/components/dash/plan-call";
 import { Verkeer } from "@/components/dash/verkeer";
 import { ProfielFoto, ProfielKnop } from "@/components/dash/profiel";
+import { ProfielSamenvatting, ProfielVragen } from "@/components/dash/profiel-vragen";
+import { haalAva } from "@/lib/api/ava.functions";
+import { leesProfiel, type Profiel } from "@/lib/profiel-vragen";
 import { checkNieuw } from "@/lib/api/ava.functions";
 import { PLANS, isPlan } from "@/lib/plans";
 import "@/volgo.css";
@@ -136,6 +139,15 @@ function Dashboard() {
   const vorige = useRef<Tab>("home");
   const [meer, setMeer] = useState(false);
   const [admin, setAdmin] = useState(false);
+  // The five profile questions: once for the owner before the dashboard, later changeable on the Train AVA page.
+  const [vragenOpen, setVragenOpen] = useState(false);
+  const [profiel, setProfiel] = useState<Profiel | null>(null);
+  useEffect(() => {
+    if (tab !== "ava") return;
+    void haalAva()
+      .then((a) => setProfiel(leesProfiel(a.inst.profiel)))
+      .catch(() => setProfiel({}));
+  }, [tab, vragenOpen]);
   // Day or night mode: remembered per device, follows the phone/computer setting the first time.
   const [thema, setThema] = useState<"licht" | "donker">("licht");
   useEffect(() => {
@@ -245,6 +257,22 @@ function Dashboard() {
     ["agenda", "Calendar"],
   ];
 
+  // First login of the owner: answer the five questions before anything else.
+  if ((g.rol === "eigenaar" && !data.profielKlaar) || vragenOpen)
+    return (
+      <div className="volgo v-dash v-dash--editor" data-thema={thema}>
+        <ProfielVragen
+          annuleer={vragenOpen && data.profielKlaar ? () => setVragenOpen(false) : undefined}
+          bedrijf={g.bedrijf}
+          klaar={async () => {
+            setVragenOpen(false);
+            await router.invalidate();
+          }}
+          start={vragenOpen ? (profiel ?? {}) : {}}
+        />
+      </div>
+    );
+
   // Customize: a full-screen editor, like Shopify's theme editor.
   if (tab === "ontwerp")
     return (
@@ -330,6 +358,7 @@ function Dashboard() {
               <h1>Train AVA</h1>
               <p>Tell AVA about your services, prices and area. The more it knows, the better it answers and the warmer your leads.</p>
             </header>
+            {profiel ? <ProfielSamenvatting profiel={profiel} wijzig={() => setVragenOpen(true)} /> : null}
             <AvaInstellen deel="praten" />
           </>
         ) : null}

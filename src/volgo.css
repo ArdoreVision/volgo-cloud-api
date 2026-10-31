@@ -1722,3 +1722,45 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .vx-video__noot { margin: 18px auto 0; max-width: 60ch; text-align: center; color: var(--muted); font-size: 14.5px; line-height: 1.5; }
 .vx-video__noot a { color: var(--accent); text-decoration: none; font-weight: 500; }
 .vx-video__noot a:hover { text-decoration: underline; }
+
+/* ── Five profile questions (before the dashboard) ───────────── */
+.v-vragen { min-height: 100dvh; display: grid; place-items: center; padding: 24px 16px; background: var(--surface); }
+.v-vragen__kaart { width: 100%; max-width: 620px; background: var(--card); border: 1px solid var(--line); border-radius: 28px; padding: 28px clamp(20px, 5vw, 44px) 24px; box-shadow: 0 24px 60px rgba(17, 19, 24, 0.06); animation: v-fade 0.3s ease; }
+.v-vragen__top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.v-vragen__top .v-nav__brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+.v-vragen__teller { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; }
+.v-vragen__balk { height: 5px; border-radius: 9px; background: var(--surface); overflow: hidden; margin-bottom: 26px; }
+.v-vragen__balk i { display: block; height: 100%; border-radius: 9px; background: var(--accent); transition: width 0.45s var(--ease); }
+.v-vragen__intro { margin: 0 0 18px; padding: 12px 14px; border-radius: 14px; background: var(--sky-2); color: var(--ink-2); font-size: 14px; line-height: 1.5; }
+.v-vragen__titel { margin: 0 0 6px; font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 600; letter-spacing: -0.03em; line-height: 1.15; animation: v-fade 0.25s ease; }
+.v-vragen__sub { margin: 0 0 22px; color: var(--muted); font-size: 15px; line-height: 1.5; }
+.v-vragen__opties { display: grid; gap: 8px; }
+.v-vragen__optie { display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; border: 1.5px solid var(--line); border-radius: 16px; background: var(--card); color: var(--ink); font: inherit; text-align: left; cursor: pointer; transition: border-color 0.18s, background 0.18s, transform 0.18s var(--ease); }
+.v-vragen__optie:hover { border-color: #c9d6ea; background: var(--surface); }
+.v-vragen__optie:active { transform: scale(0.995); }
+.v-vragen__optie[aria-checked="true"] { border-color: var(--accent); background: var(--sky-2); }
+.v-vragen__optie:disabled { opacity: 0.6; cursor: default; }
+.v-vragen__optie > span:last-child { display: grid; gap: 2px; min-width: 0; }
+.v-vragen__optie strong { font-weight: 600; font-size: 15.5px; }
+.v-vragen__optie small { color: var(--muted); font-size: 13px; line-height: 1.4; }
+.v-vragen__bol { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid #c6ccd6; transition: border-color 0.18s, box-shadow 0.18s; }
+.v-vragen__optie[aria-checked="true"] .v-vragen__bol { border-color: var(--accent); box-shadow: inset 0 0 0 5px var(--accent); }
+.v-vragen__fout { margin: 14px 0 0; color: var(--bad); font-size: 14px; }
+.v-vragen__voet { display: flex; align-items: center; justify-content: space-between; margin-top: 22px; min-height: 36px; }
+.v-vragen__terug { border: 0; background: transparent; color: var(--ink-2); font: inherit; font-size: 14.5px; font-weight: 500; cursor: pointer; padding: 8px 10px; margin-left: -10px; border-radius: 10px; }
+.v-vragen__terug:hover { background: var(--surface); }
+.v-vragen__hint { font-size: 13px; color: var(--muted); }
+.v-dash[data-thema="donker"] .v-vragen__kaart { box-shadow: none; }
+.v-dash[data-thema="donker"] .v-vragen__optie:hover { border-color: #3a4556; }
+
+/* The answers on the Train AVA page */
+.v-profiel-kaart__kop { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+.v-profiel-kaart__kop h2 { margin: 0 0 4px; }
+.v-profiel-kaart__kop p { margin: 0; }
+.v-btn-wit { border: 1.5px solid var(--line); border-radius: 999px; padding: 10px 18px; background: var(--card); color: var(--ink); font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap; }
+.v-btn-wit:hover { background: var(--surface); }
+.v-profiel-kaart__lijst { margin: 0; display: grid; gap: 0; }
+.v-profiel-kaart__lijst > div { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 12px; padding: 11px 0; border-top: 1px solid var(--line); }
+.v-profiel-kaart__lijst dt { margin: 0; color: var(--muted); font-size: 14px; }
+.v-profiel-kaart__lijst dd { margin: 0; font-weight: 500; font-size: 14.5px; }
+@media (max-width: 600px) { .v-profiel-kaart__lijst > div { grid-template-columns: 1fr; gap: 2px; } }

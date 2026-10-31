@@ -6,6 +6,7 @@ import { stijlSchema } from "../stijl.server";
 import { huidigeGebruiker } from "../auth.server";
 import { bindings } from "../bindings.server";
 import { actieveGebruiker } from "../toegang.server";
+import { leesProfiel, profielCompleet } from "../profiel-vragen";
 
 async function sessie() {
   const g = await actieveGebruiker().catch(() => null);
@@ -45,6 +46,18 @@ export const bewaarAva = createServerFn({ method: "POST" })
       .bind(data.naam, data.begroeting, data.bedrijfsinfo, data.kleur, g.team_id)
       .run();
     return { ok: true };
+  });
+
+/** The five profile questions (what kind of business, customers, next step, lead time, tone). All five are required. */
+export const bewaarProfiel = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.record(z.string(), z.string()).parse(v))
+  .handler(async ({ data }) => {
+    const { g, DB } = await sessie();
+    const p = leesProfiel(JSON.stringify(data));
+    if (!profielCompleet(p)) return { ok: false as const, message: "Please answer all five questions." };
+    await instellingenVoorTeam(DB, g.team_id);
+    await DB.prepare("UPDATE ava_instellingen SET profiel = ? WHERE team_id = ?").bind(JSON.stringify(p), g.team_id).run();
+    return { ok: true as const, message: "" };
   });
 
 /** Appointments AVA lets visitors book in the chat: on/off, opening days and hours, duration, kinds and time zone. */

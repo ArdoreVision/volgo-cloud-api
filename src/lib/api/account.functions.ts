@@ -7,6 +7,7 @@ import { checkWachtwoord, hashWachtwoord, huidigeGebruiker, maakSessie, randomTo
 import { bindings } from "../bindings.server";
 import { SITE_URL, VOLGO_INBOX, esc, mailOpmaak, verstuurMail } from "../mail.server";
 import { PLANS, isPlan } from "../plans";
+import { leesProfiel, profielCompleet } from "../profiel-vragen";
 import { seedTeam, zorgVoorKanaal } from "../team.server";
 import { actieveGebruiker, heeftToegang } from "../toegang.server";
 
@@ -335,6 +336,9 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
       : await DB.prepare("SELECT plan, status, proef_tot, bedrijf, testmodus FROM gebruikers WHERE id = ?").bind(team).first<{ plan: string; status: string; proef_tot: string | null; bedrijf: string; testmodus: number }>();
 
   const profiel = await DB.prepare("SELECT foto, functie FROM gebruikers WHERE id = ?").bind(g.id).first<{ foto: string | null; functie: string | null }>();
+  // The five profile questions: answered once by the owner before the dashboard opens.
+  const avaProfiel = await DB.prepare("SELECT profiel FROM ava_instellingen WHERE team_id = ?").bind(team).first<{ profiel: string | null }>();
+  const profielKlaar = profielCompleet(leesProfiel(avaProfiel?.profiel));
   const [leads, afspraken, gesprekken, leden, kanalen] = await Promise.all([
     DB.prepare(
       `SELECT l.id, l.created_at, l.naam, l.onderwerp, l.kanaal, l.status, l.laatste_actie, l.voorbeeld,
@@ -374,6 +378,7 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
       foto: profiel?.foto ?? "",
       functie: profiel?.functie ?? "",
     },
+    profielKlaar,
     leads: leads.results,
     afspraken: afspraken.results,
     gesprekken: gesprekken.results,

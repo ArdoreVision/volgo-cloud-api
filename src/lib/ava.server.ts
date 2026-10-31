@@ -4,6 +4,7 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { randomToken } from "./auth.server";
 import { bindings } from "./bindings.server";
 import { SITE_URL, esc, mailOpmaak, verstuurMail } from "./mail.server";
+import { leesProfiel, profielVoorAva } from "./profiel-vragen";
 
 export type AvaInstellingen = {
   team_id: number;
@@ -22,8 +23,9 @@ export type AvaInstellingen = {
   afspraak_soorten: string;
   instagram: string;
   toestemming: number;
+  profiel: string;
 };
-const KOLOMMEN = "a.team_id, a.sleutel, a.naam, a.begroeting, a.bedrijfsinfo, a.kleur, a.boeken, a.tijdzone, a.open_dagen, a.open_van, a.open_tot, a.afspraak_duur, a.afspraak_soorten, a.instagram, a.toestemming, g.bedrijf";
+const KOLOMMEN = "a.team_id, a.sleutel, a.naam, a.begroeting, a.bedrijfsinfo, a.kleur, a.boeken, a.tijdzone, a.open_dagen, a.open_van, a.open_tot, a.afspraak_duur, a.afspraak_soorten, a.instagram, a.toestemming, a.profiel, g.bedrijf";
 
 export async function instellingenVoorTeam(DB: D1Database, teamId: number): Promise<AvaInstellingen> {
   const bestaand = await DB.prepare(
@@ -383,8 +385,12 @@ async function claudeAntwoord(
 ) {
   const { CLAUDE_MODEL } = bindings();
   const boekTekst = boeken ? (await import("./boeken.server")).agendaInstructies(inst) : "";
+  const profielTekst = profielVoorAva(leesProfiel(inst.profiel));
   const system = `You are ${inst.naam}, the AI assistant in the chat on the website of ${inst.bedrijf}.
-
+${profielTekst ? `
+BUSINESS PROFILE (answered by the owner, follow it)
+${profielTekst}
+` : ""}
 ABOUT THE BUSINESS
 ${inst.bedrijfsinfo || "(No extra information yet. Answer general questions carefully and refer to the team for details.)"}
 
