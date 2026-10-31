@@ -49,6 +49,7 @@ export const startBetaling = createServerFn({ method: "POST" })
       b.set("metadata[plan]", plan.id);
       // HCC is zelf de verkoper; Stripe "Managed Payments" (Stripe als verkoper) staat uit.
       b.set("managed_payments[enabled]", "false");
+      b.set("adaptive_pricing[enabled]", "false"); // altijd in euro's
       b.set("billing_address_collection", "required");
       b.set("tax_id_collection[enabled]", "true");
       b.set("success_url", `${origin()}/aanmelden?session_id={CHECKOUT_SESSION_ID}`);
