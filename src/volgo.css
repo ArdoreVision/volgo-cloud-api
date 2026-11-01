@@ -1764,3 +1764,22 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .v-profiel-kaart__lijst dt { margin: 0; color: var(--muted); font-size: 14px; }
 .v-profiel-kaart__lijst dd { margin: 0; font-weight: 500; font-size: 14.5px; }
 @media (max-width: 600px) { .v-profiel-kaart__lijst > div { grid-template-columns: 1fr; gap: 2px; } }
+
+/* ── Story sections: why, moat, trust, founder ───────────── */
+.vx-waarom__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.vx-waarom__grid article { padding: 28px 26px; border-radius: 26px; background: var(--surface); }
+.vx-waarom__grid strong { display: block; margin-bottom: 10px; font-family: var(--display); font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 650; letter-spacing: -0.04em; color: var(--accent); }
+.vx-waarom__grid p { margin: 0; color: var(--ink-2); font-size: 15.5px; line-height: 1.55; }
+.vx-trust__lijst { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.vx-trust__lijst > div { padding: 24px 26px; border-radius: 24px; background: var(--card); box-shadow: 0 0 0 1px var(--line); }
+.vx-trust__lijst dt { margin: 0 0 6px; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.vx-trust__lijst dd { margin: 0; color: var(--ink-2); font-size: 15.5px; line-height: 1.55; }
+.vx-founder__kaart { max-width: 820px; margin: 0 auto; padding: clamp(32px, 5vw, 56px); border-radius: 32px; background: linear-gradient(160deg, var(--sky-2), #fff 60%); box-shadow: 0 0 0 1px var(--line); }
+.vx-founder__kaart .v-h2 { max-width: none; font-weight: 600; }
+.vx-founder__naam { margin: 18px 0 22px; color: var(--muted); font-size: 15px; }
+.vx-founder__links { display: flex; flex-wrap: wrap; gap: 10px; }
+.vx-founder__links a { padding: 10px 18px; border-radius: 999px; background: var(--card); box-shadow: 0 0 0 1px var(--line); color: var(--ink); text-decoration: none; font-size: 14.5px; font-weight: 500; }
+.vx-founder__links a:hover { background: var(--sky-2); }
+@media (max-width: 900px) {
+  .vx-waarom__grid, .vx-trust__lijst { grid-template-columns: 1fr; }
+}

@@ -11,8 +11,8 @@ export function Hero() {
             More customers. Less chasing.
           </h1>
           <p className="v-hero__sub">
-            AVA answers every visitor on your website within seconds, day and night. It asks the right questions, collects their details and puts the people
-            ready to buy at the top of your list. You spend less time on emails and calls, and only call the buyers.
+            Most quote requests come in after hours, and whoever answers first gets the job. AVA answers every visitor on your website within seconds, day
+            and night, collects their details and puts the people ready to buy at the top of your list. You only call the buyers.
           </p>
           <div className="v-hero__actions">
             <a className="v-cta-primary" data-ava-ask="I'd like to start the 7-day free trial. Which plan fits my business?" href="/pricing">

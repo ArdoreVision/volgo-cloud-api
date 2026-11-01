@@ -9,7 +9,7 @@ export function Nav({ ingelogd = false }: { ingelogd?: boolean }) {
           <span>Volgo</span>
         </a>
         <nav aria-label="Main menu" className="v-nav__links">
-          <a href="/#why">Why Volgo</a>
+          <a href="/#why-volgo">Why Volgo</a>
           <a href="/#demo">Live demo</a>
           <a href="/#how">How it works</a>
           <a href="/pricing">Pricing</a>

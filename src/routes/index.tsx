@@ -8,6 +8,7 @@ import { Nav } from "@/components/volgo/nav";
 import { Inside } from "@/components/volgo/inside";
 import { DemoVideo, Feiten, LiveDemo, Marquee, Ranking, Rekenhulp, ScrollProgress, Tijdlijn, Voordelen, Voorbeelden, VoorNa, useReveal } from "@/components/volgo/landing";
 import { FinalCta, PricingPreview } from "@/components/volgo/pricing-preview";
+import { Founder, Moat, Vertrouwen, Waarom } from "@/components/volgo/verhaal";
 import { isIngelogd } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
 
@@ -28,15 +29,19 @@ function Index() {
         <DemoVideo />
         <Marquee />
         <VoorNa />
+        <Waarom />
         <Voordelen />
         <Voorbeelden />
         <LiveDemo />
         <Ranking />
+        <Moat />
         <Rekenhulp />
         <Tijdlijn />
         <Inside />
         <PricingPreview />
+        <Vertrouwen />
         <Faq />
+        <Founder />
         <FinalCta />
       </main>
       <Footer />
