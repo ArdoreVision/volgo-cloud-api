@@ -1,0 +1,23 @@
+name: Account plan zetten
+on:
+  workflow_dispatch:
+    inputs:
+      email: { description: "account-e-mail (leeg = alleen lijst tonen)", required: false, default: "" }
+      plan: { description: "start, pro of premium", required: false, default: "premium" }
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - run: |
+          cd /tmp
+          M="${{ inputs.email }}"; P="${{ inputs.plan }}"
+          q() { npx -y wrangler@4 d1 execute volgo-db --remote --json --command "$1" 2>/dev/null; }
+          echo "::warning::ACCOUNTS $(q "SELECT id, email, bedrijf, plan, status, testmodus FROM gebruikers ORDER BY id" | jq -c '.[0].results')"
+          if [ -n "$M" ]; then
+            case "$P" in start|pro|premium) ;; *) echo "::error::onbekend plan $P"; exit 1;; esac
+            q "UPDATE gebruikers SET plan='$P', status='actief', proef_tot=NULL, stripe_check=NULL WHERE email='$M'" > /dev/null
+            echo "::warning::GEZET $(q "SELECT id, email, bedrijf, plan, status, testmodus FROM gebruikers WHERE email='$M'" | jq -c '.[0].results')"
+          fi
