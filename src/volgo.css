@@ -1810,3 +1810,45 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .v-dm__filter .v-instel__nav { width: 100%; margin: 0; }
 .v-dm__filter .v-instel__nav button { flex: 1; padding: 8px 10px; font-size: 13.5px; }
 .v-dm__filter .v-leadbalk__zoek { max-width: none; height: 40px; }
+
+/* ── Lead detail panel ─────────────────────────────────── */
+.v-table__row--klik { cursor: pointer; }
+.v-table__row--klik:hover { background: var(--surface); }
+.v-table__row--klik:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.v-lp { position: fixed; inset: 0; z-index: 90; display: flex; justify-content: flex-end; background: rgba(15, 23, 42, 0.32); animation: v-fade 0.2s ease; }
+.v-lp__paneel { position: relative; width: min(520px, 100%); height: 100%; overflow-y: auto; padding: 28px 28px 40px; background: var(--card); box-shadow: -20px 0 60px rgba(17, 19, 24, 0.18); animation: v-lp-in 0.32s var(--ease); }
+@keyframes v-lp-in { from { transform: translateX(40px); opacity: 0; } }
+.v-lp__sluit { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--surface); color: var(--ink); font-size: 24px; line-height: 1; cursor: pointer; }
+.v-lp__kop { display: flex; align-items: center; gap: 16px; margin: 6px 44px 10px 0; }
+.v-lp__kop h2 { margin: 0; font-size: 1.5rem; letter-spacing: -0.03em; }
+.v-lp__kop p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+.v-lp__heat { width: 56px; height: 56px; font-size: 20px; flex: none; }
+.v-lp__reden { margin: 0 0 18px; padding: 12px 14px; border-radius: 14px; background: var(--sky-2); color: var(--ink-2); font-size: 14px; line-height: 1.5; }
+.v-lp__acties { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 22px; }
+.v-lp__acties .v-btn-blauw, .v-lp__acties .v-btn-wit { text-decoration: none; display: inline-flex; align-items: center; }
+.v-lp__feiten { margin: 0 0 22px; display: grid; gap: 0; }
+.v-lp__feiten > div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; padding: 11px 0; border-top: 1px solid var(--line); align-items: center; }
+.v-lp__feiten dt { margin: 0; color: var(--muted); font-size: 13.5px; }
+.v-lp__feiten dd { margin: 0; font-size: 14.5px; }
+.v-lp__afspraak { display: block; }
+.v-lp__blok { margin-top: 8px; padding-top: 18px; border-top: 1px solid var(--line); }
+.v-lp__blok h3 { margin: 0 0 10px; font-size: 15px; font-weight: 600; }
+.v-lp__blokkop { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.v-lp__blokkop h3 { margin: 0; }
+.v-lp__notitie { width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); color: var(--ink); font: inherit; font-size: 14.5px; line-height: 1.5; resize: vertical; }
+.v-lp__notitie:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.v-lp__chat { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.v-lp__msg { max-width: 88%; padding: 10px 14px; border-radius: 16px; background: var(--surface); font-size: 14px; line-height: 1.45; }
+.v-lp__msg span { display: block; margin-bottom: 2px; font-size: 11.5px; font-weight: 600; color: var(--muted); letter-spacing: 0.03em; text-transform: uppercase; }
+.v-lp__msg p { margin: 0; white-space: pre-wrap; }
+.v-lp__msg--bezoeker { justify-self: end; background: var(--ink); color: #fff; border-bottom-right-radius: 6px; }
+.v-lp__msg--bezoeker span { color: rgba(255, 255, 255, 0.65); }
+.v-lp__msg--ava { background: var(--sky-2); border-bottom-left-radius: 6px; }
+.v-lp__msg--mens { background: #e8f8ef; border-bottom-left-radius: 6px; }
+.v-lp__msg--systeem { justify-self: center; max-width: 100%; background: transparent; color: var(--muted); font-size: 12.5px; padding: 2px 0; }
+.v-dash[data-thema="donker"] .v-lp__paneel { background: #10161f; }
+.v-dash[data-thema="donker"] .v-lp__msg--mens { background: rgba(31, 157, 85, 0.18); }
+@media (max-width: 900px) {
+  .v-lp { align-items: flex-end; }
+  .v-lp__paneel { width: 100%; height: 92dvh; border-radius: 24px 24px 0 0; padding: 22px 18px calc(28px + env(safe-area-inset-bottom)); animation: v-omhoog 0.32s var(--ease); }
+}

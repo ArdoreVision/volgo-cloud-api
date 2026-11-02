@@ -393,6 +393,41 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
 });
 
 const STATUSSEN = ["nieuw", "opvolging", "offerte", "afspraak", "klant", "verloren"] as const;
+/** One lead in full: details, contact, your notes and the AVA conversation it came from. */
+export const haalLead = createServerFn({ method: "GET" })
+  .validator((v: unknown) => z.object({ id: z.number().int() }).parse(v))
+  .handler(async ({ data }) => {
+    const g = await actieveGebruiker().catch(() => null);
+    const { DB } = bindings();
+    if (!g || !DB) return null;
+    const lead = await DB.prepare(
+      `SELECT l.id, l.created_at, l.naam, l.onderwerp, l.kanaal, l.status, l.laatste_actie, l.voorbeeld, l.notitie,
+              COALESCE(s.warmte, 50) AS warmte, s.reden,
+              m.gesprek_id, m.contact, m.herkomst
+       FROM klant_leads l LEFT JOIN lead_scores s ON s.lead_id = l.id
+       LEFT JOIN ava_gesprek_meta m ON m.lead_id = l.id
+       WHERE l.id = ? AND l.gebruiker_id = ? LIMIT 1`,
+    )
+      .bind(data.id, g.team_id)
+      .first<{ id: number; created_at: string; naam: string; onderwerp: string; kanaal: string; status: string; laatste_actie: string | null; voorbeeld: number; notitie: string; warmte: number; reden: string | null; gesprek_id: number | null; contact: string | null; herkomst: string | null }>();
+    if (!lead) return null;
+    const berichten = lead.gesprek_id
+      ? (await DB.prepare("SELECT id, rol, tekst, created_at FROM ava_berichten WHERE gesprek_id = ? ORDER BY id LIMIT 200").bind(lead.gesprek_id).all<{ id: number; rol: string; tekst: string; created_at: string }>()).results
+      : [];
+    const afspraken = (await DB.prepare("SELECT id, titel, start, eind, locatie FROM afspraken WHERE team_id = ? AND lead_id = ? ORDER BY start").bind(g.team_id, lead.id).all<{ id: number; titel: string; start: string; eind: string; locatie: string | null }>()).results;
+    return { lead, berichten, afspraken };
+  });
+
+export const bewaarLeadNotitie = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ id: z.number().int(), notitie: z.string().max(4000) }).parse(v))
+  .handler(async ({ data }) => {
+    const g = await actieveGebruiker().catch(() => null);
+    const { DB } = bindings();
+    if (!g || !DB) return { ok: false as const };
+    await DB.prepare("UPDATE klant_leads SET notitie = ? WHERE id = ? AND gebruiker_id = ?").bind(data.notitie.trim(), data.id, g.team_id).run();
+    return { ok: true as const };
+  });
+
 export const zetLeadStatus = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ id: z.number().int(), status: z.enum(STATUSSEN) }).parse(v))
   .handler(async ({ data }) => {

@@ -21,6 +21,7 @@ import { PlanCall } from "@/components/dash/plan-call";
 import { Verkeer } from "@/components/dash/verkeer";
 import { ProfielFoto, ProfielKnop } from "@/components/dash/profiel";
 import { ProfielSamenvatting, ProfielVragen } from "@/components/dash/profiel-vragen";
+import { LeadDetail } from "@/components/dash/lead-detail";
 import { haalAva } from "@/lib/api/ava.functions";
 import { leesProfiel, type Profiel } from "@/lib/profiel-vragen";
 import { checkNieuw } from "@/lib/api/ava.functions";
@@ -143,6 +144,7 @@ function Dashboard() {
   const [vragenOpen, setVragenOpen] = useState(false);
   const [leadFilter, setLeadFilter] = useState<"alle" | "nieuw" | "heet" | "open" | "klaar">("alle");
   const [leadZoek, setLeadZoek] = useState("");
+  const [leadOpen, setLeadOpen] = useState<number | null>(null);
   const [profiel, setProfiel] = useState<Profiel | null>(null);
   useEffect(() => {
     if (tab !== "ava") return;
@@ -445,7 +447,19 @@ function Dashboard() {
                         <p className="v-feed__empty v-pad">Nothing matches this filter.</p>
                       ) : null}
                       {lijst.map((l) => (
-                        <div className={`v-table__row${l.warmte >= 75 && open(l) ? " is-heet" : ""}`} key={l.id} role="row">
+                        <div
+                          className={`v-table__row v-table__row--klik${l.warmte >= 75 && open(l) ? " is-heet" : ""}`}
+                          key={l.id}
+                          onClick={(e) => {
+                            if ((e.target as HTMLElement).closest("select")) return;
+                            setLeadOpen(l.id);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !(e.target as HTMLElement).closest("select")) setLeadOpen(l.id);
+                          }}
+                          role="row"
+                          tabIndex={0}
+                        >
                           <span role="cell">
                             <span className={`v-heat v-heat--${warmteLabel(l.warmte).toLowerCase()}`} title={l.reden ?? ""}>
                               {l.warmte}
@@ -582,6 +596,17 @@ function Dashboard() {
             </button>
           </div>
         </div>
+      ) : null}
+      {leadOpen !== null ? (
+        <LeadDetail
+          id={leadOpen}
+          openChats={() => {
+            setLeadOpen(null);
+            setTab("gesprekken");
+          }}
+          sluit={() => setLeadOpen(null)}
+          zetStatus={zetStatus}
+        />
       ) : null}
       <div aria-live="polite" className="v-toasts">
         {toasts.map((t) => (
