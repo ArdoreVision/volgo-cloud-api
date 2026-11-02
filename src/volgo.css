@@ -1999,6 +1999,7 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .v-vandaag__lijst time { flex: none; min-width: 48px; padding-top: 2px; font-weight: 600; font-variant-numeric: tabular-nums; font-size: 14px; }
 .v-vandaag__lijst--later time { min-width: 110px; font-weight: 500; color: var(--ink-2); }
 .v-vandaag__lijst li > span { min-width: 0; flex: 1; display: grid; gap: 2px; }
+.v-vandaag__lijst li > span.v-heat { flex: none; display: inline-grid; }
 .v-vandaag__lijst strong { font-size: 15px; font-weight: 600; }
 .v-vandaag__lijst small { color: var(--muted); font-size: 13.5px; }
 .v-vandaag__sub { margin: 16px 0 0; font-size: 12.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
