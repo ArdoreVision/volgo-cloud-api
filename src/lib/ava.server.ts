@@ -119,6 +119,29 @@ async function maakLead(DB: D1Database, gesprekId: number, team: number, d: { na
 
 type Meta = { gesprek_id: number; stap: number; naam: string | null; contact: string | null; lead_id: number | null };
 
+/** Everyone in the team who wants an email when a new conversation starts. Max 30 per business per hour. */
+async function mailNieuwGesprek(DB: D1Database, inst: AvaInstellingen, gesprekId: number, eerste: string) {
+  const team = inst.team_id;
+  const ontvangers = await DB.prepare(
+    `SELECT g.email FROM gebruikers g LEFT JOIN team_leden t ON t.gebruiker_id = g.id LEFT JOIN meldingen m ON m.gebruiker_id = g.id
+     WHERE (g.id = ? OR t.team_id = ?) AND COALESCE(m.chat_mail, 1) = 1`,
+  )
+    .bind(team, team)
+    .all<{ email: string }>();
+  if (!ontvangers.results.length) return;
+  const { binnenLimiet } = await import("./limiet.server");
+  if (!(await binnenLimiet(DB, `chatmail:${team}`, 60, 30))) return;
+  const html = mailOpmaak(
+    "Someone is talking to AVA right now",
+    `<p style="margin:0 0 12px">A visitor just started a conversation on your website. First message:</p>
+     <p style="margin:0 0 16px;padding:12px 14px;border-radius:12px;background:#f5f7fa;font-size:15px">“${esc(eerste.slice(0, 300))}”</p>
+     <p style="margin:0;color:#64748b;font-size:14px">AVA is answering. Open the chat to watch along or take over yourself.</p>`,
+    { tekst: "Open the chat", url: `${SITE_URL}/dashboard` },
+  );
+  for (const r of ontvangers.results) await verstuurMail(r.email, `New conversation on your website: “${eerste.slice(0, 60)}${eerste.length > 60 ? "…" : ""}”`, html);
+  void gesprekId;
+}
+
 /** Starts a new website conversation (with AVA's greeting as the first message). */
 async function nieuwGesprek(DB: D1Database, inst: AvaInstellingen, onderwerp: string) {
   const team = inst.team_id;
@@ -233,6 +256,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
 
   if (!meta) {
     const n = await nieuwGesprek(DB, inst, tekst);
+    await mailNieuwGesprek(DB, inst, n.meta.gesprek_id, tekst).catch(() => undefined);
     token = n.token;
     meta = n.meta;
   }

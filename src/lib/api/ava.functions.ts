@@ -18,14 +18,14 @@ async function sessie() {
 export const haalAva = createServerFn({ method: "GET" }).handler(async () => {
   const { g, DB, aiActief } = await sessie();
   const inst = await instellingenVoorTeam(DB, g.team_id);
-  const m = await DB.prepare("SELECT chat, lead, email, heet_mail, samenvatting FROM meldingen WHERE gebruiker_id = ?")
+  const m = await DB.prepare("SELECT chat, lead, email, heet_mail, samenvatting, chat_mail FROM meldingen WHERE gebruiker_id = ?")
     .bind(g.id)
-    .first<{ chat: number; lead: number; email: number; heet_mail: number; samenvatting: number }>();
+    .first<{ chat: number; lead: number; email: number; heet_mail: number; samenvatting: number; chat_mail: number }>();
   const { haalStijl, STANDAARD_STIJL } = await import("../stijl.server");
   const { planVoorTeam } = await import("../limieten.server");
   const magStijl = (await planVoorTeam(DB, g.team_id)).limieten.eigenStijl;
   const stijl = (await haalStijl(DB, g.team_id)) ?? { ...STANDAARD_STIJL, branding: !magStijl };
-  return { inst, meldingen: m ?? { chat: 1, lead: 1, email: 0, heet_mail: 1, samenvatting: 1 }, aiActief, stijl, magStijl };
+  return { inst, meldingen: m ?? { chat: 1, lead: 1, email: 0, heet_mail: 1, samenvatting: 1, chat_mail: 1 }, aiActief, stijl, magStijl };
 });
 
 export const bewaarAva = createServerFn({ method: "POST" })
@@ -110,11 +110,11 @@ export const bewaarToestemming = createServerFn({ method: "POST" })
   });
 
 export const bewaarMeldingen = createServerFn({ method: "POST" })
-  .validator((v: unknown) => z.object({ chat: z.boolean(), lead: z.boolean(), email: z.boolean(), heet_mail: z.boolean(), samenvatting: z.boolean() }).parse(v))
+  .validator((v: unknown) => z.object({ chat: z.boolean(), lead: z.boolean(), email: z.boolean(), heet_mail: z.boolean(), samenvatting: z.boolean(), chat_mail: z.boolean().default(true) }).parse(v))
   .handler(async ({ data }) => {
     const { g, DB } = await sessie();
-    await DB.prepare("INSERT OR REPLACE INTO meldingen (gebruiker_id, chat, lead, email, heet_mail, samenvatting) VALUES (?, ?, ?, ?, ?, ?)")
-      .bind(g.id, data.chat ? 1 : 0, data.lead ? 1 : 0, data.email ? 1 : 0, data.heet_mail ? 1 : 0, data.samenvatting ? 1 : 0)
+    await DB.prepare("INSERT OR REPLACE INTO meldingen (gebruiker_id, chat, lead, email, heet_mail, samenvatting, chat_mail) VALUES (?, ?, ?, ?, ?, ?, ?)")
+      .bind(g.id, data.chat ? 1 : 0, data.lead ? 1 : 0, data.email ? 1 : 0, data.heet_mail ? 1 : 0, data.samenvatting ? 1 : 0, data.chat_mail ? 1 : 0)
       .run();
     return { ok: true };
   });

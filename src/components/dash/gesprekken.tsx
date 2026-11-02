@@ -26,6 +26,32 @@ function Avatar({ naam, id, live }: { naam: string; id: number; live?: boolean }
   );
 }
 
+/** "Today", "Yesterday" or "Mon 3 Nov" for the date chips between messages. */
+function dagLabel(d: Date, nu: number) {
+  const fmt = (x: Date) => x.toLocaleDateString("en-GB", { timeZone: "Europe/Amsterdam" });
+  const vandaag = fmt(new Date(nu));
+  const gisteren = fmt(new Date(nu - 86400000));
+  const f = fmt(d);
+  if (f === vandaag) return "Today";
+  if (f === gisteren) return "Yesterday";
+  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/Amsterdam" });
+}
+const SEEN = "volgo-seen-";
+function gezien(id: number): string {
+  try {
+    return localStorage.getItem(SEEN + id) ?? "";
+  } catch {
+    return "";
+  }
+}
+function markeerGezien(id: number, laatste: string) {
+  try {
+    localStorage.setItem(SEEN + id, laatste);
+  } catch {
+    /* private mode */
+  }
+}
+
 /** Short time for the chat list: 14:05 today, otherwise "3 Nov". */
 function kortTijd(d: Date, nu: number) {
   return nu - d.getTime() < 20 * 3600 * 1000 ? tijdAms(d) : d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Europe/Amsterdam" });
@@ -62,6 +88,7 @@ export function Gesprekken({ data }: { data: DashData }) {
     if (actief === null) return;
     const d = await haalGesprek({ data: { id: actief } }).catch(() => null);
     setDetail(d);
+    if (d) markeerGezien(d.gesprek.id, d.gesprek.laatste);
   }, [actief]);
   useEffect(() => {
     if (actief === null) return;
@@ -142,10 +169,11 @@ export function Gesprekken({ data }: { data: DashData }) {
           {items?.filter((c) => (!alleenLive || isLive(c)) && (!zoekChat.trim() || `${c.bezoeker} ${c.onderwerp}`.toLowerCase().includes(zoekChat.trim().toLowerCase()))).map((c) => {
             const live = isLive(c);
             const wie = c.laatste_rol === "bezoeker" ? "" : c.laatste_rol === "mens" ? "You: " : c.laatste_rol === "systeem" ? "" : "AVA: ";
+            const ongelezen = c.laatste_rol === "bezoeker" && !c.voorbeeld && gezien(c.id) !== c.laatste && actief !== c.id;
             return (
               <button
                 aria-current={actief === c.id}
-                className={`v-dm__item${live ? " is-live" : ""}`}
+                className={`v-dm__item${live ? " is-live" : ""}${ongelezen ? " is-ongelezen" : ""}`}
                 key={c.id}
                 onClick={() => {
                   setActief(c.id);
@@ -161,7 +189,7 @@ export function Gesprekken({ data }: { data: DashData }) {
                   </span>
                   <span className="v-dm__rij">
                     <span className="v-dm__voorbeeld">{c.laatste_tekst ? wie + c.laatste_tekst : c.onderwerp}</span>
-                    {c.overgenomen_naam ? <em className="v-dm__tag v-dm__tag--jij">You</em> : live ? <em className="v-dm__tag">AVA</em> : null}
+                    {ongelezen ? <i aria-label="Unread" className="v-dm__dot" /> : c.overgenomen_naam ? <em className="v-dm__tag v-dm__tag--jij">You</em> : live ? <em className="v-dm__tag">AVA</em> : null}
                   </span>
                 </span>
               </button>
@@ -196,29 +224,52 @@ export function Gesprekken({ data }: { data: DashData }) {
                 ) : null}
               </header>
 
+              {ikChat ? (
+                <div className="v-dm__banner">
+                  <span>
+                    <b>You’re answering.</b> AVA is paused for this chat.
+                  </span>
+                  <button disabled={bezig} onClick={() => void zetModus(false)} type="button">
+                    Hand back to AVA
+                  </button>
+                </div>
+              ) : null}
               <div className="v-dm__berichten" ref={lijst} role="log" aria-live="polite">
                 {berichten.length === 0 ? <p className="v-dm__leeg">{g.voorbeeld ? "Sample chat without messages." : "No messages yet."}</p> : null}
                 {berichten.map((b, i) => {
-                  if (b.rol === "systeem") return <p className="v-dm__sys" key={b.id}>{b.tekst}</p>;
+                  const vorige = berichten[i - 1];
+                  const chip = !vorige || dagLabel(sqlDate(vorige.created_at), nu) !== dagLabel(sqlDate(b.created_at), nu) ? <p className="v-dm__dag" key={`d${b.id}`}>{dagLabel(sqlDate(b.created_at), nu)}</p> : null;
+                  if (b.rol === "systeem")
+                    return (
+                      <div key={b.id}>
+                        {chip}
+                        <p className="v-dm__sys">{b.tekst}</p>
+                      </div>
+                    );
                   const kant = b.rol === "bezoeker" ? "zij" : "wij";
                   const volgende = berichten[i + 1];
                   const laatsteVanReeks = !volgende || volgende.rol !== b.rol;
+                  const eersteVanReeks = !vorige || vorige.rol !== b.rol;
                   return (
-                    <div className={`v-dm__b v-dm__b--${kant}${b.rol === "mens" ? " is-mens" : ""}`} key={b.id}>
-                      <p>{b.tekst}</p>
-                      {laatsteVanReeks ? (
-                        <time>
-                          {b.rol === "mens" ? "You" : b.rol === "bezoeker" ? "" : "AVA"}
-                          {b.rol === "bezoeker" ? "" : " · "}
-                          {tijdAms(sqlDate(b.created_at))}
-                        </time>
-                      ) : null}
+                    <div className="v-dm__groep" key={b.id}>
+                      {chip}
+                      <div className={`v-dm__b v-dm__b--${kant}${b.rol === "mens" ? " is-mens" : ""}${eersteVanReeks ? " is-eerste" : ""}${laatsteVanReeks ? " is-laatste" : ""}`}>
+                        <p>{b.tekst}</p>
+                        {laatsteVanReeks ? (
+                          <time>
+                            {b.rol === "mens" ? "You" : b.rol === "bezoeker" ? "" : "AVA"}
+                            {b.rol === "bezoeker" ? "" : " · "}
+                            {tijdAms(sqlDate(b.created_at))}
+                            {b.rol === "mens" ? <span aria-label="Sent" className="v-dm__vink">✓</span> : null}
+                          </time>
+                        ) : null}
+                      </div>
                     </div>
                   );
                 })}
               </div>
 
-              {g.lead_id ? <p className="v-dm__lead">✓ Saved as a lead in Requests</p> : null}
+              {g.lead_id ? <p className="v-dm__lead">✓ Saved as a lead — find it under Leads</p> : null}
               {detail.herkomst || detail.bezoek.length ? (
                 <details className="v-dm__bezoek">
                   <summary>
@@ -259,7 +310,12 @@ export function Gesprekken({ data }: { data: DashData }) {
             </>
           ) : (
             <div className="v-dm__niks">
-              <p>Choose a chat on the left.</p>
+              <span aria-hidden="true" className="v-dm__niks-ico">💬</span>
+              <p>
+                <strong>Your conversations</strong>
+                <br />
+                Pick a chat on the left to read along or take over from AVA.
+              </p>
             </div>
           )}
         </section>

@@ -33,7 +33,7 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
   const [kleur, setKleur] = useState("#1677d9");
   const [opgeslagen, setOpgeslagen] = useState(false);
   const [gekopieerd, setGekopieerd] = useState(false);
-  const [melding, setMelding] = useState({ chat: true, lead: true, email: false, heet_mail: true, samenvatting: true });
+  const [melding, setMelding] = useState({ chat: true, lead: true, email: false, heet_mail: true, samenvatting: true, chat_mail: true });
   const [browser, setBrowser] = useState<string>("default");
   const [toestemmingAan, setToestemmingAan] = useState(true);
 
@@ -42,7 +42,7 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
       setAva(a);
       setKleur(a.inst.kleur);
       setToestemmingAan(Boolean(a.inst.toestemming));
-      setMelding({ chat: !!a.meldingen.chat, lead: !!a.meldingen.lead, email: !!a.meldingen.email, heet_mail: !!a.meldingen.heet_mail, samenvatting: !!a.meldingen.samenvatting });
+      setMelding({ chat: !!a.meldingen.chat, lead: !!a.meldingen.lead, email: !!a.meldingen.email, heet_mail: !!a.meldingen.heet_mail, samenvatting: !!a.meldingen.samenvatting, chat_mail: !!a.meldingen.chat_mail });
     });
     if (typeof Notification !== "undefined") setBrowser(Notification.permission);
   }, []);
@@ -81,11 +81,17 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
           <div className="v-dash__panel-head">
             <h2>Notifications</h2>
           </div>
+          <p className="v-muted v-small" style={{ marginBottom: 14 }}>In the dashboard you always see what happens live. Choose what also reaches you by email, so you never miss a customer when you are not logged in.</p>
+          <h3 className="v-sub">In the dashboard</h3>
           <div className="v-toggles">
-            <Toggle aan={melding.chat} label="New conversation" onChange={(v) => void wijzigMelding("chat", v)} uitleg="A heads-up as soon as someone talks to AVA." />
+            <Toggle aan={melding.chat} label="New conversation" onChange={(v) => void wijzigMelding("chat", v)} uitleg="A pop-up (and a browser notification) as soon as someone talks to AVA." />
             <Toggle aan={melding.lead} label="New lead" onChange={(v) => void wijzigMelding("lead", v)} uitleg="When a visitor leaves their details, with a warmth score." />
-            <Toggle aan={melding.heet_mail} label="Email for hot leads" onChange={(v) => void wijzigMelding("heet_mail", v)} uitleg="An instant email when someone with warmth 75 or higher leaves their details." />
-            <Toggle aan={melding.email} label="Email for every lead" onChange={(v) => void wijzigMelding("email", v)} uitleg="Also get an email for less warm leads." />
+          </div>
+          <h3 className="v-sub" style={{ marginTop: 22 }}>By email</h3>
+          <div className="v-toggles">
+            <Toggle aan={melding.chat_mail} label="Every new conversation" onChange={(v) => void wijzigMelding("chat_mail", v)} uitleg="An email the moment a visitor starts chatting, with their first message. Max 30 per hour." />
+            <Toggle aan={melding.heet_mail} label="Hot leads" onChange={(v) => void wijzigMelding("heet_mail", v)} uitleg="An instant email when someone with warmth 75 or higher leaves their details." />
+            <Toggle aan={melding.email} label="Every lead" onChange={(v) => void wijzigMelding("email", v)} uitleg="Also an email for less warm leads." />
             <Toggle aan={melding.samenvatting} label="Morning summary" onChange={(v) => void wijzigMelding("samenvatting", v)} uitleg="A short email every morning at 7:00: new leads, who to call and your appointments." />
           </div>
           {browser === "denied" ? <p className="v-muted v-small">Your browser blocks notifications. You will still see them in the dashboard.</p> : null}

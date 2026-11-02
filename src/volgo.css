@@ -1924,3 +1924,21 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .v-admin__revlijst small { display: block; color: var(--muted); }
 .v-admin__revlijst button { border: 0; background: transparent; color: var(--bad); font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
 @media (max-width: 700px) { .v-admin__revform { grid-template-columns: 1fr; } }
+
+/* ── Chats: DM polish ───────────────────────────────────── */
+.v-dm__item.is-ongelezen strong, .v-dm__item.is-ongelezen .v-dm__voorbeeld { color: var(--ink); font-weight: 600; }
+.v-dm__dot { flex: none; width: 11px; height: 11px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--sky-2); }
+.v-dm__dag { align-self: center; margin: 10px 0 8px; padding: 4px 12px; border-radius: 999px; background: var(--surface); color: var(--muted); font-size: 11.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.v-dm__groep { display: flex; flex-direction: column; }
+.v-dm__groep .v-dm__dag { align-self: center; }
+.v-dm__b--zij.is-eerste p { border-top-left-radius: 20px; } .v-dm__b--zij:not(.is-eerste) p { border-top-left-radius: 8px; } .v-dm__b--zij:not(.is-laatste) p { border-bottom-left-radius: 8px; }
+.v-dm__b--wij.is-eerste p { border-top-right-radius: 20px; } .v-dm__b--wij:not(.is-eerste) p { border-top-right-radius: 8px; } .v-dm__b--wij:not(.is-laatste) p { border-bottom-right-radius: 8px; }
+.v-dm__vink { margin-left: 5px; color: #1f9d55; font-weight: 700; }
+.v-dm__banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 18px; background: #e8f7ee; color: #15803d; font-size: 13.5px; border-bottom: 1px solid #cdeedb; }
+.v-dm__banner button { border: 0; border-radius: 999px; padding: 7px 14px; background: #fff; color: #15803d; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 0 0 1px #cdeedb; white-space: nowrap; }
+.v-dm__niks { text-align: center; padding: 24px; }
+.v-dm__niks-ico { display: block; font-size: 44px; margin-bottom: 10px; }
+.v-dm__niks p { margin: 0; line-height: 1.5; }
+.v-dm__niks strong { color: var(--ink); font-size: 17px; }
+.v-dash[data-thema="donker"] .v-dm__banner { background: rgba(31, 157, 85, 0.16); color: #7fe0a8; border-color: rgba(31, 157, 85, 0.3); }
+.v-dash[data-thema="donker"] .v-dm__banner button { background: transparent; color: #7fe0a8; box-shadow: 0 0 0 1px rgba(31, 157, 85, 0.4); }
