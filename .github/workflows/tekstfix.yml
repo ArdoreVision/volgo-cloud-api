@@ -1,0 +1,21 @@
+name: AVA-teksten bijwerken (geen proefperiode)
+on: workflow_dispatch
+jobs:
+  t:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - run: |
+          cd /tmp
+          cat > t.sql <<'SQL'
+          UPDATE ava_instellingen SET bedrijfsinfo = REPLACE(bedrijfsinfo, 'Every plan: 7 days free, a payment card is required, nothing is charged before day 7, cancel in the dashboard before then and you pay nothing.', 'Every plan: billed monthly, no setup fee, cancel any time in the dashboard.');
+          UPDATE ava_instellingen SET bedrijfsinfo = REPLACE(bedrijfsinfo, 'How to start the free trial: go to https://thevolgo.app/pricing and click Start free trial on the plan.', 'How to start: go to https://thevolgo.app/pricing and choose a plan.');
+          UPDATE ava_instellingen SET bedrijfsinfo = REPLACE(bedrijfsinfo, 'When someone says they want to start the free trial, ask', 'When someone says they want to start, ask');
+          UPDATE ava_instellingen SET bedrijfsinfo = REPLACE(bedrijfsinfo, 'Every plan: 7 days free, a payment card is required, nothing is charged before day 7, cancel in the dashboard before then and you pay nothing.', 'Every plan: billed monthly, no setup fee, cancel any time in the dashboard.');
+          UPDATE ava_instellingen SET begroeting = REPLACE(begroeting, 'Want to try Volgo free for 7 days, or book a call with the team first?', 'Want to get started with Volgo, or book a call with the team first?');
+          SQL
+          sed -i 's/^          //' t.sql
+          npx -y wrangler@4 d1 execute volgo-db --remote --file t.sql > out.txt 2>&1 || { grep -i error out.txt | head -3 | sed 's/^/::warning::FOUT /'; exit 1; }
+          echo "::warning::KLAAR $(npx -y wrangler@4 d1 execute volgo-db --remote --json --command "SELECT COUNT(*) n FROM ava_instellingen WHERE bedrijfsinfo LIKE '%7 days free%' OR begroeting LIKE '%free for 7 days%'" 2>/dev/null | jq -c '.[0].results')"

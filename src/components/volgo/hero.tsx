@@ -1,4 +1,4 @@
-const PROOF = ["Published prices, no sales call", "7 days free, cancel any time", "Live on your website in 5 minutes", "Books appointments inside the chat", "Website built for you on Pro"];
+const PROOF = ["Published prices, no sales call", "Monthly, cancel any time", "Live on your website in 5 minutes", "Books appointments inside the chat", "Website built for you on Pro"];
 
 export function Hero() {
   return (
@@ -17,8 +17,8 @@ export function Hero() {
             appointment and ranks every lead by how ready they are to buy. You open your dashboard in the morning and call the buyers first.
           </p>
           <div className="v-hero__actions">
-            <a className="v-cta-primary" data-ava-ask="I'd like to start the 7-day free trial. Which plan fits my business?" href="/pricing">
-              Start 7-day free trial
+            <a className="v-cta-primary" data-ava-ask="I'd like to get started with Volgo. Which plan fits my business?" href="/pricing">
+              Get started
             </a>
             <a className="v-cta-ghost" href="#video">
               Watch the 48-second demo

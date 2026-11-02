@@ -102,7 +102,7 @@ const VERGELIJK_RIJEN: { label: string; widget: string | boolean; platform: stri
   { label: "Hot-lead email plus a daily morning summary", widget: false, platform: "Inbox notifications", volgo: true },
   { label: "Builds and hosts your website with AVA inside", widget: false, platform: false, volgo: "Pro and Premium" },
   { label: "Price on the website, no sales call", widget: true, platform: false, volgo: true },
-  { label: "Free trial", widget: "Often", platform: "Rarely", volgo: "7 days, every plan" },
+  { label: "Commitment", widget: "Monthly", platform: "Annual contract", volgo: "Monthly, cancel any time" },
   { label: "Typical cost per month", widget: "$0–100", platform: "$400–800 with add-ons", volgo: "€147–997, all-in" },
 ];
 

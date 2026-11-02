@@ -547,11 +547,11 @@ export function Rekenhulp() {
 /* ------------------------------------------------------------------ */
 
 const TIJDLIJN = [
-  { wanneer: "Today", titel: "Start your free trial", tekst: "Pick a plan and add your card. Nothing is charged for 7 days. You land in your own dashboard right away." },
+  { wanneer: "Today", titel: "Choose your plan", tekst: "Pick a plan and pay for the first month. You land in your own dashboard right away." },
   { wanneer: "Within 5 minutes", titel: "AVA is live on your website", tekst: "Paste one line of code (there's a guide for WordPress, Wix, Shopify, Squarespace and Webflow), or we add it for you. Tell AVA about your services and prices in about two minutes." },
   { wanneer: "From the first visitor", titel: "Leads come in, sorted for you", tekst: "AVA answers every visitor, collects name and phone or email with permission, and scores each lead. Hot leads reach your inbox right away, plus a summary in your inbox every morning." },
   { wanneer: "Pro and Premium: within 1 working day", titel: "We plan your new website with you", tekst: "Tell us what you want in the Website tab, by chat or in a call. We build it with photos, video and AVA inside, you review it, and it goes live on your own domain." },
-  { wanneer: "Day 7", titel: "Your trial ends, you decide", tekst: "Happy? Your plan simply continues monthly. Not for you? Cancel before day 7 in your dashboard and you pay nothing." },
+  { wanneer: "Every month", titel: "You stay because it works", tekst: "Your plan renews monthly. Not for you? Cancel in your dashboard and it stops at the end of the paid month. Your domain name stays yours." },
 ];
 
 export function Tijdlijn() {

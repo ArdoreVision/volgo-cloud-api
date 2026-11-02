@@ -16,8 +16,8 @@ export const Route = createFileRoute("/pricing")({
   loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "", plan: "", eigenaar: false })),
   head: () => ({
     meta: [
-      { title: "Pricing · Volgo · Start €147, Pro €497, Premium €997 per month, 7 days free" },
-      { name: "description", content: "Volgo pricing: Start €147, Pro €497 and Premium €997 per month, excl. VAT. Every plan starts with 7 days free. Pro and Premium include a custom website with AVA inside." },
+      { title: "Pricing · Volgo · Start €147, Pro €497, Premium €997 per month" },
+      { name: "description", content: "Volgo pricing: Start €147, Pro €497 and Premium €997 per month, excl. VAT. Billed monthly, cancel any time. Pro and Premium include a custom website with AVA inside." },
       { property: "og:url", content: "https://thevolgo.app/pricing" },
     ],
     links: [{ rel: "canonical", href: "https://thevolgo.app/pricing" }],
@@ -77,7 +77,7 @@ function Abonnement() {
             <p className="v-melding">Your trial or subscription has ended. Choose a plan to continue — all your data is still here.</p>
           ) : null}
           <h1 className="v-h2 v-center">{wisselen ? "Switch plans." : "Choose your plan."}</h1>
-          <p className="v-lede v-center">Every plan starts with 7 days free. Switch or cancel any time.</p>
+          <p className="v-lede v-center">Billed monthly, no setup fee. Switch or cancel any time.</p>
         </header>
         <div className="v-plans">
           {(Object.keys(PLANS) as PlanId[]).map((id) => {
@@ -102,9 +102,9 @@ function Abonnement() {
                       ? huidig === id
                         ? "Current plan"
                         : `Switch to ${p.naam}`
-                      : "Start free trial"}
+                      : `Choose ${p.naam}`}
                 </button>
-                <p className="v-plan__kaart">{wisselen ? "Switches right away" : "7 days free · Payment card required"}</p>
+                <p className="v-plan__kaart">{wisselen ? "Switches right away" : "Billed monthly · Cancel any time"}</p>
                 <ul className="v-plan__kern">
                   {p.kern.map((f) => (
                     <li key={f}>{f}</li>
@@ -125,7 +125,7 @@ function Abonnement() {
           <h2 className="v-h2 v-center" id="after-title">
             What happens after you subscribe.
           </h2>
-          <p className="v-lede v-center">Every plan starts with 7 days free. Here is exactly how you get going.</p>
+          <p className="v-lede v-center">Here is exactly how you get going.</p>
           <div className="v-na__grid">
             {(Object.keys(PLANS) as PlanId[]).map((id) => (
               <article className={`v-na__kaart v-na__kaart--${id}`} key={id}>
@@ -160,7 +160,7 @@ function Abonnement() {
 
           <div className="v-na__regels">
             <p>
-              <strong>Free for 7 days.</strong> A payment card is required. Nothing is charged until the trial ends; then your plan renews monthly.
+              <strong>Pay monthly.</strong> You pay the first month when you choose a plan; after that it renews monthly on the same day. No setup fee.
             </p>
             <p>
               <strong>Cancel any time.</strong> In your dashboard under Subscription. AVA, your dashboard and the website we built (if you have one)

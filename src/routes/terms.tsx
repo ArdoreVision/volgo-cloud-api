@@ -28,10 +28,10 @@ export const Route = createFileRoute("/terms")({
         <a href="/pricing">pricing page</a>.
       </p>
 
-      <h2>3. Trial, prices and payment</h2>
+      <h2>3. Prices and payment</h2>
       <ul>
-        <li>Every plan begins with a free 7-day trial. A payment card is required. If you cancel during the trial, you pay nothing.</li>
-        <li>After the trial, the subscription continues automatically at the current monthly price. Prices exclude VAT.</li>
+        <li>You pay the first month when you choose a plan. There is no free trial and no setup fee.</li>
+        <li>The subscription renews automatically every month at the current monthly price. Prices exclude VAT.</li>
         <li>Payment is made monthly in advance through our payment partner. If a payment fails, we may suspend the service after a reminder.</li>
         <li>We may adjust prices once a year. We’ll let you know at least 30 days in advance; you may then cancel before the change takes effect.</li>
       </ul>

@@ -10,7 +10,7 @@ export function PricingPreview() {
         <h2 className="v-h2 v-center" id="price-title">
           Simple pricing.
         </h2>
-        <p className="v-lede v-center">Start: AVA on your own website. Pro and Premium: we build your website for you, with AVA inside. 7 days free, cancel any time.</p>
+        <p className="v-lede v-center">Start: AVA on your own website. Pro and Premium: we build your website for you, with AVA inside. Monthly, cancel any time.</p>
       </header>
       <div className="v-plans">
         {(Object.keys(PLANS) as PlanId[]).map((id) => {
@@ -23,10 +23,10 @@ export function PricingPreview() {
               <p className="v-plan__price">
                 <span>€{p.prijsTekst}</span> per month
               </p>
-              <a className={`v-plan__cta v-plan__cta--${id}`} data-ava-ask={`I'd like to start the 7-day free trial of Volgo ${p.naam}.`} href="/pricing">
-                Start free trial
+              <a className={`v-plan__cta v-plan__cta--${id}`} data-ava-ask={`I'd like to start with Volgo ${p.naam}.`} href="/pricing">
+                Choose {p.naam}
               </a>
-              <p className="v-plan__kaart">7 days free · Payment card required</p>
+              <p className="v-plan__kaart">Billed monthly · Cancel any time</p>
               <ul className="v-plan__kern">
                 {p.kern.map((f) => (
                   <li key={f}>{f}</li>
@@ -55,10 +55,10 @@ export function FinalCta() {
       <h2 className="v-h2 v-center" id="cta-title">
         More customers. Less chasing.
       </h2>
-      <p className="v-lede v-center">AVA live on your website in 5 minutes, 7 days free. Questions first? Ask AVA in the corner, or book a call with the team right in the chat. Prefer Instagram? DM @{INSTAGRAM}.</p>
+      <p className="v-lede v-center">AVA live on your website in 5 minutes, from €147 a month. Questions first? Ask AVA in the corner, or book a call with the team right in the chat. Prefer Instagram? DM @{INSTAGRAM}.</p>
       <div className="v-final__actions">
-        <a className="v-cta-primary" data-ava-ask="I'd like to start the 7-day free trial. Which plan fits my business?" href="/pricing">
-          Start 7-day free trial
+        <a className="v-cta-primary" data-ava-ask="I'd like to get started with Volgo. Which plan fits my business?" href="/pricing">
+          Get started
         </a>
         <a className="v-cta-ghost" data-ava-book="" href={INSTAGRAM_DM} rel="noopener noreferrer" target="_blank">
           Book a call

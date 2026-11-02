@@ -33,7 +33,7 @@ export const PLANS: Record<PlanId, Plan> = {
     naam: "Start",
     prijs: 14700,
     prijsTekst: "147",
-    proefDagen: 7,
+    proefDagen: 0,
     tagline: "The AVA chatbot on your own website, plus the dashboard to see every lead.",
     kern: ["300 AVA conversations / month", "1 user", "AVA on your own website"],
     features: [
@@ -51,7 +51,7 @@ export const PLANS: Record<PlanId, Plan> = {
     naam: "Pro",
     prijs: 49700,
     prijsTekst: "497",
-    proefDagen: 7,
+    proefDagen: 0,
     tagline: "We build your website with AVA inside, plus everything your team needs.",
     badge: "Most popular",
     kern: ["1,000 AVA conversations / month", "5 users", "Custom website built by Volgo"],
@@ -70,7 +70,7 @@ export const PLANS: Record<PlanId, Plan> = {
     naam: "Premium",
     prijs: 99700,
     prijsTekst: "997",
-    proefDagen: 7,
+    proefDagen: 0,
     tagline: "Everything in Pro, for high-volume teams with bigger websites.",
     badge: "For teams",
     kern: ["5,000 AVA conversations / month", "Unlimited users", "Larger custom website"],
@@ -106,7 +106,7 @@ export const VERGELIJKING: { label: string; start: string | boolean; pro: string
   { label: "AVA on multiple websites or locations", start: false, pro: false, premium: true },
   { label: "Support", start: "Email", pro: "Priority", premium: "Fastest" },
   { label: "Domain name", start: "—", pro: "Not included", premium: "Not included" },
-  { label: "Free trial", start: "7 days", pro: "7 days", premium: "7 days" },
+  { label: "Contract", start: "Monthly, cancel any time", pro: "Monthly, cancel any time", premium: "Monthly, cancel any time" },
 ];
 
 /** What happens after you subscribe, per plan. Shown on the pricing page. */
