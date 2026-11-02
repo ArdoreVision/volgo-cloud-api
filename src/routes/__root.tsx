@@ -10,6 +10,51 @@ type AppMeta = { og_title?: string | null; og_description?: string | null; og_im
 const meta = appMetaJson as AppMeta;
 const title = meta.og_title ?? "Volgo";
 const description = meta.og_description ?? "AVA answers every website visitor 24/7 and turns them into leads and quotes.";
+const SITE = "https://thevolgo.app";
+
+/** Structured data for search engines: who we are and what the product is. */
+const LD_ORGANISATIE = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE}/#organization`,
+      name: "Volgo",
+      legalName: "Hanssens Cornerstone Capital",
+      url: SITE,
+      logo: `${SITE}/icon-512.png`,
+      email: "volgo.app@outlook.com",
+      founder: { "@type": "Person", name: "Damien Hanssens" },
+      address: { "@type": "PostalAddress", addressLocality: "Vlissingen", addressCountry: "NL" },
+      sameAs: ["https://www.instagram.com/thevolgo.app/", "https://x.com/VolgoApp"],
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${SITE}/#software`,
+      name: "Volgo",
+      alternateName: "AVA by Volgo",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      url: SITE,
+      description,
+      publisher: { "@id": `${SITE}/#organization` },
+      featureList: [
+        "AI assistant that answers website visitors 24/7",
+        "Lead capture with warmth score 0–100",
+        "Appointment booking inside the chat",
+        "Hot-lead emails and daily morning summary",
+        "Lead pipeline from new to quote to won",
+        "Custom website built and hosted with AVA inside (Pro and Premium)",
+      ],
+      offers: [
+        { "@type": "Offer", name: "Start", price: "147", priceCurrency: "EUR", url: `${SITE}/pricing`, category: "subscription" },
+        { "@type": "Offer", name: "Pro", price: "497", priceCurrency: "EUR", url: `${SITE}/pricing`, category: "subscription" },
+        { "@type": "Offer", name: "Premium", price: "997", priceCurrency: "EUR", url: `${SITE}/pricing`, category: "subscription" },
+      ],
+    },
+    { "@type": "WebSite", "@id": `${SITE}/#website`, url: SITE, name: "Volgo", publisher: { "@id": `${SITE}/#organization` }, inLanguage: "en" },
+  ],
+};
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
@@ -22,6 +67,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title },
       { name: "description", content: description },
       { name: "author", content: "Volgo, a service by Hanssens Cornerstone Capital" },
+      { name: "robots", content: "index, follow, max-image-preview:large" },
+      { property: "og:site_name", content: "Volgo" },
+      { property: "og:url", content: SITE },
+      { name: "twitter:site", content: "@VolgoApp" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: description },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
@@ -45,6 +96,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "icon", href: "/favicon.png" },
     ],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify(LD_ORGANISATIE) }],
   }),
   shellComponent: RootShell,
   component: RootComponent,

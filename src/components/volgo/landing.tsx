@@ -92,10 +92,10 @@ export function ScrollProgress() {
 /* ------------------------------------------------------------------ */
 
 const FEITEN = [
-  { groot: "24/7", klein: "AVA answers every visitor, also at night and in the weekend" },
+  { groot: "24/7", klein: "AVA answers every visitor, also at night and on weekends" },
   { groot: "Seconds", klein: "to reply, instead of hours or the next morning" },
   { groot: "0–100", klein: "warmth score on every lead, buyers on top" },
-  { groot: "7 days", klein: "free to try. Cancel any time" },
+  { groot: "5 min", klein: "to go live: one line of code, or we add it for you" },
 ];
 
 export function Feiten() {
@@ -168,7 +168,7 @@ export function DemoVideo() {
 /* Sectors marquee                                                     */
 /* ------------------------------------------------------------------ */
 
-const SECTOREN = ["Bathrooms", "Kitchens", "Heating & cooling", "Roofing", "Solar", "Contractors", "Landscaping", "Pools", "Painters", "Windows & doors", "Flooring", "Electricians", "Plumbers", "Real estate", "Dentists", "Clinics"];
+const SECTOREN = ["Bathrooms", "Kitchens", "Heating & cooling", "Roofing", "Solar", "Contractors", "Landscaping", "Pools", "Painters", "Windows & doors", "Flooring", "Electricians", "Plumbers", "Hotels & B&Bs", "Real estate", "Dentists", "Clinics"];
 
 export function Marquee() {
   const rij = (dubbel: boolean) => (
@@ -194,16 +194,16 @@ export function Marquee() {
 /* ------------------------------------------------------------------ */
 
 const ZONDER = [
-  { t: "21:14", s: "Sanne fills in your contact form: “What does a walk-in shower cost?”" },
-  { t: "21:14", s: "Your inbox is closed. Sanne keeps browsing and contacts two other companies." },
-  { t: "09:40", s: "Next morning you read the email between two calls, and call back at lunch." },
-  { t: "12:30", s: "“Thanks, but we already booked someone.” The job is gone.", slecht: true },
+  { t: "9:14 PM", s: "Sarah fills in your contact form: “What does a walk-in shower cost?”" },
+  { t: "9:14 PM", s: "Your inbox is closed. Sarah keeps browsing and contacts two other companies." },
+  { t: "9:40 AM", s: "Next morning you read the email between two calls, and call back at lunch." },
+  { t: "12:30 PM", s: "“Thanks, but we already booked someone.” The job is gone.", slecht: true },
 ];
 const MET = [
-  { t: "21:14", s: "Sanne asks AVA on your website: “What does a walk-in shower cost?”" },
-  { t: "21:14", s: "AVA answers in seconds with your price range and asks her town and timing." },
-  { t: "21:16", s: "Sanne leaves her name and number. Warmth 92: she wants to start in January." },
-  { t: "07:00", s: "Your morning summary: call Sanne first. You send the quote before 9.", goed: true },
+  { t: "9:14 PM", s: "Sarah asks AVA on your website: “What does a walk-in shower cost?”" },
+  { t: "9:14 PM", s: "AVA answers in seconds with your price range and asks her town and timing." },
+  { t: "9:16 PM", s: "Sarah leaves her name and number. Warmth 92: she wants to start in January." },
+  { t: "Morning", s: "Your summary says: call Sarah first. You send the quote before 9.", goed: true },
 ];
 
 export function VoorNa() {
@@ -214,7 +214,7 @@ export function VoorNa() {
         <h2 className="v-h2" id="vn-titel">
           The same inquiry. Two very different endings.
         </h2>
-        <p className="v-lede">Most people look for a contractor in the evening. Whoever answers first, usually gets the job.</p>
+        <p className="v-lede">Most people look for a contractor in the evening, after work. Whoever answers first usually gets the job.</p>
       </header>
       <div className="vx-voorna__grid">
         {[
@@ -297,10 +297,10 @@ export function Voordelen() {
 
 const LEADS = [
   { naam: "Mark J.", wat: "Just asking about prices", w: 34, reden: "Browsing, no timing" },
-  { naam: "Sanne de Wit", wat: "Walk-in shower, start January", w: 92, reden: "Wants a visit this week" },
+  { naam: "Sarah Mitchell", wat: "Walk-in shower, start January", w: 92, reden: "Wants a visit this week" },
   { naam: "Peter V.", wat: "Kitchen, maybe next year", w: 48, reden: "Interested, no rush" },
-  { naam: "Laura B.", wat: "Complete bathroom, 8 m²", w: 86, reden: "Asked for a quote" },
-  { naam: "Tom K.", wat: "Toilet renovation", w: 71, reden: "Wants to plan soon" },
+  { naam: "Laura B.", wat: "Complete bathroom, 90 sq ft", w: 86, reden: "Asked for a quote" },
+  { naam: "Tom K.", wat: "Half-bath remodel", w: 71, reden: "Wants to plan soon" },
 ];
 
 export function Ranking() {
@@ -368,12 +368,12 @@ const VOORBEELDEN: { id: string; label: string; bedrijf: string; script: Msg[] }
     label: "Bathroom",
     bedrijf: "Coastline Bathrooms",
     script: [
-      { van: "klant", tekst: "Hi! What does a walk-in shower cost? We want the bath out.", tijd: "21:14" },
-      { van: "ava", tekst: "Good choice! A walk-in shower instead of a bath starts at about €4,250, including glass wall and tiling. Where do you live?", tijd: "21:14" },
-      { van: "klant", tekst: "Middelburg. Could you start in January?", tijd: "21:15" },
-      { van: "ava", tekst: "January works. Shall I plan a free measuring visit? Then I only need your name and phone number.", tijd: "21:15" },
-      { van: "klant", tekst: "Sanne de Wit, 06 12345678. Call me tomorrow!", tijd: "21:16" },
-      { van: "systeem", tekst: "Hot lead · warmth 92 · you got an email", tijd: "21:16" },
+      { van: "klant", tekst: "Hi! What does a walk-in shower cost? We want the tub out.", tijd: "9:14 PM" },
+      { van: "ava", tekst: "Good choice! A walk-in shower instead of a tub starts at about $4,500, including the glass panel and tiling. What city are you in?", tijd: "9:14 PM" },
+      { van: "klant", tekst: "Round Rock. Could you start in January?", tijd: "9:15 PM" },
+      { van: "ava", tekst: "January works. Shall I set up a free measuring visit? Then I only need your name and phone number.", tijd: "9:15 PM" },
+      { van: "klant", tekst: "Sarah Mitchell, (512) 555-0147. Call me tomorrow!", tijd: "9:16 PM" },
+      { van: "systeem", tekst: "Hot lead · warmth 92 · you got an email", tijd: "9:16 PM" },
     ],
   },
   {
@@ -381,12 +381,12 @@ const VOORBEELDEN: { id: string; label: string; bedrijf: string; script: Msg[] }
     label: "Heating",
     bedrijf: "Northside Heating",
     script: [
-      { van: "klant", tekst: "My boiler stopped working. Can someone come this week?", tijd: "22:03" },
-      { van: "ava", tekst: "That's annoying, especially now. The team can usually come within 2 days. What's your postcode?", tijd: "22:03" },
-      { van: "klant", tekst: "4381 AB", tijd: "22:04" },
-      { van: "ava", tekst: "You're in our area. What's your name and number, and may we call you about it?", tijd: "22:04" },
-      { van: "klant", tekst: "Mark, 06 98765432. Yes please.", tijd: "22:05" },
-      { van: "systeem", tekst: "Hot lead · warmth 95 · on top of your list", tijd: "22:05" },
+      { van: "klant", tekst: "My furnace stopped working. Can someone come this week?", tijd: "10:03 PM" },
+      { van: "ava", tekst: "That's no fun, especially now. The team can usually come within 2 days. What's your zip code?", tijd: "10:03 PM" },
+      { van: "klant", tekst: "78664", tijd: "10:04 PM" },
+      { van: "ava", tekst: "You're in our service area. What's your name and number, and may we call you about it?", tijd: "10:04 PM" },
+      { van: "klant", tekst: "Mark, (512) 555-0198. Yes please.", tijd: "10:05 PM" },
+      { van: "systeem", tekst: "Hot lead · warmth 95 · on top of your list", tijd: "10:05 PM" },
     ],
   },
   {
@@ -396,7 +396,7 @@ const VOORBEELDEN: { id: string; label: string; bedrijf: string; script: Msg[] }
     script: [
       { van: "klant", tekst: "Do you also do flat roofs? Ours is leaking a bit.", tijd: "Sun 10:12" },
       { van: "ava", tekst: "Yes, flat roofs are one of our specialties. How big is the roof roughly, and since when is it leaking?", tijd: "Sun 10:12" },
-      { van: "klant", tekst: "About 40 m². Since the storm last week.", tijd: "Sun 10:13" },
+      { van: "klant", tekst: "About 400 sq ft. Since the storm last week.", tijd: "Sun 10:13" },
       { van: "ava", tekst: "Then it's best to have it checked soon. Can I take your name and email for an inspection appointment?", tijd: "Sun 10:13" },
       { van: "klant", tekst: "Laura, laura@example.com", tijd: "Sun 10:14" },
       { van: "systeem", tekst: "Hot lead · warmth 84 · in your morning summary", tijd: "Sun 10:14" },
@@ -549,7 +549,7 @@ export function Rekenhulp() {
 const TIJDLIJN = [
   { wanneer: "Today", titel: "Start your free trial", tekst: "Pick a plan and add your card. Nothing is charged for 7 days. You land in your own dashboard right away." },
   { wanneer: "Within 5 minutes", titel: "AVA is live on your website", tekst: "Paste one line of code (there's a guide for WordPress, Wix, Shopify, Squarespace and Webflow), or we add it for you. Tell AVA about your services and prices in about two minutes." },
-  { wanneer: "From the first visitor", titel: "Leads come in, sorted for you", tekst: "AVA answers every visitor, collects name and phone or email with permission, and scores each lead. Hot leads reach your inbox right away, plus a summary every morning at 7:00." },
+  { wanneer: "From the first visitor", titel: "Leads come in, sorted for you", tekst: "AVA answers every visitor, collects name and phone or email with permission, and scores each lead. Hot leads reach your inbox right away, plus a summary in your inbox every morning." },
   { wanneer: "Pro and Premium: within 1 working day", titel: "We plan your new website with you", tekst: "Tell us what you want in the Website tab, by chat or in a call. We build it with photos, video and AVA inside, you review it, and it goes live on your own domain." },
   { wanneer: "Day 7", titel: "Your trial ends, you decide", tekst: "Happy? Your plan simply continues monthly. Not for you? Cancel before day 7 in your dashboard and you pay nothing." },
 ];

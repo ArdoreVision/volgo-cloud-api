@@ -91,6 +91,77 @@ export function Moat() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Compare: Volgo next to the two things people usually buy instead    */
+/* ------------------------------------------------------------------ */
+
+const VERGELIJK_RIJEN: { label: string; widget: string | boolean; platform: string | boolean; volgo: string | boolean }[] = [
+  { label: "Replies to every visitor 24/7 in seconds", widget: "Scripted answers", platform: true, volgo: true },
+  { label: "Trained on your prices, services and area", widget: false, platform: "Set up by their team", volgo: "In 5 questions, by you" },
+  { label: "Warmth score (0–100) with the reason on every lead", widget: false, platform: false, volgo: true },
+  { label: "Books appointments inside the chat", widget: false, platform: true, volgo: true },
+  { label: "Hot-lead email plus a daily morning summary", widget: false, platform: "Inbox notifications", volgo: true },
+  { label: "Builds and hosts your website with AVA inside", widget: false, platform: false, volgo: "Pro and Premium" },
+  { label: "Price on the website, no sales call", widget: true, platform: false, volgo: true },
+  { label: "Free trial", widget: "Often", platform: "Rarely", volgo: "7 days, every plan" },
+  { label: "Typical cost per month", widget: "$0–100", platform: "$400–800 with add-ons", volgo: "€147–997, all-in" },
+];
+
+export function Vergelijk() {
+  const cel = (v: string | boolean) =>
+    v === true ? (
+      <span className="vx-vgl__ja">Yes</span>
+    ) : v === false ? (
+      <span className="vx-vgl__nee">No</span>
+    ) : (
+      <span>{v}</span>
+    );
+  return (
+    <section aria-labelledby="vg-titel" className="vx-sectie vx-vgl" id="compare">
+      <header className="vx-kop vx-kop--midden" data-reveal="">
+        <p className="vx-label">Compare</p>
+        <h2 className="v-h2" id="vg-titel">
+          More than a widget. Fairer than a platform.
+        </h2>
+        <p className="v-lede">
+          Most businesses choose between a cheap chat widget that only collects an email, and a big “AI front desk” platform priced on a sales call. Volgo does
+          the whole job, at a price you can read right here.
+        </p>
+      </header>
+      <div className="vx-vgl__scroll" data-reveal="">
+        <table className="vx-vgl__tabel">
+          <thead>
+            <tr>
+              <th scope="col">
+                <span className="vx-vgl__sr">Feature</span>
+              </th>
+              <th scope="col">Plug-in chat widget</th>
+              <th scope="col">Typical AI front-desk platform</th>
+              <th className="is-volgo" scope="col">
+                Volgo
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {VERGELIJK_RIJEN.map((r) => (
+              <tr key={r.label}>
+                <th scope="row">{r.label}</th>
+                <td>{cel(r.widget)}</td>
+                <td>{cel(r.platform)}</td>
+                <td className="is-volgo">{cel(r.volgo)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="vx-vgl__noot" data-reveal="">
+        “Typical AI front-desk platform” and “plug-in chat widget” describe the two most common alternatives in general terms, based on their public pricing and
+        feature pages as of November 2026. Volgo prices exclude VAT.
+      </p>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Trust: who is behind it, where data lives, what you can rely on     */
 /* ------------------------------------------------------------------ */
 

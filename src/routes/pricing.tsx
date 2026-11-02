@@ -14,7 +14,14 @@ import "@/volgo.css";
 export const Route = createFileRoute("/pricing")({
   validateSearch: (s: Record<string, unknown>): { expired?: number } => ({ expired: s.expired === "1" || s.expired === 1 ? 1 : undefined }),
   loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "", plan: "", eigenaar: false })),
-  head: () => ({ meta: [{ title: "Pricing · Volgo" }] }),
+  head: () => ({
+    meta: [
+      { title: "Pricing · Volgo · Start €147, Pro €497, Premium €997 per month, 7 days free" },
+      { name: "description", content: "Volgo pricing: Start €147, Pro €497 and Premium €997 per month, excl. VAT. Every plan starts with 7 days free. Pro and Premium include a custom website with AVA inside." },
+      { property: "og:url", content: "https://thevolgo.app/pricing" },
+    ],
+    links: [{ rel: "canonical", href: "https://thevolgo.app/pricing" }],
+  }),
   component: Abonnement,
 });
 

@@ -1,4 +1,5 @@
 const faqs = [
+  { q: "How is Volgo different from a chat widget or a big AI front-desk platform?", a: "A plug-in widget usually collects an email and stops. The big platforms do answer leads, but typically cost $400–800 a month with add-ons, publish no prices and rarely offer a trial. Volgo answers every visitor, scores each lead 0–100, books the appointment in the chat and, on Pro and Premium, builds your website too. Prices are on this page and every plan starts with 7 days free." },
   { q: "How quickly is AVA live?", a: "Usually within 5 minutes. You paste one line of code on your website (we have a guide for every platform, or we add it for you) and tell AVA about your services and prices in about two minutes. From that moment AVA answers your visitors." },
   { q: "When do I pay?", a: "Not during the first 7 days. If you keep your plan, the first monthly payment is on day 7. Cancel before then in your dashboard and you pay nothing." },
   { q: "What does it cost?", a: "Start is €147, Pro €497 and Premium €997 per month, excluding VAT. Every plan starts with 7 days free; a payment card is required, and nothing is charged until the trial ends. Switch plans any time, cancel any month." },
@@ -8,10 +9,12 @@ const faqs = [
   { q: "Does it work with my website?", a: "Yes. AVA works on any website: WordPress, Wix, Shopify, Squarespace or custom built. You keep your site exactly as it is." },
   { q: "Does AVA sound like a robot?", a: "AVA writes short, friendly messages in your visitor's own language, and honestly says it's an AI when asked. It never makes up prices or promises; it passes those questions to you." },
   { q: "What happens if I go over my conversations?", a: "Nothing gets lost. AVA keeps answering and capturing leads in basic mode, and you see your usage in your dashboard. Upgrade any time for more smart conversations." },
-  { q: "How do I know who to call first?", a: "AVA gives every lead a warmth score from 0 to 100 and shows why. The hottest leads are always on top, and you get an email when a hot one comes in." },
+  { q: "How do I know who to call first?", a: "AVA gives every lead a warmth score from 0 to 100 and shows why. The hottest leads are always on top, you get an email when a hot one comes in, and every morning a short summary tells you who to call first." },
   { q: "How do I cancel?", a: "In your dashboard under Subscription, click Manage subscription. You can cancel any time; AVA and, on Pro and Premium, the website we built for you stop at the end of your paid period. Your domain name stays yours." },
   { q: "What about privacy?", a: "Visitor details are only used to follow up on their question. We're the processor, you stay in control, and it's all set out in our Data Processing Agreement." },
 ];
+
+export const FAQS = faqs;
 
 export function Faq() {
   return (

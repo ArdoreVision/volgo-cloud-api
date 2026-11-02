@@ -1,3 +1,5 @@
+const PROOF = ["Published prices, no sales call", "7 days free, cancel any time", "Live on your website in 5 minutes", "Books appointments inside the chat", "Website built for you on Pro"];
+
 export function Hero() {
   return (
     <section aria-labelledby="hero-title" className="v-hero" id="top">
@@ -5,14 +7,14 @@ export function Hero() {
         <div className="v-hero__copy">
           <p className="v-pill-label">
             <span aria-hidden="true" className="v-pill-label__dot" />
-            For businesses that live from quotes
+            The AI front desk for businesses that live from quotes
           </p>
           <h1 className="v-hero__title" id="hero-title">
-            More customers. Less chasing.
+            Answer first. Win the job.
           </h1>
           <p className="v-hero__sub">
-            Volgo answers your website 24/7 and tells you who’s ready to buy. Built for businesses that live from quotes: AVA replies to every visitor
-            within seconds, day and night, collects their details and puts the buyers at the top of your list. You only call the people ready to say yes.
+            Volgo puts AVA on your website: an AI assistant that replies to every visitor within seconds, day and night, collects their details, books the
+            appointment and ranks every lead by how ready they are to buy. You open your dashboard in the morning and call the buyers first.
           </p>
           <div className="v-hero__actions">
             <a className="v-cta-primary" data-ava-ask="I'd like to start the 7-day free trial. Which plan fits my business?" href="/pricing">
@@ -25,7 +27,11 @@ export function Hero() {
               </svg>
             </a>
           </div>
-          <p className="v-hero__fine">7 days free · Live on your website in 5 minutes · Cancel any time</p>
+          <ul aria-label="What you can count on" className="v-hero__proof">
+            {PROOF.map((p) => (
+              <li key={p}>{p}</li>
+            ))}
+          </ul>
         </div>
         <div className="v-hero__art">
           <img alt="AVA, Volgo's AI assistant, next to a phone with messages" height={900} src="/assets/volgo/hero.jpg" width={900} />
@@ -33,21 +39,21 @@ export function Hero() {
             <span className="vx-zweef__score">92</span>
             <span>
               <b>New hot lead</b>
-              <small>Sanne · walk-in shower · January</small>
+              <small>Sarah · walk-in shower · January</small>
             </span>
           </div>
           <div aria-hidden="true" className="vx-zweef vx-zweef--2">
             <span className="vx-zweef__dot" />
             <span>
               <b>AVA replied in 4 sec</b>
-              <small>Sunday 22:41</small>
+              <small>Sunday 10:41 PM</small>
             </span>
           </div>
           <div aria-hidden="true" className="vx-zweef vx-zweef--3">
             <span className="vx-zweef__mail">@</span>
             <span>
-              <b>Call Sanne first</b>
-              <small>Your morning summary · 07:00</small>
+              <b>Call Sarah first</b>
+              <small>Your morning summary</small>
             </span>
           </div>
         </div>
