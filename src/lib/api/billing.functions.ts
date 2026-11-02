@@ -50,7 +50,7 @@ export const openBillingPortal = createServerFn({ method: "POST" }).handler(asyn
   try {
     const b = new URLSearchParams();
     b.set("customer", e.stripe_klant);
-    b.set("return_url", `${SITE_URL}/dashboard`);
+    b.set("return_url", `${SITE_URL}/dashboard?tab=instellingen&sub=abonnement`);
     b.set("configuration", await portalConfig(STRIPE_SECRET_KEY));
     b.set("locale", "en");
     const s = (await stripe(STRIPE_SECRET_KEY, "billing_portal/sessions", b)) as { url: string };

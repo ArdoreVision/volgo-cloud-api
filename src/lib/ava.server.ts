@@ -152,7 +152,7 @@ async function maakLead(DB: D1Database, gesprekId: number, team: number, d: { na
          <tr><td style="padding:4px 16px 4px 0;color:#64748b">Contact</td><td style="padding:4px 0"><strong>${esc(d.contact)}</strong></td></tr>
          <tr><td style="padding:4px 16px 4px 0;color:#64748b">Warmth</td><td style="padding:4px 0"><strong style="color:${heet ? "#c4211b" : "#1677d9"}">${d.warmte}/100</strong> · ${esc(d.reden)}</td></tr>
        </table>`,
-      { tekst: "Open the conversation", url: `${SITE_URL}/dashboard` },
+      { tekst: "Open the lead", url: `${SITE_URL}/dashboard?tab=aanvragen` },
     ),
   );
   return leadId;
@@ -177,7 +177,7 @@ async function mailNieuwGesprek(DB: D1Database, inst: AvaInstellingen, gesprekId
     `<p style="margin:0 0 12px">A visitor just started a conversation on your website. First message:</p>
      <p style="margin:0 0 16px;padding:12px 14px;border-radius:12px;background:#f5f7fa;font-size:15px">“${esc(eerste.slice(0, 300))}”</p>
      <p style="margin:0;color:#64748b;font-size:14px">AVA is answering. Open the chat to watch along or take over yourself.</p>`,
-    { tekst: "Open the chat", url: `${SITE_URL}/dashboard` },
+    { tekst: "Open the chat", url: `${SITE_URL}/dashboard?tab=gesprekken` },
   );
   for (const r of ontvangers.results) await verstuurMail(r.email, `New conversation on your website: “${eerste.slice(0, 60)}${eerste.length > 60 ? "…" : ""}”`, html);
   void gesprekId;
@@ -282,7 +282,7 @@ export async function boekViaChat(
       `<p style="margin:0 0 12px"><strong>${esc(soortNaam)}</strong> with <strong>${esc(naam)}</strong></p>
        <p style="margin:0 0 6px">${esc(wanneer)}</p>
        <p style="margin:0 0 6px">Contact: ${esc(contact)}${b.adres ? ` · ${esc(b.adres)}` : ""}</p>`,
-      { tekst: "Open your calendar", url: `${SITE_URL}/dashboard` },
+      { tekst: "Open your calendar", url: `${SITE_URL}/dashboard?tab=agenda` },
     ),
   );
   return { ok: true as const, token, antwoord: bevestiging, start: res.start, eind: res.eind };
