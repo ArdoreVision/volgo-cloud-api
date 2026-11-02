@@ -1,63 +1,98 @@
-const PROOF = ["Published prices, no sales call", "Monthly, cancel any time", "Live on your website in 5 minutes", "Books appointments inside the chat", "Website built for you on Pro"];
+import type { CSSProperties } from "react";
 
+import { PLANS } from "@/lib/plans";
+
+const PROOF = ["Live on your website in 5 minutes", `From €${PLANS.start.prijsTekst} a month`, "Cancel any time"];
+
+/** Soro-style hero: one headline, one sentence, one big Start button. */
 export function Hero() {
   return (
-    <section aria-labelledby="hero-title" className="v-hero" id="top">
-      <div className="v-hero__card">
-        <div className="v-hero__copy">
-          <p className="v-pill-label">
-            <span aria-hidden="true" className="v-pill-label__dot" />
-            The AI front desk for businesses that live from quotes
-          </p>
-          <h1 className="v-hero__title" id="hero-title">
-            Answer first. Win the job.
-          </h1>
-          <p className="v-hero__sub">
-            Volgo puts AVA on your website: an AI assistant that replies to every visitor within seconds, day and night, collects their details, books the
-            appointment and ranks every lead by how ready they are to buy. You open your dashboard in the morning and call the buyers first.
-          </p>
-          <div className="v-hero__actions">
-            <a className="v-cta-primary" href="/pricing#plans">
-              Get started
-            </a>
-            <a className="v-cta-ghost" href="#video">
-              Watch the 48-second demo
-              <svg aria-hidden="true" viewBox="0 0 16 16">
-                <path d="M8 3v10M4 9l4 4 4-4" />
-              </svg>
-            </a>
-          </div>
-          <ul aria-label="What you can count on" className="v-hero__proof">
-            {PROOF.map((p) => (
-              <li key={p}>{p}</li>
-            ))}
-          </ul>
+    <section aria-labelledby="hero-title" className="vs-hero" id="top">
+      <div className="vs-hero__copy">
+        <h1 className="vs-hero__title" id="hero-title">
+          Never miss a customer again.
+        </h1>
+        <p className="vs-hero__sub">AVA answers every visitor on your website within seconds, books the appointment and tells you who to call first — day and night, while you work or sleep.</p>
+        <a className="vs-start vs-start--groot" href="/pricing#plans">
+          Start now
+        </a>
+        <ul aria-label="What you can count on" className="vs-hero__proof">
+          {PROOF.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="vs-hero__art">
+        <img alt="AVA, Volgo's AI assistant, next to a phone with messages" fetchPriority="high" height={900} src="/assets/volgo/hero.jpg" width={900} />
+        <div aria-hidden="true" className="vx-zweef vx-zweef--1">
+          <span className="vx-zweef__score">92</span>
+          <span>
+            <b>New hot lead</b>
+            <small>Sarah · walk-in shower · January</small>
+          </span>
         </div>
-        <div className="v-hero__art">
-          <img alt="AVA, Volgo's AI assistant, next to a phone with messages" height={900} src="/assets/volgo/hero.jpg" width={900} />
-          <div aria-hidden="true" className="vx-zweef vx-zweef--1">
-            <span className="vx-zweef__score">92</span>
-            <span>
-              <b>New hot lead</b>
-              <small>Sarah · walk-in shower · January</small>
-            </span>
-          </div>
-          <div aria-hidden="true" className="vx-zweef vx-zweef--2">
-            <span className="vx-zweef__dot" />
-            <span>
-              <b>AVA replied in 4 sec</b>
-              <small>Sunday 10:41 PM</small>
-            </span>
-          </div>
-          <div aria-hidden="true" className="vx-zweef vx-zweef--3">
-            <span className="vx-zweef__mail">@</span>
-            <span>
-              <b>Call Sarah first</b>
-              <small>Your morning summary</small>
-            </span>
-          </div>
+        <div aria-hidden="true" className="vx-zweef vx-zweef--2">
+          <span className="vx-zweef__dot" />
+          <span>
+            <b>AVA replied in 4 sec</b>
+            <small>Sunday 10:41 PM</small>
+          </span>
+        </div>
+        <div aria-hidden="true" className="vx-zweef vx-zweef--3">
+          <span className="vx-zweef__mail">@</span>
+          <span>
+            <b>Call Sarah first</b>
+            <small>Your morning summary</small>
+          </span>
         </div>
       </div>
+    </section>
+  );
+}
+
+/* Three big sentences that light up while you scroll, Soro-style. */
+
+function IcoChat() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 3.5V16A2.5 2.5 0 0 1 4 13.5z" />
+      <path d="M8 9h8M8 12.5h5" />
+    </svg>
+  );
+}
+function IcoAgenda() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <rect height="15" rx="3" width="16" x="4" y="5" />
+      <path d="M4 10h16M8 3v4M16 3v4M9 14.5l2 2 4-4" />
+    </svg>
+  );
+}
+function IcoTelefoon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M6.5 3.5h3l1.6 4-2 1.3a10 10 0 0 0 6.1 6.1l1.3-2 4 1.6v3a2 2 0 0 1-2.2 2A15.5 15.5 0 0 1 4.5 5.7a2 2 0 0 1 2-2.2z" />
+    </svg>
+  );
+}
+
+const STAPPEN = [
+  { ico: <IcoChat />, voor: "AVA", na: "answers every visitor on your website within seconds." },
+  { ico: <IcoAgenda />, voor: "Then it", na: "books the appointment and collects their details for you." },
+  { ico: <IcoTelefoon />, voor: "You", na: "open your dashboard and call the hottest leads first." },
+];
+
+export function Stappen() {
+  return (
+    <section aria-label="How Volgo works" className="vs-stappen" id="how">
+      {STAPPEN.map((s, i) => (
+        <p data-reveal="" key={s.na} style={{ "--d": `${i * 120}ms` } as CSSProperties}>
+          <span className="vs-stappen__voor">{s.voor}</span>
+          <span className="vs-stappen__ico">{s.ico}</span>
+          <span>{s.na}</span>
+        </p>
+      ))}
     </section>
   );
 }

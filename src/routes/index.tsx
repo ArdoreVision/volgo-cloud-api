@@ -3,12 +3,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AvaChat } from "@/components/volgo/ava-chat";
 import { FAQS, Faq } from "@/components/volgo/faq";
 import { Footer } from "@/components/volgo/footer";
-import { Hero } from "@/components/volgo/hero";
+import { Hero, Stappen } from "@/components/volgo/hero";
 import { Nav } from "@/components/volgo/nav";
-import { Inside } from "@/components/volgo/inside";
-import { DemoVideo, Feiten, LiveDemo, Marquee, Ranking, Rekenhulp, ScrollProgress, Tijdlijn, Voordelen, Voorbeelden, VoorNa, useReveal } from "@/components/volgo/landing";
+import { DemoVideo, LiveDemo, ScrollProgress, VoorNa, useReveal } from "@/components/volgo/landing";
 import { FinalCta, PricingPreview } from "@/components/volgo/pricing-preview";
-import { Founder, Moat, Vergelijk, Vertrouwen, Waarom } from "@/components/volgo/verhaal";
 import { Reviews } from "@/components/volgo/reviews";
 import { isIngelogd } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
@@ -26,33 +24,22 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+/** Short and clear, like a quiz-style ad landing page: one message, one Start button, then proof. */
 function Index() {
   useReveal();
   return (
-    <div className="volgo">
+    <div className="volgo volgo--simpel">
       <ScrollProgress />
       <Nav ingelogd={Route.useLoaderData().ingelogd} />
       <main>
         <Hero />
-        <Feiten />
+        <Stappen />
         <DemoVideo />
-        <Marquee />
         <VoorNa />
-        <Waarom />
-        <Voordelen />
-        <Voorbeelden />
         <LiveDemo />
-        <Ranking />
-        <Moat />
-        <Vergelijk />
-        <Rekenhulp />
-        <Tijdlijn />
-        <Inside />
-        <Reviews />
         <PricingPreview />
-        <Vertrouwen />
+        <Reviews />
         <Faq />
-        <Founder />
         <FinalCta />
       </main>
       <Footer />
