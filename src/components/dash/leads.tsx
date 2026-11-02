@@ -74,9 +74,9 @@ export function Leads({
         </p>
       ) : null}
       <div className="v-leadbalk">
-        <div aria-label="Filter leads" className="v-instel__nav v-leadbalk__filters" role="tablist">
+        <div aria-label="Filter leads" className="v-instel__nav v-leadbalk__filters" role="group">
           {FILTERS.map(([id, label]) => (
-            <button aria-current={filter === id ? "page" : undefined} key={id} onClick={() => setFilter(id)} type="button">
+            <button aria-current={filter === id ? "page" : undefined} aria-pressed={filter === id} key={id} onClick={() => setFilter(id)} type="button">
               {label} <span className="v-leadbalk__n">{tellingen[id]}</span>
             </button>
           ))}

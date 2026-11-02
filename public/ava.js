@@ -433,12 +433,12 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     // On Volgo's own website: pick the language of the site right here.
     if (location.hostname === new URL(BASE).hostname) {
       var TALEN = [["en","English"],["nl","Nederlands"],["de","Deutsch"],["fr","Français"],["es","Español"],["pt","Português"],["it","Italiano"],["pl","Polski"],["sv","Svenska"],["da","Dansk"],["fi","Suomi"],["el","Ελληνικά"],["cs","Čeština"],["sk","Slovenčina"],["hu","Magyar"],["ro","Română"],["bg","Български"],["hr","Hrvatski"],["sl","Slovenščina"],["et","Eesti"],["lv","Latviešu"],["lt","Lietuvių"],["ga","Gaeilge"],["mt","Malti"]];
-      var huidig = "en"; try { huidig = localStorage.getItem("volgo-taal") || ((navigator.language || "en").slice(0, 2).toLowerCase()); } catch (e) {}
+      var huidig = "en"; try { var ck = /(?:^|; )volgo_taal=([a-z]{2})/.exec(document.cookie); huidig = (ck && ck[1]) || localStorage.getItem("volgo-taal") || ((navigator.language || "en").slice(0, 2).toLowerCase()); } catch (e) {}
       var rij = document.createElement("label"); rij.className = "ok-taal";
       var sel = document.createElement("select"); sel.setAttribute("aria-label", "Language");
       TALEN.forEach(function (t) { var o = document.createElement("option"); o.value = t[0]; o.textContent = t[1]; if (t[0] === huidig) o.selected = true; sel.appendChild(o); });
       var lbl = document.createElement("span"); lbl.textContent = "🌐"; rij.appendChild(lbl); rij.appendChild(sel);
-      sel.addEventListener("change", function () { try { localStorage.setItem("volgo-taal", sel.value); } catch (e) {} window.dispatchEvent(new CustomEvent("volgo-taal", { detail: sel.value })); });
+      sel.addEventListener("change", function () { try { localStorage.setItem("volgo-taal", sel.value); } catch (e) {} try { document.cookie = "volgo_taal=" + sel.value + "; Max-Age=31536000; Path=/; SameSite=Lax" + (location.protocol === "https:" ? "; Secure" : ""); } catch (e) {} window.dispatchEvent(new CustomEvent("volgo-taal", { detail: sel.value })); });
       laag.querySelector(".ok-kaart").insertBefore(rij, laag.querySelector(".ok-knoppen"));
     }
     var kies = function (ja) { try { localStorage.setItem(KEUZE_SLEUTEL, JSON.stringify({ ja: ja, op: Date.now() })); } catch (e) {} laag.remove(); keuzeKlaar(ja); try { window.dispatchEvent(new CustomEvent("volgo-ok", { detail: ja })); } catch (e) {} };

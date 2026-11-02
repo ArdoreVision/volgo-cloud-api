@@ -92,11 +92,22 @@ export function TeamChat({ data }: { data: DashData }) {
     setDoel({ soort: "kanaal", id: k.id });
   }
 
+  const [invBezig, setInvBezig] = useState(false);
+  const [invFout, setInvFout] = useState("");
   async function nodigUit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (invBezig) return;
     const email = String(new FormData(e.currentTarget).get("email") ?? "").trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return;
-    setUitnodiging(await maakUitnodiging({ data: { email } }));
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return setInvFout("Enter a valid email address.");
+    setInvFout("");
+    setInvBezig(true);
+    try {
+      setUitnodiging(await maakUitnodiging({ data: { email } }));
+    } catch {
+      setInvFout("The invitation was not created. Check your connection and try again.");
+    } finally {
+      setInvBezig(false);
+    }
   }
 
   const anderen = data.leden.filter((l) => l.id !== me.id);
@@ -268,12 +279,17 @@ export function TeamChat({ data }: { data: DashData }) {
                   <label htmlFor="inv-email">Your colleague's email address</label>
                   <input autoFocus id="inv-email" inputMode="email" name="email" type="email" />
                 </div>
+                {invFout ? (
+                  <p className="v-err" role="alert">
+                    {invFout}
+                  </p>
+                ) : null}
                 <div className="v-modal__actions">
-                  <button className="v-btn-ghost" onClick={() => setUitnodigen(false)} type="button">
+                  <button className="v-btn-ghost" disabled={invBezig} onClick={() => setUitnodigen(false)} type="button">
                     Cancel
                   </button>
-                  <button className="v-btn-dark" type="submit">
-                    Create invitation
+                  <button className="v-btn-dark" disabled={invBezig} type="submit">
+                    {invBezig ? "Creating…" : "Create invitation"}
                   </button>
                 </div>
               </form>

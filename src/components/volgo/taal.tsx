@@ -4,20 +4,36 @@ import { vertaalTeksten } from "@/lib/api/vertaal.functions";
 import { TALEN, isTaal } from "@/lib/talen";
 
 const SLEUTEL = "volgo-taal";
+const COOKIE = "volgo_taal";
 const EVENT = "volgo-taal";
+export const TAAL_EVENT = EVENT;
+/** While this class is on <html>, the public page stays hidden until the chosen language has been applied (no English flash). */
+export const WACHT_KLASSE = "v-vertalen";
 
-export function huidigeTaal(): string {
-  if (typeof window === "undefined") return "en";
+/** The language the visitor chose themselves (cookie or local storage), or "" when they never chose. */
+export function gekozenTaal(): string {
+  if (typeof document === "undefined") return "";
+  const m = /(?:^|; )volgo_taal=([a-z]{2})/.exec(document.cookie);
+  if (m && isTaal(m[1])) return m[1];
   try {
     const t = localStorage.getItem(SLEUTEL);
     if (t && isTaal(t)) return t;
   } catch {
     /* private mode */
   }
+  return "";
+}
+
+/** The language to show: the explicit choice wins; without a choice, the browser language is only a starting point. */
+export function huidigeTaal(): string {
+  if (typeof window === "undefined") return "en";
+  const gekozen = gekozenTaal();
+  if (gekozen) return gekozen;
   const b = (navigator.language || "en").slice(0, 2).toLowerCase();
   return isTaal(b) ? b : "en";
 }
 
+/** Remembers the choice for a year (cookie, so the server knows it too) and on this device (local storage). */
 export function kiesTaal(code: string) {
   if (!isTaal(code)) return;
   try {
@@ -25,7 +41,17 @@ export function kiesTaal(code: string) {
   } catch {
     /* private mode */
   }
+  try {
+    document.cookie = `${COOKIE}=${code}; Max-Age=31536000; Path=/; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+  } catch {
+    /* no document */
+  }
   window.dispatchEvent(new CustomEvent(EVENT, { detail: code }));
+}
+
+/** The page may show: the translation is applied (or English is wanted, or it took too long). */
+function toonPagina() {
+  document.documentElement.classList.remove(WACHT_KLASSE);
 }
 
 /* ------------------------------------------------------------------ */
@@ -118,6 +144,7 @@ async function pasToe(taal: string): Promise<void> {
         for (const it of items) zet(it.doel, it.bron);
         document.documentElement.lang = "en";
         actueel = "en";
+        toonPagina();
         return;
       }
       const m = cache.get(taal) ?? new Map<string, string>();
@@ -130,7 +157,7 @@ async function pasToe(taal: string): Promise<void> {
         }
       };
       toepassen(); // whatever is cached already shows at once
-      // Top of the page first, in small batches, so the visitor sees the translation build up within a second or two.
+      // The first screen first, in batches; the page is revealed as soon as the first batch is in.
       for (let i = 0; i < open.length; i += 60) {
         const stuk = open.slice(i, i + 60);
         const r = await vertaalTeksten({ data: { taal, teksten: stuk } }).catch(() => null);
@@ -141,11 +168,13 @@ async function pasToe(taal: string): Promise<void> {
           }
         if (gewenst !== taal) return;
         toepassen();
+        if (i === 0) toonPagina();
       }
       document.documentElement.lang = taal;
       actueel = taal;
     } finally {
       bezig = null;
+      toonPagina();
     }
   })();
   return bezig;
@@ -186,7 +215,12 @@ export function Vertaler() {
     });
     mo.observe(document.body, { childList: true, subtree: true, characterData: true });
     if (taal !== "en") run();
+    else toonPagina();
+    // Whatever happens (slow network, failing translation), the page never stays hidden for more than 2.5 seconds.
+    const nood = window.setTimeout(toonPagina, 2500);
     return () => {
+      window.clearTimeout(nood);
+      toonPagina();
       window.removeEventListener(EVENT, opTaal);
       mo.disconnect();
       window.clearTimeout(timer);

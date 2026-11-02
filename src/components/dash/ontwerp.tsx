@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { bewaarOntwerp, controleerSite, haalOntwerp } from "@/lib/api/ava.functions";
 
+import { useOnopgeslagen } from "./onopgeslagen";
 import { Laadfout } from "./status";
 
 type Stijl = {
@@ -117,6 +118,7 @@ export function OntwerpEditor({ terug }: { terug: () => void }) {
   }, [poging]);
 
   const gewijzigd = o !== null && JSON.stringify(o) !== bewaard;
+  useOnopgeslagen(gewijzigd);
   const slot = !data?.magStijl;
 
   // What the widget in the preview should look like right now (unsaved changes included).

@@ -4,6 +4,45 @@ import type { CSSProperties } from "react";
 import { PLANS, type PlanId } from "@/lib/plans";
 
 import { TryAvaButton } from "./ava-chat";
+import { TAAL_EVENT, huidigeTaal } from "./taal";
+
+/**
+ * The sample website in the live demo follows the visitor's language: Dutch visitors get a Dutch bathroom studio
+ * (Badkamerstudio Noordzee), everyone else the contractor in Austin. Texts for the Dutch version are written in
+ * Dutch here and kept out of the automatic translator.
+ */
+const DEMO_SITES = {
+  nl: {
+    pad: "/voorbeeld/badkamer?embed=1",
+    domein: "badkamerstudionoordzee.nl",
+    titel: "Probeer AVA op een echte website.",
+    lede: "Een voorbeeldwebsite van een badkamerstudio in Zeeland, met AVA precies zoals jouw bezoekers hem zien. Scroll door de site, vraag naar prijzen of plan een afspraak: je ziet alleen dagen en tijden die nog vrij zijn.",
+    tips: ["Probeer: “Wat kost een complete badkamer?”", "Probeer: “Werken jullie ook in Goes?”", "Tik op “Afspraak maken” en kies een vrij moment", "Blijf scrollen: de website scrolt mee"],
+    knoppen: { open: "Chat openen", afspraak: "Afspraak maken", desktop: "Desktop", mobiel: "Mobiel", label: "Live demo" },
+    laden: "Voorbeeldwebsite laden…",
+  },
+  en: {
+    pad: "/voorbeeld/contractor?embed=1",
+    domein: "bluebonnetbuild.com",
+    titel: "Try AVA on a real website.",
+    lede: "A sample website of a contractor in Austin, Texas, with AVA exactly as your visitors see it. Scroll through the site, ask about prices, or book an appointment: you only see the days and times that are still free.",
+    tips: ["Try: “How much does a kitchen remodel cost?”", "Try: “Do you work in Round Rock?”", "Tap “Book an appointment” and pick a free moment", "Keep scrolling: the website scrolls along"],
+    knoppen: { open: "Open the chat", afspraak: "Book an appointment", desktop: "Desktop", mobiel: "Mobile", label: "Live demo" },
+    laden: "Loading the sample website…",
+  },
+} as const;
+
+function useDemoTaal() {
+  const [taal, setTaal] = useState<"nl" | "en">("en");
+  useEffect(() => {
+    const zet = (t: string) => setTaal(t === "nl" ? "nl" : "en");
+    zet(huidigeTaal());
+    const op = (e: Event) => zet((e as CustomEvent<string>).detail);
+    window.addEventListener(TAAL_EVENT, op);
+    return () => window.removeEventListener(TAAL_EVENT, op);
+  }, []);
+  return taal;
+}
 
 /* ------------------------------------------------------------------ */
 /* Scroll helpers                                                      */
@@ -673,33 +712,34 @@ export function LiveDemo() {
     w?.VolgoAva?.[actie]();
   };
 
+  const taal = useDemoTaal();
+  const site = DEMO_SITES[taal];
+  const nl = taal === "nl" ? { "data-notranslate": "" } : {};
+
   return (
     <section aria-labelledby="live-titel" className="vx-sectie vx-live" id="demo">
-      <header className="vx-kop vx-kop--midden" data-reveal="">
-        <p className="vx-label">Live demo</p>
+      <header className="vx-kop vx-kop--midden" data-reveal="" {...nl}>
+        <p className="vx-label">{site.knoppen.label}</p>
         <h2 className="v-h2" id="live-titel">
-          Try AVA on a real website.
+          {site.titel}
         </h2>
-        <p className="v-lede">
-          A sample website of a contractor in Austin, Texas, with AVA exactly as your visitors see it. Scroll through the site, ask about prices, or book an
-          appointment: you only see the days and times that are still free.
-        </p>
+        <p className="v-lede">{site.lede}</p>
       </header>
-      <div className="vx-live__bediening" data-reveal="">
+      <div className="vx-live__bediening" data-reveal="" {...nl}>
         <div className="vx-tabs" role="tablist" aria-label="Screen size">
           <button aria-selected={modus === "desktop"} onClick={() => setModus("desktop")} role="tab" type="button">
-            Desktop
+            {site.knoppen.desktop}
           </button>
           <button aria-selected={modus === "mobiel"} onClick={() => setModus("mobiel")} role="tab" type="button">
-            Mobile
+            {site.knoppen.mobiel}
           </button>
         </div>
         <div className="vx-live__knoppen">
           <button onClick={() => ava("open")} type="button">
-            Open the chat
+            {site.knoppen.open}
           </button>
           <button className="is-hoofd" onClick={() => ava("afspraak")} type="button">
-            Book an appointment
+            {site.knoppen.afspraak}
           </button>
         </div>
       </div>
@@ -711,7 +751,7 @@ export function LiveDemo() {
             <i />
             <i />
             <i />
-            <span>bluebonnetbuild.com</span>
+            <span>{site.domein}</span>
           </div>
         ) : (
           <div aria-hidden="true" className="vx-live__notch" />
@@ -724,22 +764,21 @@ export function LiveDemo() {
                 window.setTimeout(meet, 1500);
               }}
               ref={frame}
-              src="/voorbeeld/contractor?embed=1"
+              src={site.pad}
               style={{ width: BREED, height: HOOG, transform: `scale(${schaal})` }}
-              title="Sample contractor website with AVA"
+              title={taal === "nl" ? "Voorbeeldwebsite van een badkamerstudio met AVA" : "Sample contractor website with AVA"}
             />
           ) : (
-            <p className="vx-live__laden">Loading the sample website…</p>
+            <p className="vx-live__laden" {...nl}>{site.laden}</p>
           )}
         </div>
       </div>
       </div>
       </div>
-      <ul className="vx-live__tips" data-reveal="">
-        <li>Try: “How much does a kitchen remodel cost?”</li>
-        <li>Try: “Do you work in Round Rock?”</li>
-        <li>Tap “Book an appointment” and pick a free moment</li>
-        <li>Keep scrolling: the website scrolls along</li>
+      <ul className="vx-live__tips" data-reveal="" {...nl}>
+        {site.tips.map((t) => (
+          <li key={t}>{t}</li>
+        ))}
       </ul>
     </section>
   );

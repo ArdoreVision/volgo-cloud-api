@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 
+import { Vertaler } from "@/components/volgo/taal";
 import "@/volgo.css";
 
 // Voorbeeldwebsite van een klant met AVA erin: zo ziet een bezoeker het.
@@ -20,6 +21,7 @@ function Demo() {
   }, [sleutel]);
   return (
     <div className="volgo v-demo-site">
+      <Vertaler />
       <div className="v-demo-site__bar">
         Sample website · this is how AVA looks on your website. <a href="/dashboard">Back to dashboard</a>
       </div>

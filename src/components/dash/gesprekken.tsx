@@ -8,7 +8,8 @@ import { type DashData, dagLabel, datumKort, geleden, sqlDate, tijdAms } from ".
 type Detail = NonNullable<Awaited<ReturnType<typeof haalGesprek>>>;
 type Item = Awaited<ReturnType<typeof haalGesprekken>>[number];
 
-const KLEUREN = ["#1677d9", "#7c3aed", "#0f9d76", "#d9480f", "#c2255c", "#0b7285", "#5c7cfa", "#b08900"];
+// Avatar colours: all at least 5:1 against the white initials.
+const KLEUREN = ["#0f66c2", "#6d28d9", "#0b7a5c", "#c2410c", "#b0204f", "#0b6578", "#4059d6", "#8a6a00"];
 const initialen = (n: string) =>
   n
     .split(/\s+/)
@@ -21,7 +22,7 @@ function Avatar({ naam, id, live }: { naam: string; id: number; live?: boolean }
   return (
     <span className="v-dm__av" style={{ background: KLEUREN[id % KLEUREN.length] }}>
       {initialen(naam === "Website visitor" || naam === "Websitebezoeker" ? "?" : naam)}
-      {live ? <i aria-label="Online" /> : null}
+      {live ? <i aria-label="Online" role="img" /> : null}
     </span>
   );
 }
@@ -146,11 +147,11 @@ export function Gesprekken({ data }: { data: DashData }) {
       <div className={`v-dm${open ? " is-open" : ""}`}>
         <aside className="v-dm__list" aria-label="Chats">
           <div className="v-dm__filter">
-            <div className="v-instel__nav" role="tablist" aria-label="Filter chats">
-              <button aria-current={!alleenLive ? "page" : undefined} onClick={() => setAlleenLive(false)} type="button">
+            <div aria-label="Filter chats" className="v-instel__nav" role="group">
+              <button aria-current={!alleenLive ? "page" : undefined} aria-pressed={!alleenLive} onClick={() => setAlleenLive(false)} type="button">
                 All
               </button>
-              <button aria-current={alleenLive ? "page" : undefined} onClick={() => setAlleenLive(true)} type="button">
+              <button aria-current={alleenLive ? "page" : undefined} aria-pressed={alleenLive} onClick={() => setAlleenLive(true)} type="button">
                 Live <span className="v-leadbalk__n">{items?.filter(isLive).length ?? 0}</span>
               </button>
             </div>

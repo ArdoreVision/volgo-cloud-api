@@ -9,6 +9,7 @@ import { markeerOnboarding } from "@/lib/api/assistent.functions";
 import { InstallGuides } from "@/components/volgo/install-guides";
 
 import { AvaStijl } from "./ava-stijl";
+import { useOnopgeslagen } from "./onopgeslagen";
 import { Laadfout, Laden } from "./status";
 
 type Ava = Awaited<ReturnType<typeof haalAva>>;
@@ -62,19 +63,36 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
     }
   }
 
+  const [bezig, setBezig] = useState(false);
+  const [fout, setFout] = useState("");
+  const [gewijzigd, setGewijzigd] = useState(false);
+  useOnopgeslagen(gewijzigd);
+
   async function opslaan(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (bezig) return;
     const fd = new FormData(e.currentTarget);
-    await bewaarAva({
-      data: {
-        naam: String(fd.get("naam") ?? "AVA").trim() || "AVA",
-        begroeting: String(fd.get("begroeting") ?? "").trim(),
-        bedrijfsinfo: String(fd.get("bedrijfsinfo") ?? "").trim(),
-        kleur,
-      },
-    });
-    setOpgeslagen(true);
-    window.setTimeout(() => setOpgeslagen(false), 2500);
+    const begroeting = String(fd.get("begroeting") ?? "").trim();
+    if (begroeting.length < 5) return setFout("The first message needs at least 5 characters.");
+    setBezig(true);
+    setFout("");
+    try {
+      await bewaarAva({
+        data: {
+          naam: String(fd.get("naam") ?? "AVA").trim() || "AVA",
+          begroeting,
+          bedrijfsinfo: String(fd.get("bedrijfsinfo") ?? "").trim(),
+          kleur,
+        },
+      });
+      setGewijzigd(false);
+      setOpgeslagen(true);
+      window.setTimeout(() => setOpgeslagen(false), 3000);
+    } catch {
+      setFout("Not saved. Check your connection and try again.");
+    } finally {
+      setBezig(false);
+    }
   }
 
   if (laadFout) return <Laadfout opnieuw={() => setPoging((p) => p + 1)} wat="AVA’s settings" />;
@@ -160,7 +178,7 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
         <div className="v-dash__panel-head">
           <h2>How AVA talks</h2>
         </div>
-        <form className="v-ava-form" onSubmit={(e) => void opslaan(e)}>
+        <form className="v-ava-form" onChange={() => setGewijzigd(true)} onSubmit={(e) => void opslaan(e)}>
           <div className="v-row">
             <div className="v-fld">
               <label htmlFor="ava-naam">Assistant name</label>
@@ -170,7 +188,19 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
               <span className="v-fld__label">Color</span>
               <div className="v-swatches" role="radiogroup" aria-label="Color">
                 {KLEUREN.map((k) => (
-                  <button aria-checked={kleur === k} aria-label={k} className="v-swatch" key={k} onClick={() => setKleur(k)} role="radio" style={{ background: k }} type="button" />
+                  <button
+                    aria-checked={kleur === k}
+                    aria-label={k}
+                    className="v-swatch"
+                    key={k}
+                    onClick={() => {
+                      setKleur(k);
+                      setGewijzigd(true);
+                    }}
+                    role="radio"
+                    style={{ background: k }}
+                    type="button"
+                  />
                 ))}
               </div>
             </div>
@@ -190,10 +220,21 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
               rows={6}
             />
           </div>
+          {fout ? (
+            <p className="v-err" role="alert">
+              {fout}
+            </p>
+          ) : null}
           <div className="v-modal__actions">
-            {opgeslagen ? <span className="v-auth__ok">Saved</span> : null}
-            <button className="v-btn-dark" type="submit">
-              Save
+            {opgeslagen ? (
+              <span className="v-auth__ok" role="status">
+                Saved. AVA uses this from the next conversation.
+              </span>
+            ) : gewijzigd ? (
+              <span className="v-muted v-small">Unsaved changes</span>
+            ) : null}
+            <button className="v-btn-dark" disabled={bezig} type="submit">
+              {bezig ? "Saving…" : "Save"}
             </button>
           </div>
         </form>

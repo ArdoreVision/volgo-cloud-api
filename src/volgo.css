@@ -6,10 +6,10 @@
   --sky-2: #eef7ff;
   --ink: #111318;
   --ink-2: #3c4048;
-  --muted: #6b7280;
+  --muted: #60687a;
   --line: #e7eaf0;
-  --accent: #1677d9;
-  --accent-soft: rgba(22, 119, 217, 0.12);
+  --accent: #0f66c2;
+  --accent-soft: rgba(15, 102, 194, 0.12);
   --card: #ffffff;
   --bad: #c4211b;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
@@ -472,7 +472,7 @@
 .v-hot li > .v-pill { margin-left: auto; }
 .v-heat { flex: none; display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .v-heat--heet { background: linear-gradient(160deg, #ff8a3d, #ef4444); color: #fff; }
-.v-heat--warm { background: #fff1dc; color: #b45309; }
+.v-heat--warm { background: #fff1dc; color: #9a3412; }
 .v-heat--lauw { background: var(--surface); color: var(--muted); }
 .v-linkbtn { margin-top: 10px; border: 0; background: transparent; color: var(--accent); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; padding: 0; }
 .v-table__row { grid-template-columns: 64px 2fr 0.8fr 1fr 1fr; }
@@ -491,17 +491,17 @@
 .v-cal-day { padding: 18px 22px; border-radius: 22px; background: var(--card); }
 .v-cal-day h2 { margin: 0 0 10px; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.02em; display: flex; gap: 10px; align-items: center; }
 .v-cal-day h2:first-letter { text-transform: uppercase; }
-.v-cal-day h2 span { padding: 3px 10px; border-radius: 999px; background: #ef4444; color: #fff; font-size: 12px; font-weight: 600; }
-.v-cal-day h2.is-vandaag { color: #ef4444; }
+.v-cal-day h2 span { padding: 3px 10px; border-radius: 999px; background: #c4211b; color: #fff; font-size: 12px; font-weight: 600; }
+.v-cal-day h2.is-vandaag { color: #c4211b; }
 .v-cal-day--sel { margin-top: 14px; }
 .v-cal-empty { margin: 0; color: var(--muted); font-size: 14px; }
 .v-evs { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .v-ev { position: relative; display: flex; gap: 14px; align-items: flex-start; padding: 11px 12px 11px 16px; border-radius: 14px; background: var(--surface); }
 .v-ev::before { content: ""; position: absolute; left: 6px; top: 10px; bottom: 10px; width: 3.5px; border-radius: 4px; background: var(--c, var(--accent)); }
-.v-ev--blauw { --c: #1677d9; background: #eef6ff; }
-.v-ev--groen { --c: #1f9d55; background: #ecf8f1; }
+.v-ev--blauw { --c: #0f66c2; background: #eef6ff; }
+.v-ev--groen { --c: #15803d; background: #ecf8f1; }
 .v-ev--paars { --c: #6d4fd8; background: #f2eefd; }
-.v-ev--oranje { --c: #e07a10; background: #fff4e6; }
+.v-ev--oranje { --c: #b45309; background: #fff4e6; }
 .v-ev__time { display: grid; min-width: 46px; font-variant-numeric: tabular-nums; }
 .v-ev__time strong { font-size: 14px; }
 .v-ev__time span { font-size: 12.5px; color: var(--muted); }
@@ -521,7 +521,7 @@
 .v-month__cell.is-buiten .v-month__num { color: #b8bec8; }
 .v-month__cell.is-gekozen { background: var(--sky-2); }
 .v-month__num { align-self: flex-end; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; font-size: 14px; font-weight: 500; }
-.v-month__cell.is-vandaag .v-month__num { background: #ef4444; color: #fff; font-weight: 600; }
+.v-month__cell.is-vandaag .v-month__num { background: #c4211b; color: #fff; font-weight: 600; }
 .v-month__ev { display: block; padding: 2px 6px; border-radius: 6px; font-size: 11.5px; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .v-month__ev--blauw { background: #e3f0ff; color: #0f5fb0; }
 .v-month__ev--groen { background: #dff5e9; color: #157a42; }
@@ -581,7 +581,7 @@
 .v-av { flex: none; width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; font-size: 13px; font-weight: 600; color: #fff; }
 .v-av--sm { width: 24px; height: 24px; border-radius: 8px; font-size: 10.5px; }
 .v-av-spacer { flex: none; width: 36px; }
-.v-av--blauw { background: #1677d9; }
+.v-av--blauw { background: #0f66c2; }
 .v-av--paars { background: #6d4fd8; }
 .v-av--groen { background: #1f9d55; }
 .v-av--oranje { background: #e07a10; }
@@ -2017,7 +2017,7 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .v-assist__balk { margin-top: 8px; box-shadow: none; }
 .v-assist__tips { justify-content: flex-start; margin-top: 12px; }
 .v-voorbeeld-tag { display: inline-block; margin-left: 8px; padding: 2px 7px; border-radius: 999px; background: #fff4d6; color: #8a5a00; font-size: 11px; font-weight: 600; font-style: normal; letter-spacing: 0.02em; vertical-align: middle; }
-.v-table__row.is-voorbeeld, .v-ev--voorbeeld { opacity: 0.82; }
+/* Sample rows are only marked with the tag; no dimming, so every text stays readable. */
 .v-ev__bevestig { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; font-size: 13.5px; }
 .v-ev__bevestig button { padding: 7px 14px; font-size: 13.5px; }
 .v-btn-gevaar { border: 0; border-radius: 999px; padding: 11px 18px; background: var(--bad); color: #fff; font: inherit; font-size: 15px; font-weight: 500; cursor: pointer; }
@@ -2049,3 +2049,9 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
   .v-vandaag__grid { grid-template-columns: 1fr; }
   .v-bel__wie strong, .v-bel__wie small { white-space: normal; }
 }
+
+/* ---------- Language: no English flash ---------- */
+/* While <html> carries v-vertalen, the public page is invisible but keeps its size; a small Volgo mark shows instead. */
+html.v-vertalen .volgo:not(.v-dash):not(.v-admin) { visibility: hidden; }
+html.v-vertalen body::before { content: ""; position: fixed; inset: 0; z-index: 9999; background: #fff; }
+html.v-vertalen body::after { content: ""; position: fixed; top: 50%; left: 50%; z-index: 10000; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50%; border: 3px solid #e7eaf0; border-top-color: #0f66c2; animation: v-draai 0.8s linear infinite; }

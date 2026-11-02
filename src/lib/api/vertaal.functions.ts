@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getCookie } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 import { sha256 } from "../auth.server";
@@ -6,6 +7,12 @@ import { bindings } from "../bindings.server";
 import { TALEN, isTaal } from "../talen";
 
 const STUK = 40;
+
+/** The language the visitor chose (cookie volgo_taal), so the server can render <html lang> right and hide nothing it needn't. */
+export const haalTaalCookie = createServerFn({ method: "GET" }).handler(async () => {
+  const t = getCookie("volgo_taal") ?? "";
+  return isTaal(t) ? t : "";
+});
 
 /** Translate website texts into one language. Cached per text in D1, so every string costs one AI call ever. */
 export const vertaalTeksten = createServerFn({ method: "POST" })
