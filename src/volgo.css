@@ -1795,3 +1795,18 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .v-sterkte .v-hint b { font-weight: 600; color: var(--ink); }
 .v-hint--let { color: #b45309; font-weight: 500; }
 .v-pw input { padding-right: 70px; }
+
+/* ── Leads: filters + search ───────────────────────────── */
+.v-leadbalk { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 16px; }
+.v-leadbalk__filters { margin: 0; }
+.v-leadbalk__n { display: inline-block; min-width: 20px; margin-left: 4px; padding: 1px 6px; border-radius: 999px; background: rgba(17, 19, 24, 0.08); font-size: 12px; font-weight: 600; text-align: center; }
+.v-instel__nav button[aria-current="page"] .v-leadbalk__n { background: var(--sky-2); color: var(--accent); }
+.v-leadbalk__zoek { flex: 1; min-width: 200px; max-width: 320px; height: 44px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); font: inherit; font-size: 14.5px; color: var(--ink); }
+.v-leadbalk__zoek:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.v-table__row.is-heet { background: linear-gradient(90deg, rgba(31, 157, 85, 0.06), transparent 40%); }
+.v-dash[data-thema="donker"] .v-leadbalk__n { background: rgba(255, 255, 255, 0.1); }
+@media (max-width: 900px) { .v-leadbalk__zoek { max-width: none; } }
+.v-dm__filter { display: grid; gap: 8px; padding: 10px 10px 6px; }
+.v-dm__filter .v-instel__nav { width: 100%; margin: 0; }
+.v-dm__filter .v-instel__nav button { flex: 1; padding: 8px 10px; font-size: 13.5px; }
+.v-dm__filter .v-leadbalk__zoek { max-width: none; height: 40px; }

@@ -141,6 +141,8 @@ function Dashboard() {
   const [admin, setAdmin] = useState(false);
   // The five profile questions: once for the owner before the dashboard, later changeable on the Train AVA page.
   const [vragenOpen, setVragenOpen] = useState(false);
+  const [leadFilter, setLeadFilter] = useState<"alle" | "nieuw" | "heet" | "open" | "klaar">("alle");
+  const [leadZoek, setLeadZoek] = useState("");
   const [profiel, setProfiel] = useState<Profiel | null>(null);
   useEffect(() => {
     if (tab !== "ava") return;
@@ -389,47 +391,89 @@ function Dashboard() {
           <>
             <header className="v-dash__head">
               <h1>Leads</h1>
-              <p>AVA puts the hottest leads at the top. Update the status once you have been in touch yourself.</p>
+              <p>Hottest first. Change the status as soon as you’ve been in touch, so your team sees where every lead stands.</p>
             </header>
-            <section className="v-dash__panel v-dash__panel--flush">
-              <div className="v-table" role="table">
-                <div className="v-table__row v-table__row--head" role="row">
-                  <span role="columnheader">Warmth</span>
-                  <span role="columnheader">Customer</span>
-                  <span role="columnheader">Via</span>
-                  <span role="columnheader">Received</span>
-                  <span role="columnheader">Status</span>
-                </div>
-                {leads.length === 0 ? (
-                  <p className="v-feed__empty v-pad">No leads yet. As soon as a visitor leaves their details with AVA, they appear here, hottest first.</p>
-                ) : null}
-                {leads.map((l) => (
-                  <div className="v-table__row" key={l.id} role="row">
-                    <span role="cell">
-                      <span className={`v-heat v-heat--${warmteLabel(l.warmte).toLowerCase()}`} title={l.reden ?? ""}>
-                        {l.warmte}
-                      </span>
-                    </span>
-                    <span role="cell">
-                      <strong>{l.naam}</strong>
-                      <small>{l.reden || l.onderwerp}</small>
-                      {l.herkomst ? <small className="v-herkomst">📍 {l.herkomst}</small> : null}
-                    </span>
-                    <span role="cell">{l.kanaal}</span>
-                    <span role="cell">{datum(l.created_at)}</span>
-                    <span role="cell">
-                      <select aria-label={`Status of ${l.naam}`} className={`v-select v-pill--${l.status}`} onChange={(e) => void zetStatus(l.id, e.target.value as Status)} value={l.status}>
-                        {(Object.keys(STATUS_LABEL) as Status[]).map((s) => (
-                          <option key={s} value={s}>
-                            {STATUS_LABEL[s]}
-                          </option>
-                        ))}
-                      </select>
-                    </span>
+            {(() => {
+              const open = (l: (typeof leads)[number]) => l.status !== "klant" && l.status !== "verloren";
+              const tellingen = {
+                alle: leads.length,
+                nieuw: leads.filter((l) => l.status === "nieuw").length,
+                heet: leads.filter((l) => l.warmte >= 75 && open(l)).length,
+                open: leads.filter(open).length,
+                klaar: leads.filter((l) => !open(l)).length,
+              };
+              const z = leadZoek.trim().toLowerCase();
+              const lijst = leads.filter((l) => {
+                if (leadFilter === "nieuw" && l.status !== "nieuw") return false;
+                if (leadFilter === "heet" && !(l.warmte >= 75 && open(l))) return false;
+                if (leadFilter === "open" && !open(l)) return false;
+                if (leadFilter === "klaar" && open(l)) return false;
+                if (z && !`${l.naam} ${l.onderwerp} ${l.reden ?? ""} ${l.herkomst ?? ""}`.toLowerCase().includes(z)) return false;
+                return true;
+              });
+              const FILTERS: [typeof leadFilter, string][] = [
+                ["alle", "All"],
+                ["nieuw", "New"],
+                ["heet", "Hot"],
+                ["open", "In progress"],
+                ["klaar", "Won / lost"],
+              ];
+              return (
+                <>
+                  <div className="v-leadbalk">
+                    <div className="v-instel__nav v-leadbalk__filters" role="tablist" aria-label="Filter leads">
+                      {FILTERS.map(([id, label]) => (
+                        <button aria-current={leadFilter === id ? "page" : undefined} key={id} onClick={() => setLeadFilter(id)} type="button">
+                          {label} <span className="v-leadbalk__n">{tellingen[id]}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <input aria-label="Search leads" className="v-leadbalk__zoek" onChange={(e) => setLeadZoek(e.target.value)} placeholder="Search name, topic or town" type="search" value={leadZoek} />
                   </div>
-                ))}
-              </div>
-            </section>
+                  <section className="v-dash__panel v-dash__panel--flush">
+                    <div className="v-table" role="table">
+                      <div className="v-table__row v-table__row--head" role="row">
+                        <span role="columnheader">Warmth</span>
+                        <span role="columnheader">Customer</span>
+                        <span role="columnheader">Via</span>
+                        <span role="columnheader">Received</span>
+                        <span role="columnheader">Status</span>
+                      </div>
+                      {leads.length === 0 ? (
+                        <p className="v-feed__empty v-pad">No leads yet. As soon as a visitor leaves their details with AVA, they appear here, hottest first.</p>
+                      ) : lijst.length === 0 ? (
+                        <p className="v-feed__empty v-pad">Nothing matches this filter.</p>
+                      ) : null}
+                      {lijst.map((l) => (
+                        <div className={`v-table__row${l.warmte >= 75 && open(l) ? " is-heet" : ""}`} key={l.id} role="row">
+                          <span role="cell">
+                            <span className={`v-heat v-heat--${warmteLabel(l.warmte).toLowerCase()}`} title={l.reden ?? ""}>
+                              {l.warmte}
+                            </span>
+                          </span>
+                          <span role="cell">
+                            <strong>{l.naam}</strong>
+                            <small>{l.reden || l.onderwerp}</small>
+                            {l.herkomst ? <small className="v-herkomst">📍 {l.herkomst}</small> : null}
+                          </span>
+                          <span role="cell">{l.kanaal}</span>
+                          <span role="cell">{datum(l.created_at)}</span>
+                          <span role="cell">
+                            <select aria-label={`Status of ${l.naam}`} className={`v-select v-pill--${l.status}`} onChange={(e) => void zetStatus(l.id, e.target.value as Status)} value={l.status}>
+                              {(Object.keys(STATUS_LABEL) as Status[]).map((st) => (
+                                <option key={st} value={st}>
+                                  {STATUS_LABEL[st]}
+                                </option>
+                              ))}
+                            </select>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </>
+              );
+            })()}
           </>
         ) : null}
 
