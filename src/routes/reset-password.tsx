@@ -3,6 +3,8 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 
 import { AuthShell } from "@/components/volgo/auth-shell";
+import { WachtwoordVeld } from "@/components/volgo/wachtwoord-veld";
+import { beoordeel } from "@/lib/wachtwoord";
 import { herstelWachtwoord } from "@/lib/api/wachtwoord.functions";
 import "@/volgo.css";
 
@@ -23,7 +25,8 @@ function Herstellen() {
     const fd = new FormData(e.currentTarget);
     const w1 = String(fd.get("w1") ?? "");
     const w2 = String(fd.get("w2") ?? "");
-    if (w1.length < 8) return setFout("Choose a password of at least 8 characters.");
+    const st = beoordeel(w1);
+    if (!st.ok) return setFout(st.label === "Too short" ? "Choose a password of at least 8 characters." : st.tip);
     if (w1 !== w2) return setFout("The two passwords don’t match.");
     setFout("");
     setBezig(true);
@@ -42,14 +45,8 @@ function Herstellen() {
       <h1 className="v-auth__title">New password</h1>
       <p className="v-auth__sub">Choose a password of at least 8 characters. You’ll be logged in right after.</p>
       <form className="v-auth__form" onSubmit={onSubmit}>
-        <div className="v-fld">
-          <label htmlFor="w1">New password</label>
-          <input autoComplete="new-password" id="w1" minLength={8} name="w1" required type="password" />
-        </div>
-        <div className="v-fld">
-          <label htmlFor="w2">Repeat password</label>
-          <input autoComplete="new-password" id="w2" minLength={8} name="w2" required type="password" />
-        </div>
+        <WachtwoordVeld id="w1" label="New password" name="w1" soort="new" />
+        <WachtwoordVeld id="w2" label="Repeat password" name="w2" />
         {fout ? <p className="v-err" role="alert">{fout}</p> : null}
         <button className="v-auth__btn" disabled={bezig || !token} type="submit">
           {bezig ? "One moment…" : "Save and log in"}

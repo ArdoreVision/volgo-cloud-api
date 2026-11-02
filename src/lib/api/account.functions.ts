@@ -8,6 +8,7 @@ import { bindings } from "../bindings.server";
 import { SITE_URL, VOLGO_INBOX, esc, mailOpmaak, verstuurMail } from "../mail.server";
 import { PLANS, isPlan } from "../plans";
 import { leesProfiel, profielCompleet } from "../profiel-vragen";
+import { beoordeel } from "../wachtwoord";
 import { seedTeam, zorgVoorKanaal } from "../team.server";
 import { actieveGebruiker, heeftToegang } from "../toegang.server";
 
@@ -191,6 +192,8 @@ export const maakAccount = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { DB, STRIPE_SECRET_KEY } = bindings();
     if (!DB) return { ok: false as const, message: "Database unavailable." };
+    const sterkte = beoordeel(data.wachtwoord, [data.naam, data.bedrijf, data.email]);
+    if (!sterkte.ok) return { ok: false as const, message: sterkte.tip };
     const b = await DB.prepare("SELECT plan, status, gebruikt, testmodus, stripe_klant, stripe_abonnement FROM betalingen WHERE token = ?")
       .bind(data.token)
       .first<{ plan: string; status: string; gebruikt: number; testmodus: number; stripe_klant: string | null; stripe_abonnement: string | null }>();

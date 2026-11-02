@@ -4,6 +4,8 @@ import type { FormEvent } from "react";
 
 import { verwijderLid } from "@/lib/api/account.functions";
 import { wijzigAccount, wijzigWachtwoord } from "@/lib/api/wachtwoord.functions";
+import { WachtwoordVeld } from "@/components/volgo/wachtwoord-veld";
+import { beoordeel } from "@/lib/wachtwoord";
 
 import { ProfielFoto, verkleinFoto } from "./profiel";
 
@@ -46,7 +48,8 @@ export function Account({ g, loguit, leden = [], planNaam, openTab }: { g: G; lo
     const form = e.currentTarget;
     const fd = new FormData(form);
     const nieuw = String(fd.get("nieuw") ?? "");
-    if (nieuw.length < 8) return setMelding2({ ok: false, tekst: "Choose a new password of at least 8 characters." });
+    const st = beoordeel(nieuw, [g.naam, g.bedrijf, g.email]);
+    if (!st.ok) return setMelding2({ ok: false, tekst: st.label === "Too short" ? "Choose a new password of at least 8 characters." : st.tip });
     if (nieuw !== String(fd.get("herhaal") ?? "")) return setMelding2({ ok: false, tekst: "The new passwords don't match." });
     setBezig(true);
     try {
@@ -169,18 +172,9 @@ export function Account({ g, loguit, leden = [], planNaam, openTab }: { g: G; lo
       <section className="v-dash__panel">
         <h2 className="v-sub">Change password</h2>
         <form className="v-form-grid" onSubmit={bewaarWachtwoord}>
-          <div className="v-fld">
-            <label htmlFor="acc-huidig">Current password</label>
-            <input autoComplete="current-password" id="acc-huidig" name="huidig" required type="password" />
-          </div>
-          <div className="v-fld">
-            <label htmlFor="acc-nieuw">New password</label>
-            <input autoComplete="new-password" id="acc-nieuw" minLength={8} name="nieuw" required type="password" />
-          </div>
-          <div className="v-fld">
-            <label htmlFor="acc-herhaal">Repeat new password</label>
-            <input autoComplete="new-password" id="acc-herhaal" minLength={8} name="herhaal" required type="password" />
-          </div>
+          <WachtwoordVeld id="acc-huidig" label="Current password" name="huidig" />
+          <WachtwoordVeld context={[g.naam, g.bedrijf, g.email]} id="acc-nieuw" label="New password" name="nieuw" soort="new" />
+          <WachtwoordVeld id="acc-herhaal" label="Repeat new password" name="herhaal" />
           <div className="v-form-actie">
             <button className="v-btn-blauw" disabled={bezig} type="submit">
               Change password

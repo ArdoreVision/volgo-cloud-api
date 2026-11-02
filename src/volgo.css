@@ -1783,3 +1783,15 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 @media (max-width: 900px) {
   .vx-waarom__grid, .vx-trust__lijst { grid-template-columns: 1fr; }
 }
+
+/* ── Password field: strength meter + caps-lock ───────────── */
+.v-sterkte { display: grid; gap: 6px; margin-top: 2px; }
+.v-sterkte__balk { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.v-sterkte__balk i { height: 5px; border-radius: 9px; background: var(--line); transition: background 0.25s; }
+.v-sterkte__balk.is-1 i:nth-child(-n + 1) { background: var(--bad); }
+.v-sterkte__balk.is-2 i:nth-child(-n + 2) { background: #e07a10; }
+.v-sterkte__balk.is-3 i:nth-child(-n + 3) { background: var(--accent); }
+.v-sterkte__balk.is-4 i { background: #1f9d55; }
+.v-sterkte .v-hint b { font-weight: 600; color: var(--ink); }
+.v-hint--let { color: #b45309; font-weight: 500; }
+.v-pw input { padding-right: 70px; }

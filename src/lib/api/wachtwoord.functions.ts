@@ -6,9 +6,14 @@ import { hashIp, recentCount } from "../aanvraag.server";
 import { checkWachtwoord, hashWachtwoord, huidigeGebruiker, maakSessie, randomToken, sha256 } from "../auth.server";
 import { bindings } from "../bindings.server";
 import { SITE_URL, esc, mailOpmaak, verstuurMail } from "../mail.server";
+import { beoordeel } from "../wachtwoord";
 
 const origin = () => SITE_URL;
-const sterk = z.string().min(8, "Choose a password of at least 8 characters.").max(200);
+const sterk = z
+  .string()
+  .min(8, "Choose a password of at least 8 characters.")
+  .max(200)
+  .refine((p) => beoordeel(p).ok, "This password is too common. Pick something personal but unguessable.");
 
 /** Stap 1: herstellink aanvragen. Zegt altijd hetzelfde, zodat niemand kan zien welke adressen een account hebben. */
 export const vraagHerstel = createServerFn({ method: "POST" })

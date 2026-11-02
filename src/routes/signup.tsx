@@ -3,6 +3,8 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 
 import { AuthShell, Steps } from "@/components/volgo/auth-shell";
+import { WachtwoordVeld } from "@/components/volgo/wachtwoord-veld";
+import { beoordeel } from "@/lib/wachtwoord";
 import { activeerAbonnement, controleerBetaling, maakAccount } from "@/lib/api/account.functions";
 import { isIngelogd } from "@/lib/api/assistent.functions";
 import { PLANS, isPlan } from "@/lib/plans";
@@ -30,7 +32,6 @@ function Aanmelden() {
   const navigate = useNavigate();
   const [fout, setFout] = useState("");
   const [bezig, setBezig] = useState(false);
-  const [toon, setToon] = useState(false);
 
   if (!betaling || !isPlan(betaling.plan)) {
     return (
@@ -72,7 +73,8 @@ function Aanmelden() {
     const v = (k: string) => String(fd.get(k) ?? "").trim();
     if (v("naam").length < 2 || v("bedrijf").length < 2) return setFout("Enter your name and company name.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v("email"))) return setFout("Enter a valid email address.");
-    if (String(fd.get("wachtwoord") ?? "").length < 8) return setFout("Choose a password of at least 8 characters.");
+    const st = beoordeel(String(fd.get("wachtwoord") ?? ""), [v("naam"), v("bedrijf"), v("email")]);
+    if (!st.ok) return setFout(st.label === "Too short" ? "Choose a password of at least 8 characters." : st.tip);
     setFout("");
     setBezig(true);
     try {
@@ -109,16 +111,7 @@ function Aanmelden() {
           <label htmlFor="email">Email address</label>
           <input autoComplete="email" defaultValue={betaling.email} id="email" inputMode="email" name="email" type="email" />
         </div>
-        <div className="v-fld">
-          <label htmlFor="wachtwoord">Password</label>
-          <div className="v-pw">
-            <input autoComplete="new-password" id="wachtwoord" minLength={8} name="wachtwoord" type={toon ? "text" : "password"} />
-            <button onClick={() => setToon(!toon)} type="button">
-              {toon ? "Hide" : "Show"}
-            </button>
-          </div>
-          <p className="v-hint">At least 8 characters.</p>
-        </div>
+        <WachtwoordVeld context={[betaling.email]} id="wachtwoord" label="Password" name="wachtwoord" soort="new" />
         <p className="v-hint v-akkoord">
           By creating an account, you agree to the <a href="/terms" target="_blank">Terms of Service</a> and the{" "}
           <a href="/dpa" target="_blank">Data Processing Agreement</a>.

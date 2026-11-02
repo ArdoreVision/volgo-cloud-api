@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 
 import { AuthShell, Steps } from "@/components/volgo/auth-shell";
+import { WachtwoordVeld } from "@/components/volgo/wachtwoord-veld";
 import { inloggen } from "@/lib/api/account.functions";
 import { isIngelogd } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
@@ -52,13 +53,7 @@ function Inloggen() {
           <label htmlFor="email">Email address</label>
           <input autoComplete="email" id="email" inputMode="email" name="email" required type="email" />
         </div>
-        <div className="v-fld">
-          <span className="v-fld__row">
-            <label htmlFor="wachtwoord">Password</label>
-            <a href="/forgot-password">Forgot?</a>
-          </span>
-          <input autoComplete="current-password" id="wachtwoord" name="wachtwoord" required type="password" />
-        </div>
+        <WachtwoordVeld id="wachtwoord" label="Password" name="wachtwoord" rechts={<a href="/forgot-password">Forgot?</a>} />
         {fout ? <p className="v-err" role="alert">{fout}</p> : null}
         <button className="v-auth__btn" disabled={bezig} type="submit">
           {bezig ? "Logging in…" : "Log in"}
