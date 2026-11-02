@@ -9,6 +9,7 @@ import { Inside } from "@/components/volgo/inside";
 import { DemoVideo, Feiten, LiveDemo, Marquee, Ranking, Rekenhulp, ScrollProgress, Tijdlijn, Voordelen, Voorbeelden, VoorNa, useReveal } from "@/components/volgo/landing";
 import { FinalCta, PricingPreview } from "@/components/volgo/pricing-preview";
 import { Founder, Moat, Vergelijk, Vertrouwen, Waarom } from "@/components/volgo/verhaal";
+import { Reviews } from "@/components/volgo/reviews";
 import { isIngelogd } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
 
