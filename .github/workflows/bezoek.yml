@@ -1,0 +1,27 @@
+name: Bezoekers landingspagina
+on: workflow_dispatch
+jobs:
+  b:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - run: |
+          q() { npx -y wrangler@4 d1 execute volgo-db --remote --json --command "$1" 2>/dev/null | jq -c '.[0].results'; }
+          echo "::warning::TEAMS $(q "SELECT g.id, g.email, a.sleutel FROM gebruikers g JOIN ava_instellingen a ON a.team_id = g.id WHERE g.email IN ('volgo.app@outlook.com','d.hanssens02@gmail.com')")"
+          echo "::warning::PERDAG $(q "SELECT v.dag, COUNT(DISTINCT v.sessie) sessies, COUNT(DISTINCT v.bezoeker) bezoekers, COUNT(*) views FROM site_views v JOIN gebruikers g ON g.id = v.team_id WHERE g.email IN ('volgo.app@outlook.com','d.hanssens02@gmail.com') AND v.dag >= date('now','-13 days') GROUP BY v.dag ORDER BY v.dag")"
+          echo "::warning::TOTAAL $(q "SELECT COUNT(DISTINCT v.sessie) sessies, COUNT(DISTINCT v.bezoeker) bezoekers, COUNT(*) views, MIN(v.dag) sinds FROM site_views v JOIN gebruikers g ON g.id = v.team_id WHERE g.email IN ('volgo.app@outlook.com','d.hanssens02@gmail.com')")"
+          echo "::warning::BRON $(q "SELECT COALESCE(v.bron,'(direct)') bron, COUNT(DISTINCT v.sessie) sessies FROM site_views v JOIN gebruikers g ON g.id = v.team_id WHERE g.email IN ('volgo.app@outlook.com','d.hanssens02@gmail.com') AND v.dag >= date('now','-13 days') GROUP BY 1 ORDER BY 2 DESC LIMIT 8")"
+          echo "::warning::LAND $(q "SELECT COALESCE(v.land,'?') land, COUNT(DISTINCT v.sessie) sessies FROM site_views v JOIN gebruikers g ON g.id = v.team_id WHERE g.email IN ('volgo.app@outlook.com','d.hanssens02@gmail.com') AND v.dag >= date('now','-13 days') GROUP BY 1 ORDER BY 2 DESC LIMIT 8")"
+          echo "::warning::PAGINAS $(q "SELECT v.pad, COUNT(DISTINCT v.sessie) sessies FROM site_views v JOIN gebruikers g ON g.id = v.team_id WHERE g.email IN ('volgo.app@outlook.com','d.hanssens02@gmail.com') AND v.dag >= date('now','-13 days') GROUP BY 1 ORDER BY 2 DESC LIMIT 8")"
+          # Cloudflare zone analytics (all requests, no consent needed)
+          Z=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/zones?name=thevolgo.app" | jq -r '.result[0].id // empty')
+          if [ -n "$Z" ]; then
+            S=$(date -u -d '7 days ago' +%Y-%m-%dT00:00:00Z); E=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" https://api.cloudflare.com/client/v4/graphql \
+              -d "{\"query\":\"{ viewer { zones(filter:{zoneTag:\\\"$Z\\\"}) { httpRequests1dGroups(limit:10, filter:{date_geq:\\\"${S:0:10}\\\"}, orderBy:[date_ASC]) { dimensions { date } uniq { uniques } sum { pageViews requests } } } } }\"}" \
+              | jq -c '.data.viewer.zones[0].httpRequests1dGroups // .errors' | sed 's/^/::warning::CLOUDFLARE /'
+          else
+            echo "::warning::CLOUDFLARE geen zone-toegang met dit token"
+          fi
