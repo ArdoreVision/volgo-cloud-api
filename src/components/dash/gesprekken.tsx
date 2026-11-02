@@ -3,7 +3,7 @@ import type { FormEvent, KeyboardEvent } from "react";
 
 import { haalGesprek, haalGesprekken, neemGesprekOver, stuurMensBericht } from "@/lib/api/ava.functions";
 
-import { type DashData, geleden, sqlDate, tijdAms } from "./util";
+import { type DashData, dagLabel, datumKort, geleden, sqlDate, tijdAms } from "./util";
 
 type Detail = NonNullable<Awaited<ReturnType<typeof haalGesprek>>>;
 type Item = Awaited<ReturnType<typeof haalGesprekken>>[number];
@@ -26,16 +26,6 @@ function Avatar({ naam, id, live }: { naam: string; id: number; live?: boolean }
   );
 }
 
-/** "Today", "Yesterday" or "Mon 3 Nov" for the date chips between messages. */
-function dagLabel(d: Date, nu: number) {
-  const fmt = (x: Date) => x.toLocaleDateString("en-GB", { timeZone: "Europe/Amsterdam" });
-  const vandaag = fmt(new Date(nu));
-  const gisteren = fmt(new Date(nu - 86400000));
-  const f = fmt(d);
-  if (f === vandaag) return "Today";
-  if (f === gisteren) return "Yesterday";
-  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/Amsterdam" });
-}
 const SEEN = "volgo-seen-";
 function gezien(id: number): string {
   try {
@@ -54,7 +44,7 @@ function markeerGezien(id: number, laatste: string) {
 
 /** Short time for the chat list: 14:05 today, otherwise "3 Nov". */
 function kortTijd(d: Date, nu: number) {
-  return nu - d.getTime() < 20 * 3600 * 1000 ? tijdAms(d) : d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Europe/Amsterdam" });
+  return nu - d.getTime() < 20 * 3600 * 1000 ? tijdAms(d) : datumKort(d);
 }
 
 export function Gesprekken({ data }: { data: DashData }) {
@@ -68,12 +58,17 @@ export function Gesprekken({ data }: { data: DashData }) {
   const [open, setOpen] = useState(false); // mobile: chat open instead of list
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
+  const [lijstFout, setLijstFout] = useState(false);
   const lijst = useRef<HTMLDivElement>(null);
 
-  // Chat list refreshes by itself, so new visitors appear without reloading.
+  // Chat list refreshes by itself, so new visitors appear without reloading. A failed refresh is shown, never passed off as "no chats".
   const laadLijst = useCallback(async () => {
     const r = await haalGesprekken().catch(() => null);
-    if (!r) return;
+    if (!r) {
+      setLijstFout(true);
+      return;
+    }
+    setLijstFout(false);
     setItems(r);
     if (r[0]) setNu(sqlDate(r[0].nu).getTime());
     setActief((a) => a ?? (window.matchMedia("(max-width: 900px)").matches ? null : (r[0]?.id ?? null)));
@@ -161,8 +156,32 @@ export function Gesprekken({ data }: { data: DashData }) {
             </div>
             <input aria-label="Search chats" className="v-leadbalk__zoek" onChange={(e) => setZoekChat(e.target.value)} placeholder="Search" type="search" value={zoekChat} />
           </div>
-          {items === null ? <p className="v-dm__leeg">Loading…</p> : null}
-          {items?.length === 0 ? <p className="v-dm__leeg">No chats yet. As soon as someone talks to AVA on your website, they appear here.</p> : null}
+          {items === null && !lijstFout ? (
+            <p className="v-dm__leeg" role="status">
+              Loading chats…
+            </p>
+          ) : null}
+          {lijstFout ? (
+            <p className="v-dm__leeg v-dm__leeg--fout" role="alert">
+              Couldn’t load your chats. Check your connection.{" "}
+              <button className="v-linkbtn" onClick={() => void laadLijst()} type="button">
+                Try again
+              </button>
+            </p>
+          ) : null}
+          {items?.length === 0 && !lijstFout ? (
+            <div className="v-dm__leeg">
+              <p>
+                <strong>No chats yet.</strong>
+              </p>
+              <p>As soon as someone talks to AVA on your website, the conversation appears here, live.</p>
+              {!data.avaLive ? (
+                <p>
+                  Not live yet? <a href={`/demo/${data.sleutel}`} rel="noopener" target="_blank">Try AVA yourself</a> or open <strong>Install</strong> to put it on your website.
+                </p>
+              ) : null}
+            </div>
+          ) : null}
           {items && items.length > 0 && items.filter((c) => (!alleenLive || isLive(c)) && (!zoekChat.trim() || `${c.bezoeker} ${c.onderwerp}`.toLowerCase().includes(zoekChat.trim().toLowerCase()))).length === 0 ? (
             <p className="v-dm__leeg">Nothing matches.</p>
           ) : null}
@@ -184,7 +203,10 @@ export function Gesprekken({ data }: { data: DashData }) {
                 <Avatar id={c.id} live={live} naam={c.bezoeker} />
                 <span className="v-dm__wat">
                   <span className="v-dm__rij">
-                    <strong>{c.bezoeker}</strong>
+                    <strong>
+                      {c.bezoeker}
+                      {c.voorbeeld ? <em className="v-voorbeeld-tag">Sample</em> : null}
+                    </strong>
                     <time>{kortTijd(sqlDate(c.laatste), nu)}</time>
                   </span>
                   <span className="v-dm__rij">

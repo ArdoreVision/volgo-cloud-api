@@ -11,9 +11,11 @@ import { Website } from "@/components/dash/website";
 import { AvaInstellen } from "@/components/dash/ava-instellen";
 import { Gesprekken } from "@/components/dash/gesprekken";
 import { Home } from "@/components/dash/home";
+import { Leads } from "@/components/dash/leads";
+import { heeftOnopgeslagen } from "@/components/dash/onopgeslagen";
 import { Overview } from "@/components/dash/overview";
 import { TeamChat } from "@/components/dash/team-chat";
-import { warmteLabel } from "@/components/dash/util";
+import { type Status, zetTijdzone } from "@/components/dash/util";
 import { VolgoMark } from "@/components/volgo/logo";
 import { haalDashboard, uitloggen, zetLeadStatus } from "@/lib/api/account.functions";
 import { isAdmin } from "@/lib/api/admin.functions";
@@ -29,6 +31,11 @@ import { PLANS, isPlan } from "@/lib/plans";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/dashboard")({
+  // The open tab lives in the URL, so a refresh, the back button and links from emails land on the right page.
+  validateSearch: (s: Record<string, unknown>): { tab?: string; sub?: string } => ({
+    tab: typeof s.tab === "string" && s.tab ? s.tab : undefined,
+    sub: typeof s.sub === "string" && s.sub ? s.sub : undefined,
+  }),
   loader: async () => {
     const d = await haalDashboard();
     if (!d) throw redirect({ to: "/login", search: {} });
@@ -64,8 +71,8 @@ const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
   {
     kop: "Insights",
     items: [
-      ["overzicht", "Overview"],
-      ["verkeer", "Traffic"],
+      ["overzicht", "Results"],
+      ["verkeer", "Website traffic"],
     ],
   },
   {
@@ -86,19 +93,8 @@ const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
   },
 ];
 const TABS: [Tab, string][] = GROEPEN.flatMap((g) => g.items);
+const isTab = (t: string): t is Tab => TABS.some(([id]) => id === t);
 type Toast = { id: number; titel: string; tekst: string; tab: Tab; heet?: boolean };
-type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
-const STATUS_LABEL: Record<Status, string> = {
-  nieuw: "New",
-  opvolging: "AVA following up",
-  offerte: "Quote",
-  afspraak: "Appointment",
-  klant: "Customer",
-  verloren: "Lost",
-};
-
-const datum = (iso: string) =>
-  new Date(iso.replace(" ", "T") + "Z").toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
 
 function Icon({ name }: { name: Tab | "uit" | "meer" | "abonnement" | "account" }) {
   const d: Record<string, string> = {
@@ -129,21 +125,21 @@ function Icon({ name }: { name: Tab | "uit" | "meer" | "abonnement" | "account" 
 function Dashboard() {
   const data = Route.useLoaderData();
   const { gebruiker: g } = data;
+  zetTijdzone(data.tijdzone);
   const leads = [...data.leads].sort((a, b) => {
     const af = (x: typeof a) => (x.status === "klant" || x.status === "verloren" ? 1 : 0);
     return af(a) - af(b) || b.warmte - a.warmte;
   });
   const router = useRouter();
   const navigate = useNavigate();
-  const [tab, setTabRaw] = useState<Tab>("home");
-  const [sub, setSub] = useState<Sub>("account");
+  const zoek = Route.useSearch();
+  const tab: Tab = zoek.tab && isTab(ALIAS[zoek.tab] ?? zoek.tab) ? ((ALIAS[zoek.tab] ?? zoek.tab) as Tab) : zoek.tab && isSub(zoek.tab) ? "instellingen" : "home";
+  const sub: Sub = zoek.sub && isSub(zoek.sub) ? zoek.sub : zoek.tab && isSub(zoek.tab) ? zoek.tab : "account";
   const vorige = useRef<Tab>("home");
   const [meer, setMeer] = useState(false);
   const [admin, setAdmin] = useState(false);
   // The five profile questions: once for the owner before the dashboard, later changeable on the Train AVA page.
   const [vragenOpen, setVragenOpen] = useState(false);
-  const [leadFilter, setLeadFilter] = useState<"alle" | "nieuw" | "heet" | "open" | "klaar">("alle");
-  const [leadZoek, setLeadZoek] = useState("");
   const [leadOpen, setLeadOpen] = useState<number | null>(null);
   const [profiel, setProfiel] = useState<Profiel | null>(null);
   useEffect(() => {
@@ -197,19 +193,23 @@ function Dashboard() {
   useEffect(() => {
     void isAdmin().then(setAdmin).catch(() => setAdmin(false));
   }, []);
-  /** Go to a tab; settings pages ("ava", "account", …) open inside Settings. */
+  /** Go to a tab; settings pages ("account", "meldingen", …) open inside Settings. Warns first when a form has unsaved changes. */
   const setTab = (t: string) => {
     const doel = ALIAS[t] ?? t;
-    if (isSub(doel)) {
-      setSub(doel);
-      setTabRaw("instellingen");
-    } else {
-      if (doel !== "ontwerp") vorige.current = doel as Tab;
-      setTabRaw(doel as Tab);
+    if (doel === tab && !isSub(doel)) {
+      setMeer(false);
+      return;
+    }
+    if (heeftOnopgeslagen() && !window.confirm("You have unsaved changes on this page. Leave without saving?")) return;
+    if (isSub(doel)) void navigate({ to: "/dashboard", search: { tab: "instellingen", sub: doel } });
+    else if (isTab(doel)) {
+      if (doel !== "ontwerp") vorige.current = doel;
+      void navigate({ to: "/dashboard", search: doel === "home" ? {} : { tab: doel } });
     }
     setMeer(false);
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   };
+  const setSub = (s: Sub) => setTab(s);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const sinds = useRef(data.nu.slice(0, 19).replace("T", " "));
 
@@ -244,7 +244,8 @@ function Dashboard() {
   const proefDagen = g.proef_tot ? Math.max(0, Math.ceil((new Date(g.proef_tot.replace(" ", "T") + "Z").getTime() - Date.now()) / 86400000)) : 0;
 
   async function zetStatus(id: number, status: Status) {
-    await zetLeadStatus({ data: { id, status } });
+    const r = await zetLeadStatus({ data: { id, status } });
+    if (!r.ok) throw new Error("not saved");
     await router.invalidate();
   }
   async function loguit() {
@@ -252,7 +253,8 @@ function Dashboard() {
     void navigate({ to: "/login", search: {} });
   }
 
-  const nieuweLeads = leads.filter((l) => l.status === "nieuw").length;
+  // The badge counts real new leads only; sample leads never look like work to do.
+  const nieuweLeads = leads.filter((l) => l.status === "nieuw" && !l.voorbeeld).length;
   // Mobile: four main tabs at the bottom, the rest grouped under "More".
   const mobiel: [Tab, string][] = [
     ["home", "Home"],
@@ -343,15 +345,15 @@ function Dashboard() {
         </button>
         <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={plan.id !== "start"} planNaam={plan.naam} />
       </div>
-      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${tab === "team" && plan.limieten.teamChat ? " v-dash__main--full" : ""}${tab === "home" ? " v-dash__main--home" : ""}`}>
+      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${tab === "team" && plan.limieten.teamChat ? " v-dash__main--full" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
             Your free trial has {proefDagen} {proefDagen === 1 ? "day" : "days"} left. After that, Volgo {plan.naam} continues automatically at €{plan.prijsTekst} per month.
           </p>
         ) : null}
 
-        {tab === "home" ? <Home bedrijf={g.bedrijf} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
-        {tab === "overzicht" ? <Overview data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
+        {tab === "home" ? <Home bedrijf={g.bedrijf} data={data} leads={leads} openLead={setLeadOpen} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
+        {tab === "overzicht" ? <Overview data={data} openTab={(t) => setTab(t)} /> : null}
         {tab === "verkeer" ? <Verkeer openTab={(t) => setTab(t)} /> : null}
         {tab === "gesprekken" ? <Gesprekken data={data} /> : null}
         {tab === "agenda" ? <Agenda data={data} /> : null}
@@ -389,107 +391,7 @@ function Dashboard() {
           )
         ) : null}
 
-        {tab === "aanvragen" ? (
-          <>
-            <header className="v-dash__head">
-              <h1>Leads</h1>
-              <p>Hottest first. Change the status as soon as you’ve been in touch, so your team sees where every lead stands.</p>
-            </header>
-            {(() => {
-              const open = (l: (typeof leads)[number]) => l.status !== "klant" && l.status !== "verloren";
-              const tellingen = {
-                alle: leads.length,
-                nieuw: leads.filter((l) => l.status === "nieuw").length,
-                heet: leads.filter((l) => l.warmte >= 75 && open(l)).length,
-                open: leads.filter(open).length,
-                klaar: leads.filter((l) => !open(l)).length,
-              };
-              const z = leadZoek.trim().toLowerCase();
-              const lijst = leads.filter((l) => {
-                if (leadFilter === "nieuw" && l.status !== "nieuw") return false;
-                if (leadFilter === "heet" && !(l.warmte >= 75 && open(l))) return false;
-                if (leadFilter === "open" && !open(l)) return false;
-                if (leadFilter === "klaar" && open(l)) return false;
-                if (z && !`${l.naam} ${l.onderwerp} ${l.reden ?? ""} ${l.herkomst ?? ""}`.toLowerCase().includes(z)) return false;
-                return true;
-              });
-              const FILTERS: [typeof leadFilter, string][] = [
-                ["alle", "All"],
-                ["nieuw", "New"],
-                ["heet", "Hot"],
-                ["open", "In progress"],
-                ["klaar", "Won / lost"],
-              ];
-              return (
-                <>
-                  <div className="v-leadbalk">
-                    <div className="v-instel__nav v-leadbalk__filters" role="tablist" aria-label="Filter leads">
-                      {FILTERS.map(([id, label]) => (
-                        <button aria-current={leadFilter === id ? "page" : undefined} key={id} onClick={() => setLeadFilter(id)} type="button">
-                          {label} <span className="v-leadbalk__n">{tellingen[id]}</span>
-                        </button>
-                      ))}
-                    </div>
-                    <input aria-label="Search leads" className="v-leadbalk__zoek" onChange={(e) => setLeadZoek(e.target.value)} placeholder="Search name, topic or town" type="search" value={leadZoek} />
-                  </div>
-                  <section className="v-dash__panel v-dash__panel--flush">
-                    <div className="v-table" role="table">
-                      <div className="v-table__row v-table__row--head" role="row">
-                        <span role="columnheader">Warmth</span>
-                        <span role="columnheader">Customer</span>
-                        <span role="columnheader">Via</span>
-                        <span role="columnheader">Received</span>
-                        <span role="columnheader">Status</span>
-                      </div>
-                      {leads.length === 0 ? (
-                        <p className="v-feed__empty v-pad">No leads yet. As soon as a visitor leaves their details with AVA, they appear here, hottest first.</p>
-                      ) : lijst.length === 0 ? (
-                        <p className="v-feed__empty v-pad">Nothing matches this filter.</p>
-                      ) : null}
-                      {lijst.map((l) => (
-                        <div
-                          className={`v-table__row v-table__row--klik${l.warmte >= 75 && open(l) ? " is-heet" : ""}`}
-                          key={l.id}
-                          onClick={(e) => {
-                            if ((e.target as HTMLElement).closest("select")) return;
-                            setLeadOpen(l.id);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" && !(e.target as HTMLElement).closest("select")) setLeadOpen(l.id);
-                          }}
-                          role="row"
-                          tabIndex={0}
-                        >
-                          <span role="cell">
-                            <span className={`v-heat v-heat--${warmteLabel(l.warmte).toLowerCase()}`} title={l.reden ?? ""}>
-                              {l.warmte}
-                            </span>
-                          </span>
-                          <span role="cell">
-                            <strong>{l.naam}</strong>
-                            <small>{l.reden || l.onderwerp}</small>
-                            {l.herkomst ? <small className="v-herkomst">📍 {l.herkomst}</small> : null}
-                          </span>
-                          <span role="cell">{l.kanaal}</span>
-                          <span role="cell">{datum(l.created_at)}</span>
-                          <span role="cell">
-                            <select aria-label={`Status of ${l.naam}`} className={`v-select v-pill--${l.status}`} onChange={(e) => void zetStatus(l.id, e.target.value as Status)} value={l.status}>
-                              {(Object.keys(STATUS_LABEL) as Status[]).map((st) => (
-                                <option key={st} value={st}>
-                                  {STATUS_LABEL[st]}
-                                </option>
-                              ))}
-                            </select>
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-                </>
-              );
-            })()}
-          </>
-        ) : null}
+        {tab === "aanvragen" ? <Leads data={data} leads={leads} openLead={setLeadOpen} openTab={(t) => setTab(t)} zetStatus={zetStatus} /> : null}
 
         {tab === "instellingen" ? (
           <>
@@ -505,7 +407,16 @@ function Dashboard() {
               ))}
             </nav>
             {sub === "meldingen" ? <AvaInstellen deel="meldingen" /> : null}
-            {sub === "account" ? <Account g={g} leden={data.leden} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} /> : null}
+            {sub === "account" ? (
+              <Account
+                g={g}
+                heeftVoorbeeld={data.leads.some((l) => l.voorbeeld) || data.afspraken.some((a) => a.voorbeeld) || data.gesprekken.some((c) => c.voorbeeld)}
+                leden={data.leden}
+                loguit={() => void loguit()}
+                openTab={(t) => setTab(t)}
+                planNaam={plan.naam}
+              />
+            ) : null}
             {sub === "abonnement" ? (
               <>
             {plan.id !== "start" ? (

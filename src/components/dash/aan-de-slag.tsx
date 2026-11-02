@@ -7,10 +7,19 @@ type Data = NonNullable<Awaited<ReturnType<typeof haalOnboarding>>>;
 /** Drie stappen voor een nieuwe klant. Verdwijnt als alles klaar is of als je hem wegklikt. */
 export function AanDeSlag({ openTab }: { openTab: (t: string) => void }) {
   const [d, setD] = useState<Data | null>(null);
+  const [fout, setFout] = useState(false);
 
   useEffect(() => {
-    void haalOnboarding().then((r) => r && setD(r));
+    void haalOnboarding()
+      .then((r) => r && setD(r))
+      .catch(() => setFout(true));
   }, []);
+  if (fout)
+    return (
+      <p className="v-muted v-small" role="status">
+        Couldn’t load your setup steps right now. Use <strong>Train AVA</strong> and <strong>Install</strong> in the menu.
+      </p>
+    );
   if (!d || d.verborgen) return null;
   const alle = [
     { key: "info", klaar: d.stappen.info, titel: "Tell AVA about your business", uitleg: "Services, service area and opening hours. Takes two minutes.", knop: "Fill in", doe: () => openTab("ava") },

@@ -9,6 +9,7 @@ import { markeerOnboarding } from "@/lib/api/assistent.functions";
 import { InstallGuides } from "@/components/volgo/install-guides";
 
 import { AvaStijl } from "./ava-stijl";
+import { Laadfout, Laden } from "./status";
 
 type Ava = Awaited<ReturnType<typeof haalAva>>;
 const KLEUREN = ["#1677d9", "#111318", "#1f9d55", "#6d4fd8", "#e07a10", "#d63c7b"];
@@ -36,16 +37,21 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
   const [melding, setMelding] = useState({ chat: true, lead: true, email: false, heet_mail: true, samenvatting: true, chat_mail: true });
   const [browser, setBrowser] = useState<string>("default");
   const [toestemmingAan, setToestemmingAan] = useState(true);
+  const [laadFout, setLaadFout] = useState(false);
+  const [poging, setPoging] = useState(0);
 
   useEffect(() => {
-    void haalAva().then((a) => {
-      setAva(a);
-      setKleur(a.inst.kleur);
-      setToestemmingAan(Boolean(a.inst.toestemming));
-      setMelding({ chat: !!a.meldingen.chat, lead: !!a.meldingen.lead, email: !!a.meldingen.email, heet_mail: !!a.meldingen.heet_mail, samenvatting: !!a.meldingen.samenvatting, chat_mail: !!a.meldingen.chat_mail });
-    });
+    setLaadFout(false);
+    void haalAva()
+      .then((a) => {
+        setAva(a);
+        setKleur(a.inst.kleur);
+        setToestemmingAan(Boolean(a.inst.toestemming));
+        setMelding({ chat: !!a.meldingen.chat, lead: !!a.meldingen.lead, email: !!a.meldingen.email, heet_mail: !!a.meldingen.heet_mail, samenvatting: !!a.meldingen.samenvatting, chat_mail: !!a.meldingen.chat_mail });
+      })
+      .catch(() => setLaadFout(true));
     if (typeof Notification !== "undefined") setBrowser(Notification.permission);
-  }, []);
+  }, [poging]);
 
   async function wijzigMelding(k: keyof typeof melding, v: boolean) {
     const nieuw = { ...melding, [k]: v };
@@ -71,7 +77,8 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
     window.setTimeout(() => setOpgeslagen(false), 2500);
   }
 
-  if (!ava) return <p className="v-feed__empty">Loading AVA…</p>;
+  if (laadFout) return <Laadfout opnieuw={() => setPoging((p) => p + 1)} wat="AVA’s settings" />;
+  if (!ava) return <Laden tekst="Loading AVA…" />;
   const host = typeof window !== "undefined" ? window.location.origin : "";
   const code = `<script src="${host}/ava.js" data-key="${ava.inst.sleutel}" defer></script>`;
 

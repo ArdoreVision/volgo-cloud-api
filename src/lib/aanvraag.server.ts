@@ -1,7 +1,9 @@
 // Gedeeld door het formulier en de AVA-chatbot: aanvraag opslaan + mailen.
 import { bindings } from "./bindings.server";
+import { VOLGO_INBOX } from "./mail.server";
 
-export const INBOX = "damienhanssens@outlook.com";
+/** Demo requests from the website and the Volgo chat land in the Volgo inbox (same address as every other notification). */
+export const INBOX = VOLGO_INBOX;
 
 export type Aanvraag = {
   naam: string;

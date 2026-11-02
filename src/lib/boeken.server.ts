@@ -2,6 +2,7 @@
 // Only within opening hours and never on top of another appointment in the business calendar.
 import type { D1Database } from "@cloudflare/workers-types";
 
+import { MAX_DAGEN_VOORUIT, MIN_VOORAF_MIN, minuten, slotStap } from "./agenda";
 import type { AvaInstellingen } from "./ava.server";
 
 const DAGEN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -26,7 +27,6 @@ export function nuLokaal(tz: string, plusMin = 0) {
 const naarDate = (s: string) => new Date(`${s}:00Z`);
 const naarTekst = (d: Date) => d.toISOString().slice(0, 16);
 const plus = (s: string, min: number) => naarTekst(new Date(naarDate(s).getTime() + min * 60000));
-const minuten = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
 
 /** "Tuesday 4 November, 10:00" */
 export function leesbaar(s: string) {
@@ -36,6 +36,7 @@ export function leesbaar(s: string) {
 }
 
 type Inst = AvaInstellingen;
+export { MAX_DAGEN_VOORUIT, MIN_VOORAF_MIN };
 const openDagen = (inst: Inst) => inst.open_dagen.split(",").map(Number);
 export const soortenVan = (inst: Inst) => inst.afspraak_soorten.split(",").filter(isSoort);
 
@@ -54,7 +55,7 @@ async function bezet(DB: D1Database, team: number, van: string, tot: string) {
  */
 export async function vrijeDagen(DB: D1Database, inst: Inst, weken = 3) {
   const nu = nuLokaal(inst.tijdzone);
-  const vanaf = nuLokaal(inst.tijdzone, 120);
+  const vanaf = nuLokaal(inst.tijdzone, MIN_VOORAF_MIN);
   const vandaag = nu.slice(0, 10);
   const wd = naarDate(`${vandaag}T12:00`).getUTCDay();
   const maandag = plus(`${vandaag}T00:00`, -((wd + 6) % 7) * 24 * 60);
@@ -62,7 +63,7 @@ export async function vrijeDagen(DB: D1Database, inst: Inst, weken = 3) {
   const drukte = await bezet(DB, inst.team_id, maandag, einde);
   const open = openDagen(inst);
   const duur = inst.afspraak_duur;
-  const stap = duur <= 30 ? 30 : 60;
+  const stap = slotStap(duur);
   const uit: { datum: string; weekdag: number; status: "voorbij" | "dicht" | "vol" | "open"; tijden: { t: string; vrij: boolean }[] }[] = [];
   for (let d = 0; d < weken * 7; d++) {
     const datum = plus(maandag, d * 24 * 60).slice(0, 10);
@@ -97,7 +98,11 @@ export function agendaInstructies(inst: Inst) {
 
 export type Boeking = { start: string; soort: string; naam: string; contact: string; adres?: string; notitie?: string };
 
-/** Books an appointment if the slot is valid and still free. */
+/**
+ * Books an appointment if the slot is valid and still free.
+ * The free-slot check and the insert are ONE statement, so two visitors who pick the same moment at the same
+ * time can never both get it: the second insert matches nothing and is refused.
+ */
 export async function boekAfspraak(DB: D1Database, inst: Inst, b: Boeking, leadId: number | null) {
   const start = String(b.start ?? "").trim().replace(" ", "T").slice(0, 16);
   const soort = isSoort(b.soort) && soortenVan(inst).includes(b.soort) ? b.soort : null;
@@ -108,16 +113,22 @@ export async function boekAfspraak(DB: D1Database, inst: Inst, b: Boeking, leadI
   const eind = plus(start, inst.afspraak_duur);
   const t = minuten(start.slice(11, 16));
   const weg = "This moment is no longer available. Please pick another time.";
-  if (start < nuLokaal(inst.tijdzone, 60)) return { ok: false as const, reden: weg };
-  if (start > nuLokaal(inst.tijdzone, 60 * 24 * 60)) return { ok: false as const, reden: weg };
+  if (start < nuLokaal(inst.tijdzone, MIN_VOORAF_MIN)) return { ok: false as const, reden: weg };
+  if (start > nuLokaal(inst.tijdzone, MAX_DAGEN_VOORUIT * 24 * 60)) return { ok: false as const, reden: weg };
   if (!openDagen(inst).includes(naarDate(start).getUTCDay())) return { ok: false as const, reden: weg };
   if (t < minuten(inst.open_van) || t + inst.afspraak_duur > minuten(inst.open_tot)) return { ok: false as const, reden: weg };
-  if ((await bezet(DB, inst.team_id, start, eind)).length) return { ok: false as const, reden: weg };
+  // Slots are on the calendar grid only (every 30 or 60 minutes), never at odd minutes.
+  if ((t - minuten(inst.open_van)) % slotStap(inst.afspraak_duur) !== 0) return { ok: false as const, reden: weg };
   const titel = `${SOORTEN[soort]} · ${b.naam.trim()}`.slice(0, 120);
   const notitie = [`Booked by the visitor in the AVA chat. Contact: ${b.contact.trim()}`, b.notitie?.trim()].filter(Boolean).join("\n").slice(0, 600);
   const locatie = soort === "langs" ? (b.adres ?? "").trim() : soort === "kantoor" ? "At the office" : `Phone call: ${b.contact.trim()}`;
-  await DB.prepare("INSERT INTO afspraken (team_id, lead_id, titel, start, eind, locatie, notitie, voorbeeld) VALUES (?, ?, ?, ?, ?, ?, ?, 0)")
-    .bind(inst.team_id, leadId, titel, start, eind, locatie.slice(0, 160), notitie)
+  const r = await DB.prepare(
+    `INSERT INTO afspraken (team_id, lead_id, titel, start, eind, locatie, notitie, voorbeeld)
+     SELECT ?, ?, ?, ?, ?, ?, ?, 0
+     WHERE NOT EXISTS (SELECT 1 FROM afspraken WHERE team_id = ? AND voorbeeld = 0 AND start < ? AND eind > ?)`,
+  )
+    .bind(inst.team_id, leadId, titel, start, eind, locatie.slice(0, 160), notitie, inst.team_id, eind, start)
     .run();
-  return { ok: true as const, start, eind, soort };
+  if ((r.meta?.changes ?? 0) !== 1) return { ok: false as const, reden: weg };
+  return { ok: true as const, start, eind, soort, id: Number(r.meta?.last_row_id) };
 }

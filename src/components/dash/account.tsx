@@ -2,25 +2,45 @@ import { useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import type { FormEvent } from "react";
 
-import { verwijderLid } from "@/lib/api/account.functions";
+import { verwijderLid, verwijderVoorbeeldData } from "@/lib/api/account.functions";
 import { wijzigAccount, wijzigWachtwoord } from "@/lib/api/wachtwoord.functions";
 import { WachtwoordVeld } from "@/components/volgo/wachtwoord-veld";
 import { beoordeel } from "@/lib/wachtwoord";
 
 import { ProfielFoto, verkleinFoto } from "./profiel";
+import { sqlDate, tijdzone } from "./util";
 
 type G = { id: number; naam: string; bedrijf: string; email: string; rol: string; created_at: string; foto?: string; functie?: string };
 type Lid = { id: number; naam: string; email: string; rol: string };
 
-export function Account({ g, loguit, leden = [], planNaam, openTab }: { g: G; loguit: () => void; leden?: Lid[]; planNaam?: string; openTab?: (t: string) => void }) {
+export function Account({ g, loguit, leden = [], planNaam, openTab, heeftVoorbeeld = false }: { g: G; loguit: () => void; leden?: Lid[]; planNaam?: string; openTab?: (t: string) => void; heeftVoorbeeld?: boolean }) {
   const router = useRouter();
   const [foto, setFoto] = useState(g.foto ?? "");
   const [naamNu, setNaamNu] = useState(g.naam);
   const [melding1, setMelding1] = useState<{ ok: boolean; tekst: string } | null>(null);
   const [melding2, setMelding2] = useState<{ ok: boolean; tekst: string } | null>(null);
   const [bezig, setBezig] = useState(false);
+  const [vbVraag, setVbVraag] = useState(false);
+  const [vbBezig, setVbBezig] = useState(false);
+  const [vbMelding, setVbMelding] = useState<{ ok: boolean; tekst: string } | null>(null);
   const eigenaar = g.rol === "eigenaar";
-  const lid = new Date(g.created_at.replace(" ", "T") + "Z").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Amsterdam" });
+
+  async function verwijderVb() {
+    setVbBezig(true);
+    try {
+      const r = await verwijderVoorbeeldData();
+      setVbMelding({ ok: r.ok, tekst: r.ok ? "Sample data removed." : r.message });
+      if (r.ok) {
+        setVbVraag(false);
+        await router.invalidate();
+      }
+    } catch {
+      setVbMelding({ ok: false, tekst: "Couldn't remove it right now. Please try again." });
+    } finally {
+      setVbBezig(false);
+    }
+  }
+  const lid = sqlDate(g.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: tijdzone() });
 
   async function bewaarGegevens(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -215,6 +235,31 @@ export function Account({ g, loguit, leden = [], planNaam, openTab }: { g: G; lo
               </li>
             ))}
           </ul>
+        </section>
+      ) : null}
+
+      {eigenaar && heeftVoorbeeld ? (
+        <section className="v-dash__panel">
+          <h2 className="v-sub">Sample data</h2>
+          <p className="v-muted v-small">Your dashboard still shows sample leads, chats and appointments (marked “Sample”). They disappear by themselves after AVA’s first real conversation, or remove them now.</p>
+          {vbVraag ? (
+            <div className="v-waarschuw" role="alertdialog" aria-label="Confirm">
+              Remove all sample data? This cannot be undone. Your real data stays.
+              <div className="v-modal__actions">
+                <button className="v-btn-ghost" disabled={vbBezig} onClick={() => setVbVraag(false)} type="button">
+                  Keep it
+                </button>
+                <button className="v-btn-gevaar" disabled={vbBezig} onClick={() => void verwijderVb()} type="button">
+                  {vbBezig ? "Removing…" : "Remove sample data"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button className="v-dash__logout" onClick={() => setVbVraag(true)} type="button">
+              Remove sample data
+            </button>
+          )}
+          <Melding m={vbMelding} />
         </section>
       ) : null}
 

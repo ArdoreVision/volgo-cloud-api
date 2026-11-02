@@ -3,6 +3,8 @@ import type { FormEvent } from "react";
 
 import { haalWebsite, stuurWebsiteAanvraag } from "@/lib/api/website.functions";
 
+import { Laadfout, Laden } from "./status";
+
 import { PlanCall } from "./plan-call";
 import { Upsell } from "./upsell";
 
@@ -21,11 +23,17 @@ export function Website() {
   const [contact, setContact] = useState<"chat" | "call">("chat");
   const [fout, setFout] = useState("");
   const [bezig, setBezig] = useState(false);
+  const [laadFout, setLaadFout] = useState(false);
+  const [poging, setPoging] = useState(0);
 
   useEffect(() => {
-    void haalWebsite().then(setD);
-  }, []);
-  if (!d) return <p className="v-muted">Loading…</p>;
+    setLaadFout(false);
+    void haalWebsite()
+      .then(setD)
+      .catch(() => setLaadFout(true));
+  }, [poging]);
+  if (laadFout) return <Laadfout opnieuw={() => setPoging((p) => p + 1)} wat="your website request" />;
+  if (!d) return <Laden />;
 
   if (!d.mag) {
     return (

@@ -1987,3 +1987,65 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
   .vs-hero__art .vx-zweef--2 { right: 0; }
   .vs-start--groot { width: 100%; max-width: 360px; }
 }
+
+/* ---------- Dashboard v3: Home as the day's start point, clearer states ---------- */
+.v-vandaag__kop h1 { margin: 4px 0 0; }
+.v-vandaag__kop .v-home__tijd { margin: 0; }
+.v-vandaag__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 4px; }
+.v-vandaag__paneel { margin-top: 0; min-width: 0; }
+.v-vandaag__lijst { list-style: none; margin: 6px 0 0; padding: 0; }
+.v-vandaag__lijst li { display: flex; align-items: flex-start; gap: 12px; padding: 11px 0; border-top: 1px solid var(--line); }
+.v-vandaag__lijst li:first-child { border-top: 0; }
+.v-vandaag__lijst time { flex: none; min-width: 48px; padding-top: 2px; font-weight: 600; font-variant-numeric: tabular-nums; font-size: 14px; }
+.v-vandaag__lijst--later time { min-width: 110px; font-weight: 500; color: var(--ink-2); }
+.v-vandaag__lijst li > span { min-width: 0; flex: 1; display: grid; gap: 2px; }
+.v-vandaag__lijst strong { font-size: 15px; font-weight: 600; }
+.v-vandaag__lijst small { color: var(--muted); font-size: 13.5px; }
+.v-vandaag__sub { margin: 16px 0 0; font-size: 12.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.v-bel { list-style: none; margin: 6px 0 0; padding: 0; counter-reset: bel; }
+.v-bel li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.v-bel li:first-child { border-top: 0; }
+.v-bel__wie { flex: 1; min-width: 0; display: grid; gap: 1px; text-align: left; border: 0; background: transparent; padding: 2px 0; font: inherit; color: inherit; cursor: pointer; border-radius: 10px; }
+.v-bel__wie:hover strong { color: var(--accent); }
+.v-bel__wie strong { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-bel__wie small { color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-bel__actie { flex: none; display: inline-flex; align-items: center; padding: 8px 14px; border: 0; border-radius: 999px; background: var(--accent); color: #fff; font: inherit; font-size: 13.5px; font-weight: 600; text-decoration: none; cursor: pointer; transition: transform 0.2s, filter 0.2s; }
+.v-bel__actie:hover { transform: translateY(-1px); filter: brightness(1.06); }
+.v-bel__actie--stil { background: var(--surface); color: var(--ink); }
+.v-assist { grid-column: 1 / -1; }
+.v-assist__chat { max-height: 420px; overflow-y: auto; display: grid; gap: 12px; padding: 6px 2px 14px; }
+.v-assist__balk { margin-top: 8px; box-shadow: none; }
+.v-assist__tips { justify-content: flex-start; margin-top: 12px; }
+.v-voorbeeld-tag { display: inline-block; margin-left: 8px; padding: 2px 7px; border-radius: 999px; background: #fff4d6; color: #8a5a00; font-size: 11px; font-weight: 600; font-style: normal; letter-spacing: 0.02em; vertical-align: middle; }
+.v-table__row.is-voorbeeld, .v-ev--voorbeeld { opacity: 0.82; }
+.v-ev__bevestig { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; font-size: 13.5px; }
+.v-ev__bevestig button { padding: 7px 14px; font-size: 13.5px; }
+.v-btn-gevaar { border: 0; border-radius: 999px; padding: 11px 18px; background: var(--bad); color: #fff; font: inherit; font-size: 15px; font-weight: 500; cursor: pointer; }
+.v-btn-gevaar:disabled, .v-btn-ghost:disabled, .v-btn-dark:disabled { opacity: 0.55; cursor: default; }
+.v-waarschuw { margin: 14px 0 0; padding: 12px 14px; border-radius: 14px; background: #fff7e6; color: #7a4f00; font-size: 14px; line-height: 1.5; }
+.v-waarschuw .v-modal__actions { margin-top: 10px; }
+.v-ok-balk { margin: 12px 0 0; padding: 10px 14px; border-radius: 12px; background: #e8f7ee; color: #166534; font-size: 14px; }
+.v-laden { display: inline-flex; align-items: center; gap: 10px; margin: 18px 0; color: var(--muted); font-size: 14.5px; }
+.v-laden__ring { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--accent); animation: v-draai 0.8s linear infinite; }
+@keyframes v-draai { to { transform: rotate(360deg); } }
+.v-laadfout { margin: 16px 0; padding: 16px 18px; border-radius: 16px; background: #fdecec; color: #7f1d1d; font-size: 14.5px; line-height: 1.5; }
+.v-laadfout p { margin: 0 0 10px; }
+.v-leeg { padding: 28px 24px 30px; }
+.v-leeg--klein { padding: 10px 0 4px; }
+.v-leeg p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.55; max-width: 56ch; }
+.v-leeg__titel { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 4px !important; }
+.v-leeg__stappen { margin: 12px 0 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14.5px; }
+.v-leeg__stappen .v-linkbtn { margin: 0; font-size: 14.5px; text-decoration: none; }
+.v-leeg__stappen em { font-style: normal; color: #1f9d55; font-size: 13px; }
+.v-hint--let { color: #7a4f00; }
+.v-definities { margin: 14px 0 0; line-height: 1.5; max-width: 90ch; }
+.v-dm__leeg--fout { color: var(--bad); }
+.v-dm__leeg .v-linkbtn { margin: 0; }
+.v-dash[data-thema="donker"] .v-waarschuw { background: #3a2c0f; color: #ffd98a; }
+.v-dash[data-thema="donker"] .v-ok-balk { background: #0f3a22; color: #9ae6b4; }
+.v-dash[data-thema="donker"] .v-laadfout { background: #3b1414; color: #fca5a5; }
+.v-dash[data-thema="donker"] .v-voorbeeld-tag { background: #3a2c0f; color: #ffd98a; }
+@media (max-width: 900px) {
+  .v-vandaag__grid { grid-template-columns: 1fr; }
+  .v-bel__wie strong, .v-bel__wie small { white-space: normal; }
+}

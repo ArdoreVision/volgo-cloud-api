@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { bewaarOntwerp, controleerSite, haalOntwerp } from "@/lib/api/ava.functions";
 
+import { Laadfout } from "./status";
+
 type Stijl = {
   avatar: string | null;
   positie: "rechts" | "links";
@@ -97,17 +99,22 @@ export function OntwerpEditor({ terug }: { terug: () => void }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const bestand = useRef<HTMLInputElement>(null);
 
+  const [laadFout, setLaadFout] = useState(false);
+  const [poging, setPoging] = useState(0);
   useEffect(() => {
-    void haalOntwerp().then((d) => {
-      setData(d);
-      const begin: Ontwerp = { kleur: d.kleur, begroeting: d.begroeting, site: d.site, stijl: d.stijl as Stijl };
-      setO(begin);
-      setBewaard(JSON.stringify(begin));
-      setSiteInvoer(d.site);
-      if (d.site) void kijk(d.site, false);
-    });
+    setLaadFout(false);
+    void haalOntwerp()
+      .then((d) => {
+        setData(d);
+        const begin: Ontwerp = { kleur: d.kleur, begroeting: d.begroeting, site: d.site, stijl: d.stijl as Stijl };
+        setO(begin);
+        setBewaard(JSON.stringify(begin));
+        setSiteInvoer(d.site);
+        if (d.site) void kijk(d.site, false);
+      })
+      .catch(() => setLaadFout(true));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [poging]);
 
   const gewijzigd = o !== null && JSON.stringify(o) !== bewaard;
   const slot = !data?.magStijl;
@@ -174,6 +181,15 @@ export function OntwerpEditor({ terug }: { terug: () => void }) {
     }
   }
 
+  if (laadFout)
+    return (
+      <div className="v-ed v-ed--laden">
+        <Laadfout opnieuw={() => setPoging((p) => p + 1)} wat="the editor" />
+        <button className="v-btn-ghost" onClick={terug} type="button">
+          Back
+        </button>
+      </div>
+    );
   if (!data || !o || !live) return <div className="v-ed v-ed--laden">Loading the editor…</div>;
 
   const zet = <K extends keyof Stijl>(k: K, v: Stijl[K]) => setO((x) => (x ? { ...x, stijl: { ...x.stijl, [k]: v } } : x));
@@ -313,6 +329,10 @@ export function OntwerpEditor({ terug }: { terug: () => void }) {
                   <div className="v-fld">
                     <label htmlFor="ed-knop">Button text</label>
                     <input disabled={slot} id="ed-knop" maxLength={30} onChange={(e) => zet("knoptekst", e.target.value)} placeholder={`Ask ${data.naam}`} value={o.stijl.knoptekst} />
+                    {/* The button text is free text; this only points out when it contradicts the appointment settings. */}
+                    {/\b(no|without|zonder|geen)\b.*\b(call|calls|bel|bellen|phone)\b/i.test(o.stijl.knoptekst) && data.soorten.includes("bellen") ? (
+                      <p className="v-hint v-hint--let">This text says there is no call, but “Phone call” is switched on as an appointment type (Train AVA → Appointments). Visitors can still pick a call; make the two match.</p>
+                    ) : null}
                   </div>
                 ) : null}
                 <div className="v-fld">
