@@ -153,6 +153,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
 .ok-knoppen button{flex:1;min-width:140px;padding:13px 16px;border:0;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer}\
 .ok-ja{background:var(--c);color:#fff}.ok-nee{background:#f1f3f6;color:#111318}\
 .ok-voet{display:flex;justify-content:space-between;gap:10px;margin-top:12px;font-size:12px;color:#6b7280}.ok-voet a{color:#6b7280}\
+.ok-taal{display:flex;align-items:center;gap:8px;margin:0 0 14px;padding:8px 12px;border-radius:12px;background:#f5f7fa;font-size:14px}.ok-taal select{flex:1;border:0;background:transparent;font:inherit;font-weight:600;color:#111318;outline:none}\
 .fab .ico{display:none;width:26px;height:26px}\
 .knop-bol .fab{padding:5px}.knop-bol .fab .lbl{display:none}.knop-bol .fab img{width:54px;height:54px}.knop-bol .dot{left:46px}\
 .knop-icoon .fab{padding:0;width:62px;height:62px;justify-content:center;background:var(--c);color:#fff}.knop-icoon .fab img,.knop-icoon .fab .lbl{display:none}.knop-icoon .fab .ico{display:block}.knop-icoon .dot{top:2px;left:44px;background:#e5484d}\
@@ -429,6 +430,17 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     laag.querySelector(".ok-nee").textContent = O.nee;
     laag.querySelector(".ok-voet span").textContent = O.klein;
     var a = laag.querySelector(".ok-voet a"); a.textContent = O.meer; a.href = BASE + "/privacy";
+    // On Volgo's own website: pick the language of the site right here.
+    if (location.hostname === new URL(BASE).hostname) {
+      var TALEN = [["en","English"],["nl","Nederlands"],["de","Deutsch"],["fr","Français"],["es","Español"],["pt","Português"],["it","Italiano"],["pl","Polski"],["sv","Svenska"],["da","Dansk"],["fi","Suomi"],["el","Ελληνικά"],["cs","Čeština"],["sk","Slovenčina"],["hu","Magyar"],["ro","Română"],["bg","Български"],["hr","Hrvatski"],["sl","Slovenščina"],["et","Eesti"],["lv","Latviešu"],["lt","Lietuvių"],["ga","Gaeilge"],["mt","Malti"]];
+      var huidig = "en"; try { huidig = localStorage.getItem("volgo-taal") || ((navigator.language || "en").slice(0, 2).toLowerCase()); } catch (e) {}
+      var rij = document.createElement("label"); rij.className = "ok-taal";
+      var sel = document.createElement("select"); sel.setAttribute("aria-label", "Language");
+      TALEN.forEach(function (t) { var o = document.createElement("option"); o.value = t[0]; o.textContent = t[1]; if (t[0] === huidig) o.selected = true; sel.appendChild(o); });
+      var lbl = document.createElement("span"); lbl.textContent = "🌐"; rij.appendChild(lbl); rij.appendChild(sel);
+      sel.addEventListener("change", function () { try { localStorage.setItem("volgo-taal", sel.value); } catch (e) {} window.dispatchEvent(new CustomEvent("volgo-taal", { detail: sel.value })); });
+      laag.querySelector(".ok-kaart").insertBefore(rij, laag.querySelector(".ok-knoppen"));
+    }
     var kies = function (ja) { try { localStorage.setItem(KEUZE_SLEUTEL, JSON.stringify({ ja: ja, op: Date.now() })); } catch (e) {} laag.remove(); keuzeKlaar(ja); };
     laag.querySelector(".ok-ja").addEventListener("click", function () { kies(true); });
     laag.querySelector(".ok-nee").addEventListener("click", function () { kies(false); });

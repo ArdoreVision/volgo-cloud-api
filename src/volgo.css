@@ -1852,3 +1852,12 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
   .v-lp { align-items: flex-end; }
   .v-lp__paneel { width: 100%; height: 92dvh; border-radius: 24px 24px 0 0; padding: 22px 18px calc(28px + env(safe-area-inset-bottom)); animation: v-omhoog 0.32s var(--ease); }
 }
+
+/* ── Language picker ───────────────────────────────────── */
+.v-taal { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 10px 0 12px; border-radius: 999px; background: var(--surface); color: var(--ink-2); font-size: 13.5px; font-weight: 500; cursor: pointer; }
+.v-taal__ico { display: inline-flex; color: var(--muted); }
+.v-taal select { appearance: none; -webkit-appearance: none; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 600; padding-right: 14px; cursor: pointer; outline: none; }
+.v-taal::after { content: ""; position: absolute; right: 10px; top: 50%; width: 6px; height: 6px; border: solid var(--muted); border-width: 0 1.5px 1.5px 0; transform: translateY(-70%) rotate(45deg); pointer-events: none; }
+.v-taal:hover { background: var(--sky-2); }
+.v-nav__inner .v-taal { margin-left: 8px; margin-right: 4px; }
+@media (max-width: 900px) { .v-nav__inner .v-taal { margin-left: auto; } .v-nav__inner .v-taal--compact select { padding-right: 12px; } }

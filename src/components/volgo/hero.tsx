@@ -11,8 +11,8 @@ export function Hero() {
             More customers. Less chasing.
           </h1>
           <p className="v-hero__sub">
-            Most quote requests come in after hours, and whoever answers first gets the job. AVA answers every visitor on your website within seconds, day
-            and night, collects their details and puts the people ready to buy at the top of your list. You only call the buyers.
+            Volgo answers your website 24/7 and tells you who’s ready to buy. Built for businesses that live from quotes: AVA replies to every visitor
+            within seconds, day and night, collects their details and puts the buyers at the top of your list. You only call the people ready to say yes.
           </p>
           <div className="v-hero__actions">
             <a className="v-cta-primary" data-ava-ask="I'd like to start the 7-day free trial. Which plan fits my business?" href="/pricing">
