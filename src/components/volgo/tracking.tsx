@@ -30,17 +30,27 @@ function laad(ids: { meta: string; google: string }) {
   if (window.__volgoTracking?.geladen) return;
   window.__volgoTracking = { ...ids, geladen: true };
   if (ids.meta) {
-    const f = (...a: unknown[]) => {
-      (f as unknown as { queue: unknown[] }).queue.push(a);
-    };
-    (f as unknown as { queue: unknown[] }).queue = [];
-    window.fbq = window.fbq || (f as unknown as (...a: unknown[]) => void);
-    const s = document.createElement("script");
-    s.async = true;
-    s.src = "https://connect.facebook.net/en_US/fbevents.js";
-    document.head.appendChild(s);
-    window.fbq("init", ids.meta);
-    window.fbq("track", "PageView");
+    // Meta's official bootstrap, typed loosely on purpose.
+    const w = window as unknown as Record<string, unknown>;
+    if (!w.fbq) {
+      const n = function (this: unknown, ...a: unknown[]) {
+        const self = n as unknown as { callMethod?: (...x: unknown[]) => void; queue: unknown[] };
+        if (self.callMethod) self.callMethod.apply(self, a);
+        else self.queue.push(a);
+      } as unknown as { callMethod?: unknown; queue: unknown[]; push: unknown; loaded: boolean; version: string };
+      n.queue = [];
+      n.push = n;
+      n.loaded = true;
+      n.version = "2.0";
+      w.fbq = n;
+      if (!w._fbq) w._fbq = n;
+      const s = document.createElement("script");
+      s.async = true;
+      s.src = "https://connect.facebook.net/en_US/fbevents.js";
+      document.head.appendChild(s);
+    }
+    window.fbq!("init", ids.meta);
+    window.fbq!("track", "PageView");
   }
   if (ids.google) {
     window.dataLayer = window.dataLayer || [];
