@@ -123,8 +123,16 @@ async function pasToe(taal: string): Promise<void> {
       const m = cache.get(taal) ?? new Map<string, string>();
       cache.set(taal, m);
       const open = [...new Set(items.map((i) => i.bron).filter((b) => !m.has(b)))];
-      for (let i = 0; i < open.length; i += 200) {
-        const stuk = open.slice(i, i + 200);
+      const toepassen = () => {
+        for (const it of items) {
+          const v = m.get(it.bron);
+          if (v) zet(it.doel, v);
+        }
+      };
+      toepassen(); // whatever is cached already shows at once
+      // Top of the page first, in small batches, so the visitor sees the translation build up within a second or two.
+      for (let i = 0; i < open.length; i += 60) {
+        const stuk = open.slice(i, i + 60);
         const r = await vertaalTeksten({ data: { taal, teksten: stuk } }).catch(() => null);
         if (r?.vertalingen)
           for (const [k, v] of Object.entries(r.vertalingen)) {
@@ -132,10 +140,7 @@ async function pasToe(taal: string): Promise<void> {
             alleVertalingen.add(v);
           }
         if (gewenst !== taal) return;
-      }
-      for (const it of items) {
-        const v = m.get(it.bron);
-        if (v) zet(it.doel, v);
+        toepassen();
       }
       document.documentElement.lang = taal;
       actueel = taal;

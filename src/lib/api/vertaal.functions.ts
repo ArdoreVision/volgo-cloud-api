@@ -39,21 +39,24 @@ export const vertaalTeksten = createServerFn({ method: "POST" })
     });
     if (!ontbreekt.length || !ANTHROPIC_API_KEY) return { ok: true as const, vertalingen: uit };
 
-    // 2. Translate what is missing, in chunks
+    // 2. Translate what is missing, chunks in parallel
     const taalNaam = TALEN.find((t) => t.code === data.taal)?.engels ?? data.taal;
-    for (let i = 0; i < ontbreekt.length; i += STUK) {
-      const stuk = ontbreekt.slice(i, i + STUK);
-      const vertaald = await vertaalMetClaude(ANTHROPIC_API_KEY, CLAUDE_MODEL || "claude-haiku-5-5", taalNaam, stuk).catch(() => null);
+    const stukken: string[][] = [];
+    for (let i = 0; i < ontbreekt.length; i += STUK) stukken.push(ontbreekt.slice(i, i + STUK));
+    const resultaten = await Promise.all(stukken.map((stuk) => vertaalMetClaude(ANTHROPIC_API_KEY, CLAUDE_MODEL || "claude-haiku-5-5", taalNaam, stuk).catch(() => null)));
+    const inserts = [];
+    for (let k = 0; k < stukken.length; k++) {
+      const stuk = stukken[k]!;
+      const vertaald = resultaten[k];
       if (!vertaald) continue;
-      const inserts = [];
       for (let j = 0; j < stuk.length; j++) {
         const v = vertaald[j];
         if (typeof v !== "string" || !v.trim()) continue;
         uit[stuk[j]!] = v;
         inserts.push(DB.prepare("INSERT OR IGNORE INTO vertalingen (sleutel, taal, bron, tekst) VALUES (?, ?, ?, ?)").bind(sleutels.get(stuk[j]!), data.taal, stuk[j], v));
       }
-      if (inserts.length) await DB.batch(inserts);
     }
+    for (let i = 0; i < inserts.length; i += 50) await DB.batch(inserts.slice(i, i + 50));
     return { ok: true as const, vertalingen: uit };
   });
 
