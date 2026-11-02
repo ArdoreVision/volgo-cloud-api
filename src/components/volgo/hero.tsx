@@ -17,7 +17,7 @@ export function Hero() {
             appointment and ranks every lead by how ready they are to buy. You open your dashboard in the morning and call the buyers first.
           </p>
           <div className="v-hero__actions">
-            <a className="v-cta-primary" data-ava-ask="I'd like to get started with Volgo. Which plan fits my business?" href="/pricing">
+            <a className="v-cta-primary" href="/pricing#plans">
               Get started
             </a>
             <a className="v-cta-ghost" href="#video">

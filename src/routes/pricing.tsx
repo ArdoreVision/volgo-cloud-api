@@ -79,7 +79,7 @@ function Abonnement() {
           <h1 className="v-h2 v-center">{wisselen ? "Switch plans." : "Choose your plan."}</h1>
           <p className="v-lede v-center">Billed monthly, no setup fee. Switch or cancel any time.</p>
         </header>
-        <div className="v-plans">
+        <div className="v-plans" id="plans">
           {(Object.keys(PLANS) as PlanId[]).map((id) => {
             const p = PLANS[id];
             return (
