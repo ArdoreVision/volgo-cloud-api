@@ -161,10 +161,19 @@ export function Vertaler() {
   useEffect(() => {
     let taal = huidigeTaal();
     let timer = 0;
+    let eerste = 0;
     const run = () => {
+      // Trailing debounce with a ceiling: even when the page keeps mutating, we run at least every 600 ms.
+      const nu = Date.now();
+      if (!eerste) eerste = nu;
       window.clearTimeout(timer);
-      timer = window.setTimeout(() => void pasToe(taal), 120);
+      const wacht = nu - eerste > 600 ? 0 : 120;
+      timer = window.setTimeout(() => {
+        eerste = 0;
+        void pasToe(taal);
+      }, wacht);
     };
+    (window as unknown as { __volgoTaal?: unknown }).__volgoTaal = { status: () => ({ taal, bezig: Boolean(bezig), gewenst, actueel }), run: () => void pasToe(taal) };
     const opTaal = (e: Event) => {
       taal = (e as CustomEvent<string>).detail;
       run();
