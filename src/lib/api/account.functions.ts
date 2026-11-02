@@ -229,7 +229,9 @@ export const maakAccount = createServerFn({ method: "POST" })
         { tekst: "Open admin", url: `${origin()}/admin` },
       ),
     ).catch(() => false);
-    return { ok: true as const };
+    // Straight into the dashboard: no second login.
+    await maakSessie(id);
+    return { ok: true as const, plan: plan.id, prijs: plan.prijs / 100 };
   });
 
 // 3b. Abonnement (opnieuw) activeren op een bestaand account, bv. na een verlopen proefperiode.

@@ -47,6 +47,7 @@ function Index() {
         <Rekenhulp />
         <Tijdlijn />
         <Inside />
+        <Reviews />
         <PricingPreview />
         <Vertrouwen />
         <Faq />

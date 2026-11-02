@@ -161,3 +161,69 @@ export const haalOmzet = createServerFn({ method: "GET" }).handler(async () => {
     return { ok: false as const, message: "Couldn't load revenue from Stripe right now." };
   }
 });
+
+
+/** Public: real reviews for the landing page. */
+export const haalReviews = createServerFn({ method: "GET" }).handler(async () => {
+  const { DB } = bindings();
+  if (!DB) return [];
+  const r = await DB.prepare("SELECT id, naam, bedrijf, plaats, branche, tekst, sterren, resultaat FROM reviews WHERE zichtbaar = 1 ORDER BY id DESC LIMIT 12").all<{
+    id: number; naam: string; bedrijf: string; plaats: string; branche: string; tekst: string; sterren: number; resultaat: string;
+  }>();
+  return r.results;
+});
+
+export const alleReviews = createServerFn({ method: "GET" }).handler(async () => {
+  const a = await admin();
+  if (!a) return [];
+  const r = await a.DB.prepare("SELECT id, created_at, naam, bedrijf, plaats, branche, tekst, sterren, resultaat, zichtbaar FROM reviews ORDER BY id DESC").all<{
+    id: number; created_at: string; naam: string; bedrijf: string; plaats: string; branche: string; tekst: string; sterren: number; resultaat: string; zichtbaar: number;
+  }>();
+  return r.results;
+});
+
+export const bewaarReview = createServerFn({ method: "POST" })
+  .validator((v: unknown) =>
+    z
+      .object({
+        id: z.number().int().optional(),
+        naam: z.string().trim().min(2).max(80),
+        bedrijf: z.string().trim().min(2).max(120),
+        plaats: z.string().trim().max(80).default(""),
+        branche: z.string().trim().max(80).default(""),
+        tekst: z.string().trim().min(20).max(600),
+        sterren: z.number().int().min(1).max(5).default(5),
+        resultaat: z.string().trim().max(120).default(""),
+        zichtbaar: z.boolean().default(true),
+      })
+      .parse(v),
+  )
+  .handler(async ({ data }) => {
+    const a = await admin();
+    if (!a) return { ok: false as const };
+    if (data.id) {
+      await a.DB.prepare("UPDATE reviews SET naam=?, bedrijf=?, plaats=?, branche=?, tekst=?, sterren=?, resultaat=?, zichtbaar=? WHERE id=?")
+        .bind(data.naam, data.bedrijf, data.plaats, data.branche, data.tekst, data.sterren, data.resultaat, data.zichtbaar ? 1 : 0, data.id)
+        .run();
+    } else {
+      await a.DB.prepare("INSERT INTO reviews (naam, bedrijf, plaats, branche, tekst, sterren, resultaat, zichtbaar) VALUES (?,?,?,?,?,?,?,?)")
+        .bind(data.naam, data.bedrijf, data.plaats, data.branche, data.tekst, data.sterren, data.resultaat, data.zichtbaar ? 1 : 0)
+        .run();
+    }
+    return { ok: true as const };
+  });
+
+export const verwijderReview = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ id: z.number().int() }).parse(v))
+  .handler(async ({ data }) => {
+    const a = await admin();
+    if (!a) return { ok: false as const };
+    await a.DB.prepare("DELETE FROM reviews WHERE id = ?").bind(data.id).run();
+    return { ok: true as const };
+  });
+
+/** Public: which ad pixels are configured (IDs only; scripts load after consent). */
+export const haalTracking = createServerFn({ method: "GET" }).handler(async () => {
+  const { META_PIXEL_ID, GOOGLE_TAG_ID } = bindings();
+  return { meta: META_PIXEL_ID || "", google: GOOGLE_TAG_ID || "" };
+});

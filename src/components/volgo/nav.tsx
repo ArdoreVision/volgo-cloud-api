@@ -1,5 +1,6 @@
 import { VolgoMark } from "./logo";
 import { TaalKiezer, Vertaler } from "./taal";
+import { Tracking } from "./tracking";
 
 export function Nav({ ingelogd = false }: { ingelogd?: boolean }) {
   return (
@@ -20,6 +21,7 @@ export function Nav({ ingelogd = false }: { ingelogd?: boolean }) {
         </nav>
         <TaalKiezer compact />
         <Vertaler />
+        <Tracking />
         {ingelogd ? null : (
           <a className="v-nav__login" href="/login">
             Log in

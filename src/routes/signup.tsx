@@ -81,7 +81,7 @@ function Aanmelden() {
       const res = await maakAccount({
         data: { token: betaling!.token, naam: v("naam"), bedrijf: v("bedrijf"), email: v("email"), wachtwoord: String(fd.get("wachtwoord")) },
       });
-      if (res.ok) void navigate({ to: "/login", search: { new: 1 } });
+      if (res.ok) void navigate({ to: "/welcome", search: { plan: res.plan, v: res.prijs } });
       else {
         setFout(res.message);
         setBezig(false);

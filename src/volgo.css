@@ -1892,3 +1892,35 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
   .vx-vgl__tabel { font-size: 14px; }
   .vx-vgl__tabel th, .vx-vgl__tabel td { padding: 12px 14px; }
 }
+
+/* ── Welcome page ───────────────────────────────────────── */
+.v-welkom__vink { width: 64px; height: 64px; margin: 0 auto 6px; display: grid; place-items: center; border-radius: 50%; background: #e8f8ef; color: #1f9d55; font-size: 30px; font-weight: 700; }
+.v-welkom__stappen { list-style: none; margin: 22px 0 18px; padding: 0; display: grid; gap: 12px; text-align: left; }
+.v-welkom__stappen li { display: flex; gap: 14px; padding: 14px 16px; border-radius: 16px; background: var(--surface); }
+.v-welkom__stappen li > span { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 600; font-size: 14px; }
+.v-welkom__stappen strong { display: block; font-size: 15px; margin-bottom: 2px; }
+.v-welkom__stappen p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.v-welkom__hint { margin-top: 14px; text-align: center; }
+
+/* ── Reviews ────────────────────────────────────────────── */
+.vx-rev__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.vx-rev__grid article { display: flex; flex-direction: column; gap: 12px; padding: 26px 24px; border-radius: 26px; background: var(--card); box-shadow: 0 0 0 1px var(--line); }
+.vx-rev__sterren { color: #e8a317; font-size: 18px; letter-spacing: 2px; }
+.vx-rev__sterren i { font-style: normal; color: var(--line); }
+.vx-rev__tekst { margin: 0; font-size: 16px; line-height: 1.55; color: var(--ink); }
+.vx-rev__resultaat { margin: 0; display: inline-block; width: fit-content; padding: 6px 12px; border-radius: 999px; background: #e8f8ef; color: #15803d; font-size: 13px; font-weight: 600; }
+.vx-rev__grid footer { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--line); }
+.vx-rev__grid footer strong { display: block; font-size: 14.5px; }
+.vx-rev__grid footer span { color: var(--muted); font-size: 13px; }
+@media (max-width: 900px) { .vx-rev__grid { grid-template-columns: 1fr; } }
+
+/* ── Admin: reviews form ────────────────────────────────── */
+.v-admin__reviews { display: grid; gap: 14px; }
+.v-admin__revform { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.v-admin__revform .v-fld--breed { grid-column: 1 / -1; }
+.v-admin__revform textarea { width: 100%; min-height: 90px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; font: inherit; font-size: 14px; resize: vertical; }
+.v-admin__revlijst { display: grid; gap: 8px; }
+.v-admin__revlijst > div { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: var(--surface); font-size: 14px; }
+.v-admin__revlijst small { display: block; color: var(--muted); }
+.v-admin__revlijst button { border: 0; background: transparent; color: var(--bad); font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
+@media (max-width: 700px) { .v-admin__revform { grid-template-columns: 1fr; } }

@@ -2,6 +2,7 @@ import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { VolgoMark } from "@/components/volgo/logo";
+import { AdminReviews } from "@/components/dash/admin-reviews";
 import { haalAdmin, haalOmzet, zetAanvraagStatus } from "@/lib/api/admin.functions";
 import { PLANS, isPlan } from "@/lib/plans";
 import "@/volgo.css";
@@ -252,6 +253,7 @@ function Admin() {
             </div>
           </section>
         )}
+        <AdminReviews />
       </main>
     </div>
   );

@@ -441,7 +441,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
       sel.addEventListener("change", function () { try { localStorage.setItem("volgo-taal", sel.value); } catch (e) {} window.dispatchEvent(new CustomEvent("volgo-taal", { detail: sel.value })); });
       laag.querySelector(".ok-kaart").insertBefore(rij, laag.querySelector(".ok-knoppen"));
     }
-    var kies = function (ja) { try { localStorage.setItem(KEUZE_SLEUTEL, JSON.stringify({ ja: ja, op: Date.now() })); } catch (e) {} laag.remove(); keuzeKlaar(ja); };
+    var kies = function (ja) { try { localStorage.setItem(KEUZE_SLEUTEL, JSON.stringify({ ja: ja, op: Date.now() })); } catch (e) {} laag.remove(); keuzeKlaar(ja); try { window.dispatchEvent(new CustomEvent("volgo-ok", { detail: ja })); } catch (e) {} };
     laag.querySelector(".ok-ja").addEventListener("click", function () { kies(true); });
     laag.querySelector(".ok-nee").addEventListener("click", function () { kies(false); });
     root.querySelector(".w").appendChild(laag);
