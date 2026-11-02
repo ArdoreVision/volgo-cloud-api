@@ -100,10 +100,16 @@ function cacheHit(s: string) {
 
 let bezig: Promise<void> | null = null;
 let gewenst = "en";
+let actueel = "en"; // language the page currently shows
 
-async function pasToe(taal: string) {
+async function pasToe(taal: string): Promise<void> {
   gewenst = taal;
-  if (bezig) return bezig;
+  if (bezig) {
+    // A run is busy: let it finish (it stops early when the wanted language changed), then run again for the latest wish.
+    await bezig;
+    if (!bezig && gewenst !== actueel) return pasToe(gewenst);
+    return;
+  }
   bezig = (async () => {
     try {
       const root = document.body;
@@ -111,6 +117,7 @@ async function pasToe(taal: string) {
       if (taal === "en") {
         for (const it of items) zet(it.doel, it.bron);
         document.documentElement.lang = "en";
+        actueel = "en";
         return;
       }
       const m = cache.get(taal) ?? new Map<string, string>();
@@ -131,6 +138,7 @@ async function pasToe(taal: string) {
         if (v) zet(it.doel, v);
       }
       document.documentElement.lang = taal;
+      actueel = taal;
     } finally {
       bezig = null;
     }
