@@ -102,9 +102,9 @@ function Abonnement() {
                       ? huidig === id
                         ? "Current plan"
                         : `Switch to ${p.naam}`
-                      : `Choose ${p.naam}`}
+                      : `Try ${p.naam} 3 days free`}
                 </button>
-                <p className="v-plan__kaart">{wisselen ? "Switches right away" : "Billed monthly · Cancel any time"}</p>
+                <p className="v-plan__kaart">{wisselen ? "Switches right away" : `€0 today · Then €${p.prijsTekst}/month automatically · Cancel any time`}</p>
                 <ul className="v-plan__kern">
                   {p.kern.map((f) => (
                     <li key={f}>{f}</li>
@@ -160,7 +160,7 @@ function Abonnement() {
 
           <div className="v-na__regels">
             <p>
-              <strong>Pay monthly.</strong> You pay the first month when you choose a plan; after that it renews monthly on the same day. No setup fee.
+              <strong>3 days free, then monthly.</strong> Enter your card when you choose a plan; after 3 days the first month is charged automatically and it renews monthly on the same day. Cancel during the trial and you pay nothing. No setup fee.
             </p>
             <p>
               <strong>Cancel any time.</strong> In your dashboard under Subscription. AVA, your dashboard and the website we built (if you have one)

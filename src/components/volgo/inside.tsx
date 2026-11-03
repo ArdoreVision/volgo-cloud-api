@@ -34,7 +34,7 @@ export function Inside() {
 
 export function HowItWorks() {
   const steps = [
-    { t: "Choose your plan", d: "Pick a plan and pay for the first month. Your dashboard opens right away." },
+    { t: "Choose your plan", d: "Pick a plan and start your 3 free days. Your dashboard opens right away; the first month is charged automatically after the trial." },
     { t: "Install AVA or request your website", d: "Start: paste one line on your own website, with a guide for every platform. Pro and Premium: tell us what you want by chat or call and we build your site." },
     { t: "Leads turn into quotes", d: "AVA chats with your visitors, scores every lead and alerts you. You call the hottest first and send the quote." },
   ];

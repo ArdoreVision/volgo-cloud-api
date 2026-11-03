@@ -1,4 +1,7 @@
 // Plans. Amounts in cents, per month, excl. VAT. Limits are enforced in the app.
+/** Black Friday: every plan starts with a free trial; the card is taken at checkout and the first month is charged automatically when the trial ends. */
+export const PROEF_DAGEN = 3;
+
 export type PlanId = "start" | "pro" | "premium";
 
 export type Plan = {
@@ -33,7 +36,7 @@ export const PLANS: Record<PlanId, Plan> = {
     naam: "Start",
     prijs: 14700,
     prijsTekst: "147",
-    proefDagen: 0,
+    proefDagen: PROEF_DAGEN,
     tagline: "The AVA chatbot on your own website, plus the dashboard to see every lead.",
     kern: ["300 AVA conversations / month", "1 user", "AVA on your own website"],
     features: [
@@ -51,7 +54,7 @@ export const PLANS: Record<PlanId, Plan> = {
     naam: "Pro",
     prijs: 49700,
     prijsTekst: "497",
-    proefDagen: 0,
+    proefDagen: PROEF_DAGEN,
     tagline: "We build your website with AVA inside, plus everything your team needs.",
     badge: "Most popular",
     kern: ["1,000 AVA conversations / month", "5 users", "Custom website built by Volgo"],
@@ -70,7 +73,7 @@ export const PLANS: Record<PlanId, Plan> = {
     naam: "Premium",
     prijs: 99700,
     prijsTekst: "997",
-    proefDagen: 0,
+    proefDagen: PROEF_DAGEN,
     tagline: "Everything in Pro, for high-volume teams with bigger websites.",
     badge: "For teams",
     kern: ["5,000 AVA conversations / month", "Unlimited users", "Larger custom website"],

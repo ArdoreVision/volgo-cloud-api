@@ -30,7 +30,7 @@ export const Route = createFileRoute("/terms")({
 
       <h2>3. Prices and payment</h2>
       <ul>
-        <li>You pay the first month when you choose a plan. There is no free trial and no setup fee.</li>
+        <li>Every plan starts with a 3-day free trial. You enter your card when you choose a plan; when the trial ends, the first month is charged automatically. No setup fee. Cancel during the trial and you pay nothing.</li>
         <li>The subscription renews automatically every month at the current monthly price. Prices exclude VAT.</li>
         <li>Payment is made monthly in advance through our payment partner. If a payment fails, we may suspend the service after a reminder.</li>
         <li>We may adjust prices once a year. We’ll let you know at least 30 days in advance; you may then cancel before the change takes effect.</li>

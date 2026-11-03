@@ -29,6 +29,7 @@ export function PricingPreview() {
           Simple pricing.
         </h2>
         <p className="v-lede v-center">Start: AVA on your own website. Pro and Premium: we build your website for you, with AVA inside. Monthly, cancel any time.</p>
+        <p className="v-pricing__bf">🖤 Black Friday: try any plan 3 days free. Your first month is charged automatically after the trial.</p>
       </header>
       <div className="v-plans" id="plans">
         {(Object.keys(PLANS) as PlanId[]).map((id) => {
@@ -42,9 +43,9 @@ export function PricingPreview() {
                 <span>€{p.prijsTekst}</span> per month
               </p>
               <button className={`v-plan__cta v-plan__cta--${id}`} disabled={bezig !== null} onClick={() => void kies(id)} type="button">
-                {bezig === id ? "One moment…" : `Choose ${p.naam} →`}
+                {bezig === id ? "One moment…" : `Try ${p.naam} 3 days free →`}
               </button>
-              <p className="v-plan__kaart">Secure checkout via Stripe · Cancel any time</p>
+              <p className="v-plan__kaart">€0 today · Then €{p.prijsTekst}/month automatically · Cancel any time</p>
               <ul className="v-plan__kern">
                 {p.kern.map((f) => (
                   <li key={f}>{f}</li>

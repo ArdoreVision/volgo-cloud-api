@@ -420,6 +420,7 @@
 }
 
 .v-pricing__head .v-lede { margin-inline: auto; }
+.v-pricing__bf { margin: 16px auto 0; width: fit-content; max-width: 100%; padding: 10px 18px; border-radius: 999px; background: #111; color: #fff; font-weight: 600; font-size: 0.95rem; text-align: center; }
 .v-stepper { gap: 4px; flex-wrap: nowrap; }
 .v-stepper li { font-size: 12px; gap: 5px; white-space: nowrap; }
 .v-stepper li:not(:last-child)::after { width: 8px; }
