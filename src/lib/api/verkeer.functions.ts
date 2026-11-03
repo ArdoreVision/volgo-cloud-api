@@ -89,6 +89,66 @@ export const haalVerkeer = createServerFn({ method: "GET" })
         .all<{ sessie: string; laatst: string; stad: string | null; land: string | null; apparaat: string | null; bron: string | null; pad: string; paginas: number }>(),
     ]);
 
+    // Ads: every session is attributed to the ad of its first page view (campaign / ad set / ad / placement from the landing URL).
+    const eersteView = `(SELECT sessie, MIN(id) AS id FROM site_views WHERE team_id = ? AND dag >= date('now', ?) GROUP BY sessie)`;
+    const adWhere = "(v.campagne IS NOT NULL OR v.advertentie IS NOT NULL OR v.adset IS NOT NULL)";
+    const [adSessies, adEvents, adLeads, adVragen, adPlaatsing, adPubliek] = await Promise.all([
+      DB.prepare(
+        `SELECT COALESCE(v.campagne, '') AS campagne, COALESCE(v.adset, '') AS adset, COALESCE(v.advertentie, '') AS advertentie, COALESCE(v.bron, '') AS bron,
+                COUNT(DISTINCT v.sessie) AS sessies, COUNT(DISTINCT v.bezoeker) AS bezoekers,
+                CAST(AVG(s.duur) AS INTEGER) AS duur, CAST(AVG(s.scroll) AS INTEGER) AS scroll,
+                SUM(CASE WHEN v.apparaat = 'Mobile' THEN 1 ELSE 0 END) AS mobiel
+         FROM ${eersteView} f JOIN site_views v ON v.id = f.id
+         JOIN (SELECT sessie, SUM(duur) AS duur, MAX(scroll) AS scroll FROM site_views WHERE team_id = ? AND dag >= date('now', ?) GROUP BY sessie) s ON s.sessie = v.sessie
+         WHERE ${adWhere} GROUP BY 1, 2, 3, 4 ORDER BY sessies DESC LIMIT 60`,
+      )
+        .bind(team, van, team, van)
+        .all<{ campagne: string; adset: string; advertentie: string; bron: string; sessies: number; bezoekers: number; duur: number; scroll: number; mobiel: number }>(),
+      DB.prepare(
+        `SELECT COALESCE(v.campagne, '') AS campagne, COALESCE(v.adset, '') AS adset, COALESCE(v.advertentie, '') AS advertentie, e.soort, COUNT(DISTINCT e.sessie) AS n
+         FROM site_events e JOIN ${eersteView} f ON f.sessie = e.sessie JOIN site_views v ON v.id = f.id
+         WHERE e.team_id = ? AND ${adWhere} GROUP BY 1, 2, 3, 4`,
+      )
+        .bind(team, van, team)
+        .all<{ campagne: string; adset: string; advertentie: string; soort: string; n: number }>(),
+      DB.prepare(
+        `SELECT COALESCE(v.campagne, '') AS campagne, COALESCE(v.adset, '') AS adset, COALESCE(v.advertentie, '') AS advertentie, COUNT(DISTINCT m.lead_id) AS n
+         FROM ava_gesprek_meta m JOIN ava_gesprekken g ON g.id = m.gesprek_id JOIN ${eersteView} f ON f.sessie = m.sessie JOIN site_views v ON v.id = f.id
+         WHERE g.team_id = ? AND g.voorbeeld = 0 AND m.lead_id IS NOT NULL AND ${adWhere} GROUP BY 1, 2, 3`,
+      )
+        .bind(team, van, team)
+        .all<{ campagne: string; adset: string; advertentie: string; n: number }>(),
+      DB.prepare(
+        `SELECT COALESCE(v.advertentie, v.adset, v.campagne, '') AS advertentie, g.onderwerp, g.warmte, g.laatste, (m.lead_id IS NOT NULL) AS lead
+         FROM ava_gesprekken g JOIN ava_gesprek_meta m ON m.gesprek_id = g.id JOIN ${eersteView} f ON f.sessie = m.sessie JOIN site_views v ON v.id = f.id
+         WHERE g.team_id = ? AND g.voorbeeld = 0 AND ${adWhere} ORDER BY g.id DESC LIMIT 40`,
+      )
+        .bind(team, van, team)
+        .all<{ advertentie: string; onderwerp: string; warmte: number; laatste: string; lead: number }>(),
+      DB.prepare(
+        `SELECT COALESCE(v.plaatsing, 'Unknown') AS naam, COUNT(DISTINCT v.sessie) AS n FROM ${eersteView} f JOIN site_views v ON v.id = f.id WHERE ${adWhere} GROUP BY 1 ORDER BY n DESC LIMIT 8`,
+      )
+        .bind(team, van)
+        .all<{ naam: string; n: number }>(),
+      DB.prepare(
+        `SELECT COALESCE(NULLIF(v.land, ''), '??') AS land, COALESCE(v.stad, '') AS stad, COUNT(DISTINCT v.sessie) AS n
+         FROM ${eersteView} f JOIN site_views v ON v.id = f.id WHERE ${adWhere} GROUP BY 1, 2 ORDER BY n DESC LIMIT 10`,
+      )
+        .bind(team, van)
+        .all<{ land: string; stad: string; n: number }>(),
+    ]);
+    const sleutel = (a: { campagne: string; adset: string; advertentie: string }) => `${a.campagne}|${a.adset}|${a.advertentie}`;
+    const evMap = new Map<string, Record<string, number>>();
+    for (const e of adEvents.results) {
+      const k = sleutel(e);
+      evMap.set(k, { ...(evMap.get(k) ?? {}), [e.soort]: e.n });
+    }
+    const leadMap = new Map(adLeads.results.map((l) => [sleutel(l), l.n]));
+    const advertenties = adSessies.results.map((a) => {
+      const ev = evMap.get(sleutel(a)) ?? {};
+      return { ...a, chatOpen: ev.chat_open ?? 0, chatBericht: ev.chat_bericht ?? 0, geboekt: ev.geboekt ?? 0, leads: leadMap.get(sleutel(a)) ?? 0 };
+    });
+
     // Sessions with a single page view and under 10 seconds count as a bounce.
     const stuiter = await DB.prepare(
       `SELECT COUNT(*) AS n FROM (SELECT sessie FROM site_views WHERE ${w} GROUP BY sessie HAVING COUNT(*) = 1 AND SUM(duur) < 10)`,
@@ -127,5 +187,9 @@ export const haalVerkeer = createServerFn({ method: "GET" })
       toestemmingPct: ok?.alle ? Math.round((ok.ja / ok.alle) * 100) : 0,
       terugkerend: terug?.n ?? 0,
       nuOp: nuOp.results,
+      advertenties,
+      adPlaatsingen: adPlaatsing.results,
+      adPubliek: adPubliek.results,
+      adVragen: adVragen.results,
     };
   });

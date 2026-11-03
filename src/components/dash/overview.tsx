@@ -21,7 +21,8 @@ function Delta({ nu, vorig }: { nu: number; vorig: number }) {
   return <em className={`v-delta ${p > 0 ? "v-delta--up" : p < 0 ? "v-delta--down" : ""}`}>{p > 0 ? `+${p}%` : `${p}%`}</em>;
 }
 
-export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam: string; openTab: (t: "agenda" | "aanvragen") => void }) {
+/** Results: the numbers over a period, compared with the period before. Day-to-day work lives on Home. */
+export function Overview({ data, openTab }: { data: DashData; openTab: (t: "agenda" | "aanvragen") => void }) {
   const router = useRouter();
   const [bereik, setBereik] = useState<Bereik>("maand");
   const [nu, setNu] = useState(() => Date.parse(data.nu));
@@ -90,10 +91,10 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
     <>
       <header className="v-dash__head v-dash__head--row">
         <div>
-          <h1>Welcome, {voornaam}.</h1>
+          <h1>Results</h1>
           <p>
-            {live.length ? `AVA is talking to ${live.length} ${live.length === 1 ? "person" : "people"} right now` : "AVA is ready"} · {vandaagAfspraken.length}{" "}
-            {vandaagAfspraken.length === 1 ? "appointment" : "appointments"} today
+            Requests, appointments and customers won, compared with the previous period.{" "}
+            {live.length ? `AVA is talking to ${live.length} ${live.length === 1 ? "person" : "people"} right now.` : ""} {vandaagAfspraken.length} {vandaagAfspraken.length === 1 ? "appointment" : "appointments"} today.
           </p>
         </div>
         <div aria-label="Period" className="v-seg" role="tablist">
@@ -117,7 +118,14 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
         </div>
       </header>
 
-      {data.leads.some((l) => l.voorbeeld) ? <p className="v-dash__note">You are looking at sample data. Your real numbers appear here as soon as AVA is live on your website.</p> : null}
+      {data.leads.some((l) => l.voorbeeld) ? (
+        <p className="v-dash__note">
+          These numbers include <strong>sample data</strong>. Your real numbers appear here as soon as AVA is live on your website; the samples disappear after the first real conversation.
+        </p>
+      ) : null}
+      <p className="v-muted v-small v-definities">
+        <strong>How these are counted:</strong> a request is a lead AVA collected (name plus phone or email); appointments are counted by their start date; a customer is a lead you set to “Customer”; conversion is customers won divided by requests in the same period. Periods follow your business time zone.
+      </p>
 
       <section aria-label="Numbers" className="v-dash__stats">
         <div className="v-stat">

@@ -207,7 +207,7 @@ export const haalOntwerp = createServerFn({ method: "GET" }).handler(async () =>
   const { planVoorTeam } = await import("../limieten.server");
   const magStijl = (await planVoorTeam(DB, g.team_id)).limieten.eigenStijl;
   const stijl = (await haalStijl(DB, g.team_id)) ?? { ...STANDAARD_STIJL, branding: !magStijl };
-  return { sleutel: inst.sleutel, naam: inst.naam, kleur: inst.kleur, begroeting: inst.begroeting, bedrijf: inst.bedrijf, site: site?.site_url ?? "", stijl, magStijl };
+  return { sleutel: inst.sleutel, naam: inst.naam, kleur: inst.kleur, begroeting: inst.begroeting, bedrijf: inst.bedrijf, site: site?.site_url ?? "", stijl, magStijl, soorten: inst.boeken ? inst.afspraak_soorten.split(",") : [] };
 });
 
 /** Editor: save colour, greeting, website address and (Pro/Premium) the style. */

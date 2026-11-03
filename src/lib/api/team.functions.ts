@@ -156,7 +156,16 @@ const tijd = z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
 export const maakAfspraak = createServerFn({ method: "POST" })
   .validator((v: unknown) =>
     z
-      .object({ titel: z.string().trim().min(2).max(120), start: tijd, eind: tijd, locatie: z.string().trim().max(120).optional(), notitie: z.string().trim().max(1000).optional(), lead_id: z.number().int().optional() })
+      .object({
+        titel: z.string().trim().min(2).max(120),
+        start: tijd,
+        eind: tijd,
+        locatie: z.string().trim().max(120).optional(),
+        notitie: z.string().trim().max(1000).optional(),
+        lead_id: z.number().int().optional(),
+        /** Save even though it overlaps another appointment (the user saw the warning and chose to). */
+        forceer: z.boolean().optional(),
+      })
       .refine((a) => a.eind > a.start, "End time must be after start time")
       .parse(v),
   )
@@ -164,13 +173,20 @@ export const maakAfspraak = createServerFn({ method: "POST" })
     const { g, DB } = await sessie();
     if (data.lead_id) {
       const ok = await DB.prepare("SELECT id FROM klant_leads WHERE id = ? AND gebruiker_id = ?").bind(data.lead_id, g.team_id).first();
-      if (!ok) return { ok: false };
-      await DB.prepare("UPDATE klant_leads SET status = 'afspraak' WHERE id = ? AND status IN ('nieuw','opvolging','offerte')").bind(data.lead_id).run();
+      if (!ok) return { ok: false as const, message: "This customer isn't in your leads." };
     }
-    await DB.prepare("INSERT INTO afspraken (team_id, lead_id, titel, start, eind, locatie, notitie) VALUES (?, ?, ?, ?, ?, ?, ?)")
+    // Overlap with another appointment? Say so first; the user decides (a double booking is sometimes intended, e.g. two people).
+    if (!data.forceer) {
+      const botst = await DB.prepare("SELECT titel, start, eind FROM afspraken WHERE team_id = ? AND voorbeeld = 0 AND start < ? AND eind > ? ORDER BY start LIMIT 1")
+        .bind(g.team_id, data.eind, data.start)
+        .first<{ titel: string; start: string; eind: string }>();
+      if (botst) return { ok: false as const, message: "", conflict: botst };
+    }
+    const r = await DB.prepare("INSERT INTO afspraken (team_id, lead_id, titel, start, eind, locatie, notitie) VALUES (?, ?, ?, ?, ?, ?, ?)")
       .bind(g.team_id, data.lead_id ?? null, data.titel, data.start, data.eind, data.locatie ?? "", data.notitie ?? "")
       .run();
-    return { ok: true };
+    if (data.lead_id) await DB.prepare("UPDATE klant_leads SET status = 'afspraak' WHERE id = ? AND status IN ('nieuw','opvolging','offerte')").bind(data.lead_id).run();
+    return { ok: true as const, id: Number(r.meta?.last_row_id) };
   });
 
 export const verwijderAfspraak = createServerFn({ method: "POST" })

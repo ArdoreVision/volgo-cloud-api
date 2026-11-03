@@ -25,6 +25,9 @@
 
   .demo-balk { background: var(--inkt); color: #e9efe9; font-size: 13.5px; text-align: center; padding: 9px 16px; }
   .demo-balk b { color: #fff; }
+  /* Inside the Volgo landing page (?embed=1): no demo bar, and the site scrolls along with the page. */
+  .embed .demo-balk { display: none; }
+  html.embed { overflow: hidden; scroll-behavior: auto; }
 
   header { position: sticky; top: 0; z-index: 10; background: rgba(245,241,234,.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--lijn); }
   header .wrap { display: flex; align-items: center; justify-content: space-between; height: 74px; }
@@ -120,6 +123,7 @@
     .hero p { font-size: 17px; }
   }
 </style>
+<script>if (/[?&]embed/.test(location.search)) document.documentElement.classList.add("embed");</script>
 </head>
 <body>
 <div class="demo-balk"><b>Voorbeeldwebsite van Volgo</b> · Dit bedrijf bestaat niet. Klik rechtsonder op de chat en vraag een offerte aan, net als een echte bezoeker.</div>

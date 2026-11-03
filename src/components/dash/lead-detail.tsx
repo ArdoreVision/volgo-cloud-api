@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 
 import { bewaarLeadNotitie, haalLead } from "@/lib/api/account.functions";
 
-import { warmteLabel } from "./util";
+import { Laadfout } from "./status";
+import { sqlDate, tijdzone, warmteLabel } from "./util";
 
 type Data = NonNullable<Awaited<ReturnType<typeof haalLead>>>;
 type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
 
 const STATUS_LABEL: Record<Status, string> = { nieuw: "New", opvolging: "AVA following up", offerte: "Quote", afspraak: "Appointment", klant: "Customer", verloren: "Lost" };
 
-const wanneer = (iso: string) =>
-  new Date(iso.replace(" ", "T") + "Z").toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
+const wanneer = (iso: string) => sqlDate(iso).toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: tijdzone() });
 
 /** Splits "Sarah, 06 1234 5678 / sarah@mail.com" into phone and email, whatever AVA captured. */
 function contactDelen(c: string | null) {
@@ -26,13 +26,18 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
   const [bewaard, setBewaard] = useState(false);
   const [gekopieerd, setGekopieerd] = useState("");
 
+  const [laadFout, setLaadFout] = useState(false);
+  const [poging, setPoging] = useState(0);
   useEffect(() => {
     setD(undefined);
-    void haalLead({ data: { id } }).then((r) => {
-      setD(r);
-      setNotitie(r?.lead.notitie ?? "");
-    });
-  }, [id]);
+    setLaadFout(false);
+    void haalLead({ data: { id } })
+      .then((r) => {
+        setD(r);
+        setNotitie(r?.lead.notitie ?? "");
+      })
+      .catch(() => setLaadFout(true));
+  }, [id, poging]);
   useEffect(() => {
     const esc = (e: KeyboardEvent) => e.key === "Escape" && sluit();
     window.addEventListener("keydown", esc);
@@ -67,7 +72,8 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
           ×
         </button>
         {d === undefined ? <p className="v-feed__empty v-pad">Loading…</p> : null}
-        {d === null ? <p className="v-feed__empty v-pad">This lead no longer exists.</p> : null}
+        {laadFout ? <Laadfout opnieuw={() => setPoging((p) => p + 1)} wat="this lead" /> : null}
+        {d === null && !laadFout ? <p className="v-feed__empty v-pad">This lead no longer exists.</p> : null}
         {l ? (
           <>
             <header className="v-lp__kop">
@@ -126,6 +132,12 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
                 <div>
                   <dt>Contact</dt>
                   <dd>{l.contact}</dd>
+                </div>
+              ) : null}
+              {l.advertentie ? (
+                <div>
+                  <dt>Came via ad</dt>
+                  <dd>📣 {l.advertentie}</dd>
                 </div>
               ) : null}
               {l.herkomst ? (

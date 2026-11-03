@@ -30,6 +30,8 @@ type AppEnv = {
   CLAUDE_MODEL?: string;
   // Optioneel: Stripe geheime sleutel voor echte abonnementsbetalingen.
   STRIPE_SECRET_KEY?: string;
+  // Optioneel: signing secret van de Stripe-webhook (/api/stripe), zodat opzeggingen meteen doorkomen.
+  STRIPE_WEBHOOK_SECRET?: string;
   // Optioneel: afzender voor mails, bv. "Volgo <hallo@jouwdomein.nl>".
   MAIL_FROM?: string;
   MAIL_REPLY_TO?: string;

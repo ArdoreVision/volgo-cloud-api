@@ -100,11 +100,15 @@ export async function slaViewOp(
     browser?: string;
     os?: string;
     taal?: string;
+    /** The ad that brought the visitor, from the landing URL (see ava.js advertentie()). */
+    ad?: { bron?: string; medium?: string; campagne?: string; adset?: string; advertentie?: string; plaatsing?: string; klik?: string };
   },
 ) {
   const t = Boolean(d.toestemming);
+  const a = d.ad ?? {};
+  const schoon = (v?: string) => (v && v.trim() ? v.trim().slice(0, 120) : null);
   const r = await DB.prepare(
-    "INSERT INTO site_views (team_id, dag, bezoeker, sessie, pad, titel, bron, apparaat, land, toestemming, vast, stad, regio, browser, os, taal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    "INSERT INTO site_views (team_id, dag, bezoeker, sessie, pad, titel, bron, apparaat, land, toestemming, vast, stad, regio, browser, os, taal, medium, campagne, adset, advertentie, plaatsing, klik_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
   )
     .bind(
       d.team,
@@ -123,9 +127,24 @@ export async function slaViewOp(
       t ? d.browser || null : null,
       t ? d.os || null : null,
       t ? (d.taal ?? "").slice(0, 12) || null : null,
+      schoon(a.medium),
+      schoon(a.campagne),
+      schoon(a.adset),
+      schoon(a.advertentie),
+      schoon(a.plaatsing),
+      t ? schoon(a.klik) : null,
     )
     .run();
   return Number(r.meta?.last_row_id) || 0;
+}
+
+/** "Facebook · Global | Quiz test · Ad 1 · Mobile feed" for the conversation and the lead, or null when the visit was not from an ad. */
+export async function advertentieVanSessie(DB: D1Database, sessie: string) {
+  const v = await DB.prepare("SELECT bron, campagne, adset, advertentie, plaatsing FROM site_views WHERE sessie = ? AND (campagne IS NOT NULL OR advertentie IS NOT NULL OR adset IS NOT NULL) ORDER BY id LIMIT 1")
+    .bind(sessie)
+    .first<{ bron: string | null; campagne: string | null; adset: string | null; advertentie: string | null; plaatsing: string | null }>();
+  if (!v) return null;
+  return [v.bron, v.campagne, v.adset, v.advertentie, v.plaatsing ? v.plaatsing.replace(/_/g, " ") : null].filter(Boolean).join(" · ").slice(0, 200);
 }
 
 export async function updateView(DB: D1Database, team: number, id: number, sessie: string, duur: number, scroll: number) {

@@ -16,5 +16,6 @@ en bijgewerkt.
 | `ANTHROPIC_API_KEY` | aanrader | AVA voert echte gesprekken met Claude |
 | `RESEND_API_KEY` | optioneel | E-mails (aanvragen, meldingen, uitnodigingen) |
 | `STRIPE_SECRET_KEY` | optioneel | Echte abonnementsbetalingen |
+| `STRIPE_WEBHOOK_SECRET` | optioneel | Signing secret van de Stripe-webhook naar `https://thevolgo.app/api/stripe` (events: customer.subscription.created/updated/deleted, invoice.paid, invoice.payment_failed). Zonder dit secret blijft de 6-uurlijkse statuscontrole het enige kanaal. |
 
 Klanten hoeven nooit iets in te stellen: deze sleutels gelden voor het hele platform.

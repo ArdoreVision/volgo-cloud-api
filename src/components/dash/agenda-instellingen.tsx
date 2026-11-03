@@ -1,6 +1,9 @@
 import { useState } from "react";
 
+import { isOngebruikelijkRuim, openUrenPerWeek } from "@/lib/agenda";
 import { bewaarAgenda } from "@/lib/api/ava.functions";
+
+import { useOnopgeslagen } from "./onopgeslagen";
 
 type Inst = { boeken: number; open_dagen: string; open_van: string; open_tot: string; afspraak_duur: number; afspraak_soorten: string; tijdzone: string; instagram: string };
 
@@ -25,17 +28,28 @@ export function AgendaInstellingen({ inst }: { inst: Inst }) {
   const [zone, setZone] = useState(inst.tijdzone);
   const [insta, setInsta] = useState(inst.instagram ?? "");
   const [melding, setMelding] = useState<{ ok: boolean; tekst: string } | null>(null);
+  const [bezig, setBezig] = useState(false);
   const zones = ZONES.includes(zone) ? ZONES : [zone, ...ZONES];
+  const huidig = { boeken: aan, open_dagen: dagen, open_van: van, open_tot: tot, afspraak_duur: duur, afspraak_soorten: soorten as ("bellen" | "langs" | "kantoor" | "insta")[], tijdzone: zone, instagram: insta };
+  const [opgeslagenStand, setOpgeslagenStand] = useState(() => JSON.stringify(huidig));
+  const gewijzigd = JSON.stringify(huidig) !== opgeslagenStand;
+  useOnopgeslagen(gewijzigd);
+  const ruim = aan && dagen.length > 0 && van < tot && isOngebruikelijkRuim({ open_dagen: dagen, open_van: van, open_tot: tot });
 
   async function opslaan() {
+    if (bezig) return;
     if (!dagen.length) return setMelding({ ok: false, tekst: "Choose at least one day." });
     if (!soorten.length) return setMelding({ ok: false, tekst: "Choose at least one kind of appointment." });
     if (van >= tot) return setMelding({ ok: false, tekst: "Opening time must be before closing time." });
+    setBezig(true);
     try {
-      const r = await bewaarAgenda({ data: { boeken: aan, open_dagen: dagen, open_van: van, open_tot: tot, afspraak_duur: duur, afspraak_soorten: soorten as ("bellen" | "langs" | "kantoor" | "insta")[], tijdzone: zone, instagram: insta } });
-      setMelding({ ok: r.ok, tekst: r.message });
+      const r = await bewaarAgenda({ data: huidig });
+      setMelding({ ok: r.ok, tekst: r.ok ? "Saved. Visitors now see these days and times in the chat." : r.message });
+      if (r.ok) setOpgeslagenStand(JSON.stringify(huidig));
     } catch {
       setMelding({ ok: false, tekst: "Couldn't save. Check the times and try again." });
+    } finally {
+      setBezig(false);
     }
   }
   const wissel = <T,>(lijst: T[], x: T) => (lijst.includes(x) ? lijst.filter((y) => y !== x) : [...lijst, x]);
@@ -112,12 +126,21 @@ export function AgendaInstellingen({ inst }: { inst: Inst }) {
             </select>
           </label>
         </div>
+        {ruim ? (
+          <p className="v-waarschuw" role="status">
+            <strong>Unusually wide availability:</strong> visitors can book {dagen.length} days a week, {van}–{tot} ({openUrenPerWeek({ open_dagen: dagen, open_van: van, open_tot: tot })} hours a week). That is fine if you really take calls at those times; otherwise narrow it down so nobody books you at midnight. Nothing changes until you save.
+          </p>
+        ) : null}
       </fieldset>
       <div className="v-form-actie">
-        <button className="v-btn-dark" onClick={() => void opslaan()} type="button">
-          Save appointment settings
+        <button className="v-btn-dark" disabled={bezig || !gewijzigd} onClick={() => void opslaan()} type="button">
+          {bezig ? "Saving…" : gewijzigd ? "Save appointment settings" : "Saved"}
         </button>
-        {melding ? <span className={melding.ok ? "v-ok-tekst" : "v-err"}>{melding.tekst}</span> : null}
+        {melding ? (
+          <span className={melding.ok ? "v-ok-tekst" : "v-err"} role={melding.ok ? "status" : "alert"}>
+            {melding.tekst}
+          </span>
+        ) : null}
       </div>
     </section>
   );

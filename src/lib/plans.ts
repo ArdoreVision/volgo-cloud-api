@@ -88,6 +88,38 @@ export const PLANS: Record<PlanId, Plan> = {
 
 export const isPlan = (v: unknown): v is PlanId => v === "start" || v === "pro" || v === "premium";
 export const planVan = (v: unknown): Plan => (isPlan(v) ? PLANS[v] : PLANS.start);
+export const PLAN_IDS: PlanId[] = ["start", "pro", "premium"];
+
+/** Is there a free trial on any plan? Derived from the plans, so every text stays in step with the checkout. */
+export const HEEFT_PROEF = PLAN_IDS.some((id) => PLANS[id].proefDagen > 0);
+
+/** The billing terms in one sentence, used on the website, in emails and in AVA's knowledge. */
+export const BETAAL_TEKST = HEEFT_PROEF
+  ? "Free trial first, card required, then billed monthly. Cancel any time."
+  : "No free trial: you pay the first month when you choose a plan. Billed monthly, no setup fee. Cancel any time.";
+
+const getal = (n: number | null) => (n === null ? "unlimited" : n.toLocaleString("en-GB"));
+
+/**
+ * The plans as plain text for AVA (the chatbot on thevolgo.app). Generated from PLANS, so AVA can never
+ * quote a price, limit or trial that is not on the pricing page.
+ */
+export function plannenVoorAva() {
+  const regels = PLAN_IDS.map((id) => {
+    const p = PLANS[id];
+    const l = p.limieten;
+    const extra = [
+      `${getal(l.gesprekken)} AVA conversations/month`,
+      `${getal(l.leden)} user${l.leden === 1 ? "" : "s"}`,
+      l.website ? "custom website built by Volgo with AVA inside" : "AVA on your own website only, no website included",
+      l.teamChat ? "team chat and video calls" : "",
+      l.eigenStijl ? "own AVA photo and style without Volgo branding" : "",
+      `${l.analyticsDagen}-day analytics`,
+    ].filter(Boolean);
+    return `- ${p.naam}: €${p.prijsTekst} per month excl. VAT${p.badge ? ` (${p.badge.toLowerCase()})` : ""}. ${extra.join(", ")}.`;
+  });
+  return `PLANS (per month, excl. VAT)\n${regels.join("\n")}\n- ${BETAAL_TEKST} On cancellation, AVA and a Volgo-built website stop at the end of the paid period. Domain name costs are not included.`;
+}
 
 /** For the comparison table on the pricing page. */
 export const VERGELIJKING: { label: string; start: string | boolean; pro: string | boolean; premium: string | boolean }[] = [

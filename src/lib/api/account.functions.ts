@@ -318,11 +318,14 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
   // Analytics history follows the plan (twice the range, for the "vs previous period" comparison).
   const analyticsDagen = (await (await import("../limieten.server")).planVoorTeam(DB, team)).limieten.analyticsDagen;
 
-  // Oudere testaccounts krijgen eenmalig de nieuwe voorbeelddata.
+  // New accounts get sample data once, so the dashboard isn't empty on day one. Never again after the owner removed it.
   const heeftGesprekken = await DB.prepare("SELECT id FROM ava_gesprekken WHERE team_id = ? LIMIT 1").bind(team).first();
   if (!heeftGesprekken) {
-    const echt = await DB.prepare("SELECT id FROM klant_leads WHERE gebruiker_id = ? AND voorbeeld = 0 LIMIT 1").bind(team).first();
-    if (!echt) {
+    const [echt, ob] = await Promise.all([
+      DB.prepare("SELECT id FROM klant_leads WHERE gebruiker_id = ? AND voorbeeld = 0 LIMIT 1").bind(team).first(),
+      DB.prepare("SELECT voorbeeld_weg FROM onboarding WHERE team_id = ?").bind(team).first<{ voorbeeld_weg: number }>(),
+    ]);
+    if (!echt && !ob?.voorbeeld_weg) {
       await DB.prepare("DELETE FROM klant_leads WHERE gebruiker_id = ? AND voorbeeld = 1").bind(team).run();
       await seedTeam(DB, team);
     }
@@ -341,28 +344,32 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
       : await DB.prepare("SELECT plan, status, proef_tot, bedrijf, testmodus FROM gebruikers WHERE id = ?").bind(team).first<{ plan: string; status: string; proef_tot: string | null; bedrijf: string; testmodus: number }>();
 
   const profiel = await DB.prepare("SELECT foto, functie FROM gebruikers WHERE id = ?").bind(g.id).first<{ foto: string | null; functie: string | null }>();
-  // The five profile questions: answered once by the owner before the dashboard opens.
-  const avaProfiel = await DB.prepare("SELECT profiel FROM ava_instellingen WHERE team_id = ?").bind(team).first<{ profiel: string | null }>();
+  // The five profile questions: answered once by the owner before the dashboard opens. The time zone is the business's own (calendar settings).
+  const avaProfiel = await DB.prepare("SELECT profiel, tijdzone, sleutel, bedrijfsinfo FROM ava_instellingen WHERE team_id = ?").bind(team).first<{ profiel: string | null; tijdzone: string | null; sleutel: string | null; bedrijfsinfo: string | null }>();
   const profielKlaar = profielCompleet(leesProfiel(avaProfiel?.profiel));
+  const tijdzone = avaProfiel?.tijdzone || "Europe/Amsterdam";
   const [leads, afspraken, gesprekken, leden, kanalen] = await Promise.all([
     DB.prepare(
       `SELECT l.id, l.created_at, l.naam, l.onderwerp, l.kanaal, l.status, l.laatste_actie, l.voorbeeld,
               COALESCE(s.warmte, 50) AS warmte, s.reden,
-              (SELECT m.herkomst FROM ava_gesprek_meta m WHERE m.lead_id = l.id LIMIT 1) AS herkomst
+              (SELECT m.herkomst FROM ava_gesprek_meta m WHERE m.lead_id = l.id LIMIT 1) AS herkomst,
+              (SELECT m.advertentie FROM ava_gesprek_meta m WHERE m.lead_id = l.id AND m.advertentie IS NOT NULL LIMIT 1) AS advertentie
        FROM klant_leads l LEFT JOIN lead_scores s ON s.lead_id = l.id
        WHERE l.gebruiker_id = ? AND l.created_at > datetime('now', ?)
        ORDER BY l.created_at DESC LIMIT 1000`,
     )
       .bind(team, `-${analyticsDagen * 2 + 1} days`)
-      .all<{ id: number; created_at: string; naam: string; onderwerp: string; kanaal: string; status: string; laatste_actie: string | null; voorbeeld: number; warmte: number; reden: string | null; herkomst: string | null }>(),
+      .all<{ id: number; created_at: string; naam: string; onderwerp: string; kanaal: string; status: string; laatste_actie: string | null; voorbeeld: number; warmte: number; reden: string | null; herkomst: string | null; advertentie: string | null }>(),
     DB.prepare("SELECT id, lead_id, titel, start, eind, locatie, notitie, voorbeeld FROM afspraken WHERE team_id = ? ORDER BY start")
       .bind(team)
       .all<{ id: number; lead_id: number | null; titel: string; start: string; eind: string; locatie: string | null; notitie: string | null; voorbeeld: number }>(),
     DB.prepare(
-      "SELECT g.id, g.bezoeker, g.kanaal, g.onderwerp, g.status, g.gestart, g.laatste, g.berichten, g.warmte, g.voorbeeld, m.overgenomen_naam FROM ava_gesprekken g LEFT JOIN ava_gesprek_meta m ON m.gesprek_id = g.id WHERE g.team_id = ? ORDER BY g.laatste DESC LIMIT 30",
+      `SELECT g.id, g.bezoeker, g.kanaal, g.onderwerp, g.status, g.gestart, g.laatste, g.berichten, g.warmte, g.voorbeeld, m.overgenomen_naam, m.lead_id,
+              (SELECT b.rol FROM ava_berichten b WHERE b.gesprek_id = g.id AND b.rol != 'systeem' ORDER BY b.id DESC LIMIT 1) AS laatste_rol
+       FROM ava_gesprekken g LEFT JOIN ava_gesprek_meta m ON m.gesprek_id = g.id WHERE g.team_id = ? ORDER BY g.laatste DESC LIMIT 30`,
     )
       .bind(team)
-      .all<{ id: number; bezoeker: string; kanaal: string; onderwerp: string; status: string; gestart: string; laatste: string; berichten: number; warmte: number; voorbeeld: number; overgenomen_naam: string | null }>(),
+      .all<{ id: number; bezoeker: string; kanaal: string; onderwerp: string; status: string; gestart: string; laatste: string; berichten: number; warmte: number; voorbeeld: number; overgenomen_naam: string | null; lead_id: number | null; laatste_rol: string | null }>(),
     DB.prepare(
       `SELECT g.id, g.naam, g.email, COALESCE(t.rol, 'eigenaar') AS rol FROM gebruikers g
        LEFT JOIN team_leden t ON t.gebruiker_id = g.id
@@ -384,6 +391,11 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
       functie: profiel?.functie ?? "",
     },
     profielKlaar,
+    tijdzone,
+    /** Has AVA ever had a real conversation on the website? Drives the empty states and the "sample data" notes. */
+    avaLive: Boolean(await DB.prepare("SELECT id FROM ava_gesprekken WHERE team_id = ? AND voorbeeld = 0 LIMIT 1").bind(team).first()),
+    bedrijfsinfoKlaar: (avaProfiel?.bedrijfsinfo ?? "").trim().length >= 40,
+    sleutel: avaProfiel?.sleutel ?? "",
     leads: leads.results,
     afspraken: afspraken.results,
     gesprekken: gesprekken.results,
@@ -405,13 +417,13 @@ export const haalLead = createServerFn({ method: "GET" })
     const lead = await DB.prepare(
       `SELECT l.id, l.created_at, l.naam, l.onderwerp, l.kanaal, l.status, l.laatste_actie, l.voorbeeld, l.notitie,
               COALESCE(s.warmte, 50) AS warmte, s.reden,
-              m.gesprek_id, m.contact, m.herkomst
+              m.gesprek_id, m.contact, m.herkomst, m.advertentie
        FROM klant_leads l LEFT JOIN lead_scores s ON s.lead_id = l.id
        LEFT JOIN ava_gesprek_meta m ON m.lead_id = l.id
        WHERE l.id = ? AND l.gebruiker_id = ? LIMIT 1`,
     )
       .bind(data.id, g.team_id)
-      .first<{ id: number; created_at: string; naam: string; onderwerp: string; kanaal: string; status: string; laatste_actie: string | null; voorbeeld: number; notitie: string; warmte: number; reden: string | null; gesprek_id: number | null; contact: string | null; herkomst: string | null }>();
+      .first<{ id: number; created_at: string; naam: string; onderwerp: string; kanaal: string; status: string; laatste_actie: string | null; voorbeeld: number; notitie: string; warmte: number; reden: string | null; gesprek_id: number | null; contact: string | null; herkomst: string | null; advertentie: string | null }>();
     if (!lead) return null;
     const berichten = lead.gesprek_id
       ? (await DB.prepare("SELECT id, rol, tekst, created_at FROM ava_berichten WHERE gesprek_id = ? ORDER BY id LIMIT 200").bind(lead.gesprek_id).all<{ id: number; rol: string; tekst: string; created_at: string }>()).results
@@ -439,6 +451,18 @@ export const zetLeadStatus = createServerFn({ method: "POST" })
     await DB.prepare("UPDATE klant_leads SET status = ? WHERE id = ? AND gebruiker_id = ?").bind(data.status, data.id, g.team_id).run();
     return { ok: true };
   });
+
+/** Owner removes the sample leads, chats and appointments, for good. */
+export const verwijderVoorbeeldData = createServerFn({ method: "POST" }).handler(async () => {
+  const g = await actieveGebruiker().catch(() => null);
+  const { DB } = bindings();
+  if (!g || !DB) return { ok: false as const, message: "You're logged out." };
+  if (g.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can remove the sample data." };
+  const { purgeVoorbeeld } = await import("../ava.server");
+  await purgeVoorbeeld(DB, g.team_id);
+  await DB.prepare("INSERT INTO onboarding (team_id, voorbeeld_weg) VALUES (?, 1) ON CONFLICT(team_id) DO UPDATE SET voorbeeld_weg = 1").bind(g.team_id).run();
+  return { ok: true as const, message: "" };
+});
 
 /** Owner removes a team member (e.g. after moving to a smaller plan). */
 export const verwijderLid = createServerFn({ method: "POST" })

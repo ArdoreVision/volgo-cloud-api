@@ -131,7 +131,7 @@ function Admin() {
                 </div>
                 <div className="v-dash__panel">
                   <h2 className="v-admin__h2">Payments</h2>
-                  {o.betalingen.length === 0 ? <p className="v-feed__empty">No payments yet. The first payment comes in when a customer's 7-day trial ends.</p> : null}
+                  {o.betalingen.length === 0 ? <p className="v-feed__empty">No payments yet. The first payment comes in as soon as a customer completes checkout.</p> : null}
                   <div className="v-admin__tabel">
                     {o.betalingen.length ? (
                       <div className="v-admin__rij v-admin__rij--betaal v-admin__rij--kop">

@@ -56,6 +56,101 @@ function Lijst({ titel, rijen, sleutel }: { titel: string; rijen: { naam: string
   );
 }
 
+const pct = (deel: number, totaal: number) => (totaal ? `${Math.round((deel / totaal) * 100)}%` : "–");
+
+/**
+ * Ads: which campaign, ad set, ad and placement brought the visitors, and what those visitors did on the site
+ * (time, scroll, chat, lead, booking). Age, gender and interests are not known here: those live in the ad platform.
+ */
+function Advertenties({ d }: { d: Data }) {
+  const ads = [...d.advertenties].sort((a, b) => b.leads - a.leads || b.chatOpen - a.chatOpen || b.sessies - a.sessies);
+  const totaal = ads.reduce((n, a) => n + a.sessies, 0);
+  if (!ads.length)
+    return (
+      <section className="v-dash__panel v-vk__ads">
+        <h2 className="v-sub">Ads</h2>
+        <p className="v-muted v-small">
+          No visits from ads in this period yet. Visits count here when the link in the ad carries <code>utm_source</code>, <code>utm_campaign</code> / <code>campaign_name</code>, <code>adset_name</code>, <code>ad_name</code> or <code>placement</code> (Meta adds these for you when the URL parameters are switched on in the ad).
+        </p>
+      </section>
+    );
+  const campagnes = [...new Set(ads.map((a) => a.campagne || "(no campaign name)"))];
+  return (
+    <section className="v-dash__panel v-vk__ads">
+      <div className="v-dash__panel-head">
+        <h2>Ads</h2>
+        <span className="v-muted">
+          {getal(totaal)} {totaal === 1 ? "visit" : "visits"} from ads
+        </span>
+      </div>
+      <p className="v-muted v-small">Per ad: how many came, how long they stayed, how far they scrolled, how many opened the chat, became a lead or booked. Sorted by leads. Name your ads by audience and angle, then this table tells you which one lands.</p>
+      <div className="v-vk__adtabel" role="table">
+        <div className="v-vk__adrij v-vk__adrij--kop" role="row">
+          <span role="columnheader">Ad</span>
+          <span role="columnheader">Visits</span>
+          <span role="columnheader">Time</span>
+          <span role="columnheader">Scroll</span>
+          <span role="columnheader">Mobile</span>
+          <span role="columnheader">Chat</span>
+          <span role="columnheader">Leads</span>
+          <span role="columnheader">Booked</span>
+        </div>
+        {campagnes.map((c) => (
+          <div key={c}>
+            <p className="v-vk__adcampagne">{c}</p>
+            {ads
+              .filter((a) => (a.campagne || "(no campaign name)") === c)
+              .map((a) => (
+                <div className="v-vk__adrij" key={`${a.adset}|${a.advertentie}`} role="row">
+                  <span role="cell">
+                    <strong>{a.advertentie || "(no ad name)"}</strong>
+                    <small>
+                      {[a.adset, a.bron].filter(Boolean).join(" · ")}
+                    </small>
+                  </span>
+                  <span role="cell">{getal(a.sessies)}</span>
+                  <span role="cell">{tijd(a.duur || 0)}</span>
+                  <span role="cell">{a.scroll || 0}%</span>
+                  <span role="cell">{pct(a.mobiel, a.sessies)}</span>
+                  <span role="cell">
+                    {getal(a.chatOpen)} <small>({pct(a.chatOpen, a.sessies)})</small>
+                  </span>
+                  <span className={a.leads ? "is-goed" : ""} role="cell">
+                    {getal(a.leads)} <small>({pct(a.leads, a.sessies)})</small>
+                  </span>
+                  <span role="cell">{getal(a.geboekt)}</span>
+                </div>
+              ))}
+          </div>
+        ))}
+      </div>
+      <div className="v-vk__raster v-vk__raster--ads">
+        <Lijst rijen={d.adPlaatsingen.map((p) => ({ naam: p.naam.replace(/_/g, " "), n: p.n }))} titel="Placements" />
+        <Lijst rijen={d.adPubliek.map((p) => ({ naam: `${vlag(p.land)}  ${p.stad || landNaam(p.land)}`, n: p.n }))} titel="Where ad visitors are" />
+        <section className="v-dash__panel v-vk__lijst">
+          <h2 className="v-sub">What ad visitors asked AVA</h2>
+          {d.adVragen.length === 0 ? <p className="v-muted v-small">No conversations from ads yet.</p> : null}
+          <ul className="v-vk__vragen">
+            {d.adVragen.map((v, i) => (
+              <li key={i}>
+                <span className={`v-heat v-heat--mini v-heat--${v.warmte >= 75 ? "heet" : v.warmte >= 55 ? "warm" : "lauw"}`}>{v.warmte}</span>
+                <span>
+                  <strong>{v.onderwerp}</strong>
+                  <small>
+                    {v.advertentie || "ad"}
+                    {v.lead ? " · became a lead" : ""}
+                  </small>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+      <p className="v-muted v-small">Age, gender and interests of the people who saw the ad are only known to the ad platform (Meta Ads Manager → Breakdown). This page shows what they did once they arrived.</p>
+    </section>
+  );
+}
+
 /** Website traffic measured by AVA, in plain language. */
 export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
   const [dagen, setDagen] = useState(30);
@@ -196,6 +291,7 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
               </ul>
             </section>
           ) : null}
+          <Advertenties d={d} />
           <div className="v-vk__raster">
             <Lijst
               rijen={d.steden.map((s) => ({ naam: `${vlag(s.land ?? "")}  ${s.stad}${s.regio ? `, ${s.regio}` : ""}`, n: s.n }))}

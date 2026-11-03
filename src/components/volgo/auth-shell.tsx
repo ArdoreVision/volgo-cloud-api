@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { VolgoMark } from "./logo";
+import { TaalKiezer, Vertaler } from "./taal";
 import { Tracking } from "./tracking";
 
 /** Rustige, gecentreerde pagina voor betalen, aanmelden en inloggen. */
@@ -12,8 +13,10 @@ export function AuthShell({ children, wide = false }: { children: ReactNode; wid
           <VolgoMark />
           <span>Volgo</span>
         </a>
+        <TaalKiezer compact />
       </header>
       <main className={`v-auth__card${wide ? " v-auth__card--wide" : ""}`}>{children}</main>
+      <Vertaler />
       <Tracking />
       <p className="v-auth__foot">
         A service by Hanssens Cornerstone Capital · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a>

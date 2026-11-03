@@ -64,7 +64,35 @@ export function schatWarmte(tekst: string, heeftContact: boolean) {
 
 const isContact = (s: string) => /[^\s@]+@[^\s@]+\.[^\s@]{2,}/.test(s) || /(\+?\d[\d\s\-()]{7,})/.test(s);
 
-async function purgeVoorbeeld(DB: D1Database, team: number) {
+/** "John@Mail.com " and "06 12 34 56 78" / "+31612345678" compare equal: lower-cased email, or the last 9 digits of a phone number. */
+export function contactSleutel(contact: string) {
+  const c = contact.trim().toLowerCase();
+  const mail = /[^\s@]+@[^\s@]+\.[^\s@]{2,}/.exec(c)?.[0];
+  if (mail) return `m:${mail}`;
+  const cijfers = c.replace(/\D/g, "");
+  if (cijfers.length >= 9) return `t:${cijfers.slice(-9)}`;
+  return c ? `x:${c}` : "";
+}
+
+/**
+ * The same person again (same email or phone number, lead still open, last 90 days)? Then the new conversation
+ * joins that lead instead of creating a duplicate, so the business sees one customer with the full history.
+ */
+export async function bestaandeLead(DB: D1Database, team: number, contact: string) {
+  const sleutel = contactSleutel(contact);
+  if (!sleutel) return null;
+  const rows = await DB.prepare(
+    `SELECT l.id, m.contact FROM klant_leads l JOIN ava_gesprek_meta m ON m.lead_id = l.id
+     WHERE l.gebruiker_id = ? AND l.voorbeeld = 0 AND l.status NOT IN ('klant', 'verloren') AND l.created_at > datetime('now', '-90 days')
+     ORDER BY l.id DESC LIMIT 300`,
+  )
+    .bind(team)
+    .all<{ id: number; contact: string | null }>();
+  return rows.results.find((r) => r.contact && contactSleutel(r.contact) === sleutel) ?? null;
+}
+
+/** Removes every sample lead, appointment and conversation of a team. */
+export async function purgeVoorbeeld(DB: D1Database, team: number) {
   await DB.batch([
     DB.prepare("DELETE FROM lead_scores WHERE lead_id IN (SELECT id FROM klant_leads WHERE gebruiker_id = ? AND voorbeeld = 1)").bind(team),
     DB.prepare("DELETE FROM klant_leads WHERE gebruiker_id = ? AND voorbeeld = 1").bind(team),
@@ -89,15 +117,28 @@ async function mailEigenaar(DB: D1Database, team: number, warmte: number, onderw
 
 
 async function maakLead(DB: D1Database, gesprekId: number, team: number, d: { naam: string; contact: string; onderwerp: string; warmte: number; reden: string }) {
-  const r = await DB.prepare("INSERT INTO klant_leads (gebruiker_id, naam, onderwerp, kanaal, status, laatste_actie, voorbeeld) VALUES (?, ?, ?, 'Website-chat', 'nieuw', ?, 0)")
-    .bind(team, d.naam, d.onderwerp.slice(0, 120), `Contact: ${d.contact}`)
-    .run();
-  const leadId = Number(r.meta?.last_row_id);
-  await DB.batch([
-    DB.prepare("INSERT OR REPLACE INTO lead_scores (lead_id, warmte, reden) VALUES (?, ?, ?)").bind(leadId, d.warmte, d.reden.slice(0, 160)),
-    DB.prepare("UPDATE ava_gesprek_meta SET lead_id = ? WHERE gesprek_id = ?").bind(leadId, gesprekId),
-    DB.prepare("UPDATE ava_gesprekken SET bezoeker = ?, warmte = ? WHERE id = ?").bind(d.naam, d.warmte, gesprekId),
-  ]);
+  const eerder = await bestaandeLead(DB, team, d.contact);
+  let leadId: number;
+  if (eerder) {
+    // Same person as an open lead: add this conversation to it, keep the highest warmth, and bump it to "new" again.
+    leadId = eerder.id;
+    await DB.batch([
+      DB.prepare("UPDATE klant_leads SET laatste_actie = ?, status = CASE WHEN status IN ('opvolging', 'offerte') THEN status ELSE 'nieuw' END WHERE id = ?").bind(`Came back via the chat · Contact: ${d.contact}`.slice(0, 160), leadId),
+      DB.prepare("INSERT INTO lead_scores (lead_id, warmte, reden) VALUES (?, ?, ?) ON CONFLICT(lead_id) DO UPDATE SET warmte = MAX(warmte, excluded.warmte), reden = excluded.reden").bind(leadId, d.warmte, d.reden.slice(0, 160)),
+      DB.prepare("UPDATE ava_gesprek_meta SET lead_id = ? WHERE gesprek_id = ?").bind(leadId, gesprekId),
+      DB.prepare("UPDATE ava_gesprekken SET bezoeker = ?, warmte = ? WHERE id = ?").bind(d.naam, d.warmte, gesprekId),
+    ]);
+  } else {
+    const r = await DB.prepare("INSERT INTO klant_leads (gebruiker_id, naam, onderwerp, kanaal, status, laatste_actie, voorbeeld) VALUES (?, ?, ?, 'Website-chat', 'nieuw', ?, 0)")
+      .bind(team, d.naam, d.onderwerp.slice(0, 120), `Contact: ${d.contact}`)
+      .run();
+    leadId = Number(r.meta?.last_row_id);
+    await DB.batch([
+      DB.prepare("INSERT OR REPLACE INTO lead_scores (lead_id, warmte, reden) VALUES (?, ?, ?)").bind(leadId, d.warmte, d.reden.slice(0, 160)),
+      DB.prepare("UPDATE ava_gesprek_meta SET lead_id = ? WHERE gesprek_id = ?").bind(leadId, gesprekId),
+      DB.prepare("UPDATE ava_gesprekken SET bezoeker = ?, warmte = ? WHERE id = ?").bind(d.naam, d.warmte, gesprekId),
+    ]);
+  }
   const heet = d.warmte >= 75;
   await mailEigenaar(
     DB,
@@ -111,7 +152,7 @@ async function maakLead(DB: D1Database, gesprekId: number, team: number, d: { na
          <tr><td style="padding:4px 16px 4px 0;color:#64748b">Contact</td><td style="padding:4px 0"><strong>${esc(d.contact)}</strong></td></tr>
          <tr><td style="padding:4px 16px 4px 0;color:#64748b">Warmth</td><td style="padding:4px 0"><strong style="color:${heet ? "#c4211b" : "#1677d9"}">${d.warmte}/100</strong> · ${esc(d.reden)}</td></tr>
        </table>`,
-      { tekst: "Open the conversation", url: `${SITE_URL}/dashboard` },
+      { tekst: "Open the lead", url: `${SITE_URL}/dashboard?tab=aanvragen` },
     ),
   );
   return leadId;
@@ -136,7 +177,7 @@ async function mailNieuwGesprek(DB: D1Database, inst: AvaInstellingen, gesprekId
     `<p style="margin:0 0 12px">A visitor just started a conversation on your website. First message:</p>
      <p style="margin:0 0 16px;padding:12px 14px;border-radius:12px;background:#f5f7fa;font-size:15px">“${esc(eerste.slice(0, 300))}”</p>
      <p style="margin:0;color:#64748b;font-size:14px">AVA is answering. Open the chat to watch along or take over yourself.</p>`,
-    { tekst: "Open the chat", url: `${SITE_URL}/dashboard` },
+    { tekst: "Open the chat", url: `${SITE_URL}/dashboard?tab=gesprekken` },
   );
   for (const r of ontvangers.results) await verstuurMail(r.email, `New conversation on your website: “${eerste.slice(0, 60)}${eerste.length > 60 ? "…" : ""}”`, html);
   void gesprekId;
@@ -207,7 +248,7 @@ export async function boekViaChat(
   const contact = b.contact.trim().slice(0, 120);
   const soortNaam = SOORTEN[res.soort];
   const wanneer = `${leesbaar(res.start)} to ${res.eind.slice(11, 16)}`;
-  let leadId = meta.lead_id;
+  let leadId = meta.lead_id ?? (await bestaandeLead(DB, team, contact))?.id ?? null;
   if (!leadId) {
     const eerste = await DB.prepare("SELECT tekst FROM ava_berichten WHERE gesprek_id = ? AND rol = 'bezoeker' ORDER BY id LIMIT 1").bind(gid).first<{ tekst: string }>();
     const r = await DB.prepare("INSERT INTO klant_leads (gebruiker_id, naam, onderwerp, kanaal, status, laatste_actie, voorbeeld) VALUES (?, ?, ?, 'Website-chat', 'afspraak', ?, 0)")
@@ -216,12 +257,15 @@ export async function boekViaChat(
     leadId = Number(r.meta?.last_row_id);
     await DB.batch([
       DB.prepare("INSERT OR REPLACE INTO lead_scores (lead_id, warmte, reden) VALUES (?, 95, ?)").bind(leadId, `Booked a ${soortNaam.toLowerCase()} in the chat`),
-      DB.prepare("UPDATE afspraken SET lead_id = ? WHERE team_id = ? AND start = ? AND lead_id IS NULL").bind(leadId, team, res.start),
+      DB.prepare("UPDATE afspraken SET lead_id = ? WHERE id = ? AND team_id = ?").bind(leadId, res.id, team),
     ]);
   } else {
-    await DB.prepare("UPDATE klant_leads SET status = 'afspraak', laatste_actie = ? WHERE id = ?").bind(`Appointment ${wanneer}`, leadId).run();
+    await DB.batch([
+      DB.prepare("UPDATE klant_leads SET status = 'afspraak', laatste_actie = ? WHERE id = ?").bind(`Appointment ${wanneer} · Contact: ${contact}`, leadId),
+      DB.prepare("UPDATE afspraken SET lead_id = ? WHERE id = ? AND team_id = ? AND lead_id IS NULL").bind(leadId, res.id, team),
+    ]);
   }
-  const bevestiging = `You're booked: ${soortNaam.toLowerCase()} on ${wanneer}. ${inst.bedrijf} has your details${res.soort === "bellen" ? ` and will call you on ${contact}` : ""}. Need to change it? Just tell me here.`;
+  const bevestiging = `You're booked: ${soortNaam.toLowerCase()} on ${wanneer}. ${inst.bedrijf} has your details${res.soort === "bellen" ? ` and will contact you on ${contact}` : ""}. Need to change it? Just tell me here.`;
   await DB.batch([
     DB.prepare("UPDATE ava_gesprek_meta SET naam = ?, contact = ?, lead_id = ? WHERE gesprek_id = ?").bind(naam, contact, leadId, gid),
     DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'bezoeker', ?)").bind(gid, `Booked: ${soortNaam} · ${wanneer}`),
@@ -238,7 +282,7 @@ export async function boekViaChat(
       `<p style="margin:0 0 12px"><strong>${esc(soortNaam)}</strong> with <strong>${esc(naam)}</strong></p>
        <p style="margin:0 0 6px">${esc(wanneer)}</p>
        <p style="margin:0 0 6px">Contact: ${esc(contact)}${b.adres ? ` · ${esc(b.adres)}` : ""}</p>`,
-      { tekst: "Open your calendar", url: `${SITE_URL}/dashboard` },
+      { tekst: "Open your calendar", url: `${SITE_URL}/dashboard?tab=agenda` },
     ),
   );
   return { ok: true as const, token, antwoord: bevestiging, start: res.start, eind: res.eind };
@@ -286,6 +330,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
   const { ANTHROPIC_API_KEY } = bindings();
   let antwoord = "";
   let agenda = false;
+  let leadNu = false;
   let warmte = schatWarmte(alleBezoeker, Boolean(meta.contact));
 
   // Monthly plan limit reached? AVA keeps working in basic mode, so no lead is lost.
@@ -307,6 +352,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
         }
         if (u.contact) await DB.prepare("UPDATE ava_gesprek_meta SET contact = ? WHERE gesprek_id = ?").bind(String(u.contact).slice(0, 120), gid).run();
         if (u.lead_klaar && !meta.lead_id && (u.contact || meta.contact)) {
+          leadNu = true;
           await maakLead(DB, gid, team, {
             naam: String(u.naam ?? meta.naam ?? "Website visitor"),
             contact: String(u.contact ?? meta.contact),
@@ -350,6 +396,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
       if (ja && !meta.lead_id) {
         const contact = (await DB.prepare("SELECT contact, naam FROM ava_gesprek_meta WHERE gesprek_id = ?").bind(gid).first<{ contact: string; naam: string }>()) ?? { contact: "", naam: "" };
         warmte = schatWarmte(alleBezoeker, true);
+        leadNu = true;
         await maakLead(DB, gid, team, {
           naam: contact.naam || "Website visitor",
           contact: contact.contact,
@@ -383,7 +430,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
     DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), status = 'live', berichten = berichten + 2, warmte = ? WHERE id = ?").bind(warmte, gid),
   ]);
   // Polling only returns team/system messages, so "after the visitor's message" never skips one.
-  return { token, antwoord, mens: null as string | null, laatste_id: bezoekerId, agenda };
+  return { token, antwoord, mens: null as string | null, laatste_id: bezoekerId, agenda, lead: leadNu };
 }
 
 /** For the website chat: new messages from a person (or system notes) since na_id. */

@@ -10,6 +10,8 @@ const MAANDEN = ["January", "February", "March", "April", "May", "June", "July",
 const DAGEN_KORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const DAGEN_LANG = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
+type Invoer = { titel: string; start: string; eind: string; locatie?: string; notitie?: string; lead_id?: number; forceer?: boolean };
+
 const weekdag = (key: string) => {
   const [y, m, d] = key.split("-").map(Number);
   return (new Date(Date.UTC(y, m - 1, d)).getUTCDay() + 6) % 7; // 0 = maandag
@@ -17,23 +19,41 @@ const weekdag = (key: string) => {
 const dagTitel = (key: string) => `${DAGEN_LANG[weekdag(key)]}, ${MAANDEN[Number(key.slice(5, 7)) - 1]} ${Number(key.slice(8))}`;
 const kleur = (titel: string) => (/installati/i.test(titel) ? "groen" : /opname|locatie|site visit|survey/i.test(titel) ? "paars" : /onderhoud|maintenance|service/i.test(titel) ? "oranje" : "blauw");
 
-function Item({ a, onDelete }: { a: Afspraak; onDelete: (id: number) => void }) {
+function Item({ a, onDelete, bezig }: { a: Afspraak; onDelete: (id: number) => Promise<void>; bezig: boolean }) {
+  // Deleting asks once, inline, so a slip of the finger never removes an appointment.
+  const [vraag, setVraag] = useState(false);
   return (
-    <li className={`v-ev v-ev--${kleur(a.titel)}`}>
+    <li className={`v-ev v-ev--${kleur(a.titel)}${a.voorbeeld ? " v-ev--voorbeeld" : ""}`}>
       <div className="v-ev__time">
         <strong>{a.start.slice(11)}</strong>
         <span>{a.eind.slice(11)}</span>
       </div>
       <div className="v-ev__body">
-        <strong>{a.titel}</strong>
+        <strong>
+          {a.titel}
+          {a.voorbeeld ? <em className="v-voorbeeld-tag">Sample</em> : null}
+        </strong>
         {a.locatie ? <span>{a.locatie}</span> : null}
         {a.notitie ? <small>{a.notitie}</small> : null}
+        {vraag ? (
+          <span className="v-ev__bevestig" role="group" aria-label="Confirm deletion">
+            <span>Delete this appointment?</span>
+            <button className="v-btn-gevaar" disabled={bezig} onClick={() => void onDelete(a.id).finally(() => setVraag(false))} type="button">
+              {bezig ? "Deleting…" : "Delete"}
+            </button>
+            <button className="v-btn-ghost" disabled={bezig} onClick={() => setVraag(false)} type="button">
+              Keep
+            </button>
+          </span>
+        ) : null}
       </div>
-      <button aria-label={`Delete ${a.titel}`} className="v-ev__del" onClick={() => onDelete(a.id)} type="button">
-        <svg aria-hidden="true" viewBox="0 0 16 16">
-          <path d="M4 4l8 8M12 4l-8 8" />
-        </svg>
-      </button>
+      {!vraag ? (
+        <button aria-label={`Delete ${a.titel}`} className="v-ev__del" onClick={() => setVraag(true)} type="button">
+          <svg aria-hidden="true" viewBox="0 0 16 16">
+            <path d="M4 4l8 8M12 4l-8 8" />
+          </svg>
+        </button>
+      ) : null}
     </li>
   );
 }
@@ -46,6 +66,10 @@ export function Agenda({ data }: { data: DashData }) {
   const [gekozen, setGekozen] = useState(vandaag);
   const [nieuw, setNieuw] = useState(false);
   const [fout, setFout] = useState("");
+  const [bezig, setBezig] = useState(false);
+  const [conflict, setConflict] = useState<{ titel: string; start: string; eind: string } | null>(null);
+  const [laatste, setLaatste] = useState<Invoer | null>(null);
+  const [opgeslagen, setOpgeslagen] = useState("");
 
   const perDag = useMemo(() => {
     const m = new Map<string, Afspraak[]>();
@@ -71,8 +95,49 @@ export function Agenda({ data }: { data: DashData }) {
   const cellen = Array.from({ length: Math.ceil((startCel + dagenInMaand) / 7) * 7 }, (_, i) => plusDag(eerste, i - startCel));
 
   async function verwijder(id: number) {
-    await verwijderAfspraak({ data: { id } });
-    await router.invalidate();
+    if (bezig) return;
+    setBezig(true);
+    try {
+      await verwijderAfspraak({ data: { id } });
+      await router.invalidate();
+      toon("Appointment deleted.");
+    } catch {
+      setFout("Could not delete. Please try again.");
+    } finally {
+      setBezig(false);
+    }
+  }
+  function toon(tekst: string) {
+    setOpgeslagen(tekst);
+    window.setTimeout(() => setOpgeslagen(""), 3000);
+  }
+
+  async function verstuur(payload: Invoer) {
+    if (bezig) return;
+    setBezig(true);
+    setFout("");
+    try {
+      const res = await maakAfspraak({ data: payload });
+      if (!res.ok) {
+        if ("conflict" in res && res.conflict) {
+          setConflict(res.conflict);
+          setLaatste(payload);
+        } else setFout(res.message || "Could not save. Please try again.");
+        return;
+      }
+      setNieuw(false);
+      setConflict(null);
+      setLaatste(null);
+      const datum = payload.start.slice(0, 10);
+      setGekozen(datum);
+      setMaand(datum.slice(0, 7));
+      await router.invalidate();
+      toon("Appointment saved.");
+    } catch {
+      setFout("No connection. Your appointment was not saved; please try again.");
+    } finally {
+      setBezig(false);
+    }
   }
 
   async function opslaan(e: FormEvent<HTMLFormElement>) {
@@ -85,15 +150,8 @@ export function Agenda({ data }: { data: DashData }) {
     const titel = v("titel") || (lead ? `Consultation · ${lead.naam}` : "");
     if (titel.length < 2 || !datum || !v("start") || !v("eind")) return setFout("Enter a title, date and times.");
     if (v("eind") <= v("start")) return setFout("The end time must be after the start time.");
-    setFout("");
-    const res = await maakAfspraak({
-      data: { titel, start: `${datum}T${v("start")}`, eind: `${datum}T${v("eind")}`, locatie: v("locatie") || undefined, notitie: v("notitie") || undefined, lead_id: leadId },
-    });
-    if (!res.ok) return setFout("Could not save. Please try again.");
-    setNieuw(false);
-    setGekozen(datum);
-    setMaand(datum.slice(0, 7));
-    await router.invalidate();
+    setConflict(null);
+    await verstuur({ titel, start: `${datum}T${v("start")}`, eind: `${datum}T${v("eind")}`, locatie: v("locatie") || undefined, notitie: v("notitie") || undefined, lead_id: leadId });
   }
 
   const openLeads = data.leads.filter((l) => l.status !== "klant" && l.status !== "verloren").sort((a, b) => b.warmte - a.warmte).slice(0, 30);
@@ -138,6 +196,17 @@ export function Agenda({ data }: { data: DashData }) {
         </div>
       </header>
 
+      {opgeslagen ? (
+        <p className="v-ok-balk" role="status">
+          {opgeslagen}
+        </p>
+      ) : null}
+      {fout && !nieuw ? (
+        <p className="v-err" role="alert">
+          {fout}
+        </p>
+      ) : null}
+      {data.afspraken.some((a) => a.voorbeeld) ? <p className="v-dash__note">Appointments marked “Sample” are examples. They disappear as soon as the first real conversation comes in, or when you remove the sample data under Settings.</p> : null}
       {weergave === "lijst" ? (
         <section className="v-cal-list">
           {lijstDagen.map((k) => (
@@ -149,7 +218,7 @@ export function Agenda({ data }: { data: DashData }) {
               {perDag.get(k)?.length ? (
                 <ul className="v-evs">
                   {perDag.get(k)!.map((a) => (
-                    <Item a={a} key={a.id} onDelete={(id) => void verwijder(id)} />
+                    <Item a={a} bezig={bezig} key={a.id} onDelete={verwijder} />
                   ))}
                 </ul>
               ) : (
@@ -199,7 +268,7 @@ export function Agenda({ data }: { data: DashData }) {
             {perDag.get(gekozen)?.length ? (
               <ul className="v-evs">
                 {perDag.get(gekozen)!.map((a) => (
-                  <Item a={a} key={a.id} onDelete={(id) => void verwijder(id)} />
+                  <Item a={a} bezig={bezig} key={a.id} onDelete={verwijder} />
                 ))}
               </ul>
             ) : (
@@ -250,15 +319,33 @@ export function Agenda({ data }: { data: DashData }) {
               <label htmlFor="a-not">Note</label>
               <textarea id="a-not" maxLength={1000} name="notitie" rows={2} />
             </div>
-            {fout ? <p className="v-err">{fout}</p> : null}
-            <div className="v-modal__actions">
-              <button className="v-btn-ghost" onClick={() => setNieuw(false)} type="button">
-                Cancel
-              </button>
-              <button className="v-btn-dark" type="submit">
-                Save
-              </button>
-            </div>
+            {fout ? (
+              <p className="v-err" role="alert">
+                {fout}
+              </p>
+            ) : null}
+            {conflict ? (
+              <div className="v-waarschuw" role="alert">
+                <strong>Overlaps with another appointment:</strong> {conflict.titel}, {conflict.start.slice(11)}–{conflict.eind.slice(11)}. Save it anyway?
+                <div className="v-modal__actions">
+                  <button className="v-btn-ghost" disabled={bezig} onClick={() => setConflict(null)} type="button">
+                    Change the time
+                  </button>
+                  <button className="v-btn-dark" disabled={bezig || !laatste} onClick={() => laatste && void verstuur({ ...laatste, forceer: true })} type="button">
+                    {bezig ? "Saving…" : "Save anyway"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="v-modal__actions">
+                <button className="v-btn-ghost" disabled={bezig} onClick={() => setNieuw(false)} type="button">
+                  Cancel
+                </button>
+                <button className="v-btn-dark" disabled={bezig} type="submit">
+                  {bezig ? "Saving…" : "Save"}
+                </button>
+              </div>
+            )}
           </form>
         </div>
       ) : null}

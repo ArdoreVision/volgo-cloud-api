@@ -3,6 +3,7 @@ import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from "@tanst
 import { useEffect, type ReactNode } from "react";
 
 import { VolgoNotFound } from "../components/volgo/not-found";
+import { haalTaalCookie } from "../lib/api/vertaal.functions";
 import appCss from "../styles.css?url";
 import appMetaJson from "../app-meta.json";
 
@@ -56,7 +57,15 @@ const LD_ORGANISATIE = {
   ],
 };
 
+/**
+ * Runs before anything is painted: when the visitor chose another language, hide the public page until the
+ * translation is applied (the Vertaler removes the class; after 2.5 s it is removed no matter what).
+ * The dashboard is never translated, so it is never hidden.
+ */
+const TAAL_SCRIPT = `(function(){try{var m=/(?:^|; )volgo_taal=([a-z]{2})/.exec(document.cookie);var t=m?m[1]:"";if(!t){try{t=localStorage.getItem("volgo-taal")||""}catch(e){}}if(t&&t!=="en"&&location.pathname.indexOf("/dashboard")!==0&&location.pathname.indexOf("/admin")!==0){document.documentElement.lang=t;document.documentElement.classList.add("v-vertalen");setTimeout(function(){document.documentElement.classList.remove("v-vertalen")},2500)}}catch(e){}})();`;
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  loader: async () => ({ taal: await haalTaalCookie().catch(() => "") }),
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -96,7 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "icon", href: "/favicon.png" },
     ],
-    scripts: [{ type: "application/ld+json", children: JSON.stringify(LD_ORGANISATIE) }],
+    scripts: [{ children: TAAL_SCRIPT }, { type: "application/ld+json", children: JSON.stringify(LD_ORGANISATIE) }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -108,8 +117,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  // The chosen language (cookie) goes straight into <html lang>, so screen readers and search engines get it right away.
+  const taal = Route.useLoaderData()?.taal || "en";
   return (
-    <html lang="en" style={{ colorScheme: "light" }}>
+    <html lang={taal} style={{ colorScheme: "light" }}>
       <head>
         <HeadContent />
       </head>
