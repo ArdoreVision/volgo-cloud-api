@@ -150,6 +150,7 @@ export function Leads({
                 </strong>
                 <small>{l.reden || l.onderwerp}</small>
                 {l.herkomst ? <small className="v-herkomst">📍 {l.herkomst}</small> : null}
+                {l.advertentie ? <small className="v-herkomst">📣 {l.advertentie}</small> : null}
               </span>
               <span role="cell">{l.kanaal}</span>
               <span role="cell">{datumAms(sqlDate(l.created_at))}</span>

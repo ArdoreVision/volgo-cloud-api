@@ -324,7 +324,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
         if (!r || !r.ok) { k.fout = (r && (r.reden || r.antwoord)) || T.fout; k.stap = 2; k.tijd = null; k.dag = null; laad(); return; }
         var l = dagLabel(dg.datum), sam = K[k.soort][0] + " · " + l.wd + " " + l.dt + " · " + k.tijd + "–" + eindTijd(k.tijd, k.data.duur);
         kaart.className = "kal ok";
-        gebeurtenis("geboekt");
+        gebeurtenis("geboekt"); pixel("Schedule");
         kaart.innerHTML = '<div class="sam">' + ICOON.kal + "<span><b>✓ " + K.klaar + "</b><br>" + esc(sam) + "</span></div>";
         state.msgs.push({ r: "s", t: "✓ " + K.klaar + ": " + sam });
         if (r.antwoord) { state.msgs.push({ r: "a", t: r.antwoord }); bubble("a", r.antwoord); }
@@ -449,6 +449,26 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   }
   function actief() { return view.zicht + (view.sinds ? (Date.now() - view.sinds) / 1000 : 0); }
   function ping() { if (!NIET && view.id) beacon({ actie: "ping", sleutel: KEY, sessie: SESSIE, id: view.id, duur: Math.round(actief()), scroll: view.scroll }); }
+  // The ad that brought this visitor: read once from the landing URL (utm_* plus Meta's campaign/adset/ad/placement
+  // names and the click id), kept for the whole session so later pages still count for that ad.
+  function advertentie() {
+    var AD_KEY = "volgo-ad";
+    try { var oud = sessionStorage.getItem(AD_KEY); if (oud) return JSON.parse(oud); } catch (e) {}
+    var q; try { q = new URLSearchParams(location.search); } catch (e) { return {}; }
+    var g = function (k) { return (q.get(k) || "").slice(0, 120); };
+    var ad = {
+      bron: g("utm_source"), medium: g("utm_medium"),
+      campagne: g("campaign_name") || g("utm_campaign"), adset: g("adset_name") || g("utm_term"), advertentie: g("ad_name") || g("utm_content"), plaatsing: g("placement"),
+      klik: TOESTEMMING ? (g("fbclid") || g("gclid") || g("ttclid") || g("msclkid")).slice(0, 200) : ""
+    };
+    if (!ad.bron && (g("fbclid") || g("campaign_name"))) ad.bron = "facebook";
+    if (!ad.bron && g("gclid")) ad.bron = "google";
+    var iets = false; for (var k in ad) if (ad[k]) iets = true;
+    if (iets) { try { sessionStorage.setItem(AD_KEY, JSON.stringify(ad)); } catch (e) {} }
+    return iets ? ad : {};
+  }
+  // Conversions for the ad platforms: only when the website itself loaded a pixel (on thevolgo.app that happens with consent).
+  function pixel(naam) { try { if (window.fbq) window.fbq("track", naam); if (window.gtag) window.gtag("event", naam.toLowerCase()); } catch (e) {} }
   function gebeurtenis(soort) { if (!NIET) beacon({ actie: "event", sleutel: KEY, sessie: SESSIE, soort: soort }); }
   function nieuweView() {
     if (NIET) return;
@@ -458,9 +478,9 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     view = { id: 0, pad: pad, zicht: 0, sinds: document.visibilityState === "visible" ? Date.now() : 0, scroll: 0 };
     var eerste = false;
     try { eerste = !sessionStorage.getItem("volgo-r"); sessionStorage.setItem("volgo-r", "1"); } catch (e) {}
-    var utm = ""; try { utm = new URLSearchParams(location.search).get("utm_source") || ""; } catch (e) {}
+    var ad = advertentie();
     var huidig = view;
-    post({ actie: "view", sleutel: KEY, sessie: SESSIE, pad: pad.slice(0, 480), titel: (document.title || "").slice(0, 280), ref: eerste ? (document.referrer || "").slice(0, 480) : "", utm: utm.slice(0, 70), host: location.hostname, breedte: window.innerWidth || 0, toestemming: TOESTEMMING, vast: TOESTEMMING ? VAST : undefined, taal: TOESTEMMING ? (navigator.language || "").slice(0, 12) : undefined })
+    post({ actie: "view", sleutel: KEY, sessie: SESSIE, pad: pad.slice(0, 480), titel: (document.title || "").slice(0, 280), ref: eerste ? (document.referrer || "").slice(0, 480) : "", utm: (ad.bron || "").slice(0, 70), ad: ad, host: location.hostname, breedte: window.innerWidth || 0, toestemming: TOESTEMMING, vast: TOESTEMMING ? VAST : undefined, taal: TOESTEMMING ? (navigator.language || "").slice(0, 12) : undefined })
       .then(function (r) { if (r && r.id) huidig.id = r.id; }).catch(function () {});
   }
   function meten() {
@@ -549,6 +569,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
       if (r.mens) { mens = r.mens; zetKop(); save(state); poll(); return; }
       var a = r.antwoord || T.fout;
       state.msgs.push({ r: "a", t: a }); save(state); bubble("a", a);
+      if (r.lead) { gebeurtenis("lead"); pixel("Lead"); }
       if (r.agenda) kalender();
     }).catch(function () {
       typ.remove(); bubble("a", T.net);

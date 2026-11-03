@@ -134,6 +134,12 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
                   <dd>{l.contact}</dd>
                 </div>
               ) : null}
+              {l.advertentie ? (
+                <div>
+                  <dt>Came via ad</dt>
+                  <dd>📣 {l.advertentie}</dd>
+                </div>
+              ) : null}
               {l.herkomst ? (
                 <div>
                   <dt>Location</dt>

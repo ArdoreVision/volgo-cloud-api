@@ -2056,3 +2056,23 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 html.v-vertalen .volgo:not(.v-dash):not(.v-admin) { visibility: hidden; }
 html.v-vertalen body::before { content: ""; position: fixed; inset: 0; z-index: 9999; background: #fff; }
 html.v-vertalen body::after { content: ""; position: fixed; top: 50%; left: 50%; z-index: 10000; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50%; border: 3px solid #e7eaf0; border-top-color: #0f66c2; animation: v-draai 0.8s linear infinite; }
+
+/* ---------- Traffic: ads ---------- */
+.v-vk__ads code { background: var(--surface); padding: 1px 5px; border-radius: 5px; font-size: 12.5px; }
+.v-vk__adtabel { margin-top: 12px; overflow-x: auto; }
+.v-vk__adrij { display: grid; grid-template-columns: minmax(180px, 2.2fr) repeat(7, minmax(64px, 1fr)); gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; min-width: 720px; }
+.v-vk__adrij--kop { border-top: 0; font-size: 12.5px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--muted); }
+.v-vk__adrij span[role="cell"] { font-variant-numeric: tabular-nums; }
+.v-vk__adrij span[role="cell"] small { color: var(--muted); font-size: 12px; }
+.v-vk__adrij span[role="cell"]:first-child { display: grid; gap: 1px; min-width: 0; }
+.v-vk__adrij span[role="cell"]:first-child strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-vk__adrij span[role="cell"]:first-child small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-vk__adrij .is-goed { color: #166534; font-weight: 600; }
+.v-vk__adcampagne { margin: 14px 0 2px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.v-vk__raster--ads { margin-top: 14px; }
+.v-vk__vragen { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.v-vk__vragen li { display: flex; gap: 10px; align-items: flex-start; }
+.v-vk__vragen li > .v-heat { flex: none; margin-top: 2px; }
+.v-vk__vragen li > span:last-child { display: grid; gap: 1px; min-width: 0; }
+.v-vk__vragen strong { font-weight: 500; font-size: 14px; overflow-wrap: anywhere; }
+.v-vk__vragen small { color: var(--muted); font-size: 12.5px; }

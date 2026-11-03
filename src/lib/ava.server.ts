@@ -330,6 +330,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
   const { ANTHROPIC_API_KEY } = bindings();
   let antwoord = "";
   let agenda = false;
+  let leadNu = false;
   let warmte = schatWarmte(alleBezoeker, Boolean(meta.contact));
 
   // Monthly plan limit reached? AVA keeps working in basic mode, so no lead is lost.
@@ -351,6 +352,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
         }
         if (u.contact) await DB.prepare("UPDATE ava_gesprek_meta SET contact = ? WHERE gesprek_id = ?").bind(String(u.contact).slice(0, 120), gid).run();
         if (u.lead_klaar && !meta.lead_id && (u.contact || meta.contact)) {
+          leadNu = true;
           await maakLead(DB, gid, team, {
             naam: String(u.naam ?? meta.naam ?? "Website visitor"),
             contact: String(u.contact ?? meta.contact),
@@ -394,6 +396,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
       if (ja && !meta.lead_id) {
         const contact = (await DB.prepare("SELECT contact, naam FROM ava_gesprek_meta WHERE gesprek_id = ?").bind(gid).first<{ contact: string; naam: string }>()) ?? { contact: "", naam: "" };
         warmte = schatWarmte(alleBezoeker, true);
+        leadNu = true;
         await maakLead(DB, gid, team, {
           naam: contact.naam || "Website visitor",
           contact: contact.contact,
@@ -427,7 +430,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
     DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), status = 'live', berichten = berichten + 2, warmte = ? WHERE id = ?").bind(warmte, gid),
   ]);
   // Polling only returns team/system messages, so "after the visitor's message" never skips one.
-  return { token, antwoord, mens: null as string | null, laatste_id: bezoekerId, agenda };
+  return { token, antwoord, mens: null as string | null, laatste_id: bezoekerId, agenda, lead: leadNu };
 }
 
 /** For the website chat: new messages from a person (or system notes) since na_id. */

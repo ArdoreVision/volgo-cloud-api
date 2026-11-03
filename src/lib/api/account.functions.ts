@@ -352,13 +352,14 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
     DB.prepare(
       `SELECT l.id, l.created_at, l.naam, l.onderwerp, l.kanaal, l.status, l.laatste_actie, l.voorbeeld,
               COALESCE(s.warmte, 50) AS warmte, s.reden,
-              (SELECT m.herkomst FROM ava_gesprek_meta m WHERE m.lead_id = l.id LIMIT 1) AS herkomst
+              (SELECT m.herkomst FROM ava_gesprek_meta m WHERE m.lead_id = l.id LIMIT 1) AS herkomst,
+              (SELECT m.advertentie FROM ava_gesprek_meta m WHERE m.lead_id = l.id AND m.advertentie IS NOT NULL LIMIT 1) AS advertentie
        FROM klant_leads l LEFT JOIN lead_scores s ON s.lead_id = l.id
        WHERE l.gebruiker_id = ? AND l.created_at > datetime('now', ?)
        ORDER BY l.created_at DESC LIMIT 1000`,
     )
       .bind(team, `-${analyticsDagen * 2 + 1} days`)
-      .all<{ id: number; created_at: string; naam: string; onderwerp: string; kanaal: string; status: string; laatste_actie: string | null; voorbeeld: number; warmte: number; reden: string | null; herkomst: string | null }>(),
+      .all<{ id: number; created_at: string; naam: string; onderwerp: string; kanaal: string; status: string; laatste_actie: string | null; voorbeeld: number; warmte: number; reden: string | null; herkomst: string | null; advertentie: string | null }>(),
     DB.prepare("SELECT id, lead_id, titel, start, eind, locatie, notitie, voorbeeld FROM afspraken WHERE team_id = ? ORDER BY start")
       .bind(team)
       .all<{ id: number; lead_id: number | null; titel: string; start: string; eind: string; locatie: string | null; notitie: string | null; voorbeeld: number }>(),
@@ -416,13 +417,13 @@ export const haalLead = createServerFn({ method: "GET" })
     const lead = await DB.prepare(
       `SELECT l.id, l.created_at, l.naam, l.onderwerp, l.kanaal, l.status, l.laatste_actie, l.voorbeeld, l.notitie,
               COALESCE(s.warmte, 50) AS warmte, s.reden,
-              m.gesprek_id, m.contact, m.herkomst
+              m.gesprek_id, m.contact, m.herkomst, m.advertentie
        FROM klant_leads l LEFT JOIN lead_scores s ON s.lead_id = l.id
        LEFT JOIN ava_gesprek_meta m ON m.lead_id = l.id
        WHERE l.id = ? AND l.gebruiker_id = ? LIMIT 1`,
     )
       .bind(data.id, g.team_id)
-      .first<{ id: number; created_at: string; naam: string; onderwerp: string; kanaal: string; status: string; laatste_actie: string | null; voorbeeld: number; notitie: string; warmte: number; reden: string | null; gesprek_id: number | null; contact: string | null; herkomst: string | null }>();
+      .first<{ id: number; created_at: string; naam: string; onderwerp: string; kanaal: string; status: string; laatste_actie: string | null; voorbeeld: number; notitie: string; warmte: number; reden: string | null; gesprek_id: number | null; contact: string | null; herkomst: string | null; advertentie: string | null }>();
     if (!lead) return null;
     const berichten = lead.gesprek_id
       ? (await DB.prepare("SELECT id, rol, tekst, created_at FROM ava_berichten WHERE gesprek_id = ? ORDER BY id LIMIT 200").bind(lead.gesprek_id).all<{ id: number; rol: string; tekst: string; created_at: string }>()).results

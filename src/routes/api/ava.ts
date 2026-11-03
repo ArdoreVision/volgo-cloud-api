@@ -36,6 +36,17 @@ const schema = z.discriminatedUnion("actie", [
     titel: z.string().max(300).optional(),
     ref: z.string().max(500).optional(),
     utm: z.string().max(80).optional(),
+    ad: z
+      .object({
+        bron: z.string().max(120).optional(),
+        medium: z.string().max(120).optional(),
+        campagne: z.string().max(120).optional(),
+        adset: z.string().max(120).optional(),
+        advertentie: z.string().max(120).optional(),
+        plaatsing: z.string().max(120).optional(),
+        klik: z.string().max(200).optional(),
+      })
+      .optional(),
     host: z.string().max(200).optional(),
     breedte: z.number().int().min(0).max(10000).optional(),
     toestemming: z.boolean().optional(),
@@ -43,7 +54,7 @@ const schema = z.discriminatedUnion("actie", [
     taal: z.string().max(20).optional(),
   }),
   z.object({ actie: z.literal("ping"), sleutel: z.string().max(64), sessie: z.string().min(6).max(40), id: z.number().int().min(1), duur: z.number().min(0).max(100000), scroll: z.number().min(0).max(100) }),
-  z.object({ actie: z.literal("event"), sleutel: z.string().max(64), sessie: z.string().min(6).max(40), soort: z.enum(["chat_open", "chat_bericht", "agenda_open", "geboekt"]) }),
+  z.object({ actie: z.literal("event"), sleutel: z.string().max(64), sessie: z.string().min(6).max(40), soort: z.enum(["chat_open", "chat_bericht", "agenda_open", "geboekt", "lead"]) }),
   z.object({
     actie: z.literal("boek"),
     sleutel: z.string().max(64),
@@ -61,8 +72,10 @@ const schema = z.discriminatedUnion("actie", [
 /** Links a chat to the visit it came from (pages viewed), and with permission: where the visitor is and on what device. */
 async function koppel(DB: NonNullable<ReturnType<typeof bindings>["DB"]>, request: Request, token: string | undefined, sessie?: string, toestemming?: boolean) {
   if (!token || !sessie) return;
-  const herkomst = toestemming ? (await import("@/lib/verkeer.server")).herkomstTekst(request.headers, request.headers.get("user-agent") ?? "") : null;
-  await DB.prepare("UPDATE ava_gesprek_meta SET sessie = COALESCE(sessie, ?), herkomst = COALESCE(herkomst, ?) WHERE token = ?").bind(sessie, herkomst, token).run();
+  const v = await import("@/lib/verkeer.server");
+  const herkomst = toestemming ? v.herkomstTekst(request.headers, request.headers.get("user-agent") ?? "") : null;
+  const ad = await v.advertentieVanSessie(DB, sessie);
+  await DB.prepare("UPDATE ava_gesprek_meta SET sessie = COALESCE(sessie, ?), herkomst = COALESCE(herkomst, ?), advertentie = COALESCE(advertentie, ?) WHERE token = ?").bind(sessie, herkomst, ad, token).run();
 }
 
 export const Route = createFileRoute("/api/ava")({
@@ -131,6 +144,7 @@ export const Route = createFileRoute("/api/ava")({
             bron: v.bronVan(body.ref, body.utm, body.host ?? ""),
             apparaat: v.apparaatVan(ua, body.breedte),
             land: request.headers.get("cf-ipcountry") ?? "",
+            ad: body.ad ? { ...body.ad, klik: body.toestemming ? body.ad.klik : undefined } : undefined,
           });
           return json({ ok: true, id });
         }
