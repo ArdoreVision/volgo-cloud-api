@@ -1954,9 +1954,10 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 
 .v-nav--simpel .v-nav__inner { gap: 12px; }
 .v-nav--simpel .v-nav__rechts { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; }
-.v-nav--simpel .v-nav__login { display: inline-block; margin: 0; padding: 8px 12px; color: var(--ink-2); font-weight: 500; }
+.v-nav--simpel .v-nav__login { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; margin: 0; padding: 10px 18px; border-radius: 999px; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); font-size: 15px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; text-decoration: none; transition: background 0.2s var(--ease), color 0.2s var(--ease), transform 0.2s var(--ease); }
+.v-nav--simpel .v-nav__login:hover { background: var(--ink); color: #fff; transform: translateY(-1px); }
 .v-nav--simpel .v-nav__inner .v-taal { margin-left: 0; }
-@media (max-width: 480px) { .v-nav--simpel .v-nav__login { display: none; } }
+@media (max-width: 480px) { .v-nav--simpel .v-nav__login, .v-nav--simpel .vs-start { padding: 9px 14px; font-size: 14px; } }
 
 .vs-hero { max-width: 1120px; margin: 0 auto; padding: clamp(40px, 7vw, 96px) 20px 0; text-align: center; }
 .vs-hero__copy { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
