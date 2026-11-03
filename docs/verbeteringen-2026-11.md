@@ -62,3 +62,11 @@ Vier commits bovenop de landingspagina-commit van 2 november. Geen herschrijving
 - **Kleurwijziging**: accent `#1677d9` → `#0f66c2` (AA-contrast); de standaardkleur van de AVA-widget van klanten (`ava_instellingen.kleur`) is bewust niet veranderd.
 - **Terugrollen**: `main` is onaangeroerd; niet mergen = niets veranderd. Na een merge: `git revert` van de vier commits (of `git revert 1c8060a 8f30d69 c36b4bb 7c49777`) en opnieuw pushen; de migratie kan blijven staan (additief), of handmatig `DROP TABLE stripe_events` — de kolom laten staan.
 - **Lokaal draaien**: `npx wrangler d1 migrations apply volgo-db --local`, dan `npx wrangler dev --port 8787 --local --host localhost` (zonder `--host` stuurt de http→https-regel alles door). Tests: `npm test` (unit) en `npm run test:e2e` (Playwright, zie `test/e2e/README.md`).
+
+## 5. Aanvulling 3 november: advertentiemeting
+
+- Widget leest bij de eerste pagina `utm_source/medium/campaign/term/content` én Meta's `campaign_name`, `adset_name`, `ad_name`, `placement` (plus `fbclid`/`gclid`, alleen met toestemming) en houdt ze de hele sessie vast.
+- Opgeslagen in `site_views` (migratie `0029_advertenties.sql`); elk gesprek/lead krijgt een notitie "Facebook · campagne · adset · ad · plaatsing" (zichtbaar in Leads en leaddetail).
+- Website traffic → **Ads**: per advertentie bezoeken, tijd, scroll, aandeel mobiel, chat geopend, leads, boekingen; plaatsingen; waar ad-bezoekers zitten (stad met toestemming, anders land); wat ze AVA vroegen.
+- Pixel-events `Lead` en `Schedule` worden afgevuurd als de site een pixel heeft geladen (op thevolgo.app alleen na akkoord).
+- Getest: `test/e2e/advertenties.cjs` (twee gesimuleerde ad-bezoekers, één met chat en lead) — geslaagd. Leeftijd/geslacht/interesses zijn alleen in Meta Ads Manager te zien.
