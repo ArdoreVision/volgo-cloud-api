@@ -1989,3 +1989,25 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
   .vs-hero__art .vx-zweef--2 { right: 0; }
   .vs-start--groot { width: 100%; max-width: 360px; }
 }
+
+/* ── Volgo vs … (comparison pages) ───────────────────────── */
+.vs-hero--vs .vs-hero__copy { max-width: 820px; }
+.vs-hero--vs .vs-hero__title { max-width: 18ch; }
+.v-vs__tabel { margin: 0 auto; max-width: 980px; border: 1px solid var(--line); border-radius: 22px; background: #fff; overflow: hidden; box-shadow: 0 18px 50px rgba(17, 19, 24, 0.06); }
+.v-vs__rij { display: grid; grid-template-columns: 1.1fr 1.5fr 1.5fr; gap: 16px; padding: 16px 22px; border-top: 1px solid var(--line); font-size: 15px; line-height: 1.5; color: var(--ink-2); align-items: start; }
+.v-vs__rij--kop { border-top: 0; background: var(--sky-2); color: var(--muted); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; }
+.v-vs__rij--kop .v-vs__volgo { color: var(--accent); }
+.v-vs__wat { font-weight: 600; color: var(--ink); }
+.v-vs__volgo { color: var(--ink); }
+.v-vs__rij--win .v-vs__volgo { font-weight: 600; }
+.v-vs__rij--win .v-vs__volgo b { color: var(--accent); font-weight: 700; }
+.v-vs__noot { max-width: 980px; margin: 14px auto 0; color: var(--muted); font-size: 12.5px; line-height: 1.5; }
+.v-vs__wie .v-na__regels { max-width: 980px; margin: 0 auto; }
+@media (max-width: 720px) {
+  .v-vs__rij { grid-template-columns: 1fr; gap: 6px; padding: 16px 18px; }
+  .v-vs__rij--kop { display: none; }
+  .v-vs__wat { font-size: 13px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); }
+  .v-vs__volgo::before { content: "Volgo · "; color: var(--accent); font-weight: 700; }
+  .v-vs__rij > span[role="cell"]:last-child::before { content: "Podium · "; color: var(--muted); font-weight: 600; }
+  .v-vs__wie .v-na__regels { grid-template-columns: 1fr; }
+}

@@ -12,6 +12,8 @@ export function Footer() {
       <p>A service by Hanssens Cornerstone Capital · Vlissingen, the Netherlands · KvK 98133438</p>
       <div className="v-footer__rechts">
       <nav aria-label="Footer" className="v-footer__links">
+        <a href="/pricing">Pricing</a>
+        <a href="/vs/podium">Volgo vs Podium</a>
         <a href="/terms">Terms</a>
         <a href="/privacy">Privacy</a>
         <a href="/dpa">Data Processing Agreement</a>
