@@ -96,7 +96,12 @@ export const startBetaling = createServerFn({ method: "POST" })
       b.set("line_items[0][price_data][unit_amount]", String(plan.prijs));
       b.set("line_items[0][price_data][recurring][interval]", "month");
       b.set("line_items[0][price_data][product_data][name]", `Volgo ${plan.naam}`);
-      if (plan.proefDagen && !ik) b.set("subscription_data[trial_period_days]", String(plan.proefDagen));
+      if (plan.proefDagen && !ik) {
+        b.set("subscription_data[trial_period_days]", String(plan.proefDagen));
+        // Card is always taken up front; without a payment method at the end of the trial the subscription is cancelled.
+        b.set("subscription_data[trial_settings][end_behavior][missing_payment_method]", "cancel");
+      }
+      b.set("payment_method_collection", "always");
       b.set("metadata[plan]", plan.id);
       // HCC is zelf de verkoper; Stripe "Managed Payments" (Stripe als verkoper) staat uit.
       b.set("managed_payments[enabled]", "false");
@@ -145,6 +150,32 @@ export const rondTestBetalingAf = createServerFn({ method: "POST" })
     return { ok: (r.meta?.changes ?? 0) > 0 };
   });
 
+/**
+ * One free trial per card (or bank account). A card that already had a trial gets its new trial ended right away,
+ * so Stripe charges the first month immediately. Never blocks the signup: on any error the trial simply stays.
+ */
+async function eenProefPerKaart(DB: NonNullable<ReturnType<typeof bindings>["DB"]>, abonnement: string) {
+  try {
+    const sub = (await stripe(`subscriptions/${encodeURIComponent(abonnement)}?expand[]=default_payment_method`)) as {
+      status?: string;
+      default_payment_method?: { card?: { fingerprint?: string }; sepa_debit?: { fingerprint?: string } } | null;
+    };
+    if (sub.status !== "trialing") return;
+    const pm = sub.default_payment_method;
+    const fp = pm?.card?.fingerprint ?? pm?.sepa_debit?.fingerprint;
+    if (!fp) return;
+    const nieuw = await DB.prepare("INSERT OR IGNORE INTO proef_kaarten (fingerprint, stripe_abonnement) VALUES (?, ?)").bind(fp, abonnement).run();
+    if ((nieuw.meta?.changes ?? 0) === 1) return;
+    const vorige = await DB.prepare("SELECT stripe_abonnement FROM proef_kaarten WHERE fingerprint = ?").bind(fp).first<{ stripe_abonnement: string | null }>();
+    if (vorige?.stripe_abonnement === abonnement) return;
+    const u = new URLSearchParams();
+    u.set("trial_end", "now");
+    await stripe(`subscriptions/${encodeURIComponent(abonnement)}`, { method: "POST", body: u });
+  } catch (err) {
+    console.error("[proef per kaart]", err);
+  }
+}
+
 // 2. Na betalen: controleren voordat iemand een account mag maken.
 export const controleerBetaling = createServerFn({ method: "GET" })
   .validator((v: unknown) => z.object({ token: z.string().max(64).optional(), session_id: z.string().max(200).optional() }).parse(v))
@@ -159,6 +190,7 @@ export const controleerBetaling = createServerFn({ method: "GET" })
         const meta = (s.metadata ?? {}) as Record<string, string>;
         const details = (s.customer_details ?? {}) as Record<string, string>;
         if (s.status !== "complete" || !isPlan(meta.plan)) return null;
+        if (s.subscription) await eenProefPerKaart(DB, String(s.subscription));
         // testmodus = 1 for payments made with a Stripe test key, so they never count as real revenue.
         await DB.prepare("INSERT INTO betalingen (token, plan, status, email, stripe_klant, stripe_abonnement, testmodus) VALUES (?, ?, 'betaald', ?, ?, ?, ?)")
           .bind(data.session_id, meta.plan, details.email ?? "", String(s.customer ?? ""), String(s.subscription ?? ""), s.livemode ? 0 : 1)

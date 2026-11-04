@@ -547,7 +547,7 @@ export function Rekenhulp() {
 /* ------------------------------------------------------------------ */
 
 const TIJDLIJN = [
-  { wanneer: "Today", titel: "Choose your plan", tekst: "Pick a plan and pay for the first month. You land in your own dashboard right away." },
+  { wanneer: "Today", titel: "Choose your plan", tekst: "Pick a plan and start your 3 free days. You land in your own dashboard right away; billing starts automatically after the trial." },
   { wanneer: "Within 5 minutes", titel: "AVA is live on your website", tekst: "Paste one line of code (there's a guide for WordPress, Wix, Shopify, Squarespace and Webflow), or we add it for you. Tell AVA about your services and prices in about two minutes." },
   { wanneer: "From the first visitor", titel: "Leads come in, sorted for you", tekst: "AVA answers every visitor, collects name and phone or email with permission, and scores each lead. Hot leads reach your inbox right away, plus a summary in your inbox every morning." },
   { wanneer: "Pro and Premium: within 1 working day", titel: "We plan your new website with you", tekst: "Tell us what you want in the Website tab, by chat or in a call. We build it with photos, video and AVA inside, you review it, and it goes live on your own domain." },
