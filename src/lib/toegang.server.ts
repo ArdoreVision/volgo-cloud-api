@@ -3,7 +3,8 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { huidigeGebruiker } from "./auth.server";
 import { bindings } from "./bindings.server";
 
-const OK = ["active", "trialing", "past_due"];
+// Only a paid or trialing subscription gives access. A failed payment after the trial (past_due/unpaid) does not.
+const OK = ["active", "trialing"];
 
 /**
  * Mag dit team het dashboard gebruiken? Alleen met een actief abonnement of een lopende proefperiode.
@@ -27,7 +28,9 @@ export async function heeftToegang(DB: D1Database, teamId: number) {
     return false;
   }
 
-  if (recentGecheckt) return e.status !== "verlopen";
+  // The trial just ended? Ask Stripe now instead of trusting a cached status for up to 6 hours.
+  const proefVoorbij = e.status === "proef" && !proefLoopt;
+  if (recentGecheckt && !proefVoorbij) return e.status !== "verlopen";
 
   try {
     const r = await fetch(`https://api.stripe.com/v1/subscriptions/${encodeURIComponent(e.stripe_abonnement!)}`, {
