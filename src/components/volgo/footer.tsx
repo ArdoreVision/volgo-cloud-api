@@ -13,7 +13,9 @@ export function Footer() {
       <div className="v-footer__rechts">
       <nav aria-label="Footer" className="v-footer__links">
         <a href="/pricing">Pricing</a>
-        <a href="/vs/podium">Volgo vs Podium</a>
+        <a href="/vs/podium">vs Podium</a>
+        <a href="/vs/birdeye">vs Birdeye</a>
+        <a href="/vs/tidio">vs Tidio</a>
         <a href="/terms">Terms</a>
         <a href="/privacy">Privacy</a>
         <a href="/dpa">Data Processing Agreement</a>

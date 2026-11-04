@@ -2003,11 +2003,13 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .v-vs__rij--win .v-vs__volgo b { color: var(--accent); font-weight: 700; }
 .v-vs__noot { max-width: 980px; margin: 14px auto 0; color: var(--muted); font-size: 12.5px; line-height: 1.5; }
 .v-vs__wie .v-na__regels { max-width: 980px; margin: 0 auto; }
+.v-vs__meer { margin: 22px 0 0; text-align: center; color: var(--muted); font-size: 14px; }
+.v-vs__meer a { color: var(--accent); text-decoration: none; font-weight: 600; }
 @media (max-width: 720px) {
   .v-vs__rij { grid-template-columns: 1fr; gap: 6px; padding: 16px 18px; }
   .v-vs__rij--kop { display: none; }
   .v-vs__wat { font-size: 13px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); }
   .v-vs__volgo::before { content: "Volgo · "; color: var(--accent); font-weight: 700; }
-  .v-vs__rij > span[role="cell"]:last-child::before { content: "Podium · "; color: var(--muted); font-weight: 600; }
+  .v-vs__ander::before { content: attr(data-naam) " · "; color: var(--muted); font-weight: 600; }
   .v-vs__wie .v-na__regels { grid-template-columns: 1fr; }
 }
