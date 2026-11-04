@@ -1987,3 +1987,122 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
   .vs-hero__art .vx-zweef--2 { right: 0; }
   .vs-start--groot { width: 100%; max-width: 360px; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   Editorial theme for the public site (modelled on ardorevision.eu):
+   Josefin Sans, monochrome, square edges, uppercase tracked labels,
+   light headlines, lots of air. Dashboard and admin keep their own look.
+   ══════════════════════════════════════════════════════════ */
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) {
+  --ink: #202020;
+  --ink-2: #383838;
+  --muted: #6f6f6f;
+  --line: #e6e3de;
+  --surface: #f5f3ef;
+  --sky-1: #ece8e1;
+  --sky-2: #f5f3ef;
+  --accent: #202020;
+  --accent-soft: rgba(32, 32, 32, 0.08);
+  --display: "Josefin Sans", "Instrument Sans", sans-serif;
+  font-family: "Josefin Sans", "Instrument Sans", -apple-system, sans-serif;
+  letter-spacing: 0;
+  color: var(--ink-2);
+  background: #fff;
+}
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) :is(h1, h2, h3, .v-h2, .vs-hero__title, .v-auth__title) {
+  font-family: "Josefin Sans", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  color: var(--ink);
+}
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vs-hero__title { font-weight: 300; font-size: clamp(2.6rem, 6.6vw, 4.8rem); line-height: 1.08; letter-spacing: 0.01em; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-h2 { font-weight: 300; line-height: 1.12; letter-spacing: 0.01em; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vs-hero__sub,
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-lede { font-weight: 300; color: var(--ink-2); line-height: 1.7; }
+
+/* Labels: small, uppercase, tracked — no pills */
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) :is(.vx-label, .v-pill-label) {
+  padding: 0; border-radius: 0; background: none; box-shadow: none;
+  color: var(--ink); font-size: 12px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
+}
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-pill-label__dot { display: none; }
+
+/* Buttons: square, black, uppercase tracked */
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) :is(.vs-start, .v-cta-primary, .v-plan__cta, .v-auth__btn, .v-nav__cta, .v-btn-blauw) {
+  border-radius: 0 !important;
+  background: #202020 !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  font-family: "Josefin Sans", sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  filter: none !important;
+  transition: background 0.25s, color 0.25s, transform 0.25s;
+}
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) :is(.vs-start, .v-cta-primary, .v-plan__cta, .v-auth__btn, .v-nav__cta):hover:not(:disabled) {
+  background: #000 !important; transform: none;
+}
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vs-start--groot { padding: 20px 46px; font-size: 13.5px; min-width: 240px; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-plan__cta--premium { background: #fff !important; color: #202020 !important; box-shadow: inset 0 0 0 1px #202020 !important; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-plan__cta--premium:hover:not(:disabled) { background: #202020 !important; color: #fff !important; }
+/* Ghost CTAs become underlined text links, like "Discover the collection" */
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-cta-ghost {
+  padding: 6px 0; border-radius: 0; background: none; color: var(--ink);
+  font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+  text-decoration: underline; text-underline-offset: 7px; text-decoration-thickness: 1px;
+}
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-cta-ghost:hover { background: none; text-decoration-thickness: 2px; }
+
+/* Navigation: flat white bar with a hairline, centred wordmark feel */
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-nav { padding: 0; background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-nav__inner { border-radius: 0; box-shadow: none; background: transparent; height: 64px; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-nav__brand { font-family: "Josefin Sans", sans-serif; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 15px; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-nav__links a,
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-nav__login { border-radius: 0; font-size: 12.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-2); }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-nav__links a:hover { background: none; color: #000; text-decoration: underline; text-underline-offset: 6px; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-nav__cta { padding: 12px 20px; font-size: 12px; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-taal { border-radius: 0; background: none; box-shadow: inset 0 0 0 1px var(--line); }
+
+/* Cards and panels: square, hairline borders, no glow */
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) :is(.v-plan, .vx-voordelen article, .vx-waarom__grid article, .vx-trust__lijst > div, .vx-rev__grid article, .vx-voorna__kol, .vx-founder__kaart, .v-auth__card, .vx-video__kader, .vx-live__toestel--desktop, .vx-feiten div, .vx-reken__kaart, .vx-zweef, .v-hero__card) {
+  border-radius: 0 !important;
+}
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) :is(.v-plan, .vx-voordelen article, .vx-trust__lijst > div, .vx-rev__grid article) { box-shadow: inset 0 0 0 1px var(--line); }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-plan:hover { transform: none; box-shadow: inset 0 0 0 1px var(--ink); }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-plan--pro { box-shadow: inset 0 0 0 1px var(--ink); }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-plan__badge { border-radius: 0; background: #202020; color: #fff; font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-plan__price span { font-family: "Josefin Sans", sans-serif; font-weight: 300; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vx-voorna__kol--met { background: #f5f3ef; box-shadow: none; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vx-voorna__kol--met time { background: #202020; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vx-voorna__kol time { border-radius: 0; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vx-voordelen__ico { border-radius: 0; background: none; box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vx-zweef { box-shadow: 0 1px 0 var(--line), 0 18px 40px rgba(0, 0, 0, 0.08); }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vx-zweef__score { border-radius: 0; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vx-rev__resultaat { border-radius: 0; background: #f5f3ef; color: var(--ink); letter-spacing: 0.04em; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vx-rev__sterren { color: #202020; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vx-founder__kaart { background: #f5f3ef; box-shadow: none; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vx-founder__links a { border-radius: 0; box-shadow: inset 0 0 0 1px var(--line); font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+
+/* Hero: proof list as small caps with hairline separators */
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vs-hero__proof { gap: 6px 22px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-2); }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vs-hero__proof li::before { border-radius: 0; width: 5px; height: 5px; background: #202020; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vs-stappen p { font-family: "Josefin Sans", sans-serif; font-weight: 300; letter-spacing: 0.005em; line-height: 1.3; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vs-stappen__ico { border-radius: 0; background: #f5f3ef; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .vs-stappen__ico svg { stroke: #202020; }
+
+/* FAQ: editorial list */
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-faq__item summary { font-size: 1.05rem; font-weight: 400; letter-spacing: 0.01em; }
+
+/* Footer: small caps, quiet */
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-footer { border-top: 1px solid var(--line); max-width: none; padding: 34px clamp(20px, 5vw, 64px) 48px; font-size: 12px; letter-spacing: 0.06em; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-footer a { text-transform: uppercase; letter-spacing: 0.14em; font-weight: 600; font-size: 11.5px; }
+
+/* Auth pages (checkout, sign-up, log in, welcome) */
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)).v-auth { background: #f5f3ef; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-auth__card { box-shadow: 0 0 0 1px var(--line); }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) :is(.v-fld input, .v-fld select, .v-pw input) { border-radius: 0 !important; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-stepper span { border-radius: 0; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-welkom__vink, :where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-welkom__stappen li > span { border-radius: 0; background: #202020; color: #fff; }
+:where(.volgo:not(.v-dash, .v-admin, .v-demo-site)) .v-welkom__stappen li { border-radius: 0; background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
