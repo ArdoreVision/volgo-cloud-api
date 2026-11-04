@@ -6,15 +6,19 @@ import { bindings } from "./bindings.server";
 // Only a paid or trialing subscription gives access. A failed payment after the trial (past_due/unpaid) does not.
 const OK = ["active", "trialing"];
 
+/** The owner's own account: always free, never billed, never locked out. */
+export const GRATIS_ACCOUNTS = ["d.hanssens02@gmail.com"];
+
 /**
  * Mag dit team het dashboard gebruiken? Alleen met een actief abonnement of een lopende proefperiode.
  * Met Stripe: hooguit elke 6 uur de echte status ophalen, zodat opzeggingen en mislukte betalingen worden opgepikt.
  */
 export async function heeftToegang(DB: D1Database, teamId: number) {
-  const e = await DB.prepare("SELECT status, proef_tot, stripe_abonnement, stripe_check FROM gebruikers WHERE id = ?")
+  const e = await DB.prepare("SELECT email, status, proef_tot, stripe_abonnement, stripe_check FROM gebruikers WHERE id = ?")
     .bind(teamId)
-    .first<{ status: string; proef_tot: string | null; stripe_abonnement: string | null; stripe_check: string | null }>();
+    .first<{ email: string; status: string; proef_tot: string | null; stripe_abonnement: string | null; stripe_check: string | null }>();
   if (!e) return false;
+  if (GRATIS_ACCOUNTS.includes(e.email.toLowerCase())) return true;
 
   const { STRIPE_SECRET_KEY } = bindings();
   const metStripe = Boolean(e.stripe_abonnement && STRIPE_SECRET_KEY);
