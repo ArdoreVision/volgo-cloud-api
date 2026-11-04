@@ -1,0 +1,14 @@
+name: Beheer (eenmalige database-actie)
+on: workflow_dispatch
+jobs:
+  b:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - run: |
+          q() { npx -y wrangler@4 d1 execute volgo-db --remote --json --command "$1" 2>/dev/null | jq -c '.[0].results'; }
+          echo "::warning::SLEUTEL $(q "SELECT a.team_id, g.email FROM ava_instellingen a JOIN gebruikers g ON g.id = a.team_id WHERE a.sleutel = 'c2c0abaa339e5c0a8c9e4064'")"
+          echo "::warning::TEAMLEDEN $(q "SELECT team_id, gebruiker_id FROM team_leden")"
+          echo "::warning::TELLING $(q "SELECT (SELECT COUNT(*) FROM klant_leads WHERE gebruiker_id=8) leads, (SELECT COUNT(*) FROM ava_gesprekken WHERE team_id=8) gesprekken, (SELECT COUNT(*) FROM site_views WHERE team_id=8) views, (SELECT COUNT(*) FROM afspraken WHERE team_id=8) afspraken")"
