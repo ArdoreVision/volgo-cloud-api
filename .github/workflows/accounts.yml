@@ -11,5 +11,5 @@ jobs:
           q() { npx -y wrangler@4 d1 execute volgo-db --remote --json --command "$1" 2>/dev/null | jq -c '.[0].results'; }
           echo "::warning::NU $(date -u +%Y-%m-%dT%H:%MZ)"
           echo "::warning::ACCOUNTS $(q "SELECT id, email, naam, bedrijf, plan, status, proef_tot, testmodus, created_at FROM gebruikers ORDER BY id")"
-          echo "::warning::INGELOGD $(q "SELECT g.id, g.email, g.bedrijf, s.created_at AS ingelogd_sinds, s.verloopt FROM sessies s JOIN gebruikers g ON g.id = s.gebruiker_id WHERE s.verloopt > datetime('now') ORDER BY s.created_at DESC")")"
+          echo "::warning::INGELOGD $(q "SELECT g.id, g.email, g.bedrijf, s.created_at AS ingelogd_sinds, s.verloopt FROM sessies s JOIN gebruikers g ON g.id = s.gebruiker_id WHERE s.verloopt > datetime('now') ORDER BY s.created_at DESC")"
           echo "::warning::LAATSTE_ACTIVITEIT $(q "SELECT g.email, MAX(v.dag) AS laatste_dag FROM site_views v JOIN gebruikers g ON g.id = v.team_id GROUP BY g.email ORDER BY 2 DESC LIMIT 20")"
