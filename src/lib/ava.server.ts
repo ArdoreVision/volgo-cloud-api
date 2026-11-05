@@ -99,6 +99,11 @@ async function maakLead(DB: D1Database, gesprekId: number, team: number, d: { na
     DB.prepare("UPDATE ava_gesprekken SET bezoeker = ?, warmte = ? WHERE id = ?").bind(d.naam, d.warmte, gesprekId),
   ]);
   const heet = d.warmte >= 75;
+  {
+    const p = await import("./push.server");
+    if (await p.isVolgoZelf(DB, team))
+      await p.push(`${heet ? "🔥 Hot lead" : "🙋 New lead"}: ${d.naam} (${d.warmte}/100)`, `${d.onderwerp}\nContact: ${d.contact}`, { tags: [heet ? "fire" : "raising_hand"], prioriteit: heet ? 5 : 4, link: `${SITE_URL}/dashboard` });
+  }
   await mailEigenaar(
     DB,
     team,
@@ -122,6 +127,8 @@ type Meta = { gesprek_id: number; stap: number; naam: string | null; contact: st
 /** Everyone in the team who wants an email when a new conversation starts. Max 30 per business per hour. */
 async function mailNieuwGesprek(DB: D1Database, inst: AvaInstellingen, gesprekId: number, eerste: string) {
   const team = inst.team_id;
+  const p = await import("./push.server");
+  if (await p.isVolgoZelf(DB, team)) await p.push("💬 New chat with AVA on thevolgo.app", `“${eerste.slice(0, 200)}”`, { tags: ["speech_balloon"], prioriteit: 3, link: `${SITE_URL}/dashboard` });
   const ontvangers = await DB.prepare(
     `SELECT g.email FROM gebruikers g LEFT JOIN team_leden t ON t.gebruiker_id = g.id LEFT JOIN meldingen m ON m.gebruiker_id = g.id
      WHERE (g.id = ? OR t.team_id = ?) AND COALESCE(m.chat_mail, 1) = 1`,
@@ -228,6 +235,11 @@ export async function boekViaChat(
     DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'ava', ?)").bind(gid, bevestiging),
     DB.prepare("UPDATE ava_gesprekken SET bezoeker = ?, warmte = 95, laatste = datetime('now'), status = 'live', berichten = berichten + 2 WHERE id = ?").bind(naam.slice(0, 60), gid),
   ]);
+  {
+    const p = await import("./push.server");
+    if (await p.isVolgoZelf(DB, team))
+      await p.push(`📅 Booked: ${naam}`, `${soortNaam} · ${wanneer}\nContact: ${contact}`, { tags: ["calendar"], prioriteit: 5, link: `${SITE_URL}/dashboard` });
+  }
   await mailEigenaar(
     DB,
     team,

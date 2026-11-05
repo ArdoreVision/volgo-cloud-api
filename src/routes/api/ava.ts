@@ -115,6 +115,10 @@ export const Route = createFileRoute("/api/ava")({
           if (!(await binnenLimiet(DB, `sv:${await hashIp(ip)}`, 60, 400))) return json({ ok: false });
           const { ANTHROPIC_API_KEY } = bindings();
           const plek = v.locatieVan(request.headers);
+          const p = await import("@/lib/push.server");
+          const nieuweSessie =
+            p.isVolgoSleutel(body.sleutel) &&
+            !(await DB.prepare("SELECT 1 FROM site_views WHERE team_id = ? AND sessie = ? LIMIT 1").bind(inst.team_id, body.sessie).first());
           const id = await v.slaViewOp(DB, {
             toestemming: body.toestemming,
             vast: body.vast,
@@ -132,6 +136,15 @@ export const Route = createFileRoute("/api/ava")({
             apparaat: v.apparaatVan(ua, body.breedte),
             land: request.headers.get("cf-ipcountry") ?? "",
           });
+          if (nieuweSessie) {
+            const bron = v.bronVan(body.ref, body.utm, body.host ?? "");
+            const waar = [body.toestemming ? plek.stad : "", request.headers.get("cf-ipcountry") ?? ""].filter(Boolean).join(", ");
+            await p.push(
+              "👀 Someone is on thevolgo.app",
+              [waar, `${v.apparaatVan(ua, body.breedte)} · ${v.browserVan(ua)}`, `via ${bron || "Direct"}`, `page ${body.pad || "/"}`].filter(Boolean).join("\n"),
+              { tags: ["eyes"], prioriteit: 2, link: "https://thevolgo.app/dashboard" },
+            );
+          }
           return json({ ok: true, id });
         }
         if (body.actie === "agenda") {

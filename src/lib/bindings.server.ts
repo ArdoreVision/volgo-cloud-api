@@ -37,6 +37,8 @@ type AppEnv = {
   BTW?: string;
   // Comma-separated emails that may open /admin.
   ADMIN_EMAILS?: string;
+  /** Secret ntfy topic for push notifications to the owner's phone. */
+  PUSH_TOPIC?: string;
   META_PIXEL_ID?: string;
   GOOGLE_TAG_ID?: string;
   APP_SLUG?: string;

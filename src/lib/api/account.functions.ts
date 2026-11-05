@@ -114,6 +114,8 @@ export const startBetaling = createServerFn({ method: "POST" })
       b.set("cancel_url", `${origin()}/pricing`);
       try {
         const s = await stripe("checkout/sessions", { method: "POST", body: b });
+        const { push } = await import("../push.server");
+        await push(`🛒 Checkout opened: ${plan.naam}`, `Someone is at the Stripe payment page for Volgo ${plan.naam} (€${plan.prijsTekst}/mo)${ik ? " — existing customer switching plans" : ""}.`, { tags: ["shopping_cart"], prioriteit: 3 });
         return { ok: true as const, url: String(s.url) };
       } catch (err) {
         console.error("[betaling]", err);
@@ -229,6 +231,14 @@ export const maakAccount = createServerFn({ method: "POST" })
         { tekst: "Open admin", url: `${origin()}/admin` },
       ),
     ).catch(() => false);
+    {
+      const { push } = await import("../push.server");
+      await push(
+        `🎉 New signup: ${data.bedrijf}`,
+        `${data.naam} · ${data.email}\nVolgo ${plan.naam}${plan.proefDagen ? ` · ${plan.proefDagen}-day trial, then €${plan.prijsTekst}/mo` : ` · €${plan.prijsTekst}/mo`}${b.testmodus ? " · TEST" : ""}`,
+        { tags: ["tada"], prioriteit: 5, link: `${origin()}/admin` },
+      );
+    }
     // Straight into the dashboard: no second login.
     await maakSessie(id);
     return { ok: true as const, plan: plan.id, prijs: plan.prijs / 100 };
