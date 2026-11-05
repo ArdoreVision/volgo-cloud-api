@@ -4,12 +4,14 @@ import { AvaChat } from "./ava-chat";
 import { Faq } from "./faq";
 import { Footer } from "./footer";
 import { Hero, Stappen } from "./hero";
-import { DemoVideo, LiveDemo, ScrollProgress, VoorNa, useReveal } from "./landing";
+import { Cijfers, Diensten, Slotzin } from "./dialed";
+import { LiveDemo, ScrollProgress, VoorNa, useReveal } from "./landing";
 import { Nav } from "./nav";
 import { FinalCta, PricingPreview } from "./pricing-preview";
 import { Reviews } from "./reviews";
 import { TEKST, type RouteTaal } from "./route-teksten";
 import { huidigeTaal, kiesTaal } from "./taal";
+import "@/volgo-dialed.css";
 
 /**
  * The ad landing page: who it is for and what it does, try AVA live on this page, then the plans.
@@ -33,18 +35,20 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
 
   const probeer = () => setLaadDemo(true);
   return (
-    <div className="volgo volgo--simpel">
+    <div className="volgo volgo--simpel volgo--dialed" id="vd">
       <ScrollProgress />
       <Nav ingelogd={ingelogd} probeer={{ tekst: TEKST[taal].navProbeer, kort: TEKST[taal].navKort, handgeschreven: taal === "nl", onKlik: probeer }} />
       <main>
         <Hero onProbeer={probeer} taal={taal} />
         <LiveDemo laadNu={laadDemo} taal={taal} />
+        <Diensten taal={taal} />
         <Stappen />
-        <DemoVideo />
+        <Cijfers taal={taal} />
         <VoorNa />
         <PricingPreview />
         <Reviews />
         <Faq />
+        <Slotzin taal={taal} />
         <FinalCta />
       </main>
       <Footer />
