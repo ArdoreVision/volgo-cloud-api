@@ -3,11 +3,12 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 
 import { AuthShell, Steps } from "@/components/volgo/auth-shell";
+import { aankoopId, conversie } from "@/components/volgo/tracking";
 import { WachtwoordVeld } from "@/components/volgo/wachtwoord-veld";
 import { beoordeel } from "@/lib/wachtwoord";
 import { activeerAbonnement, controleerBetaling, maakAccount } from "@/lib/api/account.functions";
 import { isIngelogd } from "@/lib/api/assistent.functions";
-import { PLANS, isPlan } from "@/lib/plans";
+import { PLANS, isPlan, type PlanId } from "@/lib/plans";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/signup")({
@@ -50,7 +51,12 @@ function Aanmelden() {
     const activeer = async () => {
       setBezig(true);
       const r = await activeerAbonnement({ data: { token: betaling.token } }).catch(() => ({ ok: false as const, message: "Something went wrong." }));
-      if (r.ok) return void navigate({ to: "/dashboard" });
+      if (r.ok) {
+        // Confirmed, real payment on an existing account: count it once for the ad pixel (only sent with consent).
+        if (!r.test) conversie(r.prijs, PLANS[r.plan as PlanId]?.naam ?? "Volgo", await aankoopId(betaling.token));
+        window.setTimeout(() => void navigate({ to: "/dashboard" }), 400);
+        return;
+      }
       setFout(r.message);
       setBezig(false);
     };
@@ -81,7 +87,17 @@ function Aanmelden() {
       const res = await maakAccount({
         data: { token: betaling!.token, naam: v("naam"), bedrijf: v("bedrijf"), email: v("email"), wachtwoord: String(fd.get("wachtwoord")) },
       });
-      if (res.ok) void navigate({ to: "/welcome", search: { plan: res.plan, v: res.prijs } });
+      if (res.ok) {
+        // The payment is confirmed server-side at this point. Hand the purchase to the welcome page, which fires it once.
+        if (!res.test && !res.proef) {
+          try {
+            sessionStorage.setItem("volgo-aankoop", JSON.stringify({ id: await aankoopId(betaling!.token), waarde: res.prijs, plan: PLANS[res.plan].naam }));
+          } catch {
+            /* private mode */
+          }
+        }
+        void navigate({ to: "/welcome", search: { plan: res.plan, v: res.prijs } });
+      }
       else {
         setFout(res.message);
         setBezig(false);

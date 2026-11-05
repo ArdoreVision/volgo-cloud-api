@@ -1,23 +1,39 @@
 import type { CSSProperties } from "react";
 
-import { PLANS } from "@/lib/plans";
+import { TEKST, handgeschreven, type RouteTaal } from "./route-teksten";
+import { meet } from "./tracking";
 
-const PROOF = ["Live on your website in 5 minutes", `From €${PLANS.start.prijsTekst} a month`, "Cancel any time"];
-
-/** Soro-style hero: one headline, one sentence, one big Start button. */
-export function Hero() {
+/**
+ * Ad landing hero: who it is for, what it does, then one primary action (try the live demo on this page)
+ * and one secondary action (the plans further down this page).
+ */
+export function Hero({ taal = "en", onProbeer }: { taal?: RouteTaal; onProbeer?: () => void }) {
+  const t = TEKST[taal];
   return (
     <section aria-labelledby="hero-title" className="vs-hero" id="top">
-      <div className="vs-hero__copy">
+      <div className="vs-hero__copy" {...handgeschreven(taal)}>
+        <p className="vs-hero__voor">{t.voorWie}</p>
         <h1 className="vs-hero__title" id="hero-title">
-          Never miss a customer again.
+          {t.titel}
         </h1>
-        <p className="vs-hero__sub">AVA answers every visitor on your website within seconds, books the appointment and tells you who to call first — day and night, while you work or sleep.</p>
-        <a className="vs-start vs-start--groot" href="/pricing#plans">
-          Start now
-        </a>
-        <ul aria-label="What you can count on" className="vs-hero__proof">
-          {PROOF.map((p) => (
+        <p className="vs-hero__sub">{t.sub}</p>
+        <div className="vs-hero__acties">
+          <a
+            className="vs-start vs-start--groot"
+            href="#demo"
+            onClick={() => {
+              meet("demo_klik");
+              onProbeer?.();
+            }}
+          >
+            {t.probeer}
+          </a>
+          <a className="vs-hero__tweede" href="#pricing" onClick={() => meet("abo_klik")}>
+            {t.abos}
+          </a>
+        </div>
+        <ul aria-label={taal === "nl" ? "Waar je op kunt rekenen" : "What you can count on"} className="vs-hero__proof">
+          {t.proof.map((p) => (
             <li key={p}>{p}</li>
           ))}
         </ul>

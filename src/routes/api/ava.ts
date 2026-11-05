@@ -43,7 +43,7 @@ const schema = z.discriminatedUnion("actie", [
     taal: z.string().max(20).optional(),
   }),
   z.object({ actie: z.literal("ping"), sleutel: z.string().max(64), sessie: z.string().min(6).max(40), id: z.number().int().min(1), duur: z.number().min(0).max(100000), scroll: z.number().min(0).max(100) }),
-  z.object({ actie: z.literal("event"), sleutel: z.string().max(64), sessie: z.string().min(6).max(40), soort: z.enum(["chat_open", "chat_bericht", "agenda_open", "geboekt"]) }),
+  z.object({ actie: z.literal("event"), sleutel: z.string().max(64), sessie: z.string().min(6).max(40), soort: z.enum(["chat_open", "chat_bericht", "agenda_open", "geboekt", "demo_klik", "demo_bericht", "abo_klik"]) }),
   z.object({
     actie: z.literal("boek"),
     sleutel: z.string().max(64),
@@ -82,7 +82,9 @@ export const Route = createFileRoute("/api/ava")({
         if (!inst) return json({ fout: "Unknown key" }, 404);
         // No active subscription or trial? Then the chat is switched off on the website.
         const { heeftToegang } = await import("@/lib/toegang.server");
-        const actief = await heeftToegang(DB, inst.team_id);
+        // The fictional sample businesses in the live demo on thevolgo.app always answer: only their chat, never a dashboard.
+        const { isDemoSleutel } = await import("@/lib/push.server");
+        const actief = isDemoSleutel(body.sleutel) || (await heeftToegang(DB, inst.team_id));
         if (!actief) {
           if (body.actie === "config") return json({ uit: true });
           if (body.actie === "poll") return json({ berichten: [], mens: null, laatste_id: body.na_id });

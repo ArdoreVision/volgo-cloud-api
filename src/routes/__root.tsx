@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
+import { HeadContent, Outlet, Scripts, createRootRouteWithContext, useRouterState } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
 import { VolgoNotFound } from "../components/volgo/not-found";
@@ -108,8 +108,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  // The Dutch landing page (/nl) is Dutch from the first byte, so browsers and the AVA chat start in Dutch.
+  const pad = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <html lang="en" style={{ colorScheme: "light" }}>
+    <html lang={pad === "/nl" || pad.startsWith("/nl/") ? "nl" : "en"} style={{ colorScheme: "light" }}>
       <head>
         <HeadContent />
       </head>

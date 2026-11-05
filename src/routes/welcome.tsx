@@ -22,19 +22,21 @@ const STAPPEN = [
 ];
 
 function Welcome() {
-  const { plan, v } = Route.useSearch();
+  const { plan } = Route.useSearch();
   const p = plan && isPlan(plan) ? PLANS[plan] : null;
   useEffect(() => {
-    // Conversion for Meta / Google Ads (only fires when the pixel is loaded, i.e. with consent). Once per browser.
+    // Purchase for Meta / Google Ads: only when the signup page just confirmed a real Stripe payment (not on a plain
+    // visit to /welcome), once per payment, and only sent once the visitor has accepted tracking.
     try {
-      if (!sessionStorage.getItem("volgo-conv")) {
-        conversie(v ?? (p ? p.prijs / 100 : 0), p?.naam ?? "Volgo");
-        sessionStorage.setItem("volgo-conv", "1");
-      }
+      const raw = sessionStorage.getItem("volgo-aankoop");
+      if (!raw) return;
+      sessionStorage.removeItem("volgo-aankoop");
+      const a = JSON.parse(raw) as { id?: string; waarde?: number; plan?: string };
+      if (a.id && typeof a.waarde === "number") conversie(a.waarde, a.plan ?? "Volgo", a.id);
     } catch {
       /* private mode */
     }
-  }, [v, p]);
+  }, []);
 
   return (
     <AuthShell>
