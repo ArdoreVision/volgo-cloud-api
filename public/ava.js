@@ -397,6 +397,8 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   // ---------- Website analytics for the business (no cookies, nothing personal) ----------
   // Skipped entirely when the visitor's browser asks not to be tracked.
   var NIET = navigator.doNotTrack === "1" || window.doNotTrack === "1" || navigator.globalPrivacyControl === true;
+  var IN_FRAME = false; try { IN_FRAME = window.top !== window.self; } catch (e) { IN_FRAME = true; }
+  var EIGEN_SITE = false; try { EIGEN_SITE = location.hostname === new URL(BASE).hostname && !IN_FRAME; } catch (e) {}
   var SESSIE = (function () {
     try { var x = sessionStorage.getItem("volgo-s"); if (!x) { x = Math.random().toString(36).slice(2) + Date.now().toString(36); sessionStorage.setItem("volgo-s", x); } return x; }
     catch (e) { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
@@ -422,6 +424,9 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     var inFrame = false; try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
     if (!c.toestemming || NIET || inFrame) { keuzeKlaar(false); return; }
     if (k) { keuzeKlaar(k === "ja"); return; }
+    // Volgo's own site: count the visit right away in the anonymous mode ("Only necessary": no location, browser or
+    // returning-visitor id), so ad visitors who leave before choosing still show up. Accepting later adds nothing to it.
+    if (EIGEN_SITE) meten();
     var laag = document.createElement("div"); laag.className = "ok-laag"; laag.setAttribute("role", "dialog"); laag.setAttribute("aria-modal", "true");
     laag.innerHTML = '<div class="ok-kaart"><h3></h3><p></p><div class="ok-knoppen"><button class="ok-nee" type="button"></button><button class="ok-ja" type="button"></button></div><div class="ok-voet"><span></span><a target="_blank" rel="noopener"></a></div></div>';
     laag.querySelector("h3").textContent = O.t;
@@ -495,7 +500,9 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
   // Any button on the website with data-ava-open (e.g. "Request a quote") opens AVA. Also available as window.VolgoAva.open().
   // Ask a question for the visitor, e.g. from a "Start free trial" button.
   function vraag(t) { if (!t) return; var ch = log.querySelector(".chips"); if (ch) ch.remove(); setTimeout(function () { if (busy) return; ta.value = t; verstuur(); }, 350); }
-  window.VolgoAva = { open: open, close: close, afspraak: function () { open(); kalender(); }, vraag: function (t) { open(); vraag(t); } };
+  // Landing-page funnel steps (only these names; just the step and the session, never any content).
+  var STAPPEN = { demo_klik: 1, demo_bericht: 1, abo_klik: 1 };
+  window.VolgoAva = { open: open, close: close, afspraak: function () { open(); kalender(); }, vraag: function (t) { open(); vraag(t); }, meet: function (s) { if (STAPPEN[s] === 1) gebeurtenis(s); } };
   document.addEventListener("click", function (e) {
     var t = e.target && e.target.closest && e.target.closest("[data-ava-open],[data-ava-book],[data-ava-ask]");
     if (!t) return;
@@ -539,7 +546,11 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
     if (!t || busy) return;
     busy = true; send.disabled = true; ta.value = "";
     var ch = log.querySelector(".chips"); if (ch) ch.remove();
-    if (!berichtGeteld) { berichtGeteld = true; gebeurtenis("chat_bericht"); }
+    if (!berichtGeteld) {
+      berichtGeteld = true; gebeurtenis("chat_bericht");
+      // Inside Volgo's live demo: tell the page around it that the visitor sent a first message (no text, nothing personal).
+      if (IN_FRAME) { try { parent.postMessage({ volgo: "demo-bericht" }, location.origin); } catch (e) {} }
+    }
     state.msgs.push({ r: "u", t: t }); save(state); bubble("u", t);
     var typ = document.createElement("p"); typ.className = "b a typ"; typ.innerHTML = "<span></span><span></span><span></span>"; log.appendChild(typ); log.scrollTop = log.scrollHeight;
     post({ actie: "bericht", sleutel: KEY, token: state.token, tekst: t, sessie: SESSIE, toestemming: TOESTEMMING }).then(function (r) {

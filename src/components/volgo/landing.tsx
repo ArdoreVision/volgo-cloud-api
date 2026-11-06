@@ -4,6 +4,8 @@ import type { CSSProperties } from "react";
 import { PLANS, type PlanId } from "@/lib/plans";
 
 import { TryAvaButton } from "./ava-chat";
+import { DEMO, TEKST, handgeschreven, type RouteTaal } from "./route-teksten";
+import { meet } from "./tracking";
 
 /* ------------------------------------------------------------------ */
 /* Scroll helpers                                                      */
@@ -616,11 +618,21 @@ export function Tijdlijn() {
 /* Live demo: the real sample website with the real AVA, inside a frame */
 /* ------------------------------------------------------------------ */
 
-type AvaVenster = Window & { VolgoAva?: { open: () => void; afspraak: () => void } };
+type AvaVenster = Window & { VolgoAva?: { open: () => void; afspraak: () => void; vraag: (t: string) => void } };
 
-export function LiveDemo() {
+/**
+ * The real sample website with the real AVA, inside a frame. No sign-up and no payment.
+ * Desktop: scaled browser window that scrolls along with the page. Phones: the sample site at its real size
+ * (readable, no tiny inputs), scrollable on its own, with a full-screen mode.
+ */
+export function LiveDemo({ taal = "en", laadNu = false }: { taal?: RouteTaal; laadNu?: boolean }) {
+  const t = TEKST[taal];
+  const demo = DEMO[taal];
   const [modus, setModus] = useState<"desktop" | "mobiel">("desktop");
-  const [ref, zichtbaar] = useInView<HTMLDivElement>("300px 0px");
+  const [klein, setKlein] = useState(false);
+  const [vol, setVol] = useState(false);
+  const [ref, inBeeld] = useInView<HTMLDivElement>("300px 0px");
+  const zichtbaar = inBeeld || laadNu;
   const box = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const [schaal, setSchaal] = useState(0.8);
@@ -628,27 +640,82 @@ export function LiveDemo() {
   const HOOG = modus === "desktop" ? 780 : 800;
 
   useEffect(() => {
-    if (window.innerWidth < 760) setModus("mobiel");
+    const mq = window.matchMedia("(max-width: 759px)");
+    const zet = () => {
+      setKlein(mq.matches);
+      if (mq.matches) setModus("mobiel");
+      else setVol(false);
+    };
+    zet();
+    mq.addEventListener("change", zet);
+    return () => mq.removeEventListener("change", zet);
   }, []);
   useEffect(() => {
     const el = box.current;
-    if (!el) return;
+    if (!el || klein) return;
     const zet = () => setSchaal(Math.min(1, el.clientWidth / BREED));
     zet();
     const ro = new ResizeObserver(zet);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [BREED]);
+  }, [BREED, klein]);
 
-  // While you scroll the page, the sample website scrolls along inside the frame.
+  // Full screen on phones: lock the page behind it, Escape closes.
+  useEffect(() => {
+    if (!vol) return;
+    const html = document.documentElement;
+    const oud = html.style.overflow;
+    html.style.overflow = "hidden";
+    const toets = (e: KeyboardEvent) => e.key === "Escape" && setVol(false);
+    window.addEventListener("keydown", toets);
+    return () => {
+      html.style.overflow = oud;
+      window.removeEventListener("keydown", toets);
+    };
+  }, [vol]);
+
+  // Volgo's own chat bubble (bottom right of this page) hides while the demo is on screen, so there is only one AVA to talk to.
+  const sectie = useRef<HTMLElement>(null);
+  const [demoInBeeld, setDemoInBeeld] = useState(false);
+  useEffect(() => {
+    const el = sectie.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => setDemoInBeeld(Boolean(e?.isIntersecting)), { rootMargin: "-35% 0px -35% 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  useEffect(() => {
+    const eigen = document.getElementById("volgo-ava");
+    if (!eigen) return;
+    // Never hide it while its consent card is open: the visitor has to be able to make that choice.
+    const keuzeOpen = Boolean((eigen.shadowRoot ?? eigen).querySelector(".ok-laag"));
+    eigen.style.visibility = (demoInBeeld || vol) && !keuzeOpen ? "hidden" : "";
+    return () => {
+      eigen.style.visibility = "";
+    };
+  }, [demoInBeeld, vol]);
+
+  // The first message a visitor sends in the demo (typed or via an example question). Only the fact, never the text.
+  useEffect(() => {
+    const op = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin || e.source !== frame.current?.contentWindow) return;
+      if ((e.data as { volgo?: string } | null)?.volgo === "demo-bericht") meet("demo_bericht");
+    };
+    window.addEventListener("message", op);
+    return () => window.removeEventListener("message", op);
+  }, []);
+
+  // Desktop: while you scroll the page, the sample website scrolls along inside the frame.
   const baan = useRef<HTMLDivElement>(null);
   const [afstand, setAfstand] = useState(0);
-  const meet = () => {
+  const meetHoogte = () => {
+    if (klein) return setAfstand(0);
     const doc = frame.current?.contentDocument?.documentElement;
     if (doc) setAfstand(Math.max(0, (doc.scrollHeight - HOOG) * schaal));
   };
-  useEffect(meet, [schaal, HOOG]);
+  useEffect(meetHoogte, [schaal, HOOG, klein]);
   useEffect(() => {
+    if (klein) return;
     let raf = 0;
     const zet = () => {
       raf = 0;
@@ -666,81 +733,154 @@ export function LiveDemo() {
     };
     window.addEventListener("scroll", op, { passive: true });
     return () => window.removeEventListener("scroll", op);
-  }, [HOOG]);
+  }, [HOOG, klein]);
 
-  const ava = (actie: "open" | "afspraak") => {
-    const w = frame.current?.contentWindow as AvaVenster | null | undefined;
-    w?.VolgoAva?.[actie]();
+  /** Talk to AVA inside the frame; the script there may still be starting, so retry for a few seconds. */
+  const ava = (actie: "open" | "afspraak" | "vraag", tekst?: string) => {
+    let pogingen = 0;
+    const probeer = () => {
+      const w = frame.current?.contentWindow as AvaVenster | null | undefined;
+      const api = w?.VolgoAva;
+      if (api) {
+        if (actie === "vraag" && tekst) api.vraag(tekst);
+        else if (actie === "afspraak") api.afspraak();
+        else api.open();
+        return;
+      }
+      if (++pogingen < 30) window.setTimeout(probeer, 300);
+    };
+    probeer();
+  };
+
+  const src = klein ? demo.src : `${demo.src}?embed=1`;
+  const naarAbos = () => {
+    meet("abo_klik");
+    setVol(false);
   };
 
   return (
-    <section aria-labelledby="live-titel" className="vx-sectie vx-live" id="demo">
-      <header className="vx-kop vx-kop--midden" data-reveal="">
-        <p className="vx-label">Live demo</p>
+    <section aria-labelledby="live-titel" className="vx-sectie vx-live" id="demo" ref={sectie}>
+      <header className="vx-kop vx-kop--midden" data-reveal="" {...handgeschreven(taal)}>
+        <p className="vx-label">{t.demoLabel}</p>
         <h2 className="v-h2" id="live-titel">
-          Try AVA on a real website.
+          {t.demoTitel}
         </h2>
-        <p className="v-lede">
-          A sample website of a contractor in Austin, Texas, with AVA exactly as your visitors see it. Scroll through the site, ask about prices, or book an
-          appointment: you only see the days and times that are still free.
-        </p>
+        <p className="v-lede">{t.demoIntro(demo.bedrijf)}</p>
       </header>
-      <div className="vx-live__bediening" data-reveal="">
-        <div className="vx-tabs" role="tablist" aria-label="Screen size">
-          <button aria-selected={modus === "desktop"} onClick={() => setModus("desktop")} role="tab" type="button">
-            Desktop
-          </button>
-          <button aria-selected={modus === "mobiel"} onClick={() => setModus("mobiel")} role="tab" type="button">
-            Mobile
-          </button>
+
+      <div className="vx-live__vragen" {...handgeschreven(taal)}>
+        <p>{t.voorbeeldKop}</p>
+        <div>
+          {t.vragen.map((v) => (
+            <button
+              key={v}
+              onClick={() => {
+                ava("vraag", v);
+                // Bring the sample website (where the answer appears) into view.
+                ref.current?.scrollIntoView({ behavior: rustig() ? "auto" : "smooth", block: klein ? "center" : "start" });
+              }}
+              type="button"
+            >
+              {v}
+            </button>
+          ))}
         </div>
+      </div>
+
+      <div className="vx-live__bediening" {...handgeschreven(taal)}>
+        {klein ? (
+          <span />
+        ) : (
+          <div className="vx-tabs" role="tablist" aria-label={t.schermKeuze}>
+            <button aria-selected={modus === "desktop"} onClick={() => setModus("desktop")} role="tab" type="button">
+              Desktop
+            </button>
+            <button aria-selected={modus === "mobiel"} onClick={() => setModus("mobiel")} role="tab" type="button">
+              {taal === "nl" ? "Mobiel" : "Mobile"}
+            </button>
+          </div>
+        )}
         <div className="vx-live__knoppen">
           <button onClick={() => ava("open")} type="button">
-            Open the chat
+            {t.openChat}
           </button>
-          <button className="is-hoofd" onClick={() => ava("afspraak")} type="button">
-            Book an appointment
-          </button>
+          {demo.boeken ? (
+            <button onClick={() => ava("afspraak")} type="button">
+              {t.afspraak}
+            </button>
+          ) : null}
+          {klein ? (
+            <button className="is-hoofd" onClick={() => setVol(true)} type="button">
+              {t.volScherm}
+            </button>
+          ) : null}
         </div>
       </div>
-      <div className="vx-live__baan" ref={baan} style={{ height: HOOG * schaal + (modus === "desktop" ? 90 : 120) + afstand }}>
-      <div className="vx-live__plak">
-      <div className={`vx-live__toestel vx-live__toestel--${modus}`} ref={ref}>
-        {modus === "desktop" ? (
-          <div aria-hidden="true" className="vx-live__chrome">
-            <i />
-            <i />
-            <i />
-            <span>bluebonnetbuild.com</span>
+
+      <div className="vx-live__baan" ref={baan} style={klein ? undefined : { height: HOOG * schaal + (modus === "desktop" ? 90 : 120) + afstand }}>
+        <div className={klein ? undefined : "vx-live__plak"}>
+          <div className={`vx-live__toestel vx-live__toestel--${klein ? "native" : modus}${vol ? " is-vol" : ""}`} ref={ref}>
+            {klein ? (
+              <div className="vx-live__volbalk" {...handgeschreven(taal)}>
+                <span>
+                  <b>{demo.bedrijf}</b>
+                  <small>{t.demoLabel}</small>
+                </span>
+                {vol ? (
+                  <>
+                    <a href="#pricing" onClick={naarAbos}>
+                      {t.balkAbos}
+                    </a>
+                    <button onClick={() => setVol(false)} type="button">
+                      {t.sluiten}
+                    </button>
+                  </>
+                ) : null}
+              </div>
+            ) : modus === "desktop" ? (
+              <div aria-hidden="true" className="vx-live__chrome">
+                <i />
+                <i />
+                <i />
+                <span>{demo.domein}</span>
+              </div>
+            ) : (
+              <div aria-hidden="true" className="vx-live__notch" />
+            )}
+            <div className="vx-live__scherm" ref={box} style={klein ? undefined : { height: HOOG * schaal }}>
+              {zichtbaar ? (
+                <iframe
+                  key={src}
+                  onLoad={() => {
+                    meetHoogte();
+                    window.setTimeout(meetHoogte, 1500);
+                  }}
+                  ref={frame}
+                  src={src}
+                  style={klein ? undefined : { width: BREED, height: HOOG, transform: `scale(${schaal})` }}
+                  title={t.frameTitel(demo.bedrijf)}
+                />
+              ) : (
+                <p className="vx-live__laden">{t.laden}</p>
+              )}
+            </div>
           </div>
-        ) : (
-          <div aria-hidden="true" className="vx-live__notch" />
-        )}
-        <div className="vx-live__scherm" ref={box} style={{ height: HOOG * schaal }}>
-          {zichtbaar ? (
-            <iframe
-              onLoad={() => {
-                meet();
-                window.setTimeout(meet, 1500);
-              }}
-              ref={frame}
-              src="/voorbeeld/contractor?embed=1"
-              style={{ width: BREED, height: HOOG, transform: `scale(${schaal})` }}
-              title="Sample contractor website with AVA"
-            />
-          ) : (
-            <p className="vx-live__laden">Loading the sample website…</p>
-          )}
         </div>
       </div>
-      </div>
-      </div>
-      <ul className="vx-live__tips" data-reveal="">
-        <li>Try: “How much does a kitchen remodel cost?”</li>
-        <li>Try: “Do you work in Round Rock?”</li>
-        <li>Tap “Book an appointment” and pick a free moment</li>
-        <li>Keep scrolling: the website scrolls along</li>
-      </ul>
+
+      <p className="vx-live__privacy" {...handgeschreven(taal)}>
+        {t.privacy}
+      </p>
+
+      <aside aria-labelledby="live-vervolg" className="vx-live__vervolg" {...handgeschreven(taal)}>
+        <div>
+          <h3 id="live-vervolg">{t.vervolgKop}</h3>
+          <p>{t.vervolgTekst}</p>
+        </div>
+        <a className="vs-start" href="#pricing" onClick={naarAbos}>
+          {t.vervolgKnop}
+        </a>
+      </aside>
     </section>
   );
 }

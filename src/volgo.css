@@ -2107,3 +2107,69 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site) .v-stepper span { border-radius: 0; }
 .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site) .v-welkom__vink, .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site) .v-welkom__stappen li > span { border-radius: 0; background: #202020; color: #fff; }
 .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site) .v-welkom__stappen li { border-radius: 0; background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
+
+/* ══════════════════════════════════════════════════════════
+   Ad route: hero with "Try AVA live" + plans, live demo intro,
+   example questions, phone-sized demo and the next step.
+   ══════════════════════════════════════════════════════════ */
+.vs-hero__voor { margin: 0 0 18px; max-width: 58ch; color: var(--ink-2); font-size: 12px; font-weight: 600; letter-spacing: 0.16em; line-height: 1.7; text-transform: uppercase; animation: v-rise 0.9s var(--ease) both; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site) .vs-hero__title { max-width: 17ch; }
+.vs-hero__acties { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px 28px; margin-top: 30px; animation: v-rise 0.9s var(--ease) 0.16s both; }
+.vs-hero__copy .vs-hero__acties .vs-start--groot { margin-top: 0; animation: none; }
+.vs-hero__tweede { padding: 8px 0; color: var(--ink); font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 7px; text-decoration-thickness: 1px; }
+.vs-hero__tweede:hover { text-decoration-thickness: 2px; }
+html:has(.volgo--simpel) { scroll-padding-top: 76px; }
+
+.vx-live__vragen { max-width: 900px; margin: 0 auto 18px; text-align: center; }
+.vx-live__vragen p { margin: 0 0 10px; color: var(--ink-2); font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; }
+.vx-live__vragen div { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.vx-live__vragen button { border: 0; padding: 11px 16px; background: #fff; box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); font: inherit; font-size: 15px; line-height: 1.35; text-align: left; cursor: pointer; transition: box-shadow 0.2s, background 0.2s; }
+.vx-live__vragen button:hover { box-shadow: inset 0 0 0 1px var(--ink); }
+.vx-live__vragen button::before { content: "“"; margin-right: 2px; }
+.vx-live__vragen button::after { content: "”"; margin-left: 2px; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site) .vx-live__knoppen button { border-radius: 0; }
+
+/* Phones: the sample website at its real size, scrollable on its own. */
+.vx-live__toestel--native { width: 100%; background: #fff; box-shadow: 0 0 0 1px var(--line), 0 30px 60px -36px rgba(17, 19, 24, 0.4); }
+.vx-live__toestel--native .vx-live__scherm { height: min(640px, 70svh); }
+.vx-live__toestel--native iframe { width: 100%; height: 100%; }
+.vx-live__volbalk { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #f5f3ef; border-bottom: 1px solid var(--line); }
+.vx-live__volbalk span { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
+.vx-live__volbalk b { overflow: hidden; color: var(--ink); font-size: 14px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.vx-live__volbalk small { color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+.vx-live__volbalk a, .vx-live__volbalk button { flex: none; border: 0; padding: 9px 12px; background: #fff; box-shadow: inset 0 0 0 1px var(--ink); color: var(--ink); font: inherit; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-decoration: none; text-transform: uppercase; cursor: pointer; }
+.vx-live__volbalk button { background: var(--ink); color: #fff; }
+.vx-live__toestel--native.is-vol { position: fixed; inset: 0; z-index: 2147483000; display: flex; flex-direction: column; box-shadow: none; padding-top: env(safe-area-inset-top); }
+.vx-live__toestel--native.is-vol .vx-live__scherm { flex: 1; height: auto; }
+
+.vx-live__privacy { max-width: 640px; margin: 14px auto 0; color: var(--muted); font-size: 14px; text-align: center; }
+.vx-live__vervolg { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; max-width: 900px; margin: 28px auto 0; padding: 24px 28px; background: #f5f3ef; }
+.vx-live__vervolg h3 { margin: 0 0 4px; font-size: 1.35rem; font-weight: 400; }
+.vx-live__vervolg p { margin: 0; color: var(--ink-2); font-size: 15px; }
+
+@media (max-width: 759px) {
+  .vs-hero__voor { font-size: 11px; letter-spacing: 0.12em; }
+  .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site) .vs-hero__title { font-size: clamp(2.1rem, 9vw, 2.8rem); }
+  .vs-hero__acties { flex-direction: column; gap: 10px; width: 100%; }
+  .vs-hero__copy .vs-hero__acties .vs-start--groot { width: 100%; max-width: 360px; min-width: 0; }
+  .vx-live__vragen div { flex-direction: column; align-items: stretch; }
+  .vx-live__vragen button { font-size: 16px; }
+  .vx-live__bediening { justify-content: center; }
+  .vx-live__vervolg { padding: 20px; }
+  .vx-live__vervolg .vs-start { width: 100%; }
+}
+
+/* Dashboard: landing page funnel (Volgo's own account) */
+.v-vk__trechter-blok { margin-top: 14px; }
+.v-vk__trechter-blok h3 { margin: 0 0 8px; font-size: 14px; }
+.v-vk__trechter-blok > div { display: grid; grid-template-columns: 220px 1fr 60px; align-items: center; gap: 12px; padding: 7px 0; font-size: 14.5px; }
+.v-vk__trechter-blok > div > div { height: 14px; border-radius: 999px; background: var(--surface); overflow: hidden; }
+@media (max-width: 900px) { .v-vk__trechter-blok > div { grid-template-columns: 140px 1fr 44px; font-size: 13px; } }
+.v-nav__kort { display: none; }
+@media (max-width: 520px) {
+  .v-nav__probeer .v-nav__lang { display: none; }
+  .v-nav__probeer .v-nav__kort { display: inline; }
+  .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site) .v-nav--simpel .v-nav__probeer { padding: 10px 12px; letter-spacing: 0.1em; font-size: 11.5px; }
+  .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site) .v-nav--simpel .v-nav__login { padding: 9px 10px; letter-spacing: 0.1em; font-size: 11.5px; }
+}
+.vx-live__toestel--native.is-vol .vx-live__volbalk small { display: none; }

@@ -97,6 +97,22 @@ export const haalVerkeer = createServerFn({ method: "GET" })
       .first<{ n: number }>();
 
     const ev = Object.fromEntries(events.results.map((e) => [e.soort, e.n]));
+    // Landing-page funnel (only on Volgo's own site), for all visitors and for visits that came from Meta ads.
+    const heeftTrechter = (ev.demo_klik ?? 0) + (ev.demo_bericht ?? 0) + (ev.abo_klik ?? 0) > 0;
+    let meta: { bezoekers: number; demoKlik: number; demoBericht: number; aboKlik: number } | null = null;
+    if (heeftTrechter) {
+      const metaSessies = `SELECT sessie FROM site_views WHERE ${w} AND bron IN ('Facebook', 'Instagram')`;
+      const [mb, me] = await Promise.all([
+        DB.prepare(`SELECT COUNT(DISTINCT sessie) AS n FROM site_views WHERE ${w} AND bron IN ('Facebook', 'Instagram')`)
+          .bind(team, van)
+          .first<{ n: number }>(),
+        DB.prepare(`SELECT soort, COUNT(DISTINCT sessie) AS n FROM site_events WHERE ${w} AND sessie IN (${metaSessies}) GROUP BY soort`)
+          .bind(team, van, team, van)
+          .all<{ soort: string; n: number }>(),
+      ]);
+      const m = Object.fromEntries(me.results.map((e) => [e.soort, e.n]));
+      meta = { bezoekers: mb?.n ?? 0, demoKlik: m.demo_klik ?? 0, demoBericht: m.demo_bericht ?? 0, aboKlik: m.abo_klik ?? 0 };
+    }
     const t = tot ?? { views: 0, bezoekers: 0, sessies: 0, duur: 0, scroll: 0 };
     return {
       dagen,
@@ -119,6 +135,9 @@ export const haalVerkeer = createServerFn({ method: "GET" })
       chatBericht: ev.chat_bericht ?? 0,
       agendaOpen: ev.agenda_open ?? 0,
       geboekt: ev.geboekt ?? 0,
+      trechter: heeftTrechter
+        ? { sessies: t.sessies, demoKlik: ev.demo_klik ?? 0, demoBericht: ev.demo_bericht ?? 0, aboKlik: ev.abo_klik ?? 0, meta }
+        : null,
       leads: leads?.n ?? 0,
       steden: steden.results,
       browsers: browsers.results,

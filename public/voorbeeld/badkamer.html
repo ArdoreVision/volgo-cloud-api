@@ -119,8 +119,11 @@
     .feiten b { font-size: 24px; }
     .hero p { font-size: 17px; }
   }
+  /* Inside the live demo on thevolgo.app (desktop): the page scrolls along with the landing page. */
+  html.embed { overflow: hidden; scroll-behavior: auto; }
 </style>
 </head>
+<script>if (/[?&]embed/.test(location.search)) document.documentElement.classList.add("embed");</script>
 <body>
 <div class="demo-balk"><b>Voorbeeldwebsite van Volgo</b> · Dit bedrijf bestaat niet. Klik rechtsonder op de chat en vraag een offerte aan, net als een echte bezoeker.</div>
 

@@ -8,7 +8,8 @@ export function applySecurityHeaders(response: Response): Response {
   headers.set(
     "Content-Security-Policy",
     "default-src 'self'; " +
-      "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; " +
+      // Meta Pixel and Google tag: only loaded after the visitor accepts (see components/volgo/tracking.tsx).
+      "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://connect.facebook.net https://www.googletagmanager.com; " +
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
       "font-src 'self' data: https://fonts.gstatic.com; " +
       "img-src 'self' data: https:; media-src 'self' blob: https:; " +

@@ -8,6 +8,8 @@ declare global {
     gtag?: (...a: unknown[]) => void;
     dataLayer?: unknown[];
     __volgoTracking?: { meta: string; google: string; geladen: boolean };
+    /** Pixel calls waiting until the visitor accepted and the pixel is loaded. Never sent without consent. */
+    __volgoPixelWacht?: (() => void)[];
   }
 }
 
@@ -49,6 +51,9 @@ function laad(ids: { meta: string; google: string }) {
       s.src = "https://connect.facebook.net/en_US/fbevents.js";
       document.head.appendChild(s);
     }
+    // No automatic page scraping or button-text collection, and no extra PageView when the page jumps to #demo / #pricing.
+    (window.fbq as unknown as { disablePushState?: boolean }).disablePushState = true;
+    window.fbq!("set", "autoConfig", false, ids.meta);
     window.fbq!("init", ids.meta);
     window.fbq!("track", "PageView");
   }
@@ -67,6 +72,30 @@ function laad(ids: { meta: string; google: string }) {
     window.gtag("js", new Date());
     window.gtag("config", ids.google, { anonymize_ip: true });
   }
+  // Events that happened before the pixel was allowed to load (e.g. a purchase on the welcome page).
+  const wacht = window.__volgoPixelWacht ?? [];
+  window.__volgoPixelWacht = [];
+  for (const f of wacht) {
+    try {
+      f();
+    } catch {
+      /* never block the page */
+    }
+  }
+}
+
+/** Run a pixel call now if the pixel is loaded (consent given), else queue it until it is. */
+function viaPixel(f: () => void) {
+  if (typeof window === "undefined") return;
+  if (window.__volgoTracking?.geladen) {
+    try {
+      f();
+    } catch {
+      /* never block the page */
+    }
+    return;
+  }
+  (window.__volgoPixelWacht ??= []).push(f);
 }
 
 /** Mount once on public pages. Loads Meta Pixel / Google tag only when IDs are set AND the visitor accepted. */
@@ -91,12 +120,64 @@ export function Tracking() {
   return null;
 }
 
-/** Fire a conversion (new paying customer). Safe to call when no pixel is loaded. */
-export function conversie(waarde: number, plan: string) {
+/* ------------------------------------------------------------------ */
+/* Funnel of the ad landing page                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Steps of the landing page funnel. Stored in Volgo's own cookieless analytics (site_events, per session, no content,
+ * no personal data) via the AVA script on this page, and, only with consent, sent to the Meta / Google pixel.
+ */
+export type FunnelStap = "demo_klik" | "demo_bericht" | "abo_klik";
+
+const PIXEL_NAAM: Record<FunnelStap, string> = { demo_klik: "TryAvaClick", demo_bericht: "DemoFirstMessage", abo_klik: "ViewPlansClick" };
+
+type AvaMeet = { meet?: (s: string) => void };
+
+/** Count one funnel step, at most once per browser session. Safe to call anywhere. */
+export function meet(stap: FunnelStap) {
+  if (typeof window === "undefined") return;
   try {
-    window.fbq?.("track", "Purchase", { value: waarde, currency: "EUR", content_name: plan });
-    window.gtag?.("event", "purchase", { value: waarde, currency: "EUR", items: [{ item_name: `Volgo ${plan}` }] });
+    const k = `volgo-f-${stap}`;
+    if (sessionStorage.getItem(k)) return;
+    sessionStorage.setItem(k, "1");
   } catch {
-    /* never block the page */
+    /* private mode: still count, duplicates are filtered per session on the server */
   }
+  // First-party: the AVA script on thevolgo.app may still be loading, so retry for a few seconds.
+  let pogingen = 0;
+  const stuur = () => {
+    const ava = (window as unknown as { VolgoAva?: AvaMeet }).VolgoAva;
+    if (ava?.meet) return ava.meet(stap);
+    if (++pogingen < 40) window.setTimeout(stuur, 250);
+  };
+  stuur();
+  viaPixel(() => {
+    window.fbq?.("trackCustom", PIXEL_NAAM[stap]);
+    window.gtag?.("event", stap);
+  });
+}
+
+/**
+ * Fire a purchase after a confirmed Stripe payment. eventId makes Meta/Google drop duplicates, and the browser
+ * remembers it so a reload never sends it twice. Waits for the pixel (i.e. consent); without consent nothing is sent.
+ */
+export function conversie(waarde: number, plan: string, eventId: string) {
+  try {
+    const k = `volgo-aankoop-${eventId}`;
+    if (localStorage.getItem(k)) return;
+    localStorage.setItem(k, "1");
+  } catch {
+    /* private mode */
+  }
+  viaPixel(() => {
+    window.fbq?.("track", "Purchase", { value: waarde, currency: "EUR", content_name: plan }, { eventID: eventId });
+    window.gtag?.("event", "purchase", { transaction_id: eventId, value: waarde, currency: "EUR", items: [{ item_name: `Volgo ${plan}` }] });
+  });
+}
+
+/** Short, non-reversible id for a payment (from the Stripe checkout id), so nothing identifying leaves the site. */
+export async function aankoopId(token: string) {
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`volgo-aankoop|${token}`));
+  return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("").slice(0, 32);
 }

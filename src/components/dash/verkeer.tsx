@@ -177,6 +177,8 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
             ))}
           </section>
 
+          {d.trechter ? <LandingTrechter t={d.trechter} /> : null}
+
           {d.nuOp.length ? (
             <section className="v-dash__panel v-vk__nu">
               <h2 className="v-sub">
@@ -224,5 +226,46 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
         </>
       ) : null}
     </>
+  );
+}
+
+type Trechter = {
+  sessies: number;
+  demoKlik: number;
+  demoBericht: number;
+  aboKlik: number;
+  meta: { bezoekers: number; demoKlik: number; demoBericht: number; aboKlik: number } | null;
+};
+
+/** Volgo's own landing page: where visitors drop off between arriving, trying the demo and looking at the plans. */
+function LandingTrechter({ t }: { t: Trechter }) {
+  const rijen = (b: number, k: number, m: number, a: number) =>
+    [
+      ["Visits (sessions)", b],
+      ["Clicked “Try AVA live”", k],
+      ["Sent a first demo message", m],
+      ["Clicked through to the plans", a],
+    ] as const;
+  const blok = (titel: string, r: ReturnType<typeof rijen>) => (
+    <div className="v-vk__trechter-blok">
+      <h3 className="v-sub">{titel}</h3>
+      {r.map(([l, n], i) => (
+        <div key={l}>
+          <span>{l}</span>
+          <div>
+            <i style={{ width: `${r[0][1] ? Math.max(1.5, (n / r[0][1]) * 100) : 0}%`, opacity: 1 - i * 0.16 }} />
+          </div>
+          <b>{getal(n)}</b>
+        </div>
+      ))}
+    </div>
+  );
+  return (
+    <section className="v-dash__panel v-vk__trechter">
+      <h2 className="v-sub">Landing page funnel</h2>
+      <p className="v-muted">Counted once per visit, without cookies and without any chat content. Paid subscriptions are under Admin and in Stripe.</p>
+      {blok("All visitors", rijen(t.sessies, t.demoKlik, t.demoBericht, t.aboKlik))}
+      {t.meta ? blok("From Facebook / Instagram", rijen(t.meta.bezoekers, t.meta.demoKlik, t.meta.demoBericht, t.meta.aboKlik)) : null}
+    </section>
   );
 }

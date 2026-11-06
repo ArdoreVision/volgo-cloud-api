@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
+import { HeadContent, Outlet, Scripts, createRootRouteWithContext, useRouterState } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
 import { VolgoNotFound } from "../components/volgo/not-found";
@@ -90,7 +90,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" as const },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&family=Instrument+Sans:wght@400..700&family=Josefin+Sans:wght@300;400;600&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&family=Instrument+Sans:wght@400..700&family=Josefin+Sans:wght@300;400;600&family=Inter:wght@400;500;600;700&display=swap" },
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
@@ -108,8 +108,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  // The Dutch landing page (/nl) is Dutch from the first byte, so browsers and the AVA chat start in Dutch.
+  const pad = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <html lang="en" style={{ colorScheme: "light" }}>
+    <html lang={pad === "/nl" || pad.startsWith("/nl/") ? "nl" : "en"} style={{ colorScheme: "light" }}>
       <head>
         <HeadContent />
       </head>

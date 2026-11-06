@@ -1,52 +1,52 @@
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 
-import { PLANS } from "@/lib/plans";
+import { TEKST, handgeschreven, type RouteTaal } from "./route-teksten";
+import { meet } from "./tracking";
 
-const PROOF = ["Live on your website in 5 minutes", `From €${PLANS.start.prijsTekst} a month`, "Cancel any time"];
-
-/** Soro-style hero: one headline, one sentence, one big Start button. */
-export function Hero() {
+/**
+ * Ad landing hero: who it is for, what it does, then one primary action (try the live demo on this page)
+ * and one secondary action (the plans further down this page).
+ */
+export function Hero({ taal = "en", onProbeer }: { taal?: RouteTaal; onProbeer?: () => void }) {
+  const t = TEKST[taal];
   return (
     <section aria-labelledby="hero-title" className="vs-hero" id="top">
-      <div className="vs-hero__copy">
+      <div aria-hidden="true" className="vd-stralen">
+        <i />
+        <i />
+        <i />
+        <i />
+      </div>
+      <div className="vs-hero__copy" {...handgeschreven(taal)}>
+        <p className="vs-hero__voor">{t.voorWie}</p>
         <h1 className="vs-hero__title" id="hero-title">
-          Never miss a customer again.
+          {t.titel}
         </h1>
-        <p className="vs-hero__sub">AVA answers every visitor on your website within seconds, books the appointment and tells you who to call first — day and night, while you work or sleep.</p>
-        <a className="vs-start vs-start--groot" href="/pricing#plans">
-          Start now
-        </a>
-        <ul aria-label="What you can count on" className="vs-hero__proof">
-          {PROOF.map((p) => (
+        <p className="vs-hero__sub">{t.sub}</p>
+        <div className="vs-hero__acties">
+          <a
+            className="vs-start vs-start--groot"
+            href="#demo"
+            onClick={() => {
+              meet("demo_klik");
+              onProbeer?.();
+            }}
+          >
+            {t.probeer}
+          </a>
+          <a className="vs-hero__tweede" href="#pricing" onClick={() => meet("abo_klik")}>
+            {t.abos}
+          </a>
+        </div>
+        <ul aria-label={taal === "nl" ? "Waar je op kunt rekenen" : "What you can count on"} className="vs-hero__proof">
+          {t.proof.map((p) => (
             <li key={p}>{p}</li>
           ))}
         </ul>
       </div>
 
-      <div className="vs-hero__art">
-        <img alt="AVA, Volgo's AI assistant, next to a phone with messages" fetchPriority="high" height={900} src="/assets/volgo/hero.jpg" width={900} />
-        <div aria-hidden="true" className="vx-zweef vx-zweef--1">
-          <span className="vx-zweef__score">92</span>
-          <span>
-            <b>New hot lead</b>
-            <small>Sarah · walk-in shower · January</small>
-          </span>
-        </div>
-        <div aria-hidden="true" className="vx-zweef vx-zweef--2">
-          <span className="vx-zweef__dot" />
-          <span>
-            <b>AVA replied in 4 sec</b>
-            <small>Sunday 10:41 PM</small>
-          </span>
-        </div>
-        <div aria-hidden="true" className="vx-zweef vx-zweef--3">
-          <span className="vx-zweef__mail">@</span>
-          <span>
-            <b>Call Sarah first</b>
-            <small>Your morning summary</small>
-          </span>
-        </div>
-      </div>
+      <HeroVideo taal={taal} />
     </section>
   );
 }
@@ -94,5 +94,59 @@ export function Stappen() {
         </p>
       ))}
     </section>
+  );
+}
+
+/** The product film right under the headline, in a dark frame, like a showreel. Plays muted; captions are in the video. */
+function HeroVideo({ taal }: { taal: RouteTaal }) {
+  const v = useRef<HTMLVideoElement>(null);
+  const [speelt, setSpeelt] = useState(true);
+  useEffect(() => {
+    const el = v.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setSpeelt(false);
+      return;
+    }
+    el.play().catch(() => setSpeelt(false));
+  }, []);
+  const wissel = () => {
+    const el = v.current;
+    if (!el) return;
+    if (el.paused) {
+      void el.play().then(() => setSpeelt(true)).catch(() => {});
+    } else {
+      el.pause();
+      setSpeelt(false);
+    }
+  };
+  return (
+    <figure className="vd-reel">
+      <div className="vd-reel__kader">
+        <video
+          aria-label={taal === "nl" ? "Demo: AVA beantwoordt 's avonds een offerteaanvraag en de lead verschijnt in het Volgo-dashboard" : "Demo: AVA answers a quote request at night and the lead appears in the Volgo dashboard"}
+          loop
+          muted
+          playsInline
+          poster="/assets/volgo/demo-poster.jpg"
+          preload="metadata"
+          ref={v}
+        >
+          <source src="/assets/volgo/demo.mp4" type="video/mp4" />
+        </video>
+        <button aria-label={speelt ? (taal === "nl" ? "Pauzeer video" : "Pause video") : taal === "nl" ? "Speel video af" : "Play video"} className="vd-reel__knop" onClick={wissel} type="button">
+          {speelt ? (
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M8 5v14M16 5v14" />
+            </svg>
+          ) : (
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M8 5l11 7-11 7z" />
+            </svg>
+          )}
+        </button>
+      </div>
+      <figcaption>{taal === "nl" ? "48 seconden: AVA vangt om 21:00 een lead op voor een dakdekker." : "48 seconds: AVA catches a 9 PM lead for a roofing contractor."}</figcaption>
+    </figure>
   );
 }

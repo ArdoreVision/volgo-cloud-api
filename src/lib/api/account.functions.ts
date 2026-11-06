@@ -241,7 +241,8 @@ export const maakAccount = createServerFn({ method: "POST" })
     }
     // Straight into the dashboard: no second login.
     await maakSessie(id);
-    return { ok: true as const, plan: plan.id, prijs: plan.prijs / 100 };
+    // proef/test tell the browser whether real money was paid at checkout (only then a "Purchase" goes to the ad pixel).
+    return { ok: true as const, plan: plan.id, prijs: plan.prijs / 100, proef: plan.proefDagen > 0, test: Boolean(b.testmodus) };
   });
 
 // 3b. Abonnement (opnieuw) activeren op een bestaand account, bv. na een verlopen proefperiode.
@@ -288,7 +289,7 @@ export const activeerAbonnement = createServerFn({ method: "POST" })
         g.team_id,
       ),
     ]);
-    return { ok: true as const, message: "" };
+    return { ok: true as const, message: "", plan: b.plan, prijs: PLANS[b.plan].prijs / 100, test: Boolean(b.testmodus) };
   });
 
 // 4. Inloggen / uitloggen
