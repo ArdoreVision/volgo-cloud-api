@@ -4,7 +4,7 @@ import { AvaChat } from "./ava-chat";
 import { Faq } from "./faq";
 import { Footer } from "./footer";
 import { Hero, Stappen } from "./hero";
-import { Cijfers, Diensten, Slotzin } from "./dialed";
+import { Cijfers, Diensten, NieuweWebsite, Slotzin } from "./dialed";
 import { LiveDemo, ScrollProgress, VoorNa, useReveal } from "./landing";
 import { Nav } from "./nav";
 import { FinalCta, PricingPreview } from "./pricing-preview";
@@ -46,6 +46,7 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
         <Cijfers taal={taal} />
         <VoorNa />
         <PricingPreview />
+        <NieuweWebsite taal={taal} />
         <Reviews />
         <Faq />
         <Slotzin taal={taal} />

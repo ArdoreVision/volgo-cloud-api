@@ -161,3 +161,101 @@ export function Slotzin({ taal = "en" }: { taal?: RouteTaal }) {
     </section>
   );
 }
+
+const W = {
+  en: {
+    label: "Websites",
+    titel: "Just need a new website?",
+    sub: "No AVA, no subscription. Just a modern website that people remember: smooth scroll animations, sharp on every phone and built to impress from the first second.",
+    punten: ["Scroll animations and motion throughout", "Looks perfect on phones, tablets and desktops", "Fast loading, clean and professional", "Connected to your own domain"],
+    knop: "DM the owner now",
+    klein: "Opens a chat with the owner on Instagram",
+    tags: ["Scroll animations", "Mobile first", "Fast"],
+  },
+  nl: {
+    label: "Websites",
+    titel: "Alleen een nieuwe website?",
+    sub: "Geen AVA, geen abonnement. Gewoon een moderne website die blijft hangen: vloeiende scrollanimaties, strak op elke telefoon en vanaf de eerste seconde indrukwekkend.",
+    punten: ["Scrollanimaties en beweging door de hele site", "Perfect op telefoon, tablet en desktop", "Snel, strak en professioneel", "Gekoppeld aan je eigen domein"],
+    knop: "DM de eigenaar nu",
+    klein: "Opent een chat met de eigenaar op Instagram",
+    tags: ["Scrollanimaties", "Mobiel eerst", "Snel"],
+  },
+} as const;
+
+/** Website-only offer: an animated browser that scrolls through a sample site, and one button that opens an Instagram DM. */
+export function NieuweWebsite({ taal = "en" }: { taal?: RouteTaal }) {
+  const t = W[taal];
+  return (
+    <section aria-labelledby="vd-website" className="vd-sectie" id="website" {...handgeschreven(taal)}>
+      <div className="vd-web">
+        <div className="vd-web__tekst" data-reveal="">
+          <Label>{t.label}</Label>
+          <h2 className="vd-h2" id="vd-website">
+            {t.titel}
+          </h2>
+          <p className="vd-sub">{t.sub}</p>
+          <ul className="vd-web__punten">
+            {t.punten.map((p) => (
+              <li key={p}>
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M5 12.5l4.2 4.2L19 7" />
+                </svg>
+                {p}
+              </li>
+            ))}
+          </ul>
+          <a className="vd-web__knop" href="https://ig.me/m/damienhanssens" rel="noopener" target="_blank">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <rect height="16" rx="4.5" width="16" x="4" y="4" />
+              <circle cx="12" cy="12" r="3.6" />
+              <circle cx="16.9" cy="7.1" r="0.7" />
+            </svg>
+            {t.knop}
+          </a>
+          <p className="vd-web__klein">{t.klein} · @damienhanssens</p>
+        </div>
+        <div aria-hidden="true" className="vd-web__beeld" data-reveal="">
+          <div className="vd-web__browser">
+            <div className="vd-web__balk">
+              <i />
+              <i />
+              <i />
+              <span>yourbusiness.com</span>
+            </div>
+            <div className="vd-web__venster">
+              <div className="vd-web__site">
+                <div className="vd-web__hero">
+                  <b />
+                  <b />
+                  <em />
+                </div>
+                <div className="vd-web__rij">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+                <div className="vd-web__groot" />
+                <div className="vd-web__rij vd-web__rij--twee">
+                  <span />
+                  <span />
+                </div>
+                <div className="vd-web__hero vd-web__hero--eind">
+                  <b />
+                  <em />
+                </div>
+              </div>
+            </div>
+          </div>
+          <ul className="vd-web__tags">
+            {t.tags.map((g, i) => (
+              <li key={g} style={{ "--i": i } as CSSProperties}>
+                {g}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
