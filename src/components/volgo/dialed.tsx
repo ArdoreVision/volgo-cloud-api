@@ -184,10 +184,11 @@ const W = {
 } as const;
 
 /** Website-only offer: an animated browser that scrolls through a sample site, and one button that opens an Instagram DM. */
-export function NieuweWebsite({ taal = "en" }: { taal?: RouteTaal }) {
-  const t = W[taal];
+export function NieuweWebsite(_props: { taal?: RouteTaal }) {
+  // Always English, also on /nl.
+  const t = W.en;
   return (
-    <section aria-labelledby="vd-website" className="vd-sectie" id="website" {...handgeschreven(taal)}>
+    <section aria-labelledby="vd-website" className="vd-sectie" id="website" data-notranslate="" lang="en" translate="no">
       <div className="vd-web">
         <div className="vd-web__tekst" data-reveal="">
           <Label>{t.label}</Label>
