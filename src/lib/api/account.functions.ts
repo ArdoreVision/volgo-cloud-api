@@ -43,8 +43,12 @@ export const startBetaling = createServerFn({ method: "POST" })
     // Logged in (switching plans)? Reuse the Stripe customer and skip the trial.
     const ik = await huidigeGebruiker().catch(() => null);
     const bestaand = ik
-      ? await DB.prepare("SELECT stripe_klant, plan FROM gebruikers WHERE id = ?").bind(ik.team_id).first<{ stripe_klant: string | null; plan: string }>()
+      ? await DB.prepare("SELECT stripe_klant, plan, status, stripe_abonnement FROM gebruikers WHERE id = ?")
+          .bind(ik.team_id)
+          .first<{ stripe_klant: string | null; plan: string; status: string; stripe_abonnement: string | null }>()
       : null;
+    // The €1 trial is for first-time customers only: new visitors, or an account that never had a plan (status "nieuw").
+    const proefMag = !ik || (bestaand?.status === "nieuw" && !bestaand.stripe_abonnement);
     if (ik && ik.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can change the plan." };
 
     // Existing customer with a running Stripe subscription: change the plan in place (prorated, no double billing).
@@ -96,7 +100,7 @@ export const startBetaling = createServerFn({ method: "POST" })
       b.set("line_items[0][price_data][unit_amount]", String(plan.prijs));
       b.set("line_items[0][price_data][recurring][interval]", "month");
       b.set("line_items[0][price_data][product_data][name]", `Volgo ${plan.naam}`);
-      if (plan.proefDagen && !ik) {
+      if (plan.proefDagen && proefMag) {
         b.set("subscription_data[trial_period_days]", String(plan.proefDagen));
         // The trial is not free: €1 is charged today (one-time, on the first invoice), the full monthly price after the trial.
         b.set("line_items[1][quantity]", "1");
@@ -252,6 +256,56 @@ export const maakAccount = createServerFn({ method: "POST" })
     return { ok: true as const, plan: plan.id, prijs: plan.prijs / 100, proef: plan.proefDagen > 0, test: Boolean(b.testmodus) };
   });
 
+// 3a. Account aanmaken zonder abonnement: je komt in een dashboard dat op slot zit tot je een plan kiest (7 dagen voor €1).
+export const maakAccountZonderPlan = createServerFn({ method: "POST" })
+  .validator((v: unknown) =>
+    z
+      .object({
+        naam: z.string().trim().min(2).max(100),
+        bedrijf: z.string().trim().min(2).max(120),
+        email: z.string().trim().toLowerCase().email().max(200),
+        wachtwoord: z.string().min(8).max(200),
+      })
+      .parse(v),
+  )
+  .handler(async ({ data }) => {
+    const { DB } = bindings();
+    if (!DB) return { ok: false as const, message: "Database unavailable." };
+    const ipHash = await hashIp(getRequestHeader("cf-connecting-ip") ?? "onbekend");
+    const { binnenLimiet } = await import("../limiet.server");
+    if (!(await binnenLimiet(DB, `signup:${ipHash}`, 60, 5))) return { ok: false as const, message: "Too many new accounts from this network. Please try again later." };
+    const sterkte = beoordeel(data.wachtwoord, [data.naam, data.bedrijf, data.email]);
+    if (!sterkte.ok) return { ok: false as const, message: sterkte.tip };
+    const bestaat = await DB.prepare("SELECT id FROM gebruikers WHERE email = ?").bind(data.email).first();
+    if (bestaat) return { ok: false as const, message: "An account with this email address already exists. Please log in." };
+    const hash = await hashWachtwoord(data.wachtwoord);
+    const res = await DB.prepare(
+      "INSERT INTO gebruikers (email, naam, bedrijf, wachtwoord, plan, status, proef_tot, stripe_klant, stripe_abonnement, testmodus) VALUES (?, ?, ?, ?, 'start', 'nieuw', NULL, '', '', 0)",
+    )
+      .bind(data.email, data.naam, data.bedrijf, hash)
+      .run();
+    const id = Number(res.meta?.last_row_id);
+    await seedTeam(DB, id);
+    await zorgVoorKanaal(DB, id);
+    await verstuurMail(
+      VOLGO_INBOX,
+      `New account: ${data.bedrijf} (no plan yet)`,
+      mailOpmaak(
+        `New account: ${esc(data.bedrijf)}`,
+        `<p><strong>${esc(data.naam)}</strong> · ${esc(data.email)}</p>
+         <p>Created an account. The dashboard stays locked until they start a plan (7 days for €1).</p>
+         <p style="color:#64748b">Account #${id} · ${new Date().toISOString().replace("T", " ").slice(0, 16)} UTC</p>`,
+        { tekst: "Open admin", url: `${origin()}/admin` },
+      ),
+    ).catch(() => false);
+    {
+      const { push } = await import("../push.server");
+      await push(`👋 New account: ${data.bedrijf}`, `${data.naam} · ${data.email}\nNo plan yet: dashboard locked until they start 7 days for €1.`, { tags: ["wave"], prioriteit: 4, link: `${origin()}/admin` });
+    }
+    await maakSessie(id);
+    return { ok: true as const };
+  });
+
 // 3b. Abonnement (opnieuw) activeren op een bestaand account, bv. na een verlopen proefperiode.
 export const activeerAbonnement = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ token: z.string().min(8).max(200) }).parse(v))
@@ -277,6 +331,10 @@ export const activeerAbonnement = createServerFn({ method: "POST" })
     }
     const claim = await DB.prepare("UPDATE betalingen SET gebruikt = 1 WHERE token = ? AND gebruikt = 0").bind(data.token).run();
     if ((claim.meta?.changes ?? 0) !== 1) return { ok: false as const, message: "This payment has already been used." };
+    // First plan on an account that was created without one: this checkout started the €1 trial.
+    const voor = await DB.prepare("SELECT status, stripe_abonnement FROM gebruikers WHERE id = ?").bind(g.team_id).first<{ status: string; stripe_abonnement: string | null }>();
+    const eerstePlan = voor?.status === "nieuw" && !voor.stripe_abonnement;
+    const proefDagen = eerstePlan ? PLANS[b.plan].proefDagen : 0;
     // Reactivating after an old subscription: make sure the old one is stopped, so nobody pays twice.
     const oud = await DB.prepare("SELECT stripe_abonnement FROM gebruikers WHERE id = ?").bind(g.team_id).first<{ stripe_abonnement: string | null }>();
     if (STRIPE_SECRET_KEY && oud?.stripe_abonnement && b.stripe_abonnement && oud.stripe_abonnement !== b.stripe_abonnement) {
@@ -288,7 +346,9 @@ export const activeerAbonnement = createServerFn({ method: "POST" })
       if (del && !del.ok && del.status >= 500) console.error("[reactivate] old subscription not canceled", oud.stripe_abonnement, del.status);
     }
     await DB.batch([
-      DB.prepare("UPDATE gebruikers SET plan = ?, status = 'actief', proef_tot = NULL, stripe_check = NULL, stripe_klant = COALESCE(NULLIF(?, ''), stripe_klant), stripe_abonnement = COALESCE(NULLIF(?, ''), stripe_abonnement), testmodus = ? WHERE id = ?").bind(
+      DB.prepare(
+        `UPDATE gebruikers SET plan = ?, status = '${proefDagen ? "proef" : "actief"}', proef_tot = ${proefDagen ? `datetime('now', '+${proefDagen} days')` : "NULL"}, stripe_check = NULL, stripe_klant = COALESCE(NULLIF(?, ''), stripe_klant), stripe_abonnement = COALESCE(NULLIF(?, ''), stripe_abonnement), testmodus = ? WHERE id = ?`,
+      ).bind(
         b.plan,
         b.stripe_klant ?? "",
         b.stripe_abonnement ?? "",
@@ -296,7 +356,11 @@ export const activeerAbonnement = createServerFn({ method: "POST" })
         g.team_id,
       ),
     ]);
-    return { ok: true as const, message: "", plan: b.plan, prijs: PLANS[b.plan].prijs / 100, test: Boolean(b.testmodus) };
+    if (eerstePlan) {
+      const { push } = await import("../push.server");
+      await push(`🎉 Plan started: ${PLANS[b.plan].naam}`, `Account #${g.team_id} started Volgo ${PLANS[b.plan].naam}${proefDagen ? ` · ${proefDagen}-day trial for €1` : ""}${b.testmodus ? " · TEST" : ""}`, { tags: ["tada"], prioriteit: 5, link: `${origin()}/admin` });
+    }
+    return { ok: true as const, message: "", plan: b.plan, prijs: proefDagen ? PROEF_PRIJS / 100 : PLANS[b.plan].prijs / 100, test: Boolean(b.testmodus) };
   });
 
 // 4. Inloggen / uitloggen
@@ -332,7 +396,10 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
   if (!DB) return null;
   const team = g.team_id;
   // Geen actief abonnement of proefperiode? Dan geen dashboard.
-  if (!(await heeftToegang(DB, team))) return { geblokkeerd: true as const };
+  if (!(await heeftToegang(DB, team))) {
+    const s = await DB.prepare("SELECT status FROM gebruikers WHERE id = ?").bind(team).first<{ status: string }>();
+    return { geblokkeerd: true as const, nieuw: s?.status === "nieuw", naam: g.naam, eigenaar: g.rol === "eigenaar" };
+  }
   // Analytics history follows the plan (twice the range, for the "vs previous period" comparison).
   const analyticsDagen = (await (await import("../limieten.server")).planVoorTeam(DB, team)).limieten.analyticsDagen;
 

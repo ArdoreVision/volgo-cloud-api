@@ -2288,3 +2288,52 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000; }
 .v-dash :is(.v-videobtn, .v-callcard), .v-dash[data-thema="donker"] :is(.v-videobtn, .v-callcard) { background-color: var(--sky-2); color: var(--ink); }
 .v-dash .v-videobtn:hover { background-color: var(--sky-1); }
 .v-dash[data-thema="donker"] :is(.v-badge--groen, .v-auth__ok) { background-color: var(--sky-1); color: var(--ink); }
+
+/* ── Dashboard op slot (account zonder plan) ───────────── */
+.v-lock { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; background: #fff; color: #0a0a0a; font-family: inherit; }
+.v-lock__side { border-right: 1px solid #ececec; padding: 22px 14px; display: flex; flex-direction: column; gap: 18px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.v-lock__logo { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 17px; letter-spacing: -.02em; color: inherit; text-decoration: none; padding: 0 8px; }
+.v-lock__logo svg { width: 24px; height: 24px; }
+.v-lock__groep { display: flex; flex-direction: column; gap: 2px; }
+.v-lock__groep small { padding: 0 10px 4px; color: #9a9a9a; font-size: 11px; font-weight: 500; }
+.v-lock__item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 9px; color: #8a8a8a; font-size: 14px; }
+.v-lock__item .v-dash__icon { width: 16px; height: 16px; flex: none; }
+.v-lock__slot { margin-left: auto; width: 13px; height: 13px; fill: none; stroke: #b5b5b5; stroke-width: 1.6; }
+.v-lock__uit { margin-top: auto; background: none; border: none; color: #8a8a8a; font: inherit; font-size: 13px; text-align: left; padding: 8px 10px; cursor: pointer; }
+.v-lock__uit:hover { color: #0a0a0a; }
+.v-lock__main { position: relative; min-width: 0; padding: 32px; }
+.v-lock__waas { filter: blur(6px); opacity: .5; pointer-events: none; user-select: none; display: flex; flex-direction: column; gap: 14px; }
+.v-lock__rij { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.v-lock__rij i, .v-lock__vlak { display: block; height: 110px; border-radius: 16px; background: #f1f1f0; border: 1px solid #e6e6e6; }
+.v-lock__vlak { height: 280px; }
+.v-lock__vlak--laag { height: 180px; }
+.v-lock__kaart { position: absolute; left: 50%; top: 48px; transform: translateX(-50%); width: min(940px, calc(100% - 48px)); background: #fff; border: 1px solid #e6e6e6; border-radius: 20px; padding: 34px; box-shadow: 0 30px 80px rgba(0,0,0,.08); animation: vLockIn .6s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes vLockIn { from { opacity: 0; transform: translate(-50%, 14px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.v-lock__hoi { color: #8a8a8a; font-size: 13px; margin: 0 0 8px; }
+.v-lock__kaart h1 { font-size: clamp(22px, 2.6vw, 30px); font-weight: 650; letter-spacing: -.03em; line-height: 1.15; margin: 0 0 10px; }
+.v-lock__sub { color: #6b6b6b; line-height: 1.6; margin: 0 0 24px; max-width: 640px; }
+.v-lock__plannen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.v-lock__plan { text-align: left; background: #fff; border: 1px solid #e6e6e6; border-radius: 14px; padding: 18px; font: inherit; color: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 4px; transition: border-color .2s, box-shadow .2s; }
+.v-lock__plan:hover { border-color: #bdbdbd; }
+.v-lock__plan.is-aan { border-color: #0a0a0a; box-shadow: 0 0 0 1px #0a0a0a; }
+.v-lock__plannaam { display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+.v-lock__plannaam em { font-style: normal; font-size: 11px; font-weight: 500; background: #0a0a0a; color: #fff; border-radius: 999px; padding: 3px 9px; }
+.v-lock__plan b { font-size: 28px; font-weight: 650; letter-spacing: -.03em; margin-top: 8px; }
+.v-lock__per { color: #8a8a8a; font-size: 13px; }
+.v-lock__proef { font-size: 12px; font-weight: 600; margin-top: 6px; }
+.v-lock__plan ul { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-direction: column; gap: 6px; }
+.v-lock__plan li { font-size: 13px; color: #6b6b6b; display: flex; gap: 8px; }
+.v-lock__plan li::before { content: "✓"; color: #0a0a0a; }
+.v-lock__voet { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 22px; }
+.v-lock__voet p { margin: 0; color: #6b6b6b; font-size: 13px; max-width: 520px; line-height: 1.55; }
+.v-lock__knop { background: #0a0a0a; color: #fff; border: 1px solid #0a0a0a; border-radius: 999px; padding: 14px 26px; font: inherit; font-weight: 500; cursor: pointer; transition: transform .2s; }
+.v-lock__knop:hover { transform: translateY(-1px); }
+.v-lock__knop:disabled { opacity: .6; cursor: wait; }
+@media (max-width: 900px) {
+  .v-lock { grid-template-columns: 1fr; }
+  .v-lock__side { position: static; height: auto; border-right: none; border-bottom: 1px solid #ececec; flex-direction: row; flex-wrap: wrap; }
+  .v-lock__groep small, .v-lock__groep .v-lock__item:not(:first-child) { display: none; }
+  .v-lock__main { padding: 16px; }
+  .v-lock__kaart { position: relative; left: auto; top: auto; transform: none; width: 100%; padding: 22px; margin-top: -380px; animation: none; }
+  .v-lock__plannen { grid-template-columns: 1fr; }
+}

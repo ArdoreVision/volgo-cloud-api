@@ -15,7 +15,7 @@ import { Overview } from "@/components/dash/overview";
 import { TeamChat } from "@/components/dash/team-chat";
 import { warmteLabel } from "@/components/dash/util";
 import { VolgoMark } from "@/components/volgo/logo";
-import { haalDashboard, uitloggen, zetLeadStatus } from "@/lib/api/account.functions";
+import { haalDashboard, startBetaling, uitloggen, zetLeadStatus } from "@/lib/api/account.functions";
 import { isAdmin } from "@/lib/api/admin.functions";
 import { PlanCall } from "@/components/dash/plan-call";
 import { Verkeer } from "@/components/dash/verkeer";
@@ -25,14 +25,13 @@ import { LeadDetail } from "@/components/dash/lead-detail";
 import { haalAva } from "@/lib/api/ava.functions";
 import { leesProfiel, type Profiel } from "@/lib/profiel-vragen";
 import { checkNieuw } from "@/lib/api/ava.functions";
-import { PLANS, isPlan } from "@/lib/plans";
+import { PLANS, PROEF_PRIJS, isPlan, type PlanId } from "@/lib/plans";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/dashboard")({
   loader: async () => {
     const d = await haalDashboard();
     if (!d) throw redirect({ to: "/login", search: {} });
-    if ("geblokkeerd" in d) throw redirect({ to: "/pricing", search: { expired: 1 } });
     return d;
   },
   head: () => ({ meta: [{ title: "Dashboard · Volgo" }, { name: "robots", content: "noindex" }] }),
@@ -127,7 +126,127 @@ function Icon({ name }: { name: Tab | "uit" | "meer" | "abonnement" | "account" 
 }
 
 function Dashboard() {
-  const data = Route.useLoaderData();
+  const d = Route.useLoaderData();
+  if ("geblokkeerd" in d) return <Vergrendeld eigenaar={d.eigenaar ?? true} naam={d.naam ?? ""} nieuw={d.nieuw ?? false} />;
+  return <Open data={d as DashData} />;
+}
+
+/**
+ * No plan yet (or it ended): you see your dashboard, but everything is locked until you start a plan.
+ * First plan = 7 days for €1, then the full monthly price. Installing Volgo on your website only unlocks after that.
+ */
+function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; eigenaar: boolean }) {
+  const [kies, setKies] = useState<PlanId>("start");
+  const [bezig, setBezig] = useState(false);
+  const [fout, setFout] = useState("");
+  const navigate = useNavigate();
+  const euro1 = `€${PROEF_PRIJS / 100}`;
+  const start = async () => {
+    setBezig(true);
+    setFout("");
+    const r = await startBetaling({ data: { plan: kies } }).catch(() => ({ ok: false as const, message: "Something went wrong. Please try again." }));
+    if (r.ok) {
+      window.location.href = r.url;
+      return;
+    }
+    setFout(r.message);
+    setBezig(false);
+  };
+  const uit = async () => {
+    await uitloggen();
+    void navigate({ to: "/" });
+  };
+  return (
+    <div className="v-lock">
+      <aside className="v-lock__side">
+        <a className="v-lock__logo" href="/">
+          <VolgoMark />
+          <span>Volgo</span>
+        </a>
+        {GROEPEN.map((gr, i) => (
+          <div className="v-lock__groep" key={i}>
+            {gr.kop ? <small>{gr.kop}</small> : null}
+            {gr.items.map(([id, label]) => (
+              <span className="v-lock__item" key={id}>
+                <Icon name={id} />
+                {label}
+                <svg aria-hidden="true" className="v-lock__slot" viewBox="0 0 20 20">
+                  <path d="M6 9V6.5a4 4 0 0 1 8 0V9M5 9h10v8H5z" />
+                </svg>
+              </span>
+            ))}
+          </div>
+        ))}
+        <button className="v-lock__uit" onClick={() => void uit()} type="button">
+          Log out
+        </button>
+      </aside>
+      <main className="v-lock__main">
+        <div aria-hidden="true" className="v-lock__waas">
+          <div className="v-lock__rij">
+            <i />
+            <i />
+            <i />
+            <i />
+          </div>
+          <div className="v-lock__vlak" />
+          <div className="v-lock__vlak v-lock__vlak--laag" />
+        </div>
+        <section aria-labelledby="lock-titel" className="v-lock__kaart">
+          <p className="v-lock__hoi">Welcome{naam ? `, ${naam.split(" ")[0]}` : ""}</p>
+          <h1 id="lock-titel">{nieuw ? `Start your plan: the first 7 days for ${euro1}.` : "Choose a plan to continue."}</h1>
+          <p className="v-lock__sub">
+            {nieuw
+              ? `Your dashboard is ready, but locked. Pick a plan to unlock it and put Volgo on your website. You pay ${euro1} today. After 7 days the full monthly price starts. Cancel within the 7 days and you pay nothing more.`
+              : "Your trial or subscription has ended. All your data is still here. Pick a plan to unlock your dashboard again."}
+          </p>
+          {eigenaar ? (
+            <>
+              <div className="v-lock__plannen" role="radiogroup">
+                {(Object.keys(PLANS) as PlanId[]).map((id) => {
+                  const p = PLANS[id];
+                  return (
+                    <button aria-checked={kies === id} className={`v-lock__plan${kies === id ? " is-aan" : ""}`} key={id} onClick={() => setKies(id)} role="radio" type="button">
+                      <span className="v-lock__plannaam">
+                        {p.naam}
+                        {p.badge ? <em>{p.badge}</em> : null}
+                      </span>
+                      <b>€{p.prijsTekst}</b>
+                      <span className="v-lock__per">per month</span>
+                      {nieuw ? <span className="v-lock__proef">First 7 days {euro1}</span> : null}
+                      <ul>
+                        {p.kern.map((k) => (
+                          <li key={k}>{k}</li>
+                        ))}
+                      </ul>
+                    </button>
+                  );
+                })}
+              </div>
+              {fout ? <p className="v-err" role="alert">{fout}</p> : null}
+              <div className="v-lock__voet">
+                <p>
+                  {nieuw
+                    ? `Today ${euro1}. From day 8: €${PLANS[kies].prijsTekst} per month for Volgo ${PLANS[kies].naam}. Secure checkout via Stripe.`
+                    : `€${PLANS[kies].prijsTekst} per month for Volgo ${PLANS[kies].naam}. Secure checkout via Stripe.`}
+                </p>
+                <button className="v-lock__knop" disabled={bezig} onClick={() => void start()} type="button">
+                  {bezig ? "One moment…" : nieuw ? `Start 7 days for ${euro1} →` : `Continue with ${PLANS[kies].naam} →`}
+                </button>
+              </div>
+            </>
+          ) : (
+            <p className="v-lock__sub">Only the account owner can start a plan. Ask them to log in and choose one.</p>
+          )}
+        </section>
+      </main>
+    </div>
+  );
+}
+
+type DashData = Exclude<NonNullable<Awaited<ReturnType<typeof haalDashboard>>>, { geblokkeerd: true }>;
+
+function Open({ data }: { data: DashData }) {
   const { gebruiker: g } = data;
   const leads = [...data.leads].sort((a, b) => {
     const af = (x: typeof a) => (x.status === "klant" || x.status === "verloren" ? 1 : 0);

@@ -25,7 +25,7 @@ export function Hero({ taal = "en", onProbeer }: { taal?: RouteTaal; onProbeer?:
         </h1>
         <p className="vs-hero__sub">{t.sub}</p>
         <div className="vs-hero__acties">
-          <a className="vs-start vs-start--groot" href="#pricing" onClick={() => meet("abo_klik")}>
+          <a className="vs-start vs-start--groot" href="/signup" onClick={() => meet("abo_klik")}>
             {t.probeer}
           </a>
           <a
