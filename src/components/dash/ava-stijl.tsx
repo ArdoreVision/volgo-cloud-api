@@ -79,7 +79,7 @@ export function AvaStijl({ begin, mag, naam, kleur }: { begin: Stijl; mag: boole
     setMelding(r.ok ? "Saved. Your website shows the new style on the next page load." : r.message);
   }
 
-  const foto = s.avatar ?? "/assets/volgo/ava.png";
+  const foto = s.avatar ?? "/assets/volgo/ava-mono.svg";
   return (
     <section className="v-dash__panel">
       <div className="v-dash__panel-head">

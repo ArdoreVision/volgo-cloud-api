@@ -26,7 +26,7 @@ export function AvaChat() {
 export function TryAvaButton() {
   return (
     <button className="v-try-ava" data-ava-open="" type="button">
-      <img alt="" height={28} src="/assets/volgo/ava.png" width={28} />
+      <img alt="" height={28} src="/assets/volgo/ava-mono.svg" width={28} />
       Try AVA yourself
     </button>
   );

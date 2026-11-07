@@ -38,7 +38,7 @@ export async function instellingenVoorTeam(DB: D1Database, teamId: number): Prom
   const bedrijf = g?.bedrijf ?? "our company";
   const sleutel = randomToken(12);
   const begroeting = `Hi! I'm AVA, the assistant at ${bedrijf}. How can I help?`;
-  await DB.prepare("INSERT OR IGNORE INTO ava_instellingen (team_id, sleutel, begroeting) VALUES (?, ?, ?)").bind(teamId, sleutel, begroeting).run();
+  await DB.prepare("INSERT OR IGNORE INTO ava_instellingen (team_id, sleutel, begroeting, kleur) VALUES (?, ?, ?, '#0a0a0a')").bind(teamId, sleutel, begroeting).run();
   return instellingenVoorTeam(DB, teamId);
 }
 
