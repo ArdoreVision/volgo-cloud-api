@@ -10,6 +10,7 @@ import { startBetaling, uitloggen } from "@/lib/api/account.functions";
 import { InstallGuides } from "@/components/volgo/install-guides";
 import { PLANS, START_STAPPEN, VERGELIJKING, type PlanId } from "@/lib/plans";
 import "@/volgo.css";
+import "@/volgo-donker.css";
 
 export const Route = createFileRoute("/pricing")({
   validateSearch: (s: Record<string, unknown>): { expired?: number } => ({ expired: s.expired === "1" || s.expired === 1 ? 1 : undefined }),
@@ -49,7 +50,7 @@ function Abonnement() {
   }
 
   return (
-    <div className="volgo">
+    <div className="volgo volgo--donker">
       <Nav ingelogd={ingelogd && !verlopen} />
       <main className="v-pricing">
         <header className="v-pricing__head">
