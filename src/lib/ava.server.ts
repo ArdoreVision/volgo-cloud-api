@@ -24,8 +24,9 @@ export type AvaInstellingen = {
   instagram: string;
   toestemming: number;
   profiel: string;
+  vragen: string;
 };
-const KOLOMMEN = "a.team_id, a.sleutel, a.naam, a.begroeting, a.bedrijfsinfo, a.kleur, a.boeken, a.tijdzone, a.open_dagen, a.open_van, a.open_tot, a.afspraak_duur, a.afspraak_soorten, a.instagram, a.toestemming, a.profiel, g.bedrijf";
+const KOLOMMEN = "a.team_id, a.sleutel, a.naam, a.begroeting, a.bedrijfsinfo, a.kleur, a.boeken, a.tijdzone, a.open_dagen, a.open_van, a.open_tot, a.afspraak_duur, a.afspraak_soorten, a.instagram, a.toestemming, a.profiel, a.vragen, g.bedrijf";
 
 export async function instellingenVoorTeam(DB: D1Database, teamId: number): Promise<AvaInstellingen> {
   const bestaand = await DB.prepare(
@@ -427,7 +428,15 @@ ${profielTekst ? `
 BUSINESS PROFILE (answered by the owner, follow it)
 ${profielTekst}
 ` : ""}
-ABOUT THE BUSINESS
+${inst.vragen?.trim() ? `QUESTIONS THE OWNER WANTS ANSWERED (ask them one by one, naturally, before or while booking an appointment; skip what the visitor already told you)
+${inst.vragen
+  .split("\n")
+  .map((v) => v.trim())
+  .filter(Boolean)
+  .map((v) => `- ${v}`)
+  .join("\n")}
+
+` : ""}ABOUT THE BUSINESS
 ${inst.bedrijfsinfo || "(No extra information yet. Answer general questions carefully and refer to the team for details.)"}
 
 YOUR GOAL

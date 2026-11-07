@@ -38,9 +38,12 @@ export async function haalStijl(DB: D1Database, teamId: number): Promise<Stijl |
   return p.success ? p.data : null;
 }
 
-/** The style the widget should use: custom on Pro/Premium, Volgo default on Start. */
+/** The style the widget should use. Every plan may set its own photo and light/dark; the full style is part of Complete. */
 export async function actieveStijl(DB: D1Database, teamId: number): Promise<Stijl> {
   const plan = await planVoorTeam(DB, teamId);
-  if (!plan.limieten.eigenStijl) return STANDAARD_STIJL;
+  if (!plan.limieten.eigenStijl) {
+    const eigen = await haalStijl(DB, teamId);
+    return eigen ? { ...STANDAARD_STIJL, avatar: eigen.avatar, thema: eigen.thema } : STANDAARD_STIJL;
+  }
   return (await haalStijl(DB, teamId)) ?? { ...STANDAARD_STIJL, branding: false };
 }
