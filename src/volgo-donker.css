@@ -105,3 +105,12 @@ html:has(.volgo--donker), body:has(.volgo--donker) { background: #010101; }
 .volgo--donker .v-lock__plannaam em { background: #fff; color: #000; }
 .volgo--donker .v-lock__knop { background: #fff; color: #000; border-color: #fff; font-weight: 600; }
 @media (max-width: 900px) { .volgo--donker .v-lock__side { border-bottom-color: rgba(255, 255, 255, 0.08); } }
+
+/* Floating glass nav, like the landing page */
+.volgo--donker .v-nav { background: transparent; border: 0; box-shadow: none; }
+.volgo--donker .v-nav__inner { background: rgba(14, 14, 14, 0.72); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.09), 0 10px 40px rgba(0, 0, 0, 0.5); }
+.volgo--donker .v-nav__brand { color: #fff; }
+.volgo--donker :is(.v-nav__links a, .v-nav__login) { color: #bdbdbd; }
+.volgo--donker :is(.v-nav__links a, .v-nav__login):hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
+.volgo--donker .v-taal { background: rgba(255, 255, 255, 0.04); color: #fff; }
+.volgo--donker .v-auth__top .v-nav__brand { color: #fff; }
