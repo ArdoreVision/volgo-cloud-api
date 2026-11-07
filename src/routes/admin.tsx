@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import { VolgoMark } from "@/components/volgo/logo";
 import { AdminReviews } from "@/components/dash/admin-reviews";
+import { KlantBeheer } from "@/components/dash/klant-beheer";
 import { haalAdmin, haalOmzet, zetAanvraagStatus } from "@/lib/api/admin.functions";
 import { PLANS, isPlan } from "@/lib/plans";
 import "@/volgo.css";
@@ -33,7 +34,8 @@ const KLEUR: Record<string, string> = { actief: "v-badge--groen", proef: "v-badg
 function Admin() {
   const d = Route.useLoaderData();
   const router = useRouter();
-  const [tab, setTab] = useState<"omzet" | "aanvragen" | "klanten">("omzet");
+  const [tab, setTab] = useState<"omzet" | "aanvragen" | "klanten">("klanten");
+  const [klant, setKlant] = useState<number | null>(null);
   const [omzet, setOmzet] = useState<Omzet | undefined>(undefined);
   useEffect(() => {
     haalOmzet()
@@ -95,7 +97,8 @@ function Admin() {
           </button>
         </nav>
 
-        {tab === "omzet" ? (
+        {klant ? <KlantBeheer id={klant} sluit={() => setKlant(null)} /> : null}
+        {klant ? null : tab === "omzet" ? (
           <section className="v-admin__omzet">
             {omzet === undefined ? <p className="v-feed__empty">Loading revenue from Stripe…</p> : null}
             {omzet && !omzet.ok ? <p className="v-err">{omzet.message}</p> : null}
@@ -227,7 +230,14 @@ function Admin() {
                 <span>Joined</span>
               </div>
               {klanten.map((k) => (
-                <div className="v-admin__rij" key={k.id}>
+                <div
+                  className="v-admin__rij v-admin__rij--klik"
+                  key={k.id}
+                  onClick={() => setKlant(k.id)}
+                  onKeyDown={(e) => (e.key === "Enter" ? setKlant(k.id) : undefined)}
+                  role="button"
+                  tabIndex={0}
+                >
                   <span>
                     <strong>{k.bedrijf}</strong>
                     <small>
