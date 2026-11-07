@@ -9,6 +9,7 @@ const VOLGORDE = [1, 2, 3, 4, 5, 6, 0];
 const SOORTEN: [string, string, string][] = [
   ["bellen", "Phone call", "You call them at the chosen time"],
   ["langs", "Visit at their address", "You go to them, e.g. to measure. Asks for their address"],
+  ["chat", "Chat appointment", "You chat with them at the chosen time, in your Volgo chats"],
   ["kantoor", "At your office", "They come to you"],
   ["insta", "DM on Instagram", "Opens a DM with your Instagram account, no time slot"],
 ];
@@ -32,7 +33,7 @@ export function AgendaInstellingen({ inst }: { inst: Inst }) {
     if (!soorten.length) return setMelding({ ok: false, tekst: "Choose at least one kind of appointment." });
     if (van >= tot) return setMelding({ ok: false, tekst: "Opening time must be before closing time." });
     try {
-      const r = await bewaarAgenda({ data: { boeken: aan, open_dagen: dagen, open_van: van, open_tot: tot, afspraak_duur: duur, afspraak_soorten: soorten as ("bellen" | "langs" | "kantoor" | "insta")[], tijdzone: zone, instagram: insta } });
+      const r = await bewaarAgenda({ data: { boeken: aan, open_dagen: dagen, open_van: van, open_tot: tot, afspraak_duur: duur, afspraak_soorten: soorten as ("bellen" | "langs" | "chat" | "kantoor" | "insta")[], tijdzone: zone, instagram: insta } });
       setMelding({ ok: r.ok, tekst: r.message });
     } catch {
       setMelding({ ok: false, tekst: "Couldn't save. Check the times and try again." });

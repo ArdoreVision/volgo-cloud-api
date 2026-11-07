@@ -19,7 +19,24 @@ const REDENEN: Record<string, string[]> = {
   lauw: ["Still exploring, no rush", "Only asked for general information"],
 };
 
-export async function seedTeam(DB: D1Database, teamId: number) {
+/** Sample data is switched off: every new account starts empty, with only real chats, requests and appointments. */
+export async function seedTeam(_DB: D1Database, _teamId: number) {
+  return;
+}
+
+/** Removes the old sample data (fake requests, chats and appointments) from an account. Real data is never touched. */
+export async function wisVoorbeelden(DB: D1Database, teamId: number) {
+  await DB.batch([
+    DB.prepare("DELETE FROM lead_scores WHERE lead_id IN (SELECT id FROM klant_leads WHERE gebruiker_id = ? AND voorbeeld = 1)").bind(teamId),
+    DB.prepare("DELETE FROM klant_leads WHERE gebruiker_id = ? AND voorbeeld = 1").bind(teamId),
+    DB.prepare("DELETE FROM afspraken WHERE team_id = ? AND voorbeeld = 1").bind(teamId),
+    DB.prepare("DELETE FROM ava_berichten WHERE gesprek_id IN (SELECT id FROM ava_gesprekken WHERE team_id = ? AND voorbeeld = 1)").bind(teamId),
+    DB.prepare("DELETE FROM ava_gesprek_meta WHERE gesprek_id IN (SELECT id FROM ava_gesprekken WHERE team_id = ? AND voorbeeld = 1)").bind(teamId),
+    DB.prepare("DELETE FROM ava_gesprekken WHERE team_id = ? AND voorbeeld = 1").bind(teamId),
+  ]);
+}
+
+export async function seedTeamOud(DB: D1Database, teamId: number) {
   const r = rng(teamId * 7919);
   const pick = <T,>(a: T[]) => a[Math.floor(r() * a.length)];
   const stmts = [];

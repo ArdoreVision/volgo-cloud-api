@@ -36,8 +36,13 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
               <VolgoMark size={22} /> Volgo
             </p>
             <h1 className="vs-hero__title" id="hero-title">
-              {nl ? "Elke klant opgevolgd. Automatisch." : "Every customer followed up. Automatically."}
+              {nl ? "Jouw assistent online. 24/7." : "Your assistant online. 24/7."}
             </h1>
+            <p className="vs-hero__sub">
+              {nl
+                ? "Jij doet het werk. Volgo beantwoordt je websitebezoekers, stelt de juiste vragen en zet elke afspraak met naam en adres in je agenda."
+                : "You do the work. Volgo answers your website visitors, asks the right questions and puts every appointment, with name and address, in your calendar."}
+            </p>
             <div className="vs-hero__acties" style={{ justifyContent: "center" }}>
               <a className="vs-start vs-start--groot" href={naar} onClick={() => meet("abo_klik")}>
                 {ingelogd ? (nl ? "Naar dashboard →" : "Go to dashboard →") : nl ? "Start →" : "Start →"}

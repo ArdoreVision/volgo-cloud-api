@@ -15,10 +15,10 @@ async function sessie() {
   return { g, DB };
 }
 
-/** Team chat and video are part of Pro and Premium. */
+/** Team chat and video are part of Complete. */
 async function chatSessie() {
   const s = await sessie();
-  if (!(await planVoorTeam(s.DB, s.g.team_id)).limieten.teamChat) throw new Error("Team chat is part of Pro and Premium.");
+  if (!(await planVoorTeam(s.DB, s.g.team_id)).limieten.teamChat) throw new Error("Team chat is part of Complete.");
   return s;
 }
 
@@ -91,7 +91,7 @@ export const maakUitnodiging = createServerFn({ method: "POST" })
         gemaild: false,
         fout:
           plan.limieten.leden === 1
-            ? "Volgo Start is for one person. Upgrade to Pro to add your team."
+            ? "Volgo Assistant is for one person. Upgrade to Complete to add your team."
             : `Your ${plan.naam} plan includes up to ${plan.limieten.leden} users. Upgrade to Premium for unlimited users.`,
       };
     }

@@ -36,7 +36,7 @@ export const stuurWebsiteAanvraag = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const { g, DB, plan } = await sessie();
-    if (!plan.limieten.website) return { ok: false as const, message: "A custom website is part of Pro and Premium." };
+    if (!plan.limieten.website) return { ok: false as const, message: "A custom website is part of Complete." };
     await DB.prepare("INSERT INTO website_aanvragen (team_id, contact, telefoon, domein, huidige_site, wensen) VALUES (?, ?, ?, ?, ?, ?)")
       .bind(g.team_id, data.contact, data.telefoon, data.domein, data.huidige_site, data.wensen)
       .run();

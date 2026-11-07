@@ -8,7 +8,7 @@ import { Nav } from "@/components/volgo/nav";
 import { accountStatus } from "@/lib/api/assistent.functions";
 import { startBetaling, uitloggen } from "@/lib/api/account.functions";
 import { InstallGuides } from "@/components/volgo/install-guides";
-import { PLANS, START_STAPPEN, VERGELIJKING, type PlanId } from "@/lib/plans";
+import { PLANS, START_STAPPEN, VERGELIJKING, type PlanId, ZICHTBAAR } from "@/lib/plans";
 import "@/volgo.css";
 import "@/volgo-donker.css";
 
@@ -17,8 +17,8 @@ export const Route = createFileRoute("/pricing")({
   loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "", plan: "", eigenaar: false })),
   head: () => ({
     meta: [
-      { title: "Pricing · Volgo · Start €147, Pro €497, Premium €997 per month" },
-      { name: "description", content: "Volgo pricing: Start €147, Pro €497 and Premium €997 per month, excl. VAT. Every plan starts with 7 days for €1, then billed monthly, cancel any time. Pro and Premium include a custom website with Volgo inside." },
+      { title: "Pricing · Volgo · Assistant €197, Complete €297 per month" },
+      { name: "description", content: "Volgo pricing: Assistant €197 per month (7 days for €1) and Complete €297 per month plus €995 one-time for a new premium website with Volgo inside. Excl. VAT, monthly, cancel any time." },
       { property: "og:url", content: "https://thevolgo.app/pricing" },
     ],
     links: [{ rel: "canonical", href: "https://thevolgo.app/pricing" }],
@@ -81,7 +81,7 @@ function Abonnement() {
           <p className="v-lede v-center">Billed monthly, no setup fee. Switch or cancel any time.</p>
         </header>
         <div className="v-plans" id="plans">
-          {(Object.keys(PLANS) as PlanId[]).map((id) => {
+          {ZICHTBAAR.map((id) => {
             const p = PLANS[id];
             return (
               <article className={`v-plan v-plan--${id}`} key={id}>
@@ -92,6 +92,7 @@ function Abonnement() {
                   <span>€{p.prijsTekst}</span> per month
                 </p>
                 {!wisselen && p.proefDagen ? <p className="v-plan__kaart">First {p.proefDagen} days for €1 · cancel within {p.proefDagen} days and pay nothing more</p> : null}
+                {p.opstart ? <p className="v-plan__kaart">+ €{p.opstart / 100} one-time setup for your new website</p> : null}
                 <button
                   className={`v-plan__cta v-plan__cta--${id}`}
                   disabled={bezig !== null || (wisselen && (huidig === id || !eigenaar))}
@@ -131,7 +132,7 @@ function Abonnement() {
           </h2>
           <p className="v-lede v-center">Here is exactly how you get going.</p>
           <div className="v-na__grid">
-            {(Object.keys(PLANS) as PlanId[]).map((id) => (
+            {ZICHTBAAR.map((id) => (
               <article className={`v-na__kaart v-na__kaart--${id}`} key={id}>
                 <p className="v-na__plan">
                   {PLANS[id].naam} · €{PLANS[id].prijsTekst}/mo
@@ -143,7 +144,7 @@ function Abonnement() {
                   ))}
                 </ol>
                 {id === "start" ? (
-                  <p className="v-na__slot">Custom website, photo and video tools: available on Pro and Premium.</p>
+                  <p className="v-na__slot">Custom website, photo and video tools: available on Complete.</p>
                 ) : (
                   <p className="v-na__noot">Website included. Your domain name (about €10–20 a year) is not included; we help you register or connect it.</p>
                 )}
@@ -164,14 +165,14 @@ function Abonnement() {
 
           <div className="v-na__regels">
             <p>
-              <strong>7 days for €1.</strong> Start with a 7-day trial for €1. After that your plan renews monthly at the full price. Cancel within the 7 days and you pay nothing more. No setup fee.
+              <strong>Assistant: 7 days for €1.</strong> After that it renews monthly at the full price. Cancel within the 7 days and you pay nothing more. No setup fee. <strong>Complete:</strong> €995 one-time for your new website plus the first month, then monthly.
             </p>
             <p>
               <strong>Cancel any time.</strong> In your dashboard under Subscription. Volgo, your dashboard and the website we built (if you have one)
               stop at the end of your paid period.
             </p>
             <p>
-              <strong>Switch any time.</strong> Upgrade from Start to Pro to get your custom website; your leads and settings stay.
+              <strong>Switch any time.</strong> Upgrade from Assistant to Complete to get your new website; your chats, requests and settings stay.
             </p>
           </div>
         </section>
@@ -187,7 +188,7 @@ function Abonnement() {
                   <th scope="col">
                     <span className="v-sr">Feature</span>
                   </th>
-                  {(Object.keys(PLANS) as PlanId[]).map((id) => (
+                  {ZICHTBAAR.map((id) => (
                     <th key={id} scope="col">
                       {PLANS[id].naam}
                       <small>€{PLANS[id].prijsTekst}/mo</small>
@@ -199,7 +200,7 @@ function Abonnement() {
                 {VERGELIJKING.map((rij) => (
                   <tr key={rij.label}>
                     <th scope="row">{rij.label}</th>
-                    {(["start", "pro", "premium"] as const).map((id) => {
+                    {ZICHTBAAR.map((id) => {
                       const v = rij[id];
                       return (
                         <td key={id}>

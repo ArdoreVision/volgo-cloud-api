@@ -106,7 +106,7 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
                 key={id}
                 onClick={() => setBereik(id)}
                 role="tab"
-                title={op ? "Available on Pro and Premium" : undefined}
+                title={op ? "Available on Complete" : undefined}
                 type="button"
               >
                 {label}

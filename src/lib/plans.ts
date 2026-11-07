@@ -13,6 +13,10 @@ export type Plan = {
   proefDagen: number;
   tagline: string;
   badge?: string;
+  /** One-time setup fee in cents, charged with the first payment (0 = none). */
+  opstart: number;
+  /** Old plan, still valid for existing customers but no longer sold. */
+  verborgen?: boolean;
   /** Headline limits, shown first on the plan card (like "300 Active Conversations"). */
   kern: string[];
   features: string[];
@@ -34,40 +38,43 @@ export type Plan = {
 export const PLANS: Record<PlanId, Plan> = {
   start: {
     id: "start",
-    naam: "Start",
-    prijs: 14700,
-    prijsTekst: "147",
+    naam: "Assistant",
+    prijs: 19700,
+    prijsTekst: "197",
     proefDagen: PROEF_DAGEN,
-    tagline: "The Volgo chatbot on your own website, plus the dashboard to see every lead.",
-    kern: ["300 Volgo conversations / month", "1 user", "Volgo on your own website"],
+    opstart: 0,
+    tagline: "Your assistant on your own website, 24/7. It asks the right questions and books appointments in your Volgo calendar.",
+    kern: ["Assistant on your website, 24/7", "Appointments straight into your calendar", "We set it up for you"],
     features: [
-      "Install it yourself: one line of code",
-      "Leads ranked by warmth",
-      "Track leads from new to quote to won",
-      "Hot-lead emails and a morning summary",
-      "Calendar and 30-day analytics",
-      "Standard email support",
+      "Answers every visitor, day and night, 7 days a week",
+      "Asks the questions you need before an appointment",
+      "Visitors book a phone call, a visit at their address or a chat appointment",
+      "Name, address and all answers saved with the appointment",
+      "A notification the moment someone starts chatting",
+      "Read every chat live and take over yourself",
+      "Call or chat back from the appointment in one tap",
     ],
-    limieten: { leden: 1, teamChat: false, eigenStijl: false, website: false, gesprekken: 300, analyticsDagen: 30 },
+    limieten: { leden: 1, teamChat: false, eigenStijl: false, website: false, gesprekken: 1000, analyticsDagen: 30 },
   },
   pro: {
     id: "pro",
-    naam: "Pro",
-    prijs: 49700,
-    prijsTekst: "497",
-    proefDagen: PROEF_DAGEN,
-    tagline: "We build your website with Volgo inside, plus everything your team needs.",
-    badge: "Most popular",
-    kern: ["1,000 Volgo conversations / month", "5 users", "Custom website built by Volgo"],
+    naam: "Complete",
+    prijs: 29700,
+    prijsTekst: "297",
+    proefDagen: 0,
+    opstart: 99500,
+    tagline: "A new premium website built for you, with your assistant inside. You do nothing.",
+    badge: "Most chosen",
+    kern: ["New premium website, built by Volgo", "Assistant on it, 24/7", "€995 one-time setup"],
     features: [
-      "Everything in Start",
+      "Everything in Assistant",
       "Website made to measure, via chat or call",
       "Photos, video and animations on your site",
       "Your own chat photo and style, no Volgo branding",
-      "Team chat and video calls",
-      "90-day analytics and priority support",
+      "Changes to your website when you need them",
+      "Priority support",
     ],
-    limieten: { leden: 5, teamChat: true, eigenStijl: true, website: true, gesprekken: 1000, analyticsDagen: 90 },
+    limieten: { leden: 5, teamChat: true, eigenStijl: true, website: true, gesprekken: 3000, analyticsDagen: 90 },
   },
   premium: {
     id: "premium",
@@ -75,6 +82,8 @@ export const PLANS: Record<PlanId, Plan> = {
     prijs: 99700,
     prijsTekst: "997",
     proefDagen: PROEF_DAGEN,
+    opstart: 0,
+    verborgen: true,
     tagline: "Everything in Pro, for high-volume teams with bigger websites.",
     badge: "For teams",
     kern: ["5,000 Volgo conversations / month", "Unlimited users", "Larger custom website"],
@@ -90,25 +99,26 @@ export const PLANS: Record<PlanId, Plan> = {
   },
 };
 
+/** The plans that are sold now, in order. Premium stays valid for existing customers only. */
+export const ZICHTBAAR: PlanId[] = ["start", "pro"];
+
 export const isPlan = (v: unknown): v is PlanId => v === "start" || v === "pro" || v === "premium";
 export const planVan = (v: unknown): Plan => (isPlan(v) ? PLANS[v] : PLANS.start);
 
 /** For the comparison table on the pricing page. */
 export const VERGELIJKING: { label: string; start: string | boolean; pro: string | boolean; premium: string | boolean }[] = [
-  { label: "Volgo conversations per month", start: "300", pro: "1,000", premium: "5,000" },
-  { label: "Users", start: "1", pro: "5", premium: "Unlimited" },
-  { label: "Volgo chatbot on your own website", start: true, pro: true, premium: true },
-  { label: "Dashboard: leads, conversations, calendar", start: true, pro: true, premium: true },
-  { label: "Leads ranked by warmth, pipeline to quote and won", start: true, pro: true, premium: true },
-  { label: "Hot-lead emails and morning summary", start: true, pro: true, premium: true },
-  { label: "Analytics history", start: "30 days", pro: "90 days", premium: "90 days" },
-  { label: "Custom website built by Volgo, Volgo built in", start: false, pro: true, premium: "Larger site" },
-  { label: "Photos, video and animations on your website", start: false, pro: true, premium: "Advanced" },
-  { label: "Website changes after launch", start: false, pro: "Monthly round", premium: "Whenever you need" },
+  { label: "Assistant on your website, 24/7", start: true, pro: true, premium: true },
+  { label: "Asks your questions before an appointment", start: true, pro: true, premium: true },
+  { label: "Phone, visit and chat appointments in your calendar", start: true, pro: true, premium: true },
+  { label: "Notification when someone starts chatting", start: true, pro: true, premium: true },
+  { label: "Read chats live and take over", start: true, pro: true, premium: true },
+  { label: "Set up for you", start: true, pro: true, premium: true },
+  { label: "New premium website built by Volgo", start: false, pro: true, premium: true },
+  { label: "Photos, video and animations on your website", start: false, pro: true, premium: true },
   { label: "Own chat photo and style, no Volgo branding", start: false, pro: true, premium: true },
-  { label: "Team chat and video calls", start: false, pro: true, premium: true },
-  { label: "Volgo on multiple websites or locations", start: false, pro: false, premium: true },
-  { label: "Support", start: "Email", pro: "Priority", premium: "Fastest" },
+  { label: "Users", start: "1", pro: "5", premium: "Unlimited" },
+  { label: "Setup fee", start: "€0", pro: "€995 one-time", premium: "—" },
+  { label: "Trial", start: "7 days for €1", pro: "—", premium: "—" },
   { label: "Domain name", start: "—", pro: "Not included", premium: "Not included" },
   { label: "Contract", start: "Monthly, cancel any time", pro: "Monthly, cancel any time", premium: "Monthly, cancel any time" },
 ];
@@ -116,21 +126,21 @@ export const VERGELIJKING: { label: string; start: string | boolean; pro: string
 /** What happens after you subscribe, per plan. Shown on the pricing page. */
 export const START_STAPPEN: Record<PlanId, { titel: string; stappen: string[] }> = {
   start: {
-    titel: "You install Volgo yourself",
+    titel: "We put the assistant on your website",
     stappen: [
-      "Create your account and log in to your dashboard.",
-      "Tell Volgo about your business: services, area, opening hours.",
-      "Copy one line of code and paste it on your own website. Guides below.",
-      "Leads appear in your dashboard straight away.",
+      "Create your account and start your 7 days for €1.",
+      "Answer 5 short questions about your business.",
+      "We add the assistant to your website (or you paste one line of code yourself).",
+      "Chats and appointments appear in your dashboard straight away.",
     ],
   },
   pro: {
-    titel: "We build your website with Volgo inside",
+    titel: "We build your new website with the assistant inside",
     stappen: [
       "Create your account and open the Website tab.",
       "Tell us what you want, by chat or in a call. We build your site to measure.",
       "You review it, we launch it on your own domain with Volgo built in.",
-      "Already have a site you love? You can also just add Volgo to it.",
+      "Your assistant is live on it from day one.",
     ],
   },
   premium: {

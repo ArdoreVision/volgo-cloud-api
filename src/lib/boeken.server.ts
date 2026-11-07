@@ -5,7 +5,7 @@ import type { D1Database } from "@cloudflare/workers-types";
 import type { AvaInstellingen } from "./ava.server";
 
 const DAGEN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-export const SOORTEN = { bellen: "Phone call", langs: "Visit at your address", kantoor: "At our office" } as const;
+export const SOORTEN = { bellen: "Phone call", langs: "Visit at your address", chat: "Chat appointment", kantoor: "At our office" } as const;
 export type Soort = keyof typeof SOORTEN;
 export const isSoort = (s: string): s is Soort => s in SOORTEN;
 /** Kinds shown in the chat: the bookable ones, plus "insta" (a DM on Instagram, no time slot) when a username is set. */
@@ -114,8 +114,8 @@ export async function boekAfspraak(DB: D1Database, inst: Inst, b: Boeking, leadI
   if (t < minuten(inst.open_van) || t + inst.afspraak_duur > minuten(inst.open_tot)) return { ok: false as const, reden: weg };
   if ((await bezet(DB, inst.team_id, start, eind)).length) return { ok: false as const, reden: weg };
   const titel = `${SOORTEN[soort]} · ${b.naam.trim()}`.slice(0, 120);
-  const notitie = [`Booked by the visitor in the Volgo chat. Contact: ${b.contact.trim()}`, b.notitie?.trim()].filter(Boolean).join("\n").slice(0, 600);
-  const locatie = soort === "langs" ? (b.adres ?? "").trim() : soort === "kantoor" ? "At the office" : `Phone call: ${b.contact.trim()}`;
+  const notitie = [`Booked by the visitor in the Volgo chat. Contact: ${b.contact.trim()}`, soort !== "langs" && b.adres?.trim() ? `Address: ${b.adres.trim()}` : "", b.notitie?.trim()].filter(Boolean).join("\n").slice(0, 600);
+  const locatie = soort === "langs" ? (b.adres ?? "").trim() : soort === "kantoor" ? "At the office" : soort === "chat" ? `Chat: ${b.contact.trim()}` : `Phone call: ${b.contact.trim()}`;
   await DB.prepare("INSERT INTO afspraken (team_id, lead_id, titel, start, eind, locatie, notitie, voorbeeld) VALUES (?, ?, ?, ?, ?, ?, ?, 0)")
     .bind(inst.team_id, leadId, titel, start, eind, locatie.slice(0, 160), notitie)
     .run();

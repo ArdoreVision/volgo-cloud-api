@@ -9,7 +9,7 @@ import { SITE_URL, VOLGO_INBOX, esc, mailOpmaak, verstuurMail } from "../mail.se
 import { PLANS, PROEF_PRIJS, isPlan } from "../plans";
 import { leesProfiel, profielCompleet } from "../profiel-vragen";
 import { beoordeel } from "../wachtwoord";
-import { seedTeam, zorgVoorKanaal } from "../team.server";
+import { seedTeam, wisVoorbeelden, zorgVoorKanaal } from "../team.server";
 import { actieveGebruiker, heeftToegang } from "../toegang.server";
 
 function origin() {
@@ -37,6 +37,7 @@ export const startBetaling = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     if (!isPlan(data.plan)) return { ok: false as const, message: "Unknown plan." };
     const plan = PLANS[data.plan];
+    if (plan.verborgen) return { ok: false as const, message: "This plan is no longer available." };
     const { DB, STRIPE_SECRET_KEY } = bindings();
     if (!DB) return { ok: false as const, message: "Database unavailable." };
 
@@ -72,6 +73,12 @@ export const startBetaling = createServerFn({ method: "POST" })
             u.set("items[0][price_data][unit_amount]", String(plan.prijs));
             u.set("items[0][price_data][recurring][interval]", "month");
             u.set("proration_behavior", "create_prorations");
+            // Moving up to a plan with a setup fee: charge it once, on the next invoice.
+            if (plan.opstart && !PLANS[(isPlan(bestaand?.plan) ? bestaand.plan : "start") as keyof typeof PLANS].opstart) {
+              u.set("add_invoice_items[0][price_data][currency]", "eur");
+              u.set("add_invoice_items[0][price_data][product]", product.id);
+              u.set("add_invoice_items[0][price_data][unit_amount]", String(plan.opstart));
+            }
             if (bindings().BTW === "aan") u.set("automatic_tax[enabled]", "true");
             u.set("metadata[plan]", plan.id);
             await stripe(`subscriptions/${encodeURIComponent(huidig.stripe_abonnement)}`, { method: "POST", body: u });
@@ -108,6 +115,14 @@ export const startBetaling = createServerFn({ method: "POST" })
         b.set("line_items[1][price_data][unit_amount]", String(PROEF_PRIJS));
         b.set("line_items[1][price_data][product_data][name]", `Volgo ${plan.naam} · ${plan.proefDagen}-day trial`);
       }
+      // One-time setup fee (Complete), on the first invoice next to the first month.
+      if (plan.opstart) {
+        const n = plan.proefDagen && proefMag ? 2 : 1;
+        b.set(`line_items[${n}][quantity]`, "1");
+        b.set(`line_items[${n}][price_data][currency]`, "eur");
+        b.set(`line_items[${n}][price_data][unit_amount]`, String(plan.opstart));
+        b.set(`line_items[${n}][price_data][product_data][name]`, `Volgo ${plan.naam} · one-time setup (website)`);
+      }
       b.set("metadata[plan]", plan.id);
       // HCC is zelf de verkoper; Stripe "Managed Payments" (Stripe als verkoper) staat uit.
       b.set("managed_payments[enabled]", "false");
@@ -126,7 +141,7 @@ export const startBetaling = createServerFn({ method: "POST" })
       try {
         const s = await stripe("checkout/sessions", { method: "POST", body: b });
         const { push } = await import("../push.server");
-        await push(`🛒 Checkout opened: ${plan.naam}`, `Someone is at the Stripe payment page for Volgo ${plan.naam} (€${plan.prijsTekst}/mo)${ik ? " — existing customer switching plans" : ""}.`, { tags: ["shopping_cart"], prioriteit: 3 });
+        await push(`🛒 Checkout opened: ${plan.naam}`, `Someone is at the Stripe payment page for Volgo ${plan.naam} (€${plan.prijsTekst}/mo${plan.opstart ? ` + €${plan.opstart / 100} setup` : ""})${ik ? " — existing customer switching plans" : ""}.`, { tags: ["shopping_cart"], prioriteit: 3 });
         return { ok: true as const, url: String(s.url) };
       } catch (err) {
         console.error("[betaling]", err);
@@ -403,22 +418,9 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
   // Analytics history follows the plan (twice the range, for the "vs previous period" comparison).
   const analyticsDagen = (await (await import("../limieten.server")).planVoorTeam(DB, team)).limieten.analyticsDagen;
 
-  // Oudere testaccounts krijgen eenmalig de nieuwe voorbeelddata.
-  const heeftGesprekken = await DB.prepare("SELECT id FROM ava_gesprekken WHERE team_id = ? LIMIT 1").bind(team).first();
-  if (!heeftGesprekken) {
-    const echt = await DB.prepare("SELECT id FROM klant_leads WHERE gebruiker_id = ? AND voorbeeld = 0 LIMIT 1").bind(team).first();
-    if (!echt) {
-      await DB.prepare("DELETE FROM klant_leads WHERE gebruiker_id = ? AND voorbeeld = 1").bind(team).run();
-      await seedTeam(DB, team);
-    }
-  }
+  // No sample data: clear any old example rows so the dashboard only shows real customers.
+  await wisVoorbeelden(DB, team);
   await zorgVoorKanaal(DB, team);
-  // Voorbeeld-livegesprekken blijven "live" zodat je ziet hoe het eruitziet.
-  await DB.prepare(
-    "UPDATE ava_gesprekken SET laatste = datetime('now', '-' || (id % 3) || ' minutes'), gestart = datetime('now', '-' || (berichten * 2 + id % 3) || ' minutes') WHERE team_id = ? AND voorbeeld = 1 AND status = 'live'",
-  )
-    .bind(team)
-    .run();
 
   const eigenaar =
     g.rol === "eigenaar"
