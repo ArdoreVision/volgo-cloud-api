@@ -50,7 +50,7 @@ export function ProfielVragen({ bedrijf, start = {}, klaar, annuleer }: { bedrij
         <div aria-hidden="true" className="v-vragen__balk">
           <i style={{ width: `${((stap + (gekozen ? 1 : 0)) / VRAGEN.length) * 100}%` }} />
         </div>
-        {stap === 0 && !annuleer ? <p className="v-vragen__intro">Five quick questions so AVA knows how to help {bedrijf}&apos;s customers. Takes under a minute.</p> : null}
+        {stap === 0 && !annuleer ? <p className="v-vragen__intro">Five quick questions so Volgo knows how to help {bedrijf}&apos;s customers. Takes under a minute.</p> : null}
         <h1 className="v-vragen__titel" id="vr-titel" key={vraag.id}>
           {vraag.titel}
         </h1>
@@ -86,7 +86,7 @@ export function ProfielVragen({ bedrijf, start = {}, klaar, annuleer }: { bedrij
   );
 }
 
-/** The answers, shown on the Train AVA page, with a button to change them. */
+/** The answers, shown on the Train Volgo page, with a button to change them. */
 export function ProfielSamenvatting({ profiel, wijzig }: { profiel: Profiel; wijzig: () => void }) {
   const rijen = profielAntwoorden(profiel);
   return (
@@ -94,7 +94,7 @@ export function ProfielSamenvatting({ profiel, wijzig }: { profiel: Profiel; wij
       <div className="v-profiel-kaart__kop">
         <div>
           <h2>Your business, in five answers</h2>
-          <p className="v-muted">AVA uses these to decide what to ask and how to sound.</p>
+          <p className="v-muted">Volgo uses these to decide what to ask and how to sound.</p>
         </div>
         <button className="v-btn-wit" onClick={wijzig} type="button">
           Change answers

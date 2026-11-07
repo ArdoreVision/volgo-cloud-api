@@ -64,10 +64,10 @@ export function AvaStijl({ begin, mag, naam, kleur }: { begin: Stijl; mag: boole
     return (
       <Upsell
         knop="Upgrade to Pro"
-        punten={["Your own photo for AVA", "Light or dark, round or sharp, left or right", "Uses your website's font", "No Volgo branding"]}
+        punten={["Your own photo for Volgo", "Light or dark, round or sharp, left or right", "Uses your website's font", "No Volgo branding"]}
         tag="Pro and Premium"
         tekst="Make the chat look like part of your own website, so visitors only see your brand."
-        titel="Your own AVA style"
+        titel="Your own Volgo style"
       />
     );
   }

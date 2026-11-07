@@ -15,7 +15,7 @@ const ONDERWERPEN = ["Heat pump, detached house", "Air conditioning for bedroom"
 const KANALEN = ["Website", "WhatsApp", "Email", "Phone"];
 const REDENEN: Record<string, string[]> = {
   heet: ["Asked about price and when you can start", "Wants it installed this month", "Has compared quotes and wants to decide", "Asked for a home visit"],
-  warm: ["Asked about subsidies and payback time", "Wants advice on the type first", "Replied quickly to AVA's reminder"],
+  warm: ["Asked about subsidies and payback time", "Wants advice on the type first", "Replied quickly to Volgo's reminder"],
   lauw: ["Still exploring, no rush", "Only asked for general information"],
 };
 
@@ -63,12 +63,12 @@ export async function seedTeam(DB: D1Database, teamId: number) {
         `${d}T${t}`,
         `${d}T${eind}`,
         pick(["At the customer's home", "At the office", "Video call", "At the customer's home"]),
-        "Scheduled by AVA",
+        "Scheduled by Volgo",
       ),
     );
   }
 
-  // AVA-gesprekken: 3 live, de rest afgerond
+  // Volgo-gesprekken: 3 live, de rest afgerond
   const gesprekken: [string, string, string, string, number, number, number][] = [
     ["Kevin Smith", "WhatsApp", "Wants a heat pump, asks about delivery time", "live", 2, 9, 91],
     ["Visitor from Middelburg", "Website", "Asks about insulation subsidies", "live", 1, 5, 64],

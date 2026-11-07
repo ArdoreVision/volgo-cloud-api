@@ -46,7 +46,7 @@ export async function stuurOchtendSamenvattingen() {
     if (!nl && !ng && !heet.results.length && !afspraken.results.length) continue;
 
     const blokken: string[] = [
-      `<p style="margin:0 0 18px">In the last 24 hours AVA talked to <strong>${ng}</strong> ${ng === 1 ? "visitor" : "visitors"} and <strong>${nl}</strong> ${nl === 1 ? "new lead" : "new leads"} came in.</p>`,
+      `<p style="margin:0 0 18px">In the last 24 hours Volgo talked to <strong>${ng}</strong> ${ng === 1 ? "visitor" : "visitors"} and <strong>${nl}</strong> ${nl === 1 ? "new lead" : "new leads"} came in.</p>`,
     ];
     if (heet.results.length) {
       blokken.push(

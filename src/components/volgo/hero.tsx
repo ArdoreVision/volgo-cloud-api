@@ -25,17 +25,17 @@ export function Hero({ taal = "en", onProbeer }: { taal?: RouteTaal; onProbeer?:
         </h1>
         <p className="vs-hero__sub">{t.sub}</p>
         <div className="vs-hero__acties">
+          <a className="vs-start vs-start--groot" href="/signup" onClick={() => meet("abo_klik")}>
+            {t.probeer}
+          </a>
           <a
-            className="vs-start vs-start--groot"
+            className="vs-hero__tweede"
             href="#demo"
             onClick={() => {
               meet("demo_klik");
               onProbeer?.();
             }}
           >
-            {t.probeer}
-          </a>
-          <a className="vs-hero__tweede" href="#pricing" onClick={() => meet("abo_klik")}>
             {t.abos}
           </a>
         </div>
@@ -78,7 +78,7 @@ function IcoTelefoon() {
 }
 
 const STAPPEN = [
-  { ico: <IcoChat />, voor: "AVA", na: "answers every visitor on your website within seconds." },
+  { ico: <IcoChat />, voor: "Volgo", na: "answers every visitor on your website within seconds." },
   { ico: <IcoAgenda />, voor: "Then it", na: "books the appointment and collects their details for you." },
   { ico: <IcoTelefoon />, voor: "You", na: "open your dashboard and call the hottest leads first." },
 ];
@@ -124,7 +124,7 @@ function HeroVideo({ taal }: { taal: RouteTaal }) {
     <figure className="vd-reel">
       <div className="vd-reel__kader">
         <video
-          aria-label={taal === "nl" ? "Demo: AVA beantwoordt 's avonds een offerteaanvraag en de lead verschijnt in het Volgo-dashboard" : "Demo: AVA answers a quote request at night and the lead appears in the Volgo dashboard"}
+          aria-label={taal === "nl" ? "Demo: Volgo beantwoordt 's avonds een offerteaanvraag en de lead verschijnt in het Volgo-dashboard" : "Demo: Volgo answers a quote request at night and the lead appears in the Volgo dashboard"}
           loop
           muted
           playsInline
@@ -146,7 +146,7 @@ function HeroVideo({ taal }: { taal: RouteTaal }) {
           )}
         </button>
       </div>
-      <figcaption>{taal === "nl" ? "48 seconden: AVA vangt om 21:00 een lead op voor een dakdekker." : "48 seconds: AVA catches a 9 PM lead for a roofing contractor."}</figcaption>
+      <figcaption>{taal === "nl" ? "48 seconden: Volgo vangt om 21:00 een lead op voor een dakdekker." : "48 seconds: Volgo catches a 9 PM lead for a roofing contractor."}</figcaption>
     </figure>
   );
 }

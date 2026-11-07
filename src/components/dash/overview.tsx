@@ -92,7 +92,7 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
         <div>
           <h1>Welcome, {voornaam}.</h1>
           <p>
-            {live.length ? `AVA is talking to ${live.length} ${live.length === 1 ? "person" : "people"} right now` : "AVA is ready"} · {vandaagAfspraken.length}{" "}
+            {live.length ? `Volgo is talking to ${live.length} ${live.length === 1 ? "person" : "people"} right now` : "Volgo is ready"} · {vandaagAfspraken.length}{" "}
             {vandaagAfspraken.length === 1 ? "appointment" : "appointments"} today
           </p>
         </div>
@@ -117,7 +117,7 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
         </div>
       </header>
 
-      {data.leads.some((l) => l.voorbeeld) ? <p className="v-dash__note">You are looking at sample data. Your real numbers appear here as soon as AVA is live on your website.</p> : null}
+      {data.leads.some((l) => l.voorbeeld) ? <p className="v-dash__note">You are looking at sample data. Your real numbers appear here as soon as Volgo is live on your website.</p> : null}
 
       <section aria-label="Numbers" className="v-dash__stats">
         <div className="v-stat">
@@ -163,7 +163,7 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
         <section className="v-dash__panel">
           <div className="v-dash__panel-head">
             <h2>
-              <span aria-hidden="true" className="v-live-dot" /> AVA live
+              <span aria-hidden="true" className="v-live-dot" /> Volgo live
             </h2>
             <span className="v-muted">updates automatically</span>
           </div>
@@ -208,7 +208,7 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
               View all
             </button>
           </div>
-          <p className="v-muted v-small">AVA puts the people most ready to buy at the top.</p>
+          <p className="v-muted v-small">Volgo puts the people most ready to buy at the top.</p>
           <ol className="v-hot">
             {warmste.map((l) => (
               <li key={l.id}>

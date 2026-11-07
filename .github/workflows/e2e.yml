@@ -187,7 +187,7 @@ jobs:
               await p2.screenshot({ path: '/tmp/shots/overname-bezoeker.png' });
               await p.waitForTimeout(3000); await shot(p, 'overname-dashboard');
               log('ava stil: ' + (await p.locator('.v-dm__b--wij:not(.is-mens)').count()) + ' ava-berichten, laatste bezoeker: ' + (await p.locator('.v-dm__b--zij').last().textContent()).slice(0, 40));
-              await p.locator('.v-dm__modus button', { hasText: 'AVA auto' }).click(); await p.waitForTimeout(1500);
+              await p.locator('.v-dm__modus button', { hasText: 'Volgo auto' }).click(); await p.waitForTimeout(1500);
               await bctx.close();
               await p.locator('.v-dash__profiel .v-profiel__knop').click(); await p.waitForTimeout(400); await shot(p, 'profiel-menu');
               await p.locator('.v-profiel__menu button', { hasText: 'Profile & account' }).click(); await p.waitForTimeout(600);

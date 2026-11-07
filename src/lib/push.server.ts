@@ -2,12 +2,12 @@ import type { D1Database } from "@cloudflare/workers-types";
 
 import { bindings } from "./bindings.server";
 
-/** The AVA key on thevolgo.app itself: activity for this team is Volgo's own (the "shop"). */
+/** The Volgo key on thevolgo.app itself: activity for this team is Volgo's own (the "shop"). */
 const VOLGO_SLEUTEL = "c2c0abaa339e5c0a8c9e4064";
 
 /**
- * AVA keys of the fictional sample businesses in the live demo (public/voorbeeld/contractor.html and badkamer.html).
- * Their chat stays on without a subscription, so visitors can always try AVA. It does not give these accounts
+ * Volgo keys of the fictional sample businesses in the live demo (public/voorbeeld/contractor.html and badkamer.html).
+ * Their chat stays on without a subscription, so visitors can always try Volgo. It does not give these accounts
  * dashboard access; rate limits and the monthly conversation limit of their plan still apply.
  */
 const DEMO_SLEUTELS = new Set(["60adfde15d398c471ff29dd4", "1819740e8895534532232832"]);

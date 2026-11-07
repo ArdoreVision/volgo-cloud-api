@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-/** Volgo's own AVA (the same chat our customers get), on thevolgo.app. Leads and booked calls land in the Volgo dashboard. */
+/** Volgo's own chat (the same one our customers get), on thevolgo.app. Leads and booked calls land in the Volgo dashboard. */
 export const VOLGO_AVA_SLEUTEL = "c2c0abaa339e5c0a8c9e4064";
 
 type AvaApi = { open: () => void; afspraak: () => void; vraag: (t: string) => void };
@@ -27,7 +27,7 @@ export function TryAvaButton() {
   return (
     <button className="v-try-ava" data-ava-open="" type="button">
       <img alt="" height={28} src="/assets/volgo/ava-mono.svg" width={28} />
-      Try AVA yourself
+      Try Volgo yourself
     </button>
   );
 }

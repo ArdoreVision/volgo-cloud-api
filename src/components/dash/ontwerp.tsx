@@ -168,7 +168,7 @@ export function OntwerpEditor({ terug }: { terug: () => void }) {
       setToonSite("");
       setSiteMelding(
         r.bereikbaar
-          ? "Your website doesn't allow being shown inside other pages, so the preview uses a sample site. AVA will look exactly like this on your real site."
+          ? "Your website doesn't allow being shown inside other pages, so the preview uses a sample site. Volgo will look exactly like this on your real site."
           : "We couldn't open your website right now, so the preview uses a sample site.",
       );
     }
@@ -224,7 +224,7 @@ export function OntwerpEditor({ terug }: { terug: () => void }) {
         <button className="v-ed__terug" onClick={() => (!gewijzigd || confirm("Leave without saving your changes?") ? terug() : undefined)} type="button">
           ← Exit
         </button>
-        <strong className="v-ed__titel">Customize AVA</strong>
+        <strong className="v-ed__titel">Customize Volgo</strong>
         <div aria-label="Device" className="v-ed__apparaat" role="radiogroup">
           {(
             [
@@ -257,7 +257,7 @@ export function OntwerpEditor({ terug }: { terug: () => void }) {
         <aside className="v-ed__zij">
           {slot ? (
             <div className="v-ed__upsell">
-              <strong>Make AVA look like your brand</strong>
+              <strong>Make Volgo look like your brand</strong>
               <p>Button style, shape, size, theme, position, photo and invitation bubble are part of Pro and Premium. You can preview them here; colour and greeting work on every plan.</p>
             </div>
           ) : null}
@@ -274,7 +274,7 @@ export function OntwerpEditor({ terug }: { terug: () => void }) {
                     </button>
                   </div>
                 </div>
-                {siteMelding ? <p className="v-ed__hint">{siteMelding}</p> : <p className="v-ed__hint">See AVA on your own website while you design. Nothing changes on your site until AVA is installed.</p>}
+                {siteMelding ? <p className="v-ed__hint">{siteMelding}</p> : <p className="v-ed__hint">See Volgo on your own website while you design. Nothing changes on your site until Volgo is installed.</p>}
               </>
             }
             onToggle={() => setOpen(open === "site" ? "" : "site")}
@@ -316,7 +316,7 @@ export function OntwerpEditor({ terug }: { terug: () => void }) {
                   </div>
                 ) : null}
                 <div className="v-fld">
-                  <span className="v-fld__label">Photo of AVA</span>
+                  <span className="v-fld__label">Photo of Volgo</span>
                   <div className="v-stijl__foto">
                     <img alt="" src={foto} />
                     <button className="v-dash__logout" disabled={slot} onClick={() => bestand.current?.click()} type="button">
@@ -382,7 +382,7 @@ export function OntwerpEditor({ terug }: { terug: () => void }) {
                   </label>
                   <input disabled={slot} id="ed-zij" max={60} min={8} onChange={(e) => zet("zij", Number(e.target.value))} type="range" value={o.stijl.zij} />
                 </div>
-                <p className="v-ed__hint">Tip: move AVA up if your site has a cookie bar or another button at the bottom.</p>
+                <p className="v-ed__hint">Tip: move Volgo up if your site has a cookie bar or another button at the bottom.</p>
               </>
             }
             onToggle={() => setOpen(open === "plek" ? "" : "plek")}
@@ -441,7 +441,7 @@ export function OntwerpEditor({ terug }: { terug: () => void }) {
                 <span>{toonSite ? toonSite.replace(/^https:\/\//, "") : "yourwebsite.com"}</span>
               </div>
             ) : null}
-            <iframe key={`${src}-${apparaat}`} ref={frame} src={src} title="Preview of AVA on your website" />
+            <iframe key={`${src}-${apparaat}`} ref={frame} src={src} title="Preview of Volgo on your website" />
           </div>
         </section>
       </div>

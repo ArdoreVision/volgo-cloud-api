@@ -43,12 +43,12 @@ export function Waarom() {
 const MOAT = [
   {
     t: "Trained on your business, not the internet",
-    d: "Five questions at sign-up plus your own prices, area and services. AVA talks like your best employee, never invents prices, and passes the hard questions to you.",
+    d: "Five questions at sign-up plus your own prices, area and services. Volgo talks like your best employee, never invents prices, and passes the hard questions to you.",
     i: "M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7z",
   },
   {
     t: "Warmth score on every lead",
-    d: "AVA reads the whole conversation and scores 0–100 how ready someone is, with the reason. Your list sorts itself; you only chase buyers.",
+    d: "Volgo reads the whole conversation and scores 0–100 how ready someone is, with the reason. Your list sorts itself; you only chase buyers.",
     i: "M4 17l5-5 4 4 7-8M15 8h5v5",
   },
   {
@@ -58,7 +58,7 @@ const MOAT = [
   },
   {
     t: "Done for you, including the website",
-    d: "On Pro and Premium we build and host your website with AVA inside. One partner for the whole front door of your business.",
+    d: "On Pro and Premium we build and host your website with Volgo inside. One partner for the whole front door of your business.",
     i: "M3 5h18v13H3zM3 9h18M7 7h.01M10 7h.01",
   },
 ];
@@ -100,7 +100,7 @@ const VERGELIJK_RIJEN: { label: string; widget: string | boolean; platform: stri
   { label: "Warmth score (0–100) with the reason on every lead", widget: false, platform: false, volgo: true },
   { label: "Books appointments inside the chat", widget: false, platform: true, volgo: true },
   { label: "Hot-lead email plus a daily morning summary", widget: false, platform: "Inbox notifications", volgo: true },
-  { label: "Builds and hosts your website with AVA inside", widget: false, platform: false, volgo: "Pro and Premium" },
+  { label: "Builds and hosts your website with Volgo inside", widget: false, platform: false, volgo: "Pro and Premium" },
   { label: "Price on the website, no sales call", widget: true, platform: false, volgo: true },
   { label: "Commitment", widget: "Monthly", platform: "Annual contract", volgo: "Monthly, cancel any time" },
   { label: "Typical cost per month", widget: "$0–100", platform: "$400–800 with add-ons", volgo: "€147–997, all-in" },
@@ -169,7 +169,7 @@ export function Vertrouwen() {
   const feiten = [
     { k: "Company", v: "Volgo is a service by Hanssens Cornerstone Capital, Vlissingen (NL), KvK 98133438." },
     { k: "Your data", v: "Visitor details are used only to follow up on their request. We are the processor, you stay in control. Data Processing Agreement included." },
-    { k: "Hosting", v: "Runs on Cloudflare’s global network; email is sent from EU infrastructure. AVA is powered by Claude, the model from Anthropic." },
+    { k: "Hosting", v: "Runs on Cloudflare’s global network; email is sent from EU infrastructure. Volgo is powered by Claude, the model from Anthropic." },
     { k: "No lock-in", v: "Monthly plans, cancel from your dashboard, your domain name stays yours. Invoices and card changes without emailing anyone." },
   ];
   return (
@@ -205,7 +205,7 @@ export function Founder() {
           “Every missed evening message is a job you never knew you lost.”
         </h2>
         <p className="v-lede">
-          I started Volgo after watching good businesses lose work to whoever replied first. Not better companies, faster ones. AVA gives you that speed without
+          I started Volgo after watching good businesses lose work to whoever replied first. Not better companies, faster ones. Volgo gives you that speed without
           hiring anyone, and tells you honestly which leads deserve your morning. We build it in the open: follow along, ask hard questions, and tell me what
           would make it indispensable for your trade.
         </p>

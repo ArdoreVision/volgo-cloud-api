@@ -1,4 +1,4 @@
-/** Step-by-step: where to paste the AVA line on each website platform. Used on /pricing and in the dashboard. */
+/** Step-by-step: where to paste the Volgo line on each website platform. Used on /pricing and in the dashboard. */
 export const GIDSEN: { id: string; naam: string; stappen: string[]; noot?: string }[] = [
   {
     id: "shopify",
@@ -7,7 +7,7 @@ export const GIDSEN: { id: string; naam: string; stappen: string[]; noot?: strin
       "In Shopify admin go to Online Store → Themes.",
       "Next to your live theme click ⋯ → Edit code.",
       "Open layout/theme.liquid.",
-      "Paste the AVA line just above </body> and click Save.",
+      "Paste the Volgo line just above </body> and click Save.",
     ],
   },
   {
@@ -16,7 +16,7 @@ export const GIDSEN: { id: string; naam: string; stappen: string[]; noot?: strin
     stappen: [
       "Go to Plugins → Add New and install the free plugin “WPCode”.",
       "Open Code Snippets → Header & Footer.",
-      "Paste the AVA line in the Footer box.",
+      "Paste the Volgo line in the Footer box.",
       "Click Save Changes.",
     ],
   },
@@ -25,7 +25,7 @@ export const GIDSEN: { id: string; naam: string; stappen: string[]; noot?: strin
     naam: "Wix",
     stappen: [
       "In your site dashboard go to Settings → Custom Code.",
-      "Click + Add Custom Code and paste the AVA line.",
+      "Click + Add Custom Code and paste the Volgo line.",
       "Choose All pages and place it in Body – end.",
       "Click Apply.",
     ],
@@ -34,19 +34,19 @@ export const GIDSEN: { id: string; naam: string; stappen: string[]; noot?: strin
   {
     id: "squarespace",
     naam: "Squarespace",
-    stappen: ["Go to Settings → Developer Tools → Code Injection.", "Paste the AVA line in the Footer field.", "Click Save."],
+    stappen: ["Go to Settings → Developer Tools → Code Injection.", "Paste the Volgo line in the Footer field.", "Click Save."],
     noot: "Code injection is available on the Core plan and higher.",
   },
   {
     id: "webflow",
     naam: "Webflow",
-    stappen: ["Open Site settings → Custom code.", "Paste the AVA line in Footer code.", "Click Save, then publish your site."],
+    stappen: ["Open Site settings → Custom code.", "Paste the Volgo line in Footer code.", "Click Save, then publish your site."],
     noot: "Custom code needs a paid Webflow site plan.",
   },
   {
     id: "anders",
     naam: "Other or custom built",
-    stappen: ["Paste the AVA line just before the closing </body> tag on every page (usually one shared layout or footer file).", "Save and publish."],
+    stappen: ["Paste the Volgo line just before the closing </body> tag on every page (usually one shared layout or footer file).", "Save and publish."],
     noot: "Not sure? Send the line to whoever manages your website, or ask us to do it.",
   },
 ];

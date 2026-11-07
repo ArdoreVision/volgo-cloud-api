@@ -1,4 +1,4 @@
-// Extra sections for the dark landing page: what AVA does for your business (a small node diagram),
+// Extra sections for the dark landing page: what Volgo does for your business (a small node diagram),
 // three plain numbers, and a big closing line that lights up word by word while you scroll.
 import { useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
@@ -9,7 +9,7 @@ import { type RouteTaal, handgeschreven } from "./route-teksten";
 
 const T = {
   en: {
-    dienstenLabel: "What AVA does",
+    dienstenLabel: "What Volgo does",
     dienstenTitel: "Your front desk, always on.",
     dienstenSub: "One assistant on your website that handles the first contact, so you only pick up the phone for customers who are ready.",
     knopen: ["Answers", "Leads", "Bookings", "Call list"],
@@ -18,14 +18,14 @@ const T = {
     cijfersTitel: "Numbers that just make sense.",
     cijfersSub: "No setup project, no long contract.",
     cijfers: [
-      { groot: "24/7", klein: "answers", tekst: "AVA replies to visitors at night, at weekends and while you are on a job." },
-      { groot: "5 min", klein: "to go live", tekst: "Paste one line of code into your website and AVA is on it." },
+      { groot: "24/7", klein: "answers", tekst: "Volgo replies to visitors at night, at weekends and while you are on a job." },
+      { groot: "5 min", klein: "to go live", tekst: "Paste one line of code into your website and Volgo is on it." },
       { groot: `€${PLANS.start.prijsTekst}`, klein: "a month", tekst: "Billed monthly. Cancel any time, no long-term contract." },
     ],
-    slot: "Answer first. Win the job. Let AVA handle the rest.",
+    slot: "Answer first. Win the job. Let Volgo handle the rest.",
   },
   nl: {
-    dienstenLabel: "Wat AVA doet",
+    dienstenLabel: "Wat Volgo doet",
     dienstenTitel: "Je receptie, altijd open.",
     dienstenSub: "Eén assistent op je website die het eerste contact doet, zodat jij alleen belt met klanten die er klaar voor zijn.",
     knopen: ["Antwoorden", "Leads", "Afspraken", "Belijst"],
@@ -34,11 +34,11 @@ const T = {
     cijfersTitel: "Cijfers die gewoon kloppen.",
     cijfersSub: "Geen installatieproject, geen lang contract.",
     cijfers: [
-      { groot: "24/7", klein: "antwoorden", tekst: "AVA reageert op bezoekers in de avond, in het weekend en terwijl jij aan het werk bent." },
-      { groot: "5 min", klein: "tot je live bent", tekst: "Plak één regel code in je website en AVA staat erop." },
+      { groot: "24/7", klein: "antwoorden", tekst: "Volgo reageert op bezoekers in de avond, in het weekend en terwijl jij aan het werk bent." },
+      { groot: "5 min", klein: "tot je live bent", tekst: "Plak één regel code in je website en Volgo staat erop." },
       { groot: `€${PLANS.start.prijsTekst}`, klein: "per maand", tekst: "Maandelijks betaald en opzegbaar, zonder lang contract." },
     ],
-    slot: "Eerst antwoorden. De klus winnen. AVA doet de rest.",
+    slot: "Eerst antwoorden. De klus winnen. Volgo doet de rest.",
   },
 } as const;
 
@@ -166,7 +166,7 @@ const W = {
   en: {
     label: "Websites",
     titel: "Just need a new website?",
-    sub: "No AVA, no subscription. Just a modern website that people remember: smooth scroll animations, sharp on every phone and built to impress from the first second.",
+    sub: "No Volgo, no subscription. Just a modern website that people remember: smooth scroll animations, sharp on every phone and built to impress from the first second.",
     punten: ["Scroll animations and motion throughout", "Looks perfect on phones, tablets and desktops", "Fast loading, clean and professional", "Connected to your own domain"],
     knop: "DM the owner now",
     klein: "Opens a chat with the owner on Instagram",
@@ -175,7 +175,7 @@ const W = {
   nl: {
     label: "Websites",
     titel: "Alleen een nieuwe website?",
-    sub: "Geen AVA, geen abonnement. Gewoon een moderne website die blijft hangen: vloeiende scrollanimaties, strak op elke telefoon en vanaf de eerste seconde indrukwekkend.",
+    sub: "Geen Volgo, geen abonnement. Gewoon een moderne website die blijft hangen: vloeiende scrollanimaties, strak op elke telefoon en vanaf de eerste seconde indrukwekkend.",
     punten: ["Scrollanimaties en beweging door de hele site", "Perfect op telefoon, tablet en desktop", "Snel, strak en professioneel", "Gekoppeld aan je eigen domein"],
     knop: "DM de eigenaar nu",
     klein: "Opent een chat met de eigenaar op Instagram",

@@ -1,7 +1,7 @@
 {
   "name": "Volgo",
   "short_name": "Volgo",
-  "description": "Een website met AVA erin: de AI-assistent die je klanten opvolgt.",
+  "description": "Een website met Volgo erin: de AI-assistent die je klanten opvolgt.",
   "lang": "nl",
   "start_url": "/?bron=app",
   "scope": "/",

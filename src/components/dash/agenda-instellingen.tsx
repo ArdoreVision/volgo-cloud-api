@@ -14,7 +14,7 @@ const SOORTEN: [string, string, string][] = [
 ];
 const ZONES = ["Europe/Amsterdam", "Europe/Brussels", "Europe/London", "Europe/Berlin", "America/New_York", "America/Chicago", "America/Denver", "America/Phoenix", "America/Los_Angeles", "Australia/Sydney"];
 
-/** Settings for the calendar visitors use inside the AVA chat. */
+/** Settings for the calendar visitors use inside the Volgo chat. */
 export function AgendaInstellingen({ inst }: { inst: Inst }) {
   const [aan, setAan] = useState(Boolean(inst.boeken));
   const [dagen, setDagen] = useState(inst.open_dagen.split(",").map(Number));
@@ -50,7 +50,7 @@ export function AgendaInstellingen({ inst }: { inst: Inst }) {
       <label className="v-toggle">
         <span>
           <strong>Let visitors book appointments</strong>
-          <small>Shows a "Book an appointment" button in the chat, and AVA opens the calendar when someone wants to meet.</small>
+          <small>Shows a "Book an appointment" button in the chat, and Volgo opens the calendar when someone wants to meet.</small>
         </span>
         <input checked={aan} onChange={(e) => setAan(e.target.checked)} type="checkbox" />
         <i aria-hidden="true" />

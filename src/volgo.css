@@ -202,7 +202,7 @@
   .v-msg[data-on="0"] { transform: none; filter: none; }
 }
 
-/* ── AVA-chat ─────────────────────────────────────────── */
+/* ── Volgo-chat ─────────────────────────────────────────── */
 .v-try-ava { margin-top: 28px; display: inline-flex; align-items: center; gap: 10px; padding: 8px 18px 8px 8px; border: 0; border-radius: 999px; background: var(--sky-2); color: var(--ink); font: inherit; font-size: 16px; font-weight: 500; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(22,119,217,0.15); transition: transform 0.3s var(--spring), background 0.2s; }
 .v-try-ava img { border-radius: 50%; }
 .v-try-ava:hover { transform: translateY(-2px); background: var(--sky-1); }
@@ -674,7 +674,7 @@
 .v-convo__lead { margin: 0; padding: 12px 22px; border-top: 1px solid var(--line); font-size: 13.5px; color: #157a42; background: #f1faf5; }
 .v-pad { padding: 16px; }
 
-/* AVA instellen */
+/* Volgo instellen */
 .v-toggles { display: grid; }
 .v-toggle { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); cursor: pointer; }
 .v-toggle:first-child { border-top: 0; }
@@ -709,7 +709,7 @@
   .v-tb { max-width: 88%; }
 }
 
-/* ---------- Home (AVA voor de ondernemer) ---------- */
+/* ---------- Home (Volgo voor de ondernemer) ---------- */
 button.v-dash__brand { border: 0; background: transparent; font: inherit; color: inherit; cursor: pointer; text-align: left; }
 .v-dash__main--home { display: flex; flex-direction: column; min-height: 100dvh; }
 .v-home { display: flex; flex-direction: column; flex: 1; width: 100%; max-width: 760px; margin: 0 auto; padding: 24px 0 28px; min-height: 0; }
@@ -889,7 +889,7 @@ a.v-plan__cta { display: block; text-align: center; text-decoration: none; box-s
 .v-plan__kern li { font-family: var(--display); font-weight: 600; font-size: 1.05rem; letter-spacing: -0.01em; }
 .v-plan__kern + .v-plan__list { margin-top: 14px; }
 
-/* ---------- AVA style ---------- */
+/* ---------- Volgo style ---------- */
 .v-stijl { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; align-items: start; }
 .v-stijl__velden { display: grid; gap: 16px; }
 .v-stijl__foto { display: flex; align-items: center; gap: 12px; }
@@ -1522,7 +1522,7 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000000;
 .v-dash__nav button[aria-current="page"] .v-dash__icon { animation: v-tik 0.5s var(--spring); }
 @keyframes v-tik { 40% { transform: scale(1.22) rotate(-8deg); } }
 
-/* Globe on the home page: folds away cleanly once you chat with AVA */
+/* Globe on the home page: folds away cleanly once you chat with Volgo */
 .v-home__bol { display: grid; place-items: center; max-height: 260px; margin: 0 auto 6px; transition: max-height 0.7s var(--ease), opacity 0.45s var(--ease), transform 0.7s var(--ease), margin 0.7s var(--ease); animation: v-bol-in 1s var(--ease) both; }
 .v-home__bol.is-weg { max-height: 0; opacity: 0; transform: scale(0.6) translateY(-30px); margin: 0 auto; }
 @keyframes v-bol-in { from { opacity: 0; transform: scale(0.85); } }
@@ -1626,7 +1626,7 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000000;
 .v-vk__groot { margin: 4px 0; font-family: var(--display); font-size: 2.2rem; font-weight: 650; }
 @media (max-width: 700px) { .v-vk__nu li { grid-template-columns: 1fr; gap: 2px; } }
 
-/* ── Customize: AVA editor (full screen, like Shopify's theme editor) ── */
+/* ── Customize: Volgo editor (full screen, like Shopify's theme editor) ── */
 .v-dash--editor { display: block; min-height: 100vh; background: var(--surface); }
 .v-ed { display: flex; flex-direction: column; height: 100vh; }
 .v-ed--laden { display: grid; place-items: center; color: var(--muted); }
@@ -1753,7 +1753,7 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000000;
 .v-dash[data-thema="donker"] .v-vragen__kaart { box-shadow: none; }
 .v-dash[data-thema="donker"] .v-vragen__optie:hover { border-color: #3a4556; }
 
-/* The answers on the Train AVA page */
+/* The answers on the Train Volgo page */
 .v-profiel-kaart__kop { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
 .v-profiel-kaart__kop h2 { margin: 0 0 4px; }
 .v-profiel-kaart__kop p { margin: 0; }
@@ -2109,7 +2109,7 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000000;
 .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site) .v-welkom__stappen li { border-radius: 0; background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
 
 /* ══════════════════════════════════════════════════════════
-   Ad route: hero with "Try AVA live" + plans, live demo intro,
+   Ad route: hero with "Try Volgo live" + plans, live demo intro,
    example questions, phone-sized demo and the next step.
    ══════════════════════════════════════════════════════════ */
 .vs-hero__voor { margin: 0 0 18px; max-width: 58ch; color: var(--ink-2); font-size: 12px; font-weight: 600; letter-spacing: 0.16em; line-height: 1.7; text-transform: uppercase; animation: v-rise 0.9s var(--ease) both; }
@@ -2288,3 +2288,52 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000; }
 .v-dash :is(.v-videobtn, .v-callcard), .v-dash[data-thema="donker"] :is(.v-videobtn, .v-callcard) { background-color: var(--sky-2); color: var(--ink); }
 .v-dash .v-videobtn:hover { background-color: var(--sky-1); }
 .v-dash[data-thema="donker"] :is(.v-badge--groen, .v-auth__ok) { background-color: var(--sky-1); color: var(--ink); }
+
+/* ── Dashboard op slot (account zonder plan) ───────────── */
+.v-lock { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; background: #fff; color: #0a0a0a; font-family: inherit; }
+.v-lock__side { border-right: 1px solid #ececec; padding: 22px 14px; display: flex; flex-direction: column; gap: 18px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.v-lock__logo { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 17px; letter-spacing: -.02em; color: inherit; text-decoration: none; padding: 0 8px; }
+.v-lock__logo svg { width: 24px; height: 24px; }
+.v-lock__groep { display: flex; flex-direction: column; gap: 2px; }
+.v-lock__groep small { padding: 0 10px 4px; color: #9a9a9a; font-size: 11px; font-weight: 500; }
+.v-lock__item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 9px; color: #8a8a8a; font-size: 14px; }
+.v-lock__item .v-dash__icon { width: 16px; height: 16px; flex: none; }
+.v-lock__slot { margin-left: auto; width: 13px; height: 13px; fill: none; stroke: #b5b5b5; stroke-width: 1.6; }
+.v-lock__uit { margin-top: auto; background: none; border: none; color: #8a8a8a; font: inherit; font-size: 13px; text-align: left; padding: 8px 10px; cursor: pointer; }
+.v-lock__uit:hover { color: #0a0a0a; }
+.v-lock__main { position: relative; min-width: 0; padding: 32px; }
+.v-lock__waas { filter: blur(6px); opacity: .5; pointer-events: none; user-select: none; display: flex; flex-direction: column; gap: 14px; }
+.v-lock__rij { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.v-lock__rij i, .v-lock__vlak { display: block; height: 110px; border-radius: 16px; background: #f1f1f0; border: 1px solid #e6e6e6; }
+.v-lock__vlak { height: 280px; }
+.v-lock__vlak--laag { height: 180px; }
+.v-lock__kaart { position: absolute; left: 50%; top: 48px; transform: translateX(-50%); width: min(940px, calc(100% - 48px)); background: #fff; border: 1px solid #e6e6e6; border-radius: 20px; padding: 34px; box-shadow: 0 30px 80px rgba(0,0,0,.08); animation: vLockIn .6s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes vLockIn { from { opacity: 0; transform: translate(-50%, 14px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.v-lock__hoi { color: #8a8a8a; font-size: 13px; margin: 0 0 8px; }
+.v-lock__kaart h1 { font-size: clamp(22px, 2.6vw, 30px); font-weight: 650; letter-spacing: -.03em; line-height: 1.15; margin: 0 0 10px; }
+.v-lock__sub { color: #6b6b6b; line-height: 1.6; margin: 0 0 24px; max-width: 640px; }
+.v-lock__plannen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.v-lock__plan { text-align: left; background: #fff; border: 1px solid #e6e6e6; border-radius: 14px; padding: 18px; font: inherit; color: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 4px; transition: border-color .2s, box-shadow .2s; }
+.v-lock__plan:hover { border-color: #bdbdbd; }
+.v-lock__plan.is-aan { border-color: #0a0a0a; box-shadow: 0 0 0 1px #0a0a0a; }
+.v-lock__plannaam { display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+.v-lock__plannaam em { font-style: normal; font-size: 11px; font-weight: 500; background: #0a0a0a; color: #fff; border-radius: 999px; padding: 3px 9px; }
+.v-lock__plan b { font-size: 28px; font-weight: 650; letter-spacing: -.03em; margin-top: 8px; }
+.v-lock__per { color: #8a8a8a; font-size: 13px; }
+.v-lock__proef { font-size: 12px; font-weight: 600; margin-top: 6px; }
+.v-lock__plan ul { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-direction: column; gap: 6px; }
+.v-lock__plan li { font-size: 13px; color: #6b6b6b; display: flex; gap: 8px; }
+.v-lock__plan li::before { content: "✓"; color: #0a0a0a; }
+.v-lock__voet { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 22px; }
+.v-lock__voet p { margin: 0; color: #6b6b6b; font-size: 13px; max-width: 520px; line-height: 1.55; }
+.v-lock__knop { background: #0a0a0a; color: #fff; border: 1px solid #0a0a0a; border-radius: 999px; padding: 14px 26px; font: inherit; font-weight: 500; cursor: pointer; transition: transform .2s; }
+.v-lock__knop:hover { transform: translateY(-1px); }
+.v-lock__knop:disabled { opacity: .6; cursor: wait; }
+@media (max-width: 900px) {
+  .v-lock { grid-template-columns: 1fr; }
+  .v-lock__side { position: static; height: auto; border-right: none; border-bottom: 1px solid #ececec; flex-direction: row; flex-wrap: wrap; }
+  .v-lock__groep small, .v-lock__groep .v-lock__item:not(:first-child) { display: none; }
+  .v-lock__main { padding: 16px; }
+  .v-lock__kaart { position: relative; left: auto; top: auto; transform: none; width: 100%; padding: 22px; margin-top: -380px; animation: none; }
+  .v-lock__plannen { grid-template-columns: 1fr; }
+}

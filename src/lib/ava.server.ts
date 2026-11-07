@@ -1,4 +1,4 @@
-// AVA op de website van een klant: gesprekken, leads, warmte en meldingen.
+// Volgo op de website van een klant: gesprekken, leads, warmte en meldingen.
 import type { D1Database } from "@cloudflare/workers-types";
 
 import { randomToken } from "./auth.server";
@@ -37,7 +37,7 @@ export async function instellingenVoorTeam(DB: D1Database, teamId: number): Prom
   const g = await DB.prepare("SELECT bedrijf FROM gebruikers WHERE id = ?").bind(teamId).first<{ bedrijf: string }>();
   const bedrijf = g?.bedrijf ?? "our company";
   const sleutel = randomToken(12);
-  const begroeting = `Hi! I'm AVA, the assistant at ${bedrijf}. How can I help?`;
+  const begroeting = `Hi! I'm Volgo, the assistant at ${bedrijf}. How can I help?`;
   await DB.prepare("INSERT OR IGNORE INTO ava_instellingen (team_id, sleutel, begroeting, kleur) VALUES (?, ?, ?, '#0a0a0a')").bind(teamId, sleutel, begroeting).run();
   return instellingenVoorTeam(DB, teamId);
 }
@@ -128,7 +128,7 @@ type Meta = { gesprek_id: number; stap: number; naam: string | null; contact: st
 async function mailNieuwGesprek(DB: D1Database, inst: AvaInstellingen, gesprekId: number, eerste: string) {
   const team = inst.team_id;
   const p = await import("./push.server");
-  if (await p.isVolgoZelf(DB, team)) await p.push("💬 New chat with AVA on thevolgo.app", `“${eerste.slice(0, 200)}”`, { tags: ["speech_balloon"], prioriteit: 3, link: `${SITE_URL}/dashboard` });
+  if (await p.isVolgoZelf(DB, team)) await p.push("💬 New chat with Volgo on thevolgo.app", `“${eerste.slice(0, 200)}”`, { tags: ["speech_balloon"], prioriteit: 3, link: `${SITE_URL}/dashboard` });
   const ontvangers = await DB.prepare(
     `SELECT g.email FROM gebruikers g LEFT JOIN team_leden t ON t.gebruiker_id = g.id LEFT JOIN meldingen m ON m.gebruiker_id = g.id
      WHERE (g.id = ? OR t.team_id = ?) AND COALESCE(m.chat_mail, 1) = 1`,
@@ -139,17 +139,17 @@ async function mailNieuwGesprek(DB: D1Database, inst: AvaInstellingen, gesprekId
   const { binnenLimiet } = await import("./limiet.server");
   if (!(await binnenLimiet(DB, `chatmail:${team}`, 60, 30))) return;
   const html = mailOpmaak(
-    "Someone is talking to AVA right now",
+    "Someone is talking to Volgo right now",
     `<p style="margin:0 0 12px">A visitor just started a conversation on your website. First message:</p>
      <p style="margin:0 0 16px;padding:12px 14px;border-radius:12px;background:#f5f7fa;font-size:15px">“${esc(eerste.slice(0, 300))}”</p>
-     <p style="margin:0;color:#64748b;font-size:14px">AVA is answering. Open the chat to watch along or take over yourself.</p>`,
+     <p style="margin:0;color:#64748b;font-size:14px">Volgo is answering. Open the chat to watch along or take over yourself.</p>`,
     { tekst: "Open the chat", url: `${SITE_URL}/dashboard` },
   );
   for (const r of ontvangers.results) await verstuurMail(r.email, `New conversation on your website: “${eerste.slice(0, 60)}${eerste.length > 60 ? "…" : ""}”`, html);
   void gesprekId;
 }
 
-/** Starts a new website conversation (with AVA's greeting as the first message). */
+/** Starts a new website conversation (with Volgo's greeting as the first message). */
 async function nieuwGesprek(DB: D1Database, inst: AvaInstellingen, onderwerp: string) {
   const team = inst.team_id;
   const echtBestaat = await DB.prepare("SELECT id FROM ava_gesprekken WHERE team_id = ? AND voorbeeld = 0 LIMIT 1").bind(team).first();
@@ -256,7 +256,7 @@ export async function boekViaChat(
   return { ok: true as const, token, antwoord: bevestiging, start: res.start, eind: res.eind };
 }
 
-/** Verwerkt één bericht van een websitebezoeker en geeft AVA's antwoord terug. */
+/** Verwerkt één bericht van een websitebezoeker en geeft Volgo's antwoord terug. */
 export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, tokenIn: string | undefined, tekst: string) {
   const team = inst.team_id;
   let meta = tokenIn
@@ -281,7 +281,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
   const ins = await DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'bezoeker', ?)").bind(gid, tekst).run();
   const bezoekerId = Number(ins.meta?.last_row_id) || 0;
 
-  // Taken over by a person in the dashboard? Then AVA stays quiet; the person answers.
+  // Taken over by a person in the dashboard? Then Volgo stays quiet; the person answers.
   const mens = await DB.prepare("SELECT overgenomen_naam FROM ava_gesprek_meta WHERE gesprek_id = ? AND overgenomen_door IS NOT NULL")
     .bind(gid)
     .first<{ overgenomen_naam: string }>();
@@ -300,7 +300,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
   let agenda = false;
   let warmte = schatWarmte(alleBezoeker, Boolean(meta.contact));
 
-  // Monthly plan limit reached? AVA keeps working in basic mode, so no lead is lost.
+  // Monthly plan limit reached? Volgo keeps working in basic mode, so no lead is lost.
   const { boveLimiet } = await import("./limieten.server");
   if (ANTHROPIC_API_KEY && !(await boveLimiet(DB, team))) {
     try {
@@ -381,7 +381,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
     }
   }
 
-  // Someone took over while AVA was thinking? Then drop AVA's answer; the person replies.
+  // Someone took over while Volgo was thinking? Then drop Volgo's answer; the person replies.
   const intussen = await DB.prepare("SELECT overgenomen_naam FROM ava_gesprek_meta WHERE gesprek_id = ? AND overgenomen_door IS NOT NULL")
     .bind(gid)
     .first<{ overgenomen_naam: string }>();

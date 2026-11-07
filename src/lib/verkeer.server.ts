@@ -1,4 +1,4 @@
-// Website analytics collected by the AVA script, without cookies and without storing IP addresses.
+// Website analytics collected by the Volgo script, without cookies and without storing IP addresses.
 import type { D1Database } from "@cloudflare/workers-types";
 
 const vandaag = () => new Date().toISOString().slice(0, 10);

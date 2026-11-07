@@ -23,6 +23,7 @@ export async function heeftToegang(DB: D1Database, teamId: number) {
   // Zonder Stripe (testaccounts): alleen de eigen status telt.
   if (!metStripe) {
     if (e.status === "actief" || proefLoopt) return true;
+    if (e.status === "nieuw") return false; // account without a plan yet: locked, but not "expired"
     if (e.status !== "verlopen") await DB.prepare("UPDATE gebruikers SET status = 'verlopen' WHERE id = ?").bind(teamId).run();
     return false;
   }

@@ -1,4 +1,4 @@
-// Gedeeld door het formulier en de AVA-chatbot: aanvraag opslaan + mailen.
+// Gedeeld door het formulier en de Volgo-chatbot: aanvraag opslaan + mailen.
 import { bindings } from "./bindings.server";
 
 export const INBOX = "damienhanssens@outlook.com";
@@ -40,7 +40,7 @@ export async function saveAndMail(a: Aanvraag, ipHash: string): Promise<{ mailed
     await DB.prepare(
       "INSERT INTO aanvragen (naam, bedrijf, email, telefoon, website, branche, wens, bericht, ip_hash) VALUES (?,?,?,?,?,?,?,?,?)",
     )
-      .bind(a.naam, a.bedrijf, a.email, a.telefoon ?? "", a.website ?? "", a.branche ?? "", a.wens ?? "", `${a.bron === "chat" ? "[via AVA chat] " : ""}${a.bericht ?? ""}`, ipHash)
+      .bind(a.naam, a.bedrijf, a.email, a.telefoon ?? "", a.website ?? "", a.branche ?? "", a.wens ?? "", `${a.bron === "chat" ? "[via Volgo chat] " : ""}${a.bericht ?? ""}`, ipHash)
       .run();
   }
   if (!RESEND_API_KEY) return { mailed: false };
@@ -57,7 +57,7 @@ export async function saveAndMail(a: Aanvraag, ipHash: string): Promise<{ mailed
   ];
   const html =
     `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#1d1d1f;max-width:560px">` +
-    `<p style="color:#1677d9;font-weight:600;margin:0 0 6px">New demo request via ${a.bron === "chat" ? "the AVA chat" : "the form"}</p>` +
+    `<p style="color:#1677d9;font-weight:600;margin:0 0 6px">New demo request via ${a.bron === "chat" ? "the Volgo chat" : "the form"}</p>` +
     `<h1 style="font-size:24px;margin:0 0 4px">${esc(a.naam)}</h1>` +
     `<p style="margin:0 0 18px;color:#6e6e73">${esc(a.bedrijf)}</p>` +
     `<table style="border-collapse:collapse;width:100%;font-size:14px">` +
@@ -76,7 +76,7 @@ export async function saveAndMail(a: Aanvraag, ipHash: string): Promise<{ mailed
         from: bindings().MAIL_FROM || "Volgo <onboarding@resend.dev>",
         to: [INBOX],
         reply_to: a.email,
-        subject: `New demo request${a.bron === "chat" ? " (AVA chat)" : ""}: ${a.bedrijf} (${a.naam})`,
+        subject: `New demo request${a.bron === "chat" ? " (Volgo chat)" : ""}: ${a.bedrijf} (${a.naam})`,
         html,
         text: rows.map(([k, v]) => `${k}: ${v}`).join("\n"),
       }),

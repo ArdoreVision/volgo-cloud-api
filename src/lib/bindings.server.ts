@@ -25,7 +25,7 @@ type AppEnv = {
   HF_ENV?: string;
   // Optioneel: Resend API-sleutel (ingesteld via de website-instellingen).
   RESEND_API_KEY?: string;
-  // Optioneel: Claude API-sleutel voor de AVA-chatbot.
+  // Optioneel: Claude API-sleutel voor de Volgo-chatbot.
   ANTHROPIC_API_KEY?: string;
   CLAUDE_MODEL?: string;
   // Optioneel: Stripe geheime sleutel voor echte abonnementsbetalingen.

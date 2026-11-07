@@ -20,17 +20,17 @@ export const Route = createFileRoute("/terms")({
 
       <h2>2. The service</h2>
       <p>
-        Volgo provides AVA, an AI assistant that the customer adds to their own website with one line of code. AVA chats with visitors, answers
+        Volgo is an AI assistant that the customer adds to their own website with one line of code. Volgo chats with visitors, answers
         questions, captures contact details and ranks leads by how warm they are. The customer gets access to an online
         dashboard with conversations, leads, calendar, team chat and analytics. On the Pro and Premium plans, Volgo also builds a
-        custom website for the customer with AVA built in, planned together by chat or call, and hosts it for as long as the
+        custom website for the customer with Volgo built in, planned together by chat or call, and hosts it for as long as the
         subscription runs. Domain name costs are not included and are paid by the customer. What each plan includes is listed on the{" "}
         <a href="/pricing">pricing page</a>.
       </p>
 
       <h2>3. Prices and payment</h2>
       <ul>
-        <li>You pay the first month when you choose a plan. There is no free trial and no setup fee.</li>
+        <li>Every plan starts with a 7-day trial for €1, charged when you choose a plan. After 7 days the full monthly price is charged automatically, unless you cancel within the trial. There is no setup fee.</li>
         <li>The subscription renews automatically every month at the current monthly price. Prices exclude VAT.</li>
         <li>Payment is made monthly in advance through our payment partner. If a payment fails, we may suspend the service after a reminder.</li>
         <li>We may adjust prices once a year. We’ll let you know at least 30 days in advance; you may then cancel before the change takes effect.</li>
@@ -39,21 +39,21 @@ export const Route = createFileRoute("/terms")({
       <h2>4. Term and cancellation</h2>
       <p>
         A subscription runs month to month and can be canceled monthly, effective from the next billing period. You can cancel
-        in your dashboard or by emailing volgo.app@outlook.com. When the subscription ends, AVA stops working on your website
+        in your dashboard or by emailing volgo.app@outlook.com. When the subscription ends, Volgo stops working on your website
         and, on Pro and Premium, the website built by Volgo goes offline. The domain name stays yours. We delete the data as described in
         the Data Processing Agreement.
       </p>
 
       <h2>5. What we ask of the customer</h2>
       <ul>
-        <li>The customer provides accurate information about their business, so AVA can help visitors properly.</li>
+        <li>The customer provides accurate information about their business, so Volgo can help visitors properly.</li>
         <li>The customer does not use Volgo for unlawful purposes, spam or deception, and keeps login details secret.</li>
         <li>The customer is responsible for the agreements, quotes and prices they make with their own customers.</li>
       </ul>
 
-      <h2>6. AVA and AI</h2>
+      <h2>6. Volgo and AI</h2>
       <p>
-        AVA uses artificial intelligence. Replies are generated automatically and may contain mistakes. AVA is set up not to make
+        Volgo uses artificial intelligence. Replies are generated automatically and may contain mistakes. Volgo is set up not to make
         up prices, delivery times or guarantees, and to say honestly that it is an AI. The customer remains responsible for
         following up on leads and for what is agreed with their own customers.
       </p>
@@ -73,7 +73,7 @@ export const Route = createFileRoute("/terms")({
 
       <h2>9. Intellectual property</h2>
       <p>
-        Texts, logos and images supplied by the customer remain the customer’s. The software, the dashboard and AVA remain
+        Texts, logos and images supplied by the customer remain the customer’s. The software, the dashboard and Volgo remain
         Volgo’s. The customer receives a right of use for as long as the subscription runs.
       </p>
 

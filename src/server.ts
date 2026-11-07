@@ -71,7 +71,7 @@ export default {
       "/voorwaarden": "/terms", "/verwerkersovereenkomst": "/dpa",
     };
     if (oud[url.pathname]) return Response.redirect(`${url.origin}${oud[url.pathname]}${url.search}`, 301);
-    // The AVA chat API gets the visitor's approximate location from Cloudflare (city level, never the exact address).
+    // The Volgo chat API gets the visitor's approximate location from Cloudflare (city level, never the exact address).
     // It is only stored when the visitor gave permission in the consent screen.
     if (url.pathname === "/api/ava" && request.method === "POST") {
       const cf = (request as unknown as { cf?: { city?: string; region?: string; country?: string; timezone?: string } }).cf;

@@ -60,7 +60,7 @@ export const bewaarProfiel = createServerFn({ method: "POST" })
     return { ok: true as const, message: "" };
   });
 
-/** Appointments AVA lets visitors book in the chat: on/off, opening days and hours, duration, kinds and time zone. */
+/** Appointments Volgo lets visitors book in the chat: on/off, opening days and hours, duration, kinds and time zone. */
 export const bewaarAgenda = createServerFn({ method: "POST" })
   .validator((v: unknown) =>
     z
@@ -257,7 +257,7 @@ export const controleerSite = createServerFn({ method: "POST" })
     }
   });
 
-// ── A person takes over a conversation from AVA ─────────────────
+// ── A person takes over a conversation from Volgo ─────────────────
 async function eigenGesprek(DB: NonNullable<ReturnType<typeof bindings>["DB"]>, team: number, id: number) {
   return DB.prepare("SELECT g.id FROM ava_gesprekken g JOIN ava_gesprek_meta m ON m.gesprek_id = g.id WHERE g.id = ? AND g.team_id = ?").bind(id, team).first();
 }
@@ -276,7 +276,7 @@ export const neemGesprekOver = createServerFn({ method: "POST" })
     } else {
       await DB.batch([
         DB.prepare("UPDATE ava_gesprek_meta SET overgenomen_door = NULL, overgenomen_naam = NULL WHERE gesprek_id = ?").bind(data.id),
-        DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'systeem', ?)").bind(data.id, `${voornaam} left the chat. AVA is back to help.`),
+        DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'systeem', ?)").bind(data.id, `${voornaam} left the chat. Volgo is back to help.`),
       ]);
     }
     return { ok: true as const };

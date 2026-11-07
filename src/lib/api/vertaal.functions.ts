@@ -65,7 +65,7 @@ async function vertaalMetClaude(key: string, model: string, taal: string, tekste
 Rules:
 - Return ONLY a JSON array of strings, same length and order as the input array. No commentary.
 - Keep the tone: short, friendly, confident, written for small business owners (contractors, installers, studios).
-- Never translate or change: "Volgo", "AVA", URLs, email addresses, prices and currency (€147, $4,250), product names (WordPress, Wix, Shopify, Squarespace, Webflow, Stripe), placeholders like {n} or {{name}}, and anything inside quotation marks that is a button name a visitor must find on screen (keep it, then add the translation in parentheses only if it helps).
+- Never translate or change: "Volgo", URLs, email addresses, prices and currency (€147, $4,250), product names (WordPress, Wix, Shopify, Squarespace, Webflow, Stripe), placeholders like {n} or {{name}}, and anything inside quotation marks that is a button name a visitor must find on screen (keep it, then add the translation in parentheses only if it helps).
 - Keep punctuation, capitalization style, line breaks and leading/trailing spaces exactly as in the source.
 - Use the informal register where the language has one (tu / du / je), consistently.
 - If a string is a single word like a number, a symbol, or a code, return it unchanged.`;

@@ -3,9 +3,9 @@ import { useEffect } from "react";
 
 import "@/volgo.css";
 
-// Voorbeeldwebsite van een klant met AVA erin: zo ziet een bezoeker het.
+// Voorbeeldwebsite van een klant met Volgo erin: zo ziet een bezoeker het.
 export const Route = createFileRoute("/demo/$sleutel")({
-  head: () => ({ meta: [{ title: "Sample website with AVA" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Sample website with Volgo" }, { name: "robots", content: "noindex" }] }),
   component: Demo,
 });
 
@@ -21,7 +21,7 @@ function Demo() {
   return (
     <div className="volgo v-demo-site">
       <div className="v-demo-site__bar">
-        Sample website · this is how AVA looks on your website. <a href="/dashboard">Back to dashboard</a>
+        Sample website · this is how Volgo looks on your website. <a href="/dashboard">Back to dashboard</a>
       </div>
       <header className="v-demo-site__nav">
         <strong>Your business</strong>
@@ -33,7 +33,7 @@ function Demo() {
       </header>
       <main className="v-demo-site__hero">
         <h1>Quality work, on time, no hassle.</h1>
-        <p>This is a sample page. Click AVA in the bottom right and ask a question like a real visitor would. The conversation appears live in your dashboard.</p>
+        <p>This is a sample page. Click Volgo in the bottom right and ask a question like a real visitor would. The conversation appears live in your dashboard.</p>
       </main>
     </div>
   );

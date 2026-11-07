@@ -1,6 +1,6 @@
 # Volgo
 
-Websites met AVA erin: de AI-assistent die bezoekers te woord staat en leads opvolgt.
+Volgo: de AI-assistent op je website die bezoekers te woord staat en elke lead opvolgt.
 Een dienst van Hanssens Cornerstone Capital.
 
 ## Hoe het online komt
@@ -13,7 +13,7 @@ en bijgewerkt.
 |---|---|---|
 | `CLOUDFLARE_API_TOKEN` | ja | Online zetten op Cloudflare (Workers + D1 Edit) |
 | `CLOUDFLARE_ACCOUNT_ID` | ja | Je Cloudflare-account |
-| `ANTHROPIC_API_KEY` | aanrader | AVA voert echte gesprekken met Claude |
+| `ANTHROPIC_API_KEY` | aanrader | Volgo voert echte gesprekken met Claude |
 | `RESEND_API_KEY` | optioneel | E-mails (aanvragen, meldingen, uitnodigingen) |
 | `STRIPE_SECRET_KEY` | optioneel | Echte abonnementsbetalingen |
 

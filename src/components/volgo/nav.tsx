@@ -4,7 +4,7 @@ import { Tracking, meet } from "./tracking";
 
 /**
  * Simple bar: logo on the left, one main button on the right.
- * On the ad landing page the main button is "Try AVA live" (to the demo on the same page); elsewhere it stays "Start now".
+ * On the ad landing page the main button is "Try Volgo live" (to the demo on the same page); elsewhere it stays "Start now".
  */
 export function Nav({ ingelogd = false, probeer }: { ingelogd?: boolean; probeer?: { tekst: string; kort?: string; handgeschreven?: boolean; onKlik?: () => void } }) {
   return (
