@@ -1,0 +1,107 @@
+/* ══════════════════════════════════════════════════════════
+   One look for every public page: the same black style as the landing page.
+   Used on pricing, sign-up / log-in / checkout, the legal pages and the locked dashboard.
+   ══════════════════════════════════════════════════════════ */
+.volgo.volgo--donker {
+  --bg: #010101;
+  --surface: #0b0b0b;
+  --card: #0d0d0d;
+  --ink: #ffffff;
+  --ink-2: #c8c8c8;
+  --muted: #8d8d8d;
+  --line: rgba(255, 255, 255, 0.09);
+  --sky-1: #151515;
+  --sky-2: #101010;
+  --accent: #ffffff;
+  --accent-soft: rgba(255, 255, 255, 0.08);
+  --bad: #ff6b6b;
+  --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--display);
+  background: var(--bg);
+  color: var(--ink-2);
+  color-scheme: dark;
+}
+html:has(.volgo--donker), body:has(.volgo--donker) { background: #010101; }
+.volgo--donker ::selection { background: #fff; color: #000; }
+.volgo--donker :is(h1, h2, h3, .v-h2, .v-auth__title) { color: #fff; font-family: var(--display); }
+.volgo--donker :is(h1, .v-h2) {
+  background: linear-gradient(100deg, #ffffff 0%, #ffffff 45%, #8f8f8f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.volgo--donker a { color: #fff; }
+
+/* Nav */
+.volgo--donker .v-nav__cta { background: #fff !important; color: #000 !important; }
+.volgo--donker .v-nav--simpel .v-nav__login { border-color: rgba(255, 255, 255, 0.3); color: #fff; }
+.volgo--donker .v-nav--simpel .v-nav__login:hover { background: #fff; color: #000; }
+
+/* Sign-up, log-in, checkout */
+.volgo--donker.v-auth { background: radial-gradient(90% 60% at 50% 0%, #161616 0%, #010101 70%); }
+.volgo--donker .v-auth__card { background: #0b0b0b; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.09), 0 30px 80px rgba(0, 0, 0, 0.6); }
+.volgo--donker .v-auth__btn { background: #fff; color: #000; font-weight: 600; }
+.volgo--donker .v-auth__btn:hover:not(:disabled) { filter: none; box-shadow: 0 10px 30px -10px rgba(255, 255, 255, 0.45); }
+.volgo--donker .v-auth__foot, .volgo--donker .v-auth__foot a { color: var(--muted); }
+.volgo--donker .v-fld label { color: var(--ink-2); }
+.volgo--donker .v-fld :is(input, select, textarea) { background: #141414; color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); }
+.volgo--donker .v-fld :is(input, select, textarea):focus { background: #141414; box-shadow: inset 0 0 0 1.5px #fff, 0 0 0 4px rgba(255, 255, 255, 0.08); }
+.volgo--donker .v-pw button, .volgo--donker .v-fld__row a, .volgo--donker .v-auth__alt a { color: #fff; }
+.volgo--donker .v-stepper li { color: var(--muted); }
+.volgo--donker .v-stepper li span { background: #1a1a1a; color: var(--muted); }
+.volgo--donker .v-stepper li[data-state="nu"] { color: #fff; }
+.volgo--donker .v-stepper li[data-state="nu"] span { background: #fff; color: #000; }
+.volgo--donker .v-stepper li[data-state="klaar"] span { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.volgo--donker .v-err { color: var(--bad); }
+
+/* Pricing */
+.volgo--donker .v-pricing { background: transparent; }
+.volgo--donker .v-plan { background: #0d0d0d; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09); color: var(--ink-2); }
+.volgo--donker .v-plan:hover { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22), 0 20px 50px rgba(0, 0, 0, 0.5); }
+.volgo--donker .v-plan--premium { background: #fff; color: #000; }
+.volgo--donker .v-plan--premium :is(.v-plan__name, .v-plan__price span, .v-plan__price) { color: #000; }
+.volgo--donker .v-plan--premium :is(.v-plan__tag, .v-plan__list li, .v-plan__kaart, .v-plan__kern li) { color: #444; }
+.volgo--donker .v-plan__badge { background: #fff; color: #000; }
+.volgo--donker .v-plan--premium .v-plan__badge { background: #000; color: #fff; }
+.volgo--donker .v-plan__price span { color: #fff; }
+.volgo--donker .v-plan__trial { color: #fff; }
+.volgo--donker :is(.v-plan__cta, .v-plan__cta--start, .v-plan__cta--pro, .v-plan__cta--premium) { background: #fff; color: #000; box-shadow: none; border-radius: 999px; font-weight: 600; }
+.volgo--donker .v-plan--premium .v-plan__cta { background: #000; color: #fff; }
+.volgo--donker .v-plan__list { border-top-color: rgba(255, 255, 255, 0.09); }
+.volgo--donker .v-plan--premium .v-plan__list { border-top-color: rgba(0, 0, 0, 0.1); }
+.volgo--donker .v-plan__list li::before { background-color: rgba(255, 255, 255, 0.1); filter: grayscale(1) brightness(2); }
+.volgo--donker .v-plan--premium .v-plan__list li::before { background-color: rgba(0, 0, 0, 0.08); filter: grayscale(1) brightness(0); }
+.volgo--donker .v-plan__hoe { background: rgba(255, 255, 255, 0.06); color: #fff; }
+.volgo--donker .v-plan--premium .v-plan__hoe { background: rgba(0, 0, 0, 0.06); color: #000; }
+.volgo--donker .v-compare td:nth-child(3), .volgo--donker .v-compare th:nth-child(3) { background: rgba(255, 255, 255, 0.04); }
+.volgo--donker .v-compare :is(td, th) { border-color: rgba(255, 255, 255, 0.08); }
+.volgo--donker .v-melding { background: rgba(255, 255, 255, 0.06); color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12); }
+.volgo--donker .v-btn-blauw { background: #fff; color: #000; }
+.volgo--donker .v-al-account { background: #0d0d0d; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09); }
+
+/* Footer and legal pages */
+.volgo--donker .v-footer { background: transparent; border-top-color: rgba(255, 255, 255, 0.08); }
+.volgo--donker .v-footer__social a:hover { background: #fff; color: #000; }
+.volgo--donker .v-legal { color: var(--ink-2); }
+.volgo--donker .v-legal :is(h2, h3, strong) { color: #fff; }
+.volgo--donker .v-legal a { color: #fff; text-decoration: underline; }
+
+/* Locked dashboard: same black canvas */
+.v-lock.volgo--donker { background: #010101; color: var(--ink-2); }
+.volgo--donker .v-lock__side { border-right-color: rgba(255, 255, 255, 0.08); background: #050505; }
+.volgo--donker .v-lock__logo { color: #fff; }
+.volgo--donker .v-lock__groep small { color: #6b6b6b; }
+.volgo--donker .v-lock__item { color: #7a7a7a; }
+.volgo--donker .v-lock__slot { stroke: #555; }
+.volgo--donker .v-lock__uit { color: #7a7a7a; }
+.volgo--donker .v-lock__uit:hover { color: #fff; }
+.volgo--donker .v-lock__rij i, .volgo--donker .v-lock__vlak { background: #0f0f0f; border-color: rgba(255, 255, 255, 0.06); }
+.volgo--donker .v-lock__kaart { background: #0b0b0b; border-color: rgba(255, 255, 255, 0.1); box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7); }
+.volgo--donker .v-lock__hoi, .volgo--donker .v-lock__sub, .volgo--donker .v-lock__voet p, .volgo--donker .v-lock__per, .volgo--donker .v-lock__plan li { color: var(--muted); }
+.volgo--donker .v-lock__plan { background: #0f0f0f; border-color: rgba(255, 255, 255, 0.1); color: #fff; }
+.volgo--donker .v-lock__plan:hover { border-color: rgba(255, 255, 255, 0.3); }
+.volgo--donker .v-lock__plan.is-aan { border-color: #fff; box-shadow: 0 0 0 1px #fff; }
+.volgo--donker .v-lock__plan li::before { color: #fff; }
+.volgo--donker .v-lock__plannaam em { background: #fff; color: #000; }
+.volgo--donker .v-lock__knop { background: #fff; color: #000; border-color: #fff; font-weight: 600; }
+@media (max-width: 900px) { .volgo--donker .v-lock__side { border-bottom-color: rgba(255, 255, 255, 0.08); } }

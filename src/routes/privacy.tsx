@@ -4,6 +4,7 @@ import { AvaChat } from "@/components/volgo/ava-chat";
 import { Footer } from "@/components/volgo/footer";
 import { Nav } from "@/components/volgo/nav";
 import "@/volgo.css";
+import "@/volgo-donker.css";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/privacy")({
 
 function Privacy() {
   return (
-    <div className="volgo">
+    <div className="volgo volgo--donker">
       <Nav />
       <main className="v-legal">
         <h1 className="v-h2">Privacy Policy</h1>

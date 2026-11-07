@@ -27,6 +27,7 @@ import { leesProfiel, type Profiel } from "@/lib/profiel-vragen";
 import { checkNieuw } from "@/lib/api/ava.functions";
 import { PLANS, PROEF_PRIJS, isPlan, type PlanId } from "@/lib/plans";
 import "@/volgo.css";
+import "@/volgo-donker.css";
 
 export const Route = createFileRoute("/dashboard")({
   loader: async () => {
@@ -157,7 +158,7 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
     void navigate({ to: "/" });
   };
   return (
-    <div className="v-lock">
+    <div className="volgo volgo--donker v-lock">
       <aside className="v-lock__side">
         <a className="v-lock__logo" href="/">
           <VolgoMark />
