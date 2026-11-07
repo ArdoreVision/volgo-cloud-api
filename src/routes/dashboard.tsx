@@ -42,7 +42,6 @@ export const Route = createFileRoute("/dashboard")({
 type Tab = "home" | "aanvragen" | "gesprekken" | "agenda" | "overzicht" | "verkeer" | "ava" | "ontwerp" | "installeren" | "website" | "team" | "instellingen";
 type Sub = "meldingen" | "account" | "abonnement";
 const SUBS: [Sub, string][] = [
-  ["meldingen", "Notifications"],
   ["account", "Account"],
   ["abonnement", "Subscription"],
 ];
@@ -66,13 +65,7 @@ const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
     items: [["verkeer", "Traffic"]],
   },
   {
-    kop: "Setup",
-    items: [
-      ["ava", "Your assistant"],
-      ["installeren", "Put it on your site"],
-      ["website", "Your website"],
-      ["instellingen", "Settings"],
-    ],
+    items: [["instellingen", "Settings"]],
   },
 ];
 const TABS: [Tab, string][] = GROEPEN.flatMap((g) => g.items);
@@ -615,7 +608,7 @@ function Open({ data }: { data: DashData }) {
                 </button>
               ))}
             </nav>
-            {sub === "meldingen" ? <AvaInstellen deel="meldingen" /> : null}
+            
             {sub === "account" ? <Account g={g} leden={data.leden} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} /> : null}
             {sub === "abonnement" ? (
               <>
