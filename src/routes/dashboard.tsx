@@ -10,7 +10,7 @@ import { OntwerpEditor } from "@/components/dash/ontwerp";
 import { Website } from "@/components/dash/website";
 import { AvaInstellen } from "@/components/dash/ava-instellen";
 import { Gesprekken } from "@/components/dash/gesprekken";
-import { Home } from "@/components/dash/home";
+import { Vandaag } from "@/components/dash/vandaag";
 import { Overview } from "@/components/dash/overview";
 import { TeamChat } from "@/components/dash/team-chat";
 import { warmteLabel } from "@/components/dash/util";
@@ -25,7 +25,7 @@ import { LeadDetail } from "@/components/dash/lead-detail";
 import { haalAva } from "@/lib/api/ava.functions";
 import { leesProfiel, type Profiel } from "@/lib/profiel-vragen";
 import { checkNieuw } from "@/lib/api/ava.functions";
-import { PLANS, PROEF_PRIJS, isPlan, type PlanId } from "@/lib/plans";
+import { PLANS, PROEF_PRIJS, isPlan, type PlanId, ZICHTBAAR } from "@/lib/plans";
 import "@/volgo.css";
 import "@/volgo-donker.css";
 
@@ -50,37 +50,23 @@ const isSub = (t: string): t is Sub => SUBS.some(([id]) => id === t);
 /** Old names other parts of the app may still use. */
 const ALIAS: Record<string, Tab> = { stijl: "ontwerp" };
 
-/** The sidebar, in the order you use it: today's work first, then insight, then everything about Volgo and your site, then the workspace. */
+/** The sidebar, kept to what a business needs every day: who is chatting, what is booked, who to call back. Then the setup. */
 const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
-  { items: [["home", "Home"]] },
+  { items: [["home", "Today"]] },
   {
-    kop: "Today",
+    kop: "Customers",
     items: [
-      ["aanvragen", "Leads"],
-      ["gesprekken", "Chats"],
+      ["gesprekken", "Live chats"],
       ["agenda", "Calendar"],
+      ["aanvragen", "Requests"],
     ],
   },
   {
-    kop: "Insights",
+    kop: "Setup",
     items: [
-      ["overzicht", "Overview"],
-      ["verkeer", "Traffic"],
-    ],
-  },
-  {
-    kop: "Volgo & website",
-    items: [
-      ["ava", "Train Volgo"],
-      ["ontwerp", "Appearance"],
-      ["installeren", "Install"],
+      ["ava", "Your assistant"],
+      ["installeren", "Put it on your site"],
       ["website", "Your website"],
-    ],
-  },
-  {
-    kop: "Workspace",
-    items: [
-      ["team", "Team"],
       ["instellingen", "Settings"],
     ],
   },
@@ -195,16 +181,16 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
         </div>
         <section aria-labelledby="lock-titel" className="v-lock__kaart">
           <p className="v-lock__hoi">Welcome{naam ? `, ${naam.split(" ")[0]}` : ""}</p>
-          <h1 id="lock-titel">{nieuw ? `Start your plan: the first 7 days for ${euro1}.` : "Choose a plan to continue."}</h1>
+          <h1 id="lock-titel">{nieuw ? "Choose your plan to start." : "Choose a plan to continue."}</h1>
           <p className="v-lock__sub">
             {nieuw
-              ? `Your dashboard is ready, but locked. Pick a plan to unlock it and put Volgo on your website. You pay ${euro1} today. After 7 days the full monthly price starts. Cancel within the 7 days and you pay nothing more.`
+              ? `Your dashboard is ready, but locked. Assistant: you pay ${euro1} today, the monthly price starts after 7 days, cancel within the 7 days and you pay nothing more. Complete: we build your new website, you pay the setup and the first month today.`
               : "Your trial or subscription has ended. All your data is still here. Pick a plan to unlock your dashboard again."}
           </p>
           {eigenaar ? (
             <>
               <div className="v-lock__plannen" role="radiogroup">
-                {(Object.keys(PLANS) as PlanId[]).map((id) => {
+                {ZICHTBAAR.map((id) => {
                   const p = PLANS[id];
                   return (
                     <button aria-checked={kies === id} className={`v-lock__plan${kies === id ? " is-aan" : ""}`} key={id} onClick={() => setKies(id)} role="radio" type="button">
@@ -214,7 +200,8 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
                       </span>
                       <b>€{p.prijsTekst}</b>
                       <span className="v-lock__per">per month</span>
-                      {nieuw ? <span className="v-lock__proef">First 7 days {euro1}</span> : null}
+                      {nieuw && p.proefDagen ? <span className="v-lock__proef">First 7 days {euro1}</span> : null}
+                      {p.opstart ? <span className="v-lock__proef">+ €{p.opstart / 100} one-time setup</span> : null}
                       <ul>
                         {p.kern.map((k) => (
                           <li key={k}>{k}</li>
@@ -227,12 +214,12 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
               {fout ? <p className="v-err" role="alert">{fout}</p> : null}
               <div className="v-lock__voet">
                 <p>
-                  {nieuw
+                  {nieuw && PLANS[kies].proefDagen
                     ? `Today ${euro1}. From day 8: €${PLANS[kies].prijsTekst} per month for Volgo ${PLANS[kies].naam}. Secure checkout via Stripe.`
-                    : `€${PLANS[kies].prijsTekst} per month for Volgo ${PLANS[kies].naam}. Secure checkout via Stripe.`}
+                    : `${PLANS[kies].opstart ? `Today €${(PLANS[kies].prijs + PLANS[kies].opstart) / 100} (€${PLANS[kies].opstart / 100} setup + first month), then ` : ""}€${PLANS[kies].prijsTekst} per month for Volgo ${PLANS[kies].naam}. Secure checkout via Stripe.`}
                 </p>
                 <button className="v-lock__knop" disabled={bezig} onClick={() => void start()} type="button">
-                  {bezig ? "One moment…" : nieuw ? `Start 7 days for ${euro1} →` : `Continue with ${PLANS[kies].naam} →`}
+                  {bezig ? "One moment…" : nieuw && PLANS[kies].proefDagen ? `Start 7 days for ${euro1} →` : `Continue with ${PLANS[kies].naam} →`}
                 </button>
               </div>
             </>
@@ -356,7 +343,7 @@ function Open({ data }: { data: DashData }) {
           }
         }
       }
-    }, 15000);
+    }, 8000);
     return () => window.clearInterval(id);
   }, [router]);
   const plan = isPlan(g.plan) ? PLANS[g.plan] : PLANS.start;
@@ -375,10 +362,10 @@ function Open({ data }: { data: DashData }) {
   const nieuweLeads = leads.filter((l) => l.status === "nieuw").length;
   // Mobile: four main tabs at the bottom, the rest grouped under "More".
   const mobiel: [Tab, string][] = [
-    ["home", "Home"],
-    ["aanvragen", "Leads"],
+    ["home", "Today"],
     ["gesprekken", "Chats"],
     ["agenda", "Calendar"],
+    ["aanvragen", "Requests"],
   ];
 
   // First login of the owner: answer the five questions before anything else.
@@ -463,14 +450,14 @@ function Open({ data }: { data: DashData }) {
         </button>
         <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={plan.id !== "start"} planNaam={plan.naam} />
       </div>
-      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${tab === "team" && plan.limieten.teamChat ? " v-dash__main--full" : ""}${tab === "home" ? " v-dash__main--home" : ""}`}>
+      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${tab === "team" && plan.limieten.teamChat ? " v-dash__main--full" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
             Your trial has {proefDagen} {proefDagen === 1 ? "day" : "days"} left. After that, Volgo {plan.naam} continues automatically at €{plan.prijsTekst} per month.
           </p>
         ) : null}
 
-        {tab === "home" ? <Home bedrijf={g.bedrijf} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
+        {tab === "home" ? <Vandaag data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "overzicht" ? <Overview data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "verkeer" ? <Verkeer openTab={(t) => setTab(t)} /> : null}
         {tab === "gesprekken" ? <Gesprekken data={data} /> : null}
@@ -500,9 +487,9 @@ function Open({ data }: { data: DashData }) {
             <TeamChat data={data} />
           ) : (
             <Upsell
-              knop="Upgrade to Pro"
+              knop="Upgrade to Complete"
               punten={["Channels and private messages", "Video calls with one click", "Up to 5 users (unlimited on Premium)"]}
-              tag="Pro and Premium"
+              tag="Complete"
               tekst="Bring your team into Volgo. Talk about leads, share updates and jump on a video call without leaving your dashboard."
               titel="Team chat and video calls"
             />

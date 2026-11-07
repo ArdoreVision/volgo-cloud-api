@@ -2337,3 +2337,24 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000; }
   .v-lock__kaart { position: relative; left: auto; top: auto; transform: none; width: 100%; padding: 22px; margin-top: -380px; animation: none; }
   .v-lock__plannen { grid-template-columns: 1fr; }
 }
+
+/* Today: the start screen of the dashboard */
+.v-vd { width: 100%; max-width: 760px; margin: 0 auto; padding: 8px 0 40px; display: flex; flex-direction: column; gap: 18px; }
+.v-vd__kop h1 { font-size: clamp(26px, 3.4vw, 34px); letter-spacing: -0.02em; margin: 0 0 6px; }
+.v-vd__kop p { margin: 0; opacity: 0.7; }
+.v-vd__blok { border: 1px solid color-mix(in srgb, currentColor 14%, transparent); border-radius: 18px; padding: 18px 18px 8px; }
+.v-vd__blokkop { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.v-vd__blokkop h2 { font-size: 15px; margin: 0; letter-spacing: -0.01em; }
+.v-vd__link { background: none; border: 0; color: inherit; opacity: 0.6; font: inherit; font-size: 13px; cursor: pointer; padding: 4px 0; }
+.v-vd__link:hover { opacity: 1; }
+.v-vd__lijst { list-style: none; margin: 0; padding: 0; }
+.v-vd__rij { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-top: 1px solid color-mix(in srgb, currentColor 8%, transparent); }
+.v-vd__rij:first-child { border-top: 0; }
+.v-vd__tijd { display: flex; flex-direction: column; min-width: 64px; }
+.v-vd__tijd b { font-size: 16px; font-variant-numeric: tabular-nums; }
+.v-vd__tijd small, .v-vd__wat small { opacity: 0.6; font-size: 12.5px; }
+.v-vd__wat { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.v-vd__wat b, .v-vd__wat small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v-vd__actie { border: 1px solid currentColor; border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 13px; font-weight: 600; color: inherit; background: none; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.v-vd__punt { width: 10px; height: 10px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 4px color-mix(in srgb, #16a34a 22%, transparent); flex: none; }
+.v-vd__leeg { margin: 4px 0 12px; opacity: 0.6; font-size: 14px; }

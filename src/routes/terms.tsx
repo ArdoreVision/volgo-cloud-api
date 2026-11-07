@@ -40,7 +40,7 @@ export const Route = createFileRoute("/terms")({
       <p>
         A subscription runs month to month and can be canceled monthly, effective from the next billing period. You can cancel
         in your dashboard or by emailing volgo.app@outlook.com. When the subscription ends, Volgo stops working on your website
-        and, on Pro and Premium, the website built by Volgo goes offline. The domain name stays yours. We delete the data as described in
+        and, on Complete, the website built by Volgo goes offline. The domain name stays yours. We delete the data as described in
         the Data Processing Agreement.
       </p>
 

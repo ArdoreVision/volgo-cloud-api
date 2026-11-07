@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 
-import { PLANS, type PlanId } from "@/lib/plans";
+import { PLANS, type PlanId, ZICHTBAAR } from "@/lib/plans";
 
 import { TryAvaButton } from "./ava-chat";
 import { DEMO, TEKST, handgeschreven, type RouteTaal } from "./route-teksten";
@@ -515,7 +515,7 @@ export function Rekenhulp() {
             <input max={10} min={1} onChange={(e) => setExtra(Number(e.target.value))} step={1} type="range" value={extra} />
           </label>
           <div className="vx-reken__plan" role="radiogroup" aria-label="Plan">
-            {(Object.keys(PLANS) as PlanId[]).map((id) => (
+            {ZICHTBAAR.map((id) => (
               <button aria-checked={plan === id} key={id} onClick={() => setPlan(id)} role="radio" type="button">
                 {PLANS[id].naam} · €{PLANS[id].prijsTekst}
               </button>
@@ -552,7 +552,7 @@ const TIJDLIJN = [
   { wanneer: "Today", titel: "Choose your plan", tekst: "Pick a plan and start your 7-day trial for €1. You land in your own dashboard right away." },
   { wanneer: "Within 5 minutes", titel: "Volgo is live on your website", tekst: "Paste one line of code (there's a guide for WordPress, Wix, Shopify, Squarespace and Webflow), or we add it for you. Tell Volgo about your services and prices in about two minutes." },
   { wanneer: "From the first visitor", titel: "Leads come in, sorted for you", tekst: "Volgo answers every visitor, collects name and phone or email with permission, and scores each lead. Hot leads reach your inbox right away, plus a summary in your inbox every morning." },
-  { wanneer: "Pro and Premium: within 1 working day", titel: "We plan your new website with you", tekst: "Tell us what you want in the Website tab, by chat or in a call. We build it with photos, video and Volgo inside, you review it, and it goes live on your own domain." },
+  { wanneer: "Complete: within 1 working day", titel: "We plan your new website with you", tekst: "Tell us what you want in the Website tab, by chat or in a call. We build it with photos, video and Volgo inside, you review it, and it goes live on your own domain." },
   { wanneer: "Every month", titel: "You stay because it works", tekst: "Your plan renews monthly. Not for you? Cancel in your dashboard and it stops at the end of the paid month. Your domain name stays yours." },
 ];
 

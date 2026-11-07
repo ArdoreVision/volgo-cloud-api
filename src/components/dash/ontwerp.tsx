@@ -258,7 +258,7 @@ export function OntwerpEditor({ terug }: { terug: () => void }) {
           {slot ? (
             <div className="v-ed__upsell">
               <strong>Make Volgo look like your brand</strong>
-              <p>Button style, shape, size, theme, position, photo and invitation bubble are part of Pro and Premium. You can preview them here; colour and greeting work on every plan.</p>
+              <p>Button style, shape, size, theme, position, photo and invitation bubble are part of Complete. You can preview them here; colour and greeting work on every plan.</p>
             </div>
           ) : null}
 

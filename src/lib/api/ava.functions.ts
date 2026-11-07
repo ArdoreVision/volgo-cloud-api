@@ -70,7 +70,7 @@ export const bewaarAgenda = createServerFn({ method: "POST" })
         open_van: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
         open_tot: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
         afspraak_duur: z.number().int().min(15).max(240),
-        afspraak_soorten: z.array(z.enum(["bellen", "langs", "kantoor", "insta"])).min(1).max(4),
+        afspraak_soorten: z.array(z.enum(["bellen", "langs", "chat", "kantoor", "insta"])).min(1).max(5),
         instagram: z
           .string()
           .trim()
@@ -185,7 +185,7 @@ export const bewaarStijl = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { g, DB } = await sessie();
     const { planVoorTeam } = await import("../limieten.server");
-    if (!(await planVoorTeam(DB, g.team_id)).limieten.eigenStijl) return { ok: false as const, message: "Your own style is part of Pro and Premium." };
+    if (!(await planVoorTeam(DB, g.team_id)).limieten.eigenStijl) return { ok: false as const, message: "Your own style is part of Complete." };
     await slaStijlOp(DB, g.team_id, data);
     return { ok: true as const, message: "" };
   });
