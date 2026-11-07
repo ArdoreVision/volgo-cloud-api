@@ -11,7 +11,7 @@ import { InstallGuides } from "@/components/volgo/install-guides";
 import { AvaStijl } from "./ava-stijl";
 
 type Ava = Awaited<ReturnType<typeof haalAva>>;
-const KLEUREN = ["#1677d9", "#111318", "#1f9d55", "#6d4fd8", "#e07a10", "#d63c7b"];
+const KLEUREN = ["#0a0a0a", "#1677d9", "#1f9d55", "#6d4fd8", "#e07a10", "#d63c7b"];
 
 function Toggle({ aan, onChange, label, uitleg }: { aan: boolean; onChange: (v: boolean) => void; label: string; uitleg: string }) {
   return (
@@ -30,7 +30,7 @@ export type AvaDeel = "praten" | "stijl" | "installeren" | "meldingen";
 
 export function AvaInstellen({ deel }: { deel: AvaDeel }) {
   const [ava, setAva] = useState<Ava | null>(null);
-  const [kleur, setKleur] = useState("#1677d9");
+  const [kleur, setKleur] = useState("#0a0a0a");
   const [opgeslagen, setOpgeslagen] = useState(false);
   const [gekopieerd, setGekopieerd] = useState(false);
   const [melding, setMelding] = useState({ chat: true, lead: true, email: false, heet_mail: true, samenvatting: true, chat_mail: true });

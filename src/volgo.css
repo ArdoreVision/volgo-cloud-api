@@ -1470,26 +1470,26 @@ html:not(.v-js) .vx-tijd__lijst li > div { opacity: 1; }
   background: var(--surface);
   color: var(--ink);
 }
-html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b; }
-.v-dash[data-thema="donker"] .v-dash__side { background: #10161f; border-color: var(--line); }
-.v-dash[data-thema="donker"] .v-dash__avatar { background: #253043; color: #cfe2ff; }
+html[data-thema="donker"], html[data-thema="donker"] body { background: #000000; }
+.v-dash[data-thema="donker"] .v-dash__side { background: #0a0a0a; border-color: var(--line); }
+.v-dash[data-thema="donker"] .v-dash__avatar { background: #1f1f1f; color: #cfe2ff; }
 .v-dash[data-thema="donker"] input, .v-dash[data-thema="donker"] textarea, .v-dash[data-thema="donker"] select:not([class*="v-pill--"]) { color: var(--ink); }
 /* Night mode: things that are dark-on-light by day become light-on-dark, and stay readable */
-.v-dash[data-thema="donker"] :is(.v-addbtn, .v-btn-dark, .v-chatapp__invite, .v-auth__btn) { background: #eef1f6; color: #0b0f15; }
+.v-dash[data-thema="donker"] :is(.v-addbtn, .v-btn-dark, .v-chatapp__invite, .v-auth__btn) { background: #fafafa; color: #000000; }
 .v-dash[data-thema="donker"] .v-stat--win { background: linear-gradient(150deg, #1d4ed8, #2563eb); }
-.v-dash[data-thema="donker"] .v-seg { background: #1c2430; }
-.v-dash[data-thema="donker"] .v-seg button[aria-selected="true"] { background: #2b3544; color: #fff; box-shadow: none; }
+.v-dash[data-thema="donker"] .v-seg { background: #1c1c1c; }
+.v-dash[data-thema="donker"] .v-seg button[aria-selected="true"] { background: #2b2b2b; color: #fff; box-shadow: none; }
 .v-dash[data-thema="donker"] .v-pill--afspraak { background: rgba(139, 92, 246, 0.18); color: #c4b5fd; }
 .v-dash[data-thema="donker"] .v-pill--klant { background: rgba(34, 197, 94, 0.16); color: #6ee7a0; }
 .v-dash[data-thema="donker"] .v-pill--nieuw { background: rgba(77, 156, 255, 0.16); color: #8cc0ff; }
-.v-dash[data-thema="donker"] .v-pill--verloren { background: #1c2430; color: var(--muted); }
-.v-dash[data-thema="donker"] select option { background: #161c26; color: #eef1f6; }
-.v-dash[data-thema="donker"] .v-mnav, .v-dash[data-thema="donker"] .v-sheet__paneel { background: rgba(16, 22, 31, 0.94); border-color: var(--line); }
-@media (max-width: 900px) { .v-dash[data-thema="donker"] .v-dash__side { background: rgba(16, 22, 31, 0.9); } }
-.v-dash[data-thema="donker"] .v-btn-dark, .v-dash[data-thema="donker"] .v-cta-primary { background: #eef1f6; color: #0b0f15; }
+.v-dash[data-thema="donker"] .v-pill--verloren { background: #1c1c1c; color: var(--muted); }
+.v-dash[data-thema="donker"] select option { background: #0d0d0d; color: #fafafa; }
+.v-dash[data-thema="donker"] .v-mnav, .v-dash[data-thema="donker"] .v-sheet__paneel { background: rgba(10, 10, 10, 0.94); border-color: var(--line); }
+@media (max-width: 900px) { .v-dash[data-thema="donker"] .v-dash__side { background: rgba(10, 10, 10, 0.9); } }
+.v-dash[data-thema="donker"] .v-btn-dark, .v-dash[data-thema="donker"] .v-cta-primary { background: #fafafa; color: #000000; }
 .v-dash[data-thema="donker"] .v-heat--warm, .v-dash[data-thema="donker"] .v-pill--opvolging, .v-dash[data-thema="donker"] .v-pill--offerte { background: rgba(245, 159, 0, 0.16); color: #ffc46b; }
 .v-dash[data-thema="donker"] .v-convo__mens, .v-dash[data-thema="donker"] .v-melding, .v-dash[data-thema="donker"] .v-na__noot { background: rgba(245, 159, 0, 0.12); color: #ffc46b; }
-.v-dash[data-thema="donker"] .v-dm__b--zij p { background: #222a36; }
+.v-dash[data-thema="donker"] .v-dm__b--zij p { background: #222222; }
 .v-dash[data-thema="donker"] .v-dm__tag--jij, .v-dash[data-thema="donker"] .v-dm__lead { background: rgba(34, 197, 94, 0.14); color: #6ee7a0; }
 .v-dash[data-thema="donker"] .v-profiel__menu { box-shadow: 0 0 0 1px var(--line), 0 18px 50px rgba(0, 0, 0, 0.5); }
 .v-dash[data-thema="donker"] .v-profiel__knop { background: var(--card); }
@@ -1535,8 +1535,8 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .v-dash .v-book { background: linear-gradient(135deg, rgba(225, 48, 108, 0.07), rgba(249, 160, 63, 0.07)); }
 .v-dash .v-book button.v-book__knop { border: 0; font: inherit; font-weight: 600; cursor: pointer; }
 .v-dash[data-thema="donker"] .v-book { box-shadow: 0 0 0 1px #3a2a33; }
-.v-dash[data-thema="donker"] .v-book__woord { background: #222a36; box-shadow: 0 0 0 1px #4a3442; }
-.v-dash[data-thema="donker"] .v-book__knop { background: #eef1f6; color: #0b0f15; }
+.v-dash[data-thema="donker"] .v-book__woord { background: #222222; box-shadow: 0 0 0 1px #4a3442; }
+.v-dash[data-thema="donker"] .v-book__knop { background: #fafafa; color: #000000; }
 
 /* Traffic (website analytics) */
 .v-vk__kop { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
@@ -1575,13 +1575,13 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 @media (max-width: 900px) { .v-vk__tegels { grid-template-columns: 1fr 1fr; } .v-vk__raster { grid-template-columns: 1fr; } .v-vk__trechter > div { grid-template-columns: 120px 1fr 44px; font-size: 13px; } }
 
 /* Night mode: every remaining light surface, tuned so contrast stays comfortable */
-.v-dash[data-thema="donker"] .v-instel__nav { background: #1a212c; }
+.v-dash[data-thema="donker"] .v-instel__nav { background: #1a1a1a; }
 .v-dash[data-thema="donker"] .v-instel__nav button { color: var(--muted); }
-.v-dash[data-thema="donker"] .v-instel__nav button[aria-current="page"] { background: #2b3544; color: #fff; box-shadow: none; }
-.v-dash[data-thema="donker"] .v-dash__logout { background: #1c2430; color: var(--ink); }
+.v-dash[data-thema="donker"] .v-instel__nav button[aria-current="page"] { background: #2b2b2b; color: #fff; box-shadow: none; }
+.v-dash[data-thema="donker"] .v-dash__logout { background: #1c1c1c; color: var(--ink); }
 .v-dash[data-thema="donker"] .v-dash__logout:hover { background: #263040; }
 .v-dash[data-thema="donker"] .v-month__cell { background: var(--card); }
-.v-dash[data-thema="donker"] .v-month__cell:hover { background: #1b2230; }
+.v-dash[data-thema="donker"] .v-month__cell:hover { background: #1a1a1a; }
 .v-dash[data-thema="donker"] .v-month__cell.is-buiten { background: #12171f; }
 .v-dash[data-thema="donker"] .v-month__cell.is-buiten .v-month__num { color: #4b5563; }
 .v-dash[data-thema="donker"] .v-month__ev--blauw, .v-dash[data-thema="donker"] .v-ev--blauw { background: rgba(77, 156, 255, 0.16); color: #9cc7ff; }
@@ -1589,20 +1589,20 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .v-dash[data-thema="donker"] .v-month__ev--paars, .v-dash[data-thema="donker"] .v-ev--paars { background: rgba(139, 92, 246, 0.18); color: #c4b5fd; }
 .v-dash[data-thema="donker"] .v-month__ev--oranje, .v-dash[data-thema="donker"] .v-ev--oranje { background: rgba(245, 159, 0, 0.16); color: #ffc46b; }
 .v-dash[data-thema="donker"] .v-chatapp__side { background: #121821; }
-.v-dash[data-thema="donker"] .v-chatapp__item:hover { background: #1c2430; }
+.v-dash[data-thema="donker"] .v-chatapp__item:hover { background: #1c1c1c; }
 .v-dash[data-thema="donker"] :is(.v-videobtn, .v-callcard, .v-ava__item--live, .v-badge--groen, .v-auth__ok) { background-color: rgba(34, 197, 94, 0.13); color: #7ee2a8; }
 .v-dash[data-thema="donker"] .v-badge--rood { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
 .v-dash[data-thema="donker"] .v-mens-badge, .v-dash[data-thema="donker"] .v-heat--warm { background: rgba(245, 159, 0, 0.16); color: #ffc46b; }
 .v-dash[data-thema="donker"] .v-toggle input:not(:checked) + i { background: #2b3443; }
-.v-dash[data-thema="donker"] .v-toast { background: rgba(22, 28, 38, 0.95); color: var(--ink); box-shadow: 0 0 0 1px var(--line), 0 18px 40px rgba(0, 0, 0, 0.45); }
+.v-dash[data-thema="donker"] .v-toast { background: rgba(20, 20, 20, 0.95); color: var(--ink); box-shadow: 0 0 0 1px var(--line), 0 18px 40px rgba(0, 0, 0, 0.45); }
 .v-dash[data-thema="donker"] .v-meter__balk { background: #232c39; }
-.v-dash[data-thema="donker"] .v-wv__b--a, .v-dash[data-thema="donker"] .v-na__slot { background: #1c2430; }
+.v-dash[data-thema="donker"] .v-wv__b--a, .v-dash[data-thema="donker"] .v-na__slot { background: #1c1c1c; }
 .v-dash[data-thema="donker"] .v-swatch { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18); }
-.v-dash[data-thema="donker"] .v-swatch[aria-checked="true"] { box-shadow: 0 0 0 3px var(--card), 0 0 0 5px #eef1f6; }
+.v-dash[data-thema="donker"] .v-swatch[aria-checked="true"] { box-shadow: 0 0 0 3px var(--card), 0 0 0 5px #fafafa; }
 .v-dash[data-thema="donker"] .v-vk__lijst li i { background: rgba(77, 156, 255, 0.14); }
 .v-dash[data-thema="donker"] ::placeholder { color: #5f6b7a; }
-.v-dash[data-thema="donker"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), .v-dash[data-thema="donker"] textarea, .v-dash[data-thema="donker"] .v-select:not([class*="v-pill--"]) { background-color: #1a212c; }
-.v-dash[data-thema="donker"] ::-webkit-scrollbar-thumb { background: #2b3544; border-radius: 8px; }
+.v-dash[data-thema="donker"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), .v-dash[data-thema="donker"] textarea, .v-dash[data-thema="donker"] .v-select:not([class*="v-pill--"]) { background-color: #1a1a1a; }
+.v-dash[data-thema="donker"] ::-webkit-scrollbar-thumb { background: #2b2b2b; border-radius: 8px; }
 .v-dash[data-thema="donker"] ::-webkit-scrollbar { width: 10px; height: 10px; background: transparent; }
 
 /* Visitor origin: in Requests, in a chat, and live in Traffic */
@@ -1702,11 +1702,11 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .v-ed-kaart { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
 .v-ed-kaart h2 { margin: 0 0 6px; }
 .v-ed-kaart p { margin: 0; max-width: 560px; }
-.v-dash[data-thema="donker"] .v-ed__doek { background: radial-gradient(circle at 1px 1px, rgba(255,255,255,.07) 1px, transparent 0) 0 0 / 18px 18px, #0b0f15; }
-.v-dash[data-thema="donker"] .v-ed__scherm { box-shadow: 0 0 0 1px #242c39, 0 30px 80px rgba(0,0,0,.5); }
+.v-dash[data-thema="donker"] .v-ed__doek { background: radial-gradient(circle at 1px 1px, rgba(255,255,255,.07) 1px, transparent 0) 0 0 / 18px 18px, #000000; }
+.v-dash[data-thema="donker"] .v-ed__scherm { box-shadow: 0 0 0 1px #262626, 0 30px 80px rgba(0,0,0,.5); }
 .v-dash[data-thema="donker"] .v-ed__doek.is-mobiel .v-ed__scherm { border-color: #2a3240; }
-.v-dash[data-thema="donker"] .v-ed__apparaat button.is-aan { background: #242c39; }
-.v-dash[data-thema="donker"] .v-ed__kaarten button.is-aan { background: #1b2230; }
+.v-dash[data-thema="donker"] .v-ed__apparaat button.is-aan { background: #262626; }
+.v-dash[data-thema="donker"] .v-ed__kaarten button.is-aan { background: #1a1a1a; }
 @media (max-width: 900px) {
   .v-ed__werk { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
   .v-ed__zij { max-height: 45vh; border-right: 0; border-bottom: 1px solid var(--line); }
@@ -1846,7 +1846,7 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #0e131b;
 .v-lp__msg--ava { background: var(--sky-2); border-bottom-left-radius: 6px; }
 .v-lp__msg--mens { background: #e8f8ef; border-bottom-left-radius: 6px; }
 .v-lp__msg--systeem { justify-self: center; max-width: 100%; background: transparent; color: var(--muted); font-size: 12.5px; padding: 2px 0; }
-.v-dash[data-thema="donker"] .v-lp__paneel { background: #10161f; }
+.v-dash[data-thema="donker"] .v-lp__paneel { background: #0a0a0a; }
 .v-dash[data-thema="donker"] .v-lp__msg--mens { background: rgba(31, 157, 85, 0.18); }
 @media (max-width: 900px) {
   .v-lp { align-items: flex-end; }
@@ -2173,3 +2173,118 @@ html:has(.volgo--simpel) { scroll-padding-top: 76px; }
   .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site) .v-nav--simpel .v-nav__login { padding: 9px 10px; letter-spacing: 0.1em; font-size: 11.5px; }
 }
 .vx-live__toestel--native.is-vol .vx-live__volbalk small { display: none; }
+
+/* ══════════════════════════════════════════════════════════
+   Dashboard: monochrome. Day = black on white, night = white on black.
+   No blue anywhere; hierarchy comes from contrast, weight and space.
+   ══════════════════════════════════════════════════════════ */
+.v-dash {
+  --bg: #ffffff;
+  --surface: #fafafa;
+  --card: #ffffff;
+  --ink: #0a0a0a;
+  --ink-2: #262626;
+  --muted: #737373;
+  --line: #e8e8e8;
+  --sky-1: #ececec;
+  --sky-2: #f3f3f3;
+  --accent: #0a0a0a;
+  --accent-soft: rgba(10, 10, 10, 0.07);
+  --on-accent: #ffffff;
+  --bol: 10, 10, 10;
+}
+.v-dash[data-thema="donker"] {
+  --bg: #000000;
+  --surface: #000000;
+  --card: #0d0d0d;
+  --ink: #fafafa;
+  --ink-2: #d4d4d4;
+  --muted: #8c8c8c;
+  --line: #222222;
+  --sky-1: #1c1c1c;
+  --sky-2: #151515;
+  --accent: #fafafa;
+  --accent-soft: rgba(255, 255, 255, 0.09);
+  --on-accent: #000000;
+  --bol: 255, 255, 255;
+}
+html[data-thema="donker"], html[data-thema="donker"] body { background: #000; }
+.v-dash[data-thema="donker"] .v-dash__side { background: #000; border-color: var(--line); }
+
+/* Everything that sits on the accent colour flips with the theme */
+.v-dash :is(.v-dash__badge, .v-copy button, .v-home__msg--ik p, .v-btn-blauw, .v-start__lijst button:hover, .v-how__list span,
+  .v-tijdlijn li.is-nu > span, .v-website__intro em, .v-dm__b--wij p, .v-dm__invoer button, .vx-voorna__kol--met time,
+  .vx-tijd__lijst li.is-aan .vx-tijd__nr, .v-agset__dagen button[aria-pressed="true"], .v-ed__chatknop.is-aan,
+  .v-welkom__stappen li > span, .v-msg--klant, .ava-bubble--user, .v-submit, .v-plan__cta--pro) { color: var(--on-accent); }
+.v-dash :is(.v-home__balk svg, .ava-send svg) { stroke: var(--on-accent); }
+.v-dash .v-toast::before { filter: invert(var(--inv, 0)); }
+.v-dash[data-thema="donker"] { --inv: 1; }
+.v-dash .v-home__balk:focus-within { border-color: var(--ink); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1); }
+.v-dash[data-thema="donker"] .v-home__balk:focus-within { box-shadow: 0 10px 40px rgba(255, 255, 255, 0.06); }
+.v-dash .v-submit, .v-dash .v-plan__cta--pro { box-shadow: none; }
+
+/* Navigation: the active item is a solid block */
+.v-dash .v-dash__nav button[aria-current="page"] { background: var(--ink); color: var(--bg); font-weight: 500; box-shadow: none; }
+.v-dash .v-dash__nav button[aria-current="page"] .v-dash__icon { stroke: var(--bg); }
+.v-dash .v-dash__nav button[aria-current="page"]::before { display: none; }
+.v-dash .v-dash__nav button[aria-current="page"] .v-dash__badge { background: var(--bg); color: var(--ink); }
+
+/* Avatars and profile initials: ink, no colour */
+.v-dash :is(.v-av--blauw, .v-av--paars, .v-av--groen, .v-av--oranje, .v-av--roze) { background: var(--ink); color: var(--bg); }
+.v-dash .v-pf--letters { background: var(--ink); color: var(--bg); }
+.v-dash[data-thema="donker"] .v-dash__avatar { background: var(--ink); color: var(--bg); }
+.v-dash .v-profiel__knop:hover, .v-dash .v-profiel__knop[aria-expanded="true"] { box-shadow: 0 0 0 2px var(--ink), 0 6px 18px rgba(0, 0, 0, 0.12); }
+
+/* Calendar categories become shades instead of colours */
+.v-dash :is(.v-ev--blauw, .v-month__ev--blauw) { --c: var(--ink); background: var(--sky-1); color: var(--ink); }
+.v-dash :is(.v-ev--groen, .v-month__ev--groen) { --c: #525252; background: var(--sky-2); color: var(--ink); }
+.v-dash :is(.v-ev--paars, .v-month__ev--paars) { --c: #8c8c8c; background: var(--sky-2); color: var(--ink); }
+.v-dash :is(.v-ev--oranje, .v-month__ev--oranje) { --c: #a3a3a3; background: var(--sky-2); color: var(--ink); }
+.v-dash[data-thema="donker"] :is(.v-month__ev--blauw, .v-ev--blauw, .v-month__ev--groen, .v-ev--groen, .v-month__ev--paars, .v-ev--paars, .v-month__ev--oranje, .v-ev--oranje) { background: var(--sky-1); color: var(--ink); }
+.v-dash[data-thema="donker"] :is(.v-ev--groen, .v-month__ev--groen) { --c: #bdbdbd; }
+.v-dash[data-thema="donker"] :is(.v-ev--paars, .v-month__ev--paars) { --c: #8c8c8c; }
+.v-dash[data-thema="donker"] :is(.v-ev--oranje, .v-month__ev--oranje) { --c: #5c5c5c; }
+
+/* Highlight tiles: inverted blocks */
+.v-dash .v-stat--win, .v-dash[data-thema="donker"] .v-stat--win, .v-dash .v-vk__tegels .is-blauw { background: var(--ink); color: var(--bg); }
+.v-dash .v-stat--win strong, .v-dash .v-vk__tegels .is-blauw strong { color: var(--bg); }
+.v-dash .v-stat--win span, .v-dash .v-stat--win .v-delta, .v-dash .v-vk__tegels .is-blauw span, .v-dash .v-vk__tegels .is-blauw .v-vk__delta { color: color-mix(in srgb, var(--bg) 70%, transparent); }
+.v-dash .v-vk__grafiek i { background: linear-gradient(180deg, var(--ink), color-mix(in srgb, var(--ink) 40%, transparent)); }
+.v-dash .v-na__kaart--pro { border-color: var(--ink); box-shadow: none; }
+.v-dash :is(.v-compare td:nth-child(3), .v-compare th:nth-child(3)) { background: var(--accent-soft); }
+.v-dash .vx-voorna__kol--met, .v-dash .vx-voordelen article:hover, .v-dash .vx-tijd__lijst li.is-aan > div { box-shadow: 0 0 0 1px var(--line); }
+.v-dash .vx-reken__uit { background: var(--ink); color: var(--bg); }
+.v-dash .v-plan__list li::before { background: var(--accent-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23737373' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5'/%3E%3C/svg%3E") center/11px no-repeat; }
+
+/* The globe: monochrome dots */
+.v-dash .v-bol { filter: grayscale(1) drop-shadow(0 20px 40px rgba(var(--bol), 0.12)); }
+
+/* Status: steps of grey instead of colour (strongest = most important) */
+.v-dash .v-pill--nieuw, .v-dash[data-thema="donker"] .v-pill--nieuw { background: var(--ink); color: var(--bg); }
+.v-dash :is(.v-pill--opvolging, .v-pill--offerte), .v-dash[data-thema="donker"] :is(.v-pill--opvolging, .v-pill--offerte) { background: var(--sky-1); color: var(--ink); }
+.v-dash .v-pill--afspraak, .v-dash[data-thema="donker"] .v-pill--afspraak { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.v-dash .v-pill--klant, .v-dash[data-thema="donker"] .v-pill--klant { background: var(--sky-2); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.v-dash .v-pill--verloren, .v-dash[data-thema="donker"] .v-pill--verloren { background: transparent; color: var(--muted); text-decoration: line-through; }
+.v-dash .v-heat--heet { background: var(--ink); color: var(--bg); }
+.v-dash .v-heat--warm, .v-dash[data-thema="donker"] .v-heat--warm { background: var(--sky-1); color: var(--ink); }
+.v-dash[data-thema="donker"] .v-mens-badge { background: var(--sky-1); color: var(--ink); }
+.v-dash .v-warmte { background: var(--sky-1); }
+.v-dash .v-warmte i { background: var(--ink); }
+.v-dash .v-chart__bar { background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 45%, transparent), var(--ink)); }
+.v-dash .v-cal-day h2.is-vandaag { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 2px; }
+.v-dash .v-month__cell.is-vandaag .v-month__num { background: var(--ink); color: var(--bg); }
+.v-dash .v-dm__av { background: var(--ink) !important; color: var(--bg); }
+/* Live stays a tiny green signal: the one colour that carries meaning */
+.v-dash .v-dm__av i { box-shadow: 0 0 0 2.5px var(--bg); }
+.v-dash[data-thema="donker"] .v-thema__maan { color: var(--ink); }
+.v-dash .v-home__balk { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06); }
+.v-dash .v-ava__item--live, .v-dash[data-thema="donker"] .v-ava__item--live { background: var(--sky-2); color: inherit; box-shadow: inset 0 0 0 1px var(--line); }
+.v-dash .v-live-badge { background: var(--ink); color: var(--bg); }
+.v-dash .v-live-badge::before { background: #22c55e; }
+.v-dash .v-cal-day h2 span { background: var(--ink); color: var(--bg); }
+.v-dash .v-toast--heet::before { background-color: var(--ink); }
+.v-dash .v-chatapp__side { background: var(--surface); }
+.v-dash[data-thema="donker"] .v-chatapp__side { background: #050505; }
+.v-dash :is(.v-videobtn, .v-callcard), .v-dash[data-thema="donker"] :is(.v-videobtn, .v-callcard) { background-color: var(--sky-2); color: var(--ink); }
+.v-dash .v-videobtn:hover { background-color: var(--sky-1); }
+.v-dash[data-thema="donker"] :is(.v-badge--groen, .v-auth__ok) { background-color: var(--sky-1); color: var(--ink); }

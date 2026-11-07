@@ -19,7 +19,7 @@ type Stijl = {
 type Ontwerp = { kleur: string; begroeting: string; site: string; stijl: Stijl };
 type Data = Awaited<ReturnType<typeof haalOntwerp>>;
 
-const KLEUREN = ["#1677d9", "#111318", "#1f9d55", "#e07a10", "#c4211b", "#6d4fd8", "#0e9aa7", "#d63384"];
+const KLEUREN = ["#0a0a0a", "#1677d9", "#1f9d55", "#e07a10", "#c4211b", "#6d4fd8", "#0e9aa7", "#d63384"];
 
 /** Resize an uploaded photo to a 160×160 square, small enough to store. */
 function verklein(file: File): Promise<string> {
@@ -177,7 +177,7 @@ export function OntwerpEditor({ terug }: { terug: () => void }) {
   if (!data || !o || !live) return <div className="v-ed v-ed--laden">Loading the editor…</div>;
 
   const zet = <K extends keyof Stijl>(k: K, v: Stijl[K]) => setO((x) => (x ? { ...x, stijl: { ...x.stijl, [k]: v } } : x));
-  const foto = o.stijl.avatar ?? "/assets/volgo/ava.png";
+  const foto = o.stijl.avatar ?? "/assets/volgo/ava-mono.svg";
   const src = `/ava-preview?k=${encodeURIComponent(data.sleutel)}${toonSite ? `&u=${encodeURIComponent(toonSite)}` : ""}`;
 
   async function opslaan() {
