@@ -2425,3 +2425,63 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000; }
 .v-mc__voorbeeld.is-donker .v-mc__bel--ava { background: rgba(255, 255, 255, 0.08); }
 .v-mc__bel--klant { color: #fff; border-bottom-right-radius: 6px; align-self: flex-end; }
 .v-mc__bol { width: 58px; height: 58px; border-radius: 50%; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22); overflow: hidden; }
+
+/* Owner dashboard: one customer */
+.v-admin__rij--klik { cursor: pointer; }
+.v-admin__rij--klik:hover { background: rgba(0, 0, 0, 0.03); }
+.v-kb { margin-top: 18px; }
+.v-kb__terug { font: inherit; font-size: 14px; background: none; border: 0; color: inherit; opacity: 0.65; cursor: pointer; padding: 6px 0; }
+.v-kb__kop { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin: 6px 0 18px; flex-wrap: wrap; }
+.v-kb__kop h2 { margin: 0; font-size: 28px; letter-spacing: -0.02em; }
+.v-kb__kop p { margin: 4px 0 0; opacity: 0.65; font-size: 14px; }
+.v-kb__raster { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; }
+@media (max-width: 980px) { .v-kb__raster { grid-template-columns: 1fr; } }
+.v-kb__links { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.v-kb__blok { border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 16px; padding: 18px; }
+.v-kb__blok h3 { margin: 0 0 12px; font-size: 15px; }
+.v-kb__leeg { margin: 0; opacity: 0.6; font-size: 14px; }
+.v-kb__problemen { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.v-kb__problemen li { padding: 10px 12px; border-radius: 10px; font-size: 14px; }
+.v-kb__problemen .is-rood { background: #fdecec; color: #9b1c1c; }
+.v-kb__problemen .is-oranje { background: #fdf3e2; color: #8a4b08; }
+.v-kb__velden { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
+.v-kb__velden label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.v-kb__velden label span { font-weight: 600; }
+.v-kb__velden .is-breed { grid-column: 1 / -1; }
+.v-kb__velden input, .v-kb__velden textarea { font: inherit; font-size: 14px; border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 10px; padding: 9px 11px; background: #fff; color: inherit; resize: vertical; }
+.v-kb__velden input[type="color"] { padding: 2px; height: 40px; width: 64px; }
+.v-kb__aan { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.v-kb__chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.v-kb__chips button { font: inherit; font-size: 13px; border: 1px solid rgba(0, 0, 0, 0.15); background: #fff; color: inherit; border-radius: 999px; padding: 6px 13px; cursor: pointer; }
+.v-kb__chips button[aria-pressed="true"] { background: #111; color: #fff; border-color: #111; }
+.v-kb__opslaan { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+.v-kb__knop { font: inherit; font-weight: 600; background: #111; color: #fff; border: 0; border-radius: 999px; padding: 11px 24px; cursor: pointer; }
+.v-kb__knop2 { font: inherit; font-size: 13px; background: none; color: inherit; border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 999px; padding: 7px 14px; cursor: pointer; text-decoration: none; white-space: nowrap; }
+.v-kb__code { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+.v-kb__code code { flex: 1; font-size: 12px; background: #f4f4f4; border-radius: 10px; padding: 10px; overflow-x: auto; white-space: nowrap; }
+.v-kb__lijst { list-style: none; margin: 0; padding: 0; }
+.v-kb__rij { display: grid; grid-template-columns: 160px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; width: 100%; text-align: left; padding: 10px 0; border: 0; border-top: 1px solid rgba(0, 0, 0, 0.07); background: none; font: inherit; font-size: 14px; color: inherit; cursor: pointer; }
+.v-kb__rij--plat { cursor: default; }
+.v-kb__lijst li:first-child > .v-kb__rij, .v-kb__lijst > .v-kb__rij:first-child { border-top: 0; }
+.v-kb__rij span, .v-kb__rij b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v-kb__rij small { opacity: 0.6; font-size: 12px; }
+.v-kb__gesprek { display: flex; flex-direction: column; gap: 6px; padding: 8px 0 14px; }
+.v-kb__gesprek p { margin: 0; padding: 8px 11px; border-radius: 12px; font-size: 13.5px; max-width: 85%; background: #f2f2f2; }
+.v-kb__gesprek .is-bezoeker { align-self: flex-end; background: #111; color: #fff; }
+.v-kb__gesprek .is-systeem { align-self: center; background: none; opacity: 0.6; font-size: 12px; }
+.v-kb__ai { position: sticky; top: 18px; border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 18px; display: flex; flex-direction: column; height: min(78vh, 760px); overflow: hidden; background: #fff; }
+.v-kb__aikop { padding: 14px 16px; border-bottom: 1px solid rgba(0, 0, 0, 0.08); display: flex; flex-direction: column; gap: 2px; }
+.v-kb__aikop small { opacity: 0.6; }
+.v-kb__aiberichten { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.v-kb__voorbeelden { display: flex; flex-direction: column; gap: 8px; }
+.v-kb__voorbeelden button { font: inherit; font-size: 13px; text-align: left; border: 1px solid rgba(0, 0, 0, 0.12); background: none; color: inherit; border-radius: 12px; padding: 9px 12px; cursor: pointer; }
+.v-kb__bel { max-width: 92%; padding: 10px 12px; border-radius: 14px; font-size: 14px; line-height: 1.45; }
+.v-kb__bel p { margin: 0; white-space: pre-wrap; }
+.v-kb__bel small { display: block; margin-top: 6px; opacity: 0.6; font-size: 12px; }
+.v-kb__bel.is-ik { align-self: flex-end; background: #111; color: #fff; }
+.v-kb__bel.is-ai { align-self: flex-start; background: #f2f2f2; }
+.v-kb__bel.is-denkt { opacity: 0.6; }
+.v-kb__aiform { display: flex; gap: 8px; padding: 12px; border-top: 1px solid rgba(0, 0, 0, 0.08); }
+.v-kb__aiform textarea { flex: 1; font: inherit; font-size: 14px; border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 12px; padding: 9px 11px; resize: none; }
+.v-kb__aiform button { font: inherit; font-weight: 600; background: #111; color: #fff; border: 0; border-radius: 12px; padding: 0 16px; cursor: pointer; }
+.v-kb__aiform button:disabled { opacity: 0.4; }
