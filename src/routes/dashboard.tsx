@@ -11,6 +11,7 @@ import { Website } from "@/components/dash/website";
 import { AvaInstellen } from "@/components/dash/ava-instellen";
 import { Gesprekken } from "@/components/dash/gesprekken";
 import { Vandaag } from "@/components/dash/vandaag";
+import { MijnChat } from "@/components/dash/mijn-chat";
 import { Overview } from "@/components/dash/overview";
 import { TeamChat } from "@/components/dash/team-chat";
 import { warmteLabel } from "@/components/dash/util";
@@ -65,7 +66,10 @@ const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
     items: [["verkeer", "Traffic"]],
   },
   {
-    items: [["instellingen", "Settings"]],
+    items: [
+      ["ava", "Your chat"],
+      ["instellingen", "Settings"],
+    ],
   },
 ];
 const TABS: [Tab, string][] = GROEPEN.flatMap((g) => g.items);
@@ -460,16 +464,7 @@ function Open({ data }: { data: DashData }) {
         {tab === "gesprekken" ? <Gesprekken data={data} /> : null}
         {tab === "agenda" ? <Agenda data={data} /> : null}
         {tab === "website" ? <Website /> : null}
-        {tab === "ava" ? (
-          <>
-            <header className="v-dash__head">
-              <h1>Train Volgo</h1>
-              <p>Tell Volgo about your services, prices and area. The more it knows, the better it answers and the warmer your leads.</p>
-            </header>
-            {profiel ? <ProfielSamenvatting profiel={profiel} wijzig={() => setVragenOpen(true)} /> : null}
-            <AvaInstellen deel="praten" />
-          </>
-        ) : null}
+        {tab === "ava" ? <MijnChat /> : null}
         {tab === "installeren" ? (
           <>
             <header className="v-dash__head">

@@ -1,3 +1,4 @@
+import { Dagtaken } from "./dagtaken";
 import { type Afspraak, type DashData, type Gesprek, type Lead, dagKey, geleden, sqlDate } from "./util";
 
 function groet(d: Date) {
@@ -66,6 +67,8 @@ export function Vandaag({ data, voornaam, openTab }: { data: DashData; voornaam:
           {live.length ? `${live.length} ${live.length === 1 ? "person is" : "people are"} chatting with your assistant right now.` : "Your assistant is online and answering your website, 24/7."}
         </p>
       </header>
+
+      <Dagtaken openTab={openTab} />
 
       <section aria-labelledby="vd-live" className="v-vd__blok">
         <div className="v-vd__blokkop">

@@ -299,3 +299,42 @@ export const stuurMensBericht = createServerFn({ method: "POST" })
     ]);
     return { ok: true as const, message: "" };
   });
+
+// ── "Your chat": the only things a customer changes themselves ─────────────
+/** Name, photo, colour, light/dark, greeting and the questions the assistant asks. */
+export const haalMijnChat = createServerFn({ method: "GET" }).handler(async () => {
+  const { g, DB } = await sessie();
+  const inst = await instellingenVoorTeam(DB, g.team_id);
+  const { haalStijl, STANDAARD_STIJL } = await import("../stijl.server");
+  const stijl = (await haalStijl(DB, g.team_id)) ?? STANDAARD_STIJL;
+  return { naam: inst.naam, begroeting: inst.begroeting, kleur: inst.kleur, vragen: inst.vragen ?? "", avatar: stijl.avatar, thema: stijl.thema, bedrijf: inst.bedrijf };
+});
+
+export const bewaarMijnChat = createServerFn({ method: "POST" })
+  .validator((v: unknown) =>
+    z
+      .object({
+        naam: z.string().trim().min(1).max(30),
+        begroeting: z.string().trim().min(5).max(300),
+        kleur: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+        vragen: z.string().trim().max(1200),
+        avatar: stijlSchema.shape.avatar,
+        thema: z.enum(["licht", "donker", "auto"]),
+      })
+      .parse(v),
+  )
+  .handler(async ({ data }) => {
+    const { g, DB } = await sessie();
+    await instellingenVoorTeam(DB, g.team_id);
+    const vragen = data.vragen
+      .split("\n")
+      .map((x) => x.trim())
+      .filter(Boolean)
+      .slice(0, 10)
+      .join("\n");
+    await DB.prepare("UPDATE ava_instellingen SET naam = ?, begroeting = ?, kleur = ?, vragen = ? WHERE team_id = ?").bind(data.naam, data.begroeting, data.kleur, vragen, g.team_id).run();
+    const { haalStijl, STANDAARD_STIJL } = await import("../stijl.server");
+    const oud = (await haalStijl(DB, g.team_id)) ?? STANDAARD_STIJL;
+    await slaStijlOp(DB, g.team_id, { ...oud, avatar: data.avatar, thema: data.thema });
+    return { ok: true as const };
+  });
