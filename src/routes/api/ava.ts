@@ -5,7 +5,7 @@ import { hashIp } from "@/lib/aanvraag.server";
 import { agendaVoorChat, boekViaChat, instellingenViaSleutel, pollGesprek, verwerkBericht } from "@/lib/ava.server";
 import { bindings } from "@/lib/bindings.server";
 
-// Openbare API voor de AVA-chat op websites van klanten (aangeroepen door /ava.js).
+// Openbare API voor de Volgo-chat op websites van klanten (aangeroepen door /ava.js).
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",

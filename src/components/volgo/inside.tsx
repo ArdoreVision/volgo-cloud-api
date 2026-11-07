@@ -1,8 +1,8 @@
 import type { CSSProperties } from "react";
 
 const items = [
-  { t: "Home", d: "Ask AVA anything about your business. “Who should I call first today?” “Write a follow-up email to my hottest lead.”", i: "M10 3.5l1.6 4.1 4.4.3-3.4 2.8 1.1 4.3L10 12.6 6.3 15l1.1-4.3L4 7.9l4.4-.3z" },
-  { t: "Live conversations", d: "See who AVA is talking to right now, what they asked and how long the chat has been going.", i: "M3.5 4.5h13v9h-6l-4 3v-3h-3z" },
+  { t: "Home", d: "Ask Volgo anything about your business. “Who should I call first today?” “Write a follow-up email to my hottest lead.”", i: "M10 3.5l1.6 4.1 4.4.3-3.4 2.8 1.1 4.3L10 12.6 6.3 15l1.1-4.3L4 7.9l4.4-.3z" },
+  { t: "Live conversations", d: "See who Volgo is talking to right now, what they asked and how long the chat has been going.", i: "M3.5 4.5h13v9h-6l-4 3v-3h-3z" },
   { t: "Leads and quotes", d: "All inquiries in one list, warmest first. Move them from new to quote sent to won in one tap.", i: "M3 5h14M3 10h14M3 15h9" },
   { t: "Agenda", d: "Your appointments as a clear day-by-day list or a full month, just like your phone's calendar.", i: "M3.5 5.5h13v11h-13zM3.5 8.5h13M7 3.5v3M13 3.5v3" },
   { t: "Team chat and video", d: "Channels, private messages and one-click video calls for your team. On Pro (up to 5 users) and Premium (unlimited).", i: "M4 5.5h12v8H9l-3.5 3v-3H4z" },
@@ -16,7 +16,7 @@ export function Inside() {
       <h2 className="v-h2 v-center" data-reveal="" id="inside-title">
         Your own dashboard. Works like an app.
       </h2>
-      <p className="v-lede v-center">Log in from your laptop or phone. Everything AVA does is right there.</p>
+      <p className="v-lede v-center">Log in from your laptop or phone. Everything Volgo does is right there.</p>
       <ul className="v-inside__grid">
         {items.map((x, i) => (
           <li data-reveal="" key={x.t} style={{ "--d": `${(i % 4) * 80}ms` } as CSSProperties}>
@@ -34,9 +34,9 @@ export function Inside() {
 
 export function HowItWorks() {
   const steps = [
-    { t: "Choose your plan", d: "Pick a plan and pay for the first month. Your dashboard opens right away." },
-    { t: "Install AVA or request your website", d: "Start: paste one line on your own website, with a guide for every platform. Pro and Premium: tell us what you want by chat or call and we build your site." },
-    { t: "Leads turn into quotes", d: "AVA chats with your visitors, scores every lead and alerts you. You call the hottest first and send the quote." },
+    { t: "Choose your plan", d: "Pick a plan and start your 7-day trial for €1. Your dashboard opens right away." },
+    { t: "Install Volgo or request your website", d: "Start: paste one line on your own website, with a guide for every platform. Pro and Premium: tell us what you want by chat or call and we build your site." },
+    { t: "Leads turn into quotes", d: "Volgo chats with your visitors, scores every lead and alerts you. You call the hottest first and send the quote." },
   ];
   return (
     <section aria-labelledby="how-title" className="v-how" id="how">

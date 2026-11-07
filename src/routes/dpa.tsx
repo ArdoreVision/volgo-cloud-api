@@ -10,7 +10,7 @@ export const Route = createFileRoute("/dpa")({
       bijgewerkt="October 31, 2026"
       intro={
         <p>
-          AVA talks with visitors to the customer’s website and records personal data in the process. For that data, the customer
+          Volgo talks with visitors to the customer’s website and records personal data in the process. For that data, the customer
           is the controller and Volgo is the processor within the meaning of Article 28 GDPR. This agreement applies automatically
           to every subscription.
         </p>
@@ -25,7 +25,7 @@ export const Route = createFileRoute("/dpa")({
 
       <h2>2. What data, and for what purpose</h2>
       <ul>
-        <li><strong>Data subjects:</strong> visitors to the customer’s website who chat with AVA, and the customer’s team members.</li>
+        <li><strong>Data subjects:</strong> visitors to the customer’s website who chat with Volgo, and the customer’s team members.</li>
         <li><strong>Data:</strong> the content of the chat, name, phone number and email address if the visitor provides them, the time, and an irreversible code of the IP address to prevent abuse.</li>
         <li><strong>Purpose:</strong> answering visitors’ questions, recording requests, ranking leads and showing them in the customer’s dashboard, and notifying the customer.</li>
       </ul>
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/dpa")({
       <p>The customer consents to the use of these sub-processors. We’ll announce any change in advance; the customer may then object.</p>
       <ul>
         <li><strong>Cloudflare</strong>: hosting and database for the website and the dashboard.</li>
-        <li><strong>Anthropic</strong>: the AI model (Claude) AVA uses to write replies. Chat text is only passed on to generate a reply.</li>
+        <li><strong>Anthropic</strong>: the AI model (Claude) Volgo uses to write replies. Chat text is only passed on to generate a reply.</li>
         <li><strong>Resend</strong>: sending email notifications.</li>
         <li><strong>Stripe</strong>: processing subscription payments (only the customer’s own data).</li>
       </ul>

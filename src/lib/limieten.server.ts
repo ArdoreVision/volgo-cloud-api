@@ -19,7 +19,7 @@ export async function aantalPlekken(DB: D1Database, teamId: number) {
 
 export class PlanLimiet extends Error {}
 
-/** AVA conversations started this calendar month (Amsterdam time is close enough to UTC month here). */
+/** Volgo conversations started this calendar month (Amsterdam time is close enough to UTC month here). */
 export async function gesprekkenDezeMaand(DB: D1Database, teamId: number) {
   const r = await DB.prepare("SELECT COUNT(*) AS n FROM ava_gesprekken WHERE team_id = ? AND voorbeeld = 0 AND gestart >= datetime('now', 'start of month')")
     .bind(teamId)
@@ -27,7 +27,7 @@ export async function gesprekkenDezeMaand(DB: D1Database, teamId: number) {
   return r?.n ?? 0;
 }
 
-/** Over the monthly AI limit? Then AVA keeps capturing leads in basic mode (no AI). */
+/** Over the monthly AI limit? Then Volgo keeps capturing leads in basic mode (no AI). */
 export async function boveLimiet(DB: D1Database, teamId: number) {
   const plan = await planVoorTeam(DB, teamId);
   return (await gesprekkenDezeMaand(DB, teamId)) > plan.limieten.gesprekken;

@@ -6,7 +6,7 @@ import { hashIp, recentCount } from "../aanvraag.server";
 import { checkWachtwoord, hashWachtwoord, huidigeGebruiker, maakSessie, randomToken, stopSessie } from "../auth.server";
 import { bindings } from "../bindings.server";
 import { SITE_URL, VOLGO_INBOX, esc, mailOpmaak, verstuurMail } from "../mail.server";
-import { PLANS, isPlan } from "../plans";
+import { PLANS, PROEF_PRIJS, isPlan } from "../plans";
 import { leesProfiel, profielCompleet } from "../profiel-vragen";
 import { beoordeel } from "../wachtwoord";
 import { seedTeam, zorgVoorKanaal } from "../team.server";
@@ -96,7 +96,14 @@ export const startBetaling = createServerFn({ method: "POST" })
       b.set("line_items[0][price_data][unit_amount]", String(plan.prijs));
       b.set("line_items[0][price_data][recurring][interval]", "month");
       b.set("line_items[0][price_data][product_data][name]", `Volgo ${plan.naam}`);
-      if (plan.proefDagen && !ik) b.set("subscription_data[trial_period_days]", String(plan.proefDagen));
+      if (plan.proefDagen && !ik) {
+        b.set("subscription_data[trial_period_days]", String(plan.proefDagen));
+        // The trial is not free: €1 is charged today (one-time, on the first invoice), the full monthly price after the trial.
+        b.set("line_items[1][quantity]", "1");
+        b.set("line_items[1][price_data][currency]", "eur");
+        b.set("line_items[1][price_data][unit_amount]", String(PROEF_PRIJS));
+        b.set("line_items[1][price_data][product_data][name]", `Volgo ${plan.naam} · ${plan.proefDagen}-day trial`);
+      }
       b.set("metadata[plan]", plan.id);
       // HCC is zelf de verkoper; Stripe "Managed Payments" (Stripe als verkoper) staat uit.
       b.set("managed_payments[enabled]", "false");
@@ -226,7 +233,7 @@ export const maakAccount = createServerFn({ method: "POST" })
       mailOpmaak(
         `New signup: ${esc(data.bedrijf)}`,
         `<p><strong>${esc(data.naam)}</strong> · ${esc(data.email)}</p>
-         <p>Plan: <strong>${plan.naam}</strong>${plan.proefDagen ? ` · ${plan.proefDagen}-day free trial` : ""}${b.testmodus ? " · <em>test payment</em>" : ""}</p>
+         <p>Plan: <strong>${plan.naam}</strong>${plan.proefDagen ? ` · ${plan.proefDagen}-day trial (€1)` : ""}${b.testmodus ? " · <em>test payment</em>" : ""}</p>
          <p style="color:#64748b">Account #${id} · ${new Date().toISOString().replace("T", " ").slice(0, 16)} UTC</p>`,
         { tekst: "Open admin", url: `${origin()}/admin` },
       ),
@@ -235,7 +242,7 @@ export const maakAccount = createServerFn({ method: "POST" })
       const { push } = await import("../push.server");
       await push(
         `🎉 New signup: ${data.bedrijf}`,
-        `${data.naam} · ${data.email}\nVolgo ${plan.naam}${plan.proefDagen ? ` · ${plan.proefDagen}-day trial, then €${plan.prijsTekst}/mo` : ` · €${plan.prijsTekst}/mo`}${b.testmodus ? " · TEST" : ""}`,
+        `${data.naam} · ${data.email}\nVolgo ${plan.naam}${plan.proefDagen ? ` · ${plan.proefDagen}-day trial for €1, then €${plan.prijsTekst}/mo` : ` · €${plan.prijsTekst}/mo`}${b.testmodus ? " · TEST" : ""}`,
         { tags: ["tada"], prioriteit: 5, link: `${origin()}/admin` },
       );
     }
@@ -406,7 +413,7 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
 });
 
 const STATUSSEN = ["nieuw", "opvolging", "offerte", "afspraak", "klant", "verloren"] as const;
-/** One lead in full: details, contact, your notes and the AVA conversation it came from. */
+/** One lead in full: details, contact, your notes and the Volgo conversation it came from. */
 export const haalLead = createServerFn({ method: "GET" })
   .validator((v: unknown) => z.object({ id: z.number().int() }).parse(v))
   .handler(async ({ data }) => {

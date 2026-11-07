@@ -147,7 +147,7 @@ html:has(#vd), body:has(#vd) { background: #010101; }
 #vd .vx-live__knoppen button, #vd .vx-live__bediening button { border-radius: 999px !important; }
 #vd .vx-live__chrome { background: #141414; color: #8d8d8d; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
 
-/* Node diagram: what AVA does */
+/* Node diagram: what Volgo does */
 #vd .vd-schema { max-width: 860px; margin: 0 auto; padding: clamp(28px, 4vw, 48px) clamp(16px, 3vw, 40px) clamp(28px, 4vw, 44px); border-radius: 30px; background: radial-gradient(80% 60% at 50% 100%, rgba(154, 140, 255, 0.12), transparent 70%), linear-gradient(180deg, #0e0e0e, #070707); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); text-align: center; }
 #vd .vd-schema__knopen { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 #vd .vd-schema__knopen li { display: flex; flex-direction: column; align-items: center; gap: 12px; }

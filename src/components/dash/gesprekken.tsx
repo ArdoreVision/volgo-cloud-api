@@ -119,7 +119,7 @@ export function Gesprekken({ data }: { data: DashData }) {
     const t = tekst.trim();
     if (!t || !detail || bezig) return;
     setBezig(true);
-    // Typing while AVA is on? Then you take over automatically.
+    // Typing while Volgo is on? Then you take over automatically.
     if (!ikChat) await neemGesprekOver({ data: { id: detail.gesprek.id, aan: true } }).catch(() => null);
     setTekst("");
     const r = await stuurMensBericht({ data: { id: detail.gesprek.id, tekst: t } }).catch(() => ({ ok: false as const, message: "Not sent. Try again." }));
@@ -146,7 +146,7 @@ export function Gesprekken({ data }: { data: DashData }) {
     <>
       <header className="v-dash__head">
         <h1>Chats</h1>
-        <p>Everyone talking to AVA on your website, live. Open a chat and switch between AVA and yourself.</p>
+        <p>Everyone talking to Volgo on your website, live. Open a chat and switch between Volgo and yourself.</p>
       </header>
       <div className={`v-dm${open ? " is-open" : ""}`}>
         <aside className="v-dm__list" aria-label="Chats">
@@ -162,13 +162,13 @@ export function Gesprekken({ data }: { data: DashData }) {
             <input aria-label="Search chats" className="v-leadbalk__zoek" onChange={(e) => setZoekChat(e.target.value)} placeholder="Search" type="search" value={zoekChat} />
           </div>
           {items === null ? <p className="v-dm__leeg">Loading…</p> : null}
-          {items?.length === 0 ? <p className="v-dm__leeg">No chats yet. As soon as someone talks to AVA on your website, they appear here.</p> : null}
+          {items?.length === 0 ? <p className="v-dm__leeg">No chats yet. As soon as someone talks to Volgo on your website, they appear here.</p> : null}
           {items && items.length > 0 && items.filter((c) => (!alleenLive || isLive(c)) && (!zoekChat.trim() || `${c.bezoeker} ${c.onderwerp}`.toLowerCase().includes(zoekChat.trim().toLowerCase()))).length === 0 ? (
             <p className="v-dm__leeg">Nothing matches.</p>
           ) : null}
           {items?.filter((c) => (!alleenLive || isLive(c)) && (!zoekChat.trim() || `${c.bezoeker} ${c.onderwerp}`.toLowerCase().includes(zoekChat.trim().toLowerCase()))).map((c) => {
             const live = isLive(c);
-            const wie = c.laatste_rol === "bezoeker" ? "" : c.laatste_rol === "mens" ? "You: " : c.laatste_rol === "systeem" ? "" : "AVA: ";
+            const wie = c.laatste_rol === "bezoeker" ? "" : c.laatste_rol === "mens" ? "You: " : c.laatste_rol === "systeem" ? "" : "Volgo: ";
             const ongelezen = c.laatste_rol === "bezoeker" && !c.voorbeeld && gezien(c.id) !== c.laatste && actief !== c.id;
             return (
               <button
@@ -189,7 +189,7 @@ export function Gesprekken({ data }: { data: DashData }) {
                   </span>
                   <span className="v-dm__rij">
                     <span className="v-dm__voorbeeld">{c.laatste_tekst ? wie + c.laatste_tekst : c.onderwerp}</span>
-                    {ongelezen ? <i aria-label="Unread" className="v-dm__dot" /> : c.overgenomen_naam ? <em className="v-dm__tag v-dm__tag--jij">You</em> : live ? <em className="v-dm__tag">AVA</em> : null}
+                    {ongelezen ? <i aria-label="Unread" className="v-dm__dot" /> : c.overgenomen_naam ? <em className="v-dm__tag v-dm__tag--jij">You</em> : live ? <em className="v-dm__tag">Volgo</em> : null}
                   </span>
                 </span>
               </button>
@@ -215,7 +215,7 @@ export function Gesprekken({ data }: { data: DashData }) {
                 {kanChatten ? (
                   <div className="v-dm__modus" role="group" aria-label="Who answers">
                     <button aria-pressed={!ikChat} disabled={bezig} onClick={() => void zetModus(false)} type="button">
-                      AVA auto
+                      Volgo auto
                     </button>
                     <button aria-pressed={ikChat} disabled={bezig} onClick={() => void zetModus(true)} type="button">
                       Take over
@@ -227,10 +227,10 @@ export function Gesprekken({ data }: { data: DashData }) {
               {ikChat ? (
                 <div className="v-dm__banner">
                   <span>
-                    <b>You’re answering.</b> AVA is paused for this chat.
+                    <b>You’re answering.</b> Volgo is paused for this chat.
                   </span>
                   <button disabled={bezig} onClick={() => void zetModus(false)} type="button">
-                    Hand back to AVA
+                    Hand back to Volgo
                   </button>
                 </div>
               ) : null}
@@ -257,7 +257,7 @@ export function Gesprekken({ data }: { data: DashData }) {
                         <p>{b.tekst}</p>
                         {laatsteVanReeks ? (
                           <time>
-                            {b.rol === "mens" ? "You" : b.rol === "bezoeker" ? "" : "AVA"}
+                            {b.rol === "mens" ? "You" : b.rol === "bezoeker" ? "" : "Volgo"}
                             {b.rol === "bezoeker" ? "" : " · "}
                             {tijdAms(sqlDate(b.created_at))}
                             {b.rol === "mens" ? <span aria-label="Sent" className="v-dm__vink">✓</span> : null}
@@ -295,7 +295,7 @@ export function Gesprekken({ data }: { data: DashData }) {
                     aria-label="Your message"
                     onChange={(e) => setTekst(e.target.value)}
                     onKeyDown={onKey}
-                    placeholder={ikChat ? `Message ${g.bezoeker}…` : "AVA is answering. Type here to take over…"}
+                    placeholder={ikChat ? `Message ${g.bezoeker}…` : "Volgo is answering. Type here to take over…"}
                     rows={1}
                     value={tekst}
                   />
@@ -314,7 +314,7 @@ export function Gesprekken({ data }: { data: DashData }) {
               <p>
                 <strong>Your conversations</strong>
                 <br />
-                Pick a chat on the left to read along or take over from AVA.
+                Pick a chat on the left to read along or take over from Volgo.
               </p>
             </div>
           )}

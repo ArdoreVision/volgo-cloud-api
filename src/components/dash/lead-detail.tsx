@@ -7,12 +7,12 @@ import { warmteLabel } from "./util";
 type Data = NonNullable<Awaited<ReturnType<typeof haalLead>>>;
 type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
 
-const STATUS_LABEL: Record<Status, string> = { nieuw: "New", opvolging: "AVA following up", offerte: "Quote", afspraak: "Appointment", klant: "Customer", verloren: "Lost" };
+const STATUS_LABEL: Record<Status, string> = { nieuw: "New", opvolging: "Volgo following up", offerte: "Quote", afspraak: "Appointment", klant: "Customer", verloren: "Lost" };
 
 const wanneer = (iso: string) =>
   new Date(iso.replace(" ", "T") + "Z").toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
 
-/** Splits "Sarah, 06 1234 5678 / sarah@mail.com" into phone and email, whatever AVA captured. */
+/** Splits "Sarah, 06 1234 5678 / sarah@mail.com" into phone and email, whatever Volgo captured. */
 function contactDelen(c: string | null) {
   const t = c ?? "";
   const email = t.match(/[^\s,;/]+@[^\s,;/]+\.[a-z]{2,}/i)?.[0] ?? null;
@@ -99,7 +99,7 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
                   {gekopieerd ? "Copied" : "Copy contact"}
                 </button>
               ) : (
-                <p className="v-muted v-small">AVA didn’t get contact details yet.</p>
+                <p className="v-muted v-small">Volgo didn’t get contact details yet.</p>
               )}
             </div>
 
@@ -165,7 +165,7 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
 
             <section className="v-lp__blok">
               <div className="v-lp__blokkop">
-                <h3>Conversation with AVA</h3>
+                <h3>Conversation with Volgo</h3>
                 {l.gesprek_id ? (
                   <button className="v-linkbtn" onClick={openChats} type="button">
                     Open in Chats
@@ -176,7 +176,7 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
               <ul className="v-lp__chat">
                 {d.berichten.map((b) => (
                   <li className={`v-lp__msg v-lp__msg--${b.rol}`} key={b.id}>
-                    <span>{b.rol === "bezoeker" ? l.naam : b.rol === "mens" ? "You" : b.rol === "systeem" ? "System" : "AVA"}</span>
+                    <span>{b.rol === "bezoeker" ? l.naam : b.rol === "mens" ? "You" : b.rol === "systeem" ? "System" : "Volgo"}</span>
                     <p>{b.tekst}</p>
                   </li>
                 ))}

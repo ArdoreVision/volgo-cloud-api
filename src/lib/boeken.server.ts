@@ -1,4 +1,4 @@
-// Appointments: visitors pick a free moment in a small calendar inside the AVA chat.
+// Appointments: visitors pick a free moment in a small calendar inside the Volgo chat.
 // Only within opening hours and never on top of another appointment in the business calendar.
 import type { D1Database } from "@cloudflare/workers-types";
 
@@ -86,7 +86,7 @@ export async function vrijeDagen(DB: D1Database, inst: Inst, weken = 3) {
   return uit;
 }
 
-/** Short instruction for AVA: when to open the calendar in the chat. */
+/** Short instruction for Volgo: when to open the calendar in the chat. */
 export function agendaInstructies(inst: Inst) {
   const soorten = [...soortenVan(inst).map((s) => SOORTEN[s].toLowerCase()), ...(zichtbareSoorten(inst).includes("insta") ? ["a DM on Instagram"] : [])].join(", ");
   return `APPOINTMENTS
@@ -114,7 +114,7 @@ export async function boekAfspraak(DB: D1Database, inst: Inst, b: Boeking, leadI
   if (t < minuten(inst.open_van) || t + inst.afspraak_duur > minuten(inst.open_tot)) return { ok: false as const, reden: weg };
   if ((await bezet(DB, inst.team_id, start, eind)).length) return { ok: false as const, reden: weg };
   const titel = `${SOORTEN[soort]} · ${b.naam.trim()}`.slice(0, 120);
-  const notitie = [`Booked by the visitor in the AVA chat. Contact: ${b.contact.trim()}`, b.notitie?.trim()].filter(Boolean).join("\n").slice(0, 600);
+  const notitie = [`Booked by the visitor in the Volgo chat. Contact: ${b.contact.trim()}`, b.notitie?.trim()].filter(Boolean).join("\n").slice(0, 600);
   const locatie = soort === "langs" ? (b.adres ?? "").trim() : soort === "kantoor" ? "At the office" : `Phone call: ${b.contact.trim()}`;
   await DB.prepare("INSERT INTO afspraken (team_id, lead_id, titel, start, eind, locatie, notitie, voorbeeld) VALUES (?, ?, ?, ?, ?, ?, ?, 0)")
     .bind(inst.team_id, leadId, titel, start, eind, locatie.slice(0, 160), notitie)

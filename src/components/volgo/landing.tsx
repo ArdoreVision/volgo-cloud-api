@@ -94,7 +94,7 @@ export function ScrollProgress() {
 /* ------------------------------------------------------------------ */
 
 const FEITEN = [
-  { groot: "24/7", klein: "AVA answers every visitor, also at night and on weekends" },
+  { groot: "24/7", klein: "Volgo answers every visitor, also at night and on weekends" },
   { groot: "Seconds", klein: "to reply, instead of hours or the next morning" },
   { groot: "0–100", klein: "warmth score on every lead, buyers on top" },
   { groot: "5 min", klein: "to go live: one line of code, or we add it for you" },
@@ -114,7 +114,7 @@ export function Feiten() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Demo video: 48 seconds, AVA catches a roofing lead at 9 PM          */
+/* Demo video: 48 seconds, Volgo catches a roofing lead at 9 PM          */
 /* ------------------------------------------------------------------ */
 
 export function DemoVideo() {
@@ -131,10 +131,10 @@ export function DemoVideo() {
       <header className="vx-kop vx-kop--midden" data-reveal="">
         <p className="vx-label">48-second demo</p>
         <h2 className="v-h2" id="dv-titel">
-          Watch AVA catch a lead at 9 PM.
+          Watch Volgo catch a lead at 9 PM.
         </h2>
         <p className="v-lede">
-          A homeowner asks a roofing contractor for a quote after closing time. AVA answers, qualifies, takes the phone number, and the owner finds a hot
+          A homeowner asks a roofing contractor for a quote after closing time. Volgo answers, qualifies, takes the phone number, and the owner finds a hot
           lead waiting in the morning.
         </p>
       </header>
@@ -146,7 +146,7 @@ export function DemoVideo() {
           <span>ridgelineroofing.example · 9:14 PM</span>
         </div>
         <video
-          aria-label="Demo: AVA answers a roofing quote request at night and the lead appears in the Volgo dashboard"
+          aria-label="Demo: Volgo answers a roofing quote request at night and the lead appears in the Volgo dashboard"
           controls
           loop
           muted
@@ -202,8 +202,8 @@ const ZONDER = [
   { t: "12:30 PM", s: "“Thanks, but we already booked someone.” The job is gone.", slecht: true },
 ];
 const MET = [
-  { t: "9:14 PM", s: "Sarah asks AVA on your website: “What does a walk-in shower cost?”" },
-  { t: "9:14 PM", s: "AVA answers in seconds with your price range and asks her town and timing." },
+  { t: "9:14 PM", s: "Sarah asks Volgo on your website: “What does a walk-in shower cost?”" },
+  { t: "9:14 PM", s: "Volgo answers in seconds with your price range and asks her town and timing." },
   { t: "9:16 PM", s: "Sarah leaves her name and number. Warmth 92: she wants to start in January." },
   { t: "Morning", s: "Your summary says: call Sarah first. You send the quote before 9.", goed: true },
 ];
@@ -221,7 +221,7 @@ export function VoorNa() {
       <div className="vx-voorna__grid">
         {[
           { naam: "Without Volgo", lijst: ZONDER, klas: "zonder" },
-          { naam: "With AVA on your website", lijst: MET, klas: "met" },
+          { naam: "With Volgo on your website", lijst: MET, klas: "met" },
         ].map((k, ki) => (
           <article className={`vx-voorna__kol vx-voorna__kol--${k.klas}`} data-reveal="" key={k.naam} style={{ "--d": `${ki * 120}ms` } as CSSProperties}>
             <h3>{k.naam}</h3>
@@ -257,7 +257,7 @@ const VOORDELEN = [
   },
   {
     t: "Less time on emails and calls",
-    d: "AVA answers the same questions about prices, planning and service area for you, and collects the details. You only step in when it matters.",
+    d: "Volgo answers the same questions about prices, planning and service area for you, and collects the details. You only step in when it matters.",
     i: "M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z",
   },
   {
@@ -273,7 +273,7 @@ export function Voordelen() {
       <header className="vx-kop vx-kop--midden" data-reveal="">
         <p className="vx-label">What you get</p>
         <h2 className="v-h2" id="vd-titel">
-          Four reasons businesses add AVA.
+          Four reasons businesses add Volgo.
         </h2>
       </header>
       <div className="vx-voordelen">
@@ -324,7 +324,7 @@ export function Ranking() {
           The buyers float to the top. Automatically.
         </h2>
         <p className="v-lede">
-          AVA reads every conversation and scores how ready someone is to buy, from 0 to 100, with the reason why. Your list sorts itself, so the first call
+          Volgo reads every conversation and scores how ready someone is to buy, from 0 to 100, with the reason why. Your list sorts itself, so the first call
           you make is to the person most likely to say yes.
         </p>
         <ul className="vx-legenda">
@@ -432,10 +432,10 @@ export function Voorbeelden() {
       <div className="vx-vb__tekst" data-reveal="">
         <p className="vx-label">Examples</p>
         <h2 className="v-h2" id="vb-titel">
-          See AVA at work.
+          See Volgo at work.
         </h2>
         <p className="v-lede">
-          AVA knows your services, prices and service area, asks one question at a time and always asks permission before passing someone on. Pick an
+          Volgo knows your services, prices and service area, asks one question at a time and always asks permission before passing someone on. Pick an
           example:
         </p>
         <div className="vx-tabs" role="tablist">
@@ -462,7 +462,7 @@ export function Voorbeelden() {
           <div className="v-phone__bar">
             <span aria-hidden="true" className="v-phone__avatar" />
             <div>
-              <strong>AVA</strong>
+              <strong>Volgo</strong>
               <small>Assistant at {vb.bedrijf}</small>
             </div>
           </div>
@@ -549,10 +549,10 @@ export function Rekenhulp() {
 /* ------------------------------------------------------------------ */
 
 const TIJDLIJN = [
-  { wanneer: "Today", titel: "Choose your plan", tekst: "Pick a plan and pay for the first month. You land in your own dashboard right away." },
-  { wanneer: "Within 5 minutes", titel: "AVA is live on your website", tekst: "Paste one line of code (there's a guide for WordPress, Wix, Shopify, Squarespace and Webflow), or we add it for you. Tell AVA about your services and prices in about two minutes." },
-  { wanneer: "From the first visitor", titel: "Leads come in, sorted for you", tekst: "AVA answers every visitor, collects name and phone or email with permission, and scores each lead. Hot leads reach your inbox right away, plus a summary in your inbox every morning." },
-  { wanneer: "Pro and Premium: within 1 working day", titel: "We plan your new website with you", tekst: "Tell us what you want in the Website tab, by chat or in a call. We build it with photos, video and AVA inside, you review it, and it goes live on your own domain." },
+  { wanneer: "Today", titel: "Choose your plan", tekst: "Pick a plan and start your 7-day trial for €1. You land in your own dashboard right away." },
+  { wanneer: "Within 5 minutes", titel: "Volgo is live on your website", tekst: "Paste one line of code (there's a guide for WordPress, Wix, Shopify, Squarespace and Webflow), or we add it for you. Tell Volgo about your services and prices in about two minutes." },
+  { wanneer: "From the first visitor", titel: "Leads come in, sorted for you", tekst: "Volgo answers every visitor, collects name and phone or email with permission, and scores each lead. Hot leads reach your inbox right away, plus a summary in your inbox every morning." },
+  { wanneer: "Pro and Premium: within 1 working day", titel: "We plan your new website with you", tekst: "Tell us what you want in the Website tab, by chat or in a call. We build it with photos, video and Volgo inside, you review it, and it goes live on your own domain." },
   { wanneer: "Every month", titel: "You stay because it works", tekst: "Your plan renews monthly. Not for you? Cancel in your dashboard and it stops at the end of the paid month. Your domain name stays yours." },
 ];
 
@@ -615,13 +615,13 @@ export function Tijdlijn() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Live demo: the real sample website with the real AVA, inside a frame */
+/* Live demo: the real sample website with the real Volgo, inside a frame */
 /* ------------------------------------------------------------------ */
 
 type AvaVenster = Window & { VolgoAva?: { open: () => void; afspraak: () => void; vraag: (t: string) => void } };
 
 /**
- * The real sample website with the real AVA, inside a frame. No sign-up and no payment.
+ * The real sample website with the real Volgo, inside a frame. No sign-up and no payment.
  * Desktop: scaled browser window that scrolls along with the page. Phones: the sample site at its real size
  * (readable, no tiny inputs), scrollable on its own, with a full-screen mode.
  */
@@ -674,7 +674,7 @@ export function LiveDemo({ taal = "en", laadNu = false }: { taal?: RouteTaal; la
     };
   }, [vol]);
 
-  // Volgo's own chat bubble (bottom right of this page) hides while the demo is on screen, so there is only one AVA to talk to.
+  // Volgo's own chat bubble (bottom right of this page) hides while the demo is on screen, so there is only one Volgo to talk to.
   const sectie = useRef<HTMLElement>(null);
   const [demoInBeeld, setDemoInBeeld] = useState(false);
   useEffect(() => {
@@ -735,7 +735,7 @@ export function LiveDemo({ taal = "en", laadNu = false }: { taal?: RouteTaal; la
     return () => window.removeEventListener("scroll", op);
   }, [HOOG, klein]);
 
-  /** Talk to AVA inside the frame; the script there may still be starting, so retry for a few seconds. */
+  /** Talk to Volgo inside the frame; the script there may still be starting, so retry for a few seconds. */
   const ava = (actie: "open" | "afspraak" | "vraag", tekst?: string) => {
     let pogingen = 0;
     const probeer = () => {

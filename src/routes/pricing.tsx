@@ -17,7 +17,7 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Pricing · Volgo · Start €147, Pro €497, Premium €997 per month" },
-      { name: "description", content: "Volgo pricing: Start €147, Pro €497 and Premium €997 per month, excl. VAT. Billed monthly, cancel any time. Pro and Premium include a custom website with AVA inside." },
+      { name: "description", content: "Volgo pricing: Start €147, Pro €497 and Premium €997 per month, excl. VAT. Every plan starts with 7 days for €1, then billed monthly, cancel any time. Pro and Premium include a custom website with Volgo inside." },
       { property: "og:url", content: "https://thevolgo.app/pricing" },
     ],
     links: [{ rel: "canonical", href: "https://thevolgo.app/pricing" }],
@@ -90,6 +90,7 @@ function Abonnement() {
                 <p className="v-plan__price">
                   <span>€{p.prijsTekst}</span> per month
                 </p>
+                {!wisselen && p.proefDagen ? <p className="v-plan__kaart">First {p.proefDagen} days for €1 · cancel within {p.proefDagen} days and pay nothing more</p> : null}
                 <button
                   className={`v-plan__cta v-plan__cta--${id}`}
                   disabled={bezig !== null || (wisselen && (huidig === id || !eigenaar))}
@@ -102,7 +103,9 @@ function Abonnement() {
                       ? huidig === id
                         ? "Current plan"
                         : `Switch to ${p.naam}`
-                      : `Choose ${p.naam}`}
+                      : p.proefDagen
+                        ? `Start ${p.proefDagen} days for €1`
+                        : `Choose ${p.naam}`}
                 </button>
                 <p className="v-plan__kaart">{wisselen ? "Switches right away" : "Billed monthly · Cancel any time"}</p>
                 <ul className="v-plan__kern">
@@ -149,10 +152,10 @@ function Abonnement() {
 
           <div className="v-na__install">
             <div>
-              <h3>Install AVA on your own website</h3>
+              <h3>Install Volgo on your own website</h3>
               <p>
-                After signing up you'll find your personal line of code in your dashboard under <strong>AVA → On your website</strong>. Paste it once
-                and AVA appears on every page. Pick your platform:
+                After signing up you'll find your personal line of code in your dashboard under <strong>Volgo → On your website</strong>. Paste it once
+                and Volgo appears on every page. Pick your platform:
               </p>
             </div>
             <InstallGuides />
@@ -160,10 +163,10 @@ function Abonnement() {
 
           <div className="v-na__regels">
             <p>
-              <strong>Pay monthly.</strong> You pay the first month when you choose a plan; after that it renews monthly on the same day. No setup fee.
+              <strong>7 days for €1.</strong> Start with a 7-day trial for €1. After that your plan renews monthly at the full price. Cancel within the 7 days and you pay nothing more. No setup fee.
             </p>
             <p>
-              <strong>Cancel any time.</strong> In your dashboard under Subscription. AVA, your dashboard and the website we built (if you have one)
+              <strong>Cancel any time.</strong> In your dashboard under Subscription. Volgo, your dashboard and the website we built (if you have one)
               stop at the end of your paid period.
             </p>
             <p>

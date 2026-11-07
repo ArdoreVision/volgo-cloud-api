@@ -33,20 +33,20 @@ function Privacy() {
         <h2>What data we process</h2>
         <ul>
           <li>What you enter in the request form: your name, company name, email address and, if you provide them, phone number, website, industry and message.</li>
-          <li>What you tell AVA, our chat assistant. If you agree to a demo request, we keep your contact details and a short summary of the conversation.</li>
+          <li>What you tell Volgo, our chat assistant. If you agree to a demo request, we keep your contact details and a short summary of the conversation.</li>
           <li>An encrypted code of your IP address, only to prevent abuse and spam. Your IP address cannot be recovered from this code.</li>
         </ul>
 
-        <h2>Website statistics from AVA</h2>
+        <h2>Website statistics from Volgo</h2>
         <p>
-          On websites where AVA is installed (including this one), AVA counts visits so the business can see how its website performs: which pages are viewed,
+          On websites where Volgo is installed (including this one), Volgo counts visits so the business can see how its website performs: which pages are viewed,
           for how long and how far down, the website you came from, the type of device, and the country based on your connection. This is done without cookies and
           without storing your IP address. Visitors are counted with a code that changes every day and differs per website, so nobody can be followed across days
           or websites. If your browser asks websites not to track you (Do Not Track or Global Privacy Control), nothing is counted. Statistics are kept for 13
           months.
         </p>
         <p>
-          Before you use such a website, AVA asks for your permission. Only if you accept, AVA also keeps your approximate location (city, region and
+          Before you use such a website, Volgo asks for your permission. Only if you accept, Volgo also keeps your approximate location (city, region and
           country, derived from your connection, never your exact address), your device, browser, operating system and language, a random code to
           recognise you when you come back, and which pages you viewed before chatting. The business uses this only to understand its visitors and to help
           you better. You can visit the website either way, and you can change your choice by clearing your browser data for that website.
@@ -63,7 +63,7 @@ function Privacy() {
           <li>Hosting and database of this website: Cloudflare.</li>
           <li>Forwarding requests to our inbox: Resend and FormSubmit.</li>
           <li>Payments for subscriptions: Stripe.</li>
-          <li>The AI behind AVA: Anthropic (Claude). Your chat messages are sent to Anthropic to generate a reply.</li>
+          <li>The AI behind Volgo: Anthropic (Claude). Your chat messages are sent to Anthropic to generate a reply.</li>
         </ul>
         <p>We have agreements with these parties to handle your data with care. Some of them process data outside the EU; when that happens, appropriate safeguards are in place.</p>
 

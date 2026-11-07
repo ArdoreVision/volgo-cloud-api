@@ -9,7 +9,7 @@ import appMetaJson from "../app-meta.json";
 type AppMeta = { og_title?: string | null; og_description?: string | null; og_image_url?: string | null; favicon_url?: string | null };
 const meta = appMetaJson as AppMeta;
 const title = meta.og_title ?? "Volgo";
-const description = meta.og_description ?? "AVA answers every website visitor 24/7 and turns them into leads and quotes.";
+const description = meta.og_description ?? "Volgo answers every website visitor 24/7 and turns them into leads and quotes.";
 const SITE = "https://thevolgo.app";
 
 /** Structured data for search engines: who we are and what the product is. */
@@ -32,7 +32,6 @@ const LD_ORGANISATIE = {
       "@type": "SoftwareApplication",
       "@id": `${SITE}/#software`,
       name: "Volgo",
-      alternateName: "AVA by Volgo",
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
       url: SITE,
@@ -44,7 +43,7 @@ const LD_ORGANISATIE = {
         "Appointment booking inside the chat",
         "Hot-lead emails and daily morning summary",
         "Lead pipeline from new to quote to won",
-        "Custom website built and hosted with AVA inside (Pro and Premium)",
+        "Custom website built and hosted with Volgo inside (Pro and Premium)",
       ],
       offers: [
         { "@type": "Offer", name: "Start", price: "147", priceCurrency: "EUR", url: `${SITE}/pricing`, category: "subscription" },
@@ -108,7 +107,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
-  // The Dutch landing page (/nl) is Dutch from the first byte, so browsers and the AVA chat start in Dutch.
+  // The Dutch landing page (/nl) is Dutch from the first byte, so browsers and the Volgo chat start in Dutch.
   const pad = useRouterState({ select: (s) => s.location.pathname });
   return (
     <html lang={pad === "/nl" || pad.startsWith("/nl/") ? "nl" : "en"} style={{ colorScheme: "light" }}>

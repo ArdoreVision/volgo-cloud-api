@@ -1,9 +1,9 @@
-/* Volgo AVA chat. Usage: <script src="https://…/ava.js" data-key="SLEUTEL" defer></script> */
+/* Volgo chat. Usage: <script src="https://…/ava.js" data-key="SLEUTEL" defer></script> */
 (function () {
   "use strict";
   var script = document.currentScript;
   if (!script || window.__volgoAva) return;
-  // Widget texts follow the language of the website (<html lang="...">); AVA itself replies in the visitor's language.
+  // Widget texts follow the language of the website (<html lang="...">); Volgo itself replies in the visitor's language.
   var TEKST = {
     en: { net: "No connection. Please try again in a moment.", vraag: "Ask a question", vraagNaam: "Ask ", snel: "Replies instantly", team: " from the team is here", typ: "Type your question...", ai: "AI assistant", fout: "Something went wrong. Please try again.", open: "Open chat", sluit: "Close", stuur: "Send" },
     nl: { net: "Geen verbinding. Probeer het zo opnieuw.", vraag: "Stel een vraag", vraagNaam: "Vraag ", snel: "Reageert direct", team: " van het team is er", typ: "Typ je vraag...", ai: "AI-assistent", fout: "Er ging iets mis. Probeer het opnieuw.", open: "Chat openen", sluit: "Sluiten", stuur: "Versturen" },
@@ -21,8 +21,8 @@
   var K = KAL[TAAL] || KAL.en;
   // Consent screen: the visitor chooses before using the site (both choices let them in).
   var OK = {
-    en: { t: "Before you continue", p: "{b} uses AVA to answer your questions and to understand how visitors use this website: your approximate location (city and country), device, browser, language and the pages you visit. This helps them help you faster. Nothing is sold or shared with others.", ja: "Accept", nee: "Only necessary", meer: "Privacy", klein: "You can visit the website either way." },
-    nl: { t: "Voordat je verdergaat", p: "{b} gebruikt AVA om je vragen te beantwoorden en om te zien hoe bezoekers deze website gebruiken: je globale locatie (stad en land), apparaat, browser, taal en de pagina's die je bekijkt. Zo kunnen ze je sneller helpen. Er wordt niets verkocht of gedeeld met anderen.", ja: "Accepteren", nee: "Alleen noodzakelijk", meer: "Privacy", klein: "Je kunt de website in beide gevallen bekijken." },
+    en: { t: "Before you continue", p: "{b} uses Volgo to answer your questions and to understand how visitors use this website: your approximate location (city and country), device, browser, language and the pages you visit. This helps them help you faster. Nothing is sold or shared with others.", ja: "Accept", nee: "Only necessary", meer: "Privacy", klein: "You can visit the website either way." },
+    nl: { t: "Voordat je verdergaat", p: "{b} gebruikt Volgo om je vragen te beantwoorden en om te zien hoe bezoekers deze website gebruiken: je globale locatie (stad en land), apparaat, browser, taal en de pagina's die je bekijkt. Zo kunnen ze je sneller helpen. Er wordt niets verkocht of gedeeld met anderen.", ja: "Accepteren", nee: "Alleen noodzakelijk", meer: "Privacy", klein: "Je kunt de website in beide gevallen bekijken." },
   };
   var O = OK[TAAL] || OK.en;
   window.__volgoAva = true;
@@ -241,7 +241,7 @@ textarea::placeholder{color:#a3a3a3}\
 ";
   root.innerHTML = "<style>" + css + "</style><div class=\"w\">" +
     '<button class="fab" type="button" aria-label="' + T.open + '"><img alt="" src="' + MONO + '"><span class="lbl">' + T.vraag + '</span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/></svg><i class="dot" hidden></i></button>' +
-    '<section class="panel" role="dialog" aria-label="Chat"><div class="head"><img alt="" src="' + MONO + '"><div class="wie"><strong class="nm">AVA</strong><small><i></i><span class="sub">' + T.snel + '</span></small></div><button class="x" type="button" aria-label="' + T.sluit + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>' +
+    '<section class="panel" role="dialog" aria-label="Chat"><div class="head"><img alt="" src="' + MONO + '"><div class="wie"><strong class="nm">Volgo</strong><small><i></i><span class="sub">' + T.snel + '</span></small></div><button class="x" type="button" aria-label="' + T.sluit + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>' +
     '<div class="log" role="log" aria-live="polite"></div>' +
     '<form><textarea rows="1" maxlength="1500" placeholder="' + T.typ + '" aria-label="' + T.typ + '"></textarea><button class="send" type="submit" aria-label="' + T.stuur + '" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></form>' +
     '<p class="note">' + T.ai + '<span class="merk"> · <a href="' + BASE + '" target="_blank" rel="noopener">Volgo</a></span></p></section></div>';
@@ -250,7 +250,7 @@ textarea::placeholder{color:#a3a3a3}\
   var fab = $(".fab"), panel = $(".panel"), log = $(".log"), form = $("form"), ta = $("textarea"), send = $(".send");
   var config = null, busy = false;
 
-  // Web addresses in AVA's answers become clickable links (safe: only http/https).
+  // Web addresses in Volgo's answers become clickable links (safe: only http/https).
   function linkjes(el, tekst) {
     String(tekst).split(/(https?:\/\/[^\s<>"')]+)/g).forEach(function (stuk, i) {
       if (i % 2) {
@@ -575,7 +575,7 @@ textarea::placeholder{color:#a3a3a3}\
   fab.addEventListener("click", open);
   $(".x").addEventListener("click", close);
   root.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
-  // Any button on the website with data-ava-open (e.g. "Request a quote") opens AVA. Also available as window.VolgoAva.open().
+  // Any button on the website with data-ava-open (e.g. "Request a quote") opens Volgo. Also available as window.VolgoAva.open().
   // Ask a question for the visitor, e.g. from a "Start free trial" button.
   function vraag(t) { if (!t) return; var ch = log.querySelector(".chips"); if (ch) ch.remove(); setTimeout(function () { if (busy) return; ta.value = t; verstuur(); }, 350); }
   // Landing-page funnel steps (only these names; just the step and the session, never any content).

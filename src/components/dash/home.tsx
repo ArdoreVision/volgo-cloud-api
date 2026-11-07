@@ -84,7 +84,7 @@ export function Home({ voornaam, bedrijf, openTab }: { voornaam: string; bedrijf
   }
 
   const leeg = berichten.length === 0;
-  // The globe folds away smoothly once you start talking to AVA, then leaves the page.
+  // The globe folds away smoothly once you start talking to Volgo, then leaves the page.
   const [bolWeg, setBolWeg] = useState(false);
   useEffect(() => {
     if (leeg) return setBolWeg(false);
@@ -106,7 +106,7 @@ export function Home({ voornaam, bedrijf, openTab }: { voornaam: string; bedrijf
         <h1>
           {groet(nu)}, {voornaam}
         </h1>
-        {leeg ? <p className="v-home__sub">Ask AVA anything about {bedrijf}'s customers, conversations and calendar.</p> : null}
+        {leeg ? <p className="v-home__sub">Ask Volgo anything about {bedrijf}'s customers, conversations and calendar.</p> : null}
       </header>
 
       {!leeg ? (
@@ -120,7 +120,7 @@ export function Home({ voornaam, bedrijf, openTab }: { voornaam: string; bedrijf
           {bezig ? (
             <div className="v-home__msg v-home__msg--ava">
               <span className="v-home__ava" aria-hidden="true">A</span>
-              <p className="v-home__typen" aria-label="AVA is thinking">
+              <p className="v-home__typen" aria-label="Volgo is thinking">
                 <i />
                 <i />
                 <i />
@@ -132,10 +132,10 @@ export function Home({ voornaam, bedrijf, openTab }: { voornaam: string; bedrijf
 
       <form className="v-home__balk" onSubmit={onSubmit}>
         <textarea
-          aria-label="Ask AVA"
+          aria-label="Ask Volgo"
           onChange={(e) => setTekst(e.target.value)}
           onKeyDown={onKey}
-          placeholder={leeg ? VOORBEELDEN[vb] : "Ask AVA another question"}
+          placeholder={leeg ? VOORBEELDEN[vb] : "Ask Volgo another question"}
           ref={veld}
           rows={1}
           value={tekst}

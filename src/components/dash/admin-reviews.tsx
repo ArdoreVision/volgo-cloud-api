@@ -55,7 +55,7 @@ export function AdminReviews() {
         </div>
         <div className="v-fld v-fld--breed">
           <label htmlFor="rv-tekst">Review (their words)</label>
-          <textarea id="rv-tekst" name="tekst" placeholder="“Within the first week AVA caught two quote requests that came in after 8 PM…”" required />
+          <textarea id="rv-tekst" name="tekst" placeholder="“Within the first week Volgo caught two quote requests that came in after 8 PM…”" required />
         </div>
         <div className="v-fld">
           <label htmlFor="rv-resultaat">Result badge (optional)</label>

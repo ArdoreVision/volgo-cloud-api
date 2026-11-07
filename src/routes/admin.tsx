@@ -117,7 +117,7 @@ function Admin() {
                     <small>{euro(o.mrr)} per month</small>
                   </div>
                   <div>
-                    <span>In free trial</span>
+                    <span>In trial (€1)</span>
                     <strong>{o.inProef}</strong>
                     <small>{euro(o.naProef)} per month after trial</small>
                   </div>

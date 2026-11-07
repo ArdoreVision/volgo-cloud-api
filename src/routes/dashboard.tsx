@@ -50,7 +50,7 @@ const isSub = (t: string): t is Sub => SUBS.some(([id]) => id === t);
 /** Old names other parts of the app may still use. */
 const ALIAS: Record<string, Tab> = { stijl: "ontwerp" };
 
-/** The sidebar, in the order you use it: today's work first, then insight, then everything about AVA and your site, then the workspace. */
+/** The sidebar, in the order you use it: today's work first, then insight, then everything about Volgo and your site, then the workspace. */
 const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
   { items: [["home", "Home"]] },
   {
@@ -69,9 +69,9 @@ const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
     ],
   },
   {
-    kop: "AVA & website",
+    kop: "Volgo & website",
     items: [
-      ["ava", "Train AVA"],
+      ["ava", "Train Volgo"],
       ["ontwerp", "Appearance"],
       ["installeren", "Install"],
       ["website", "Your website"],
@@ -90,7 +90,7 @@ type Toast = { id: number; titel: string; tekst: string; tab: Tab; heet?: boolea
 type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
 const STATUS_LABEL: Record<Status, string> = {
   nieuw: "New",
-  opvolging: "AVA following up",
+  opvolging: "Volgo following up",
   offerte: "Quote",
   afspraak: "Appointment",
   klant: "Customer",
@@ -140,7 +140,7 @@ function Dashboard() {
   const vorige = useRef<Tab>("home");
   const [meer, setMeer] = useState(false);
   const [admin, setAdmin] = useState(false);
-  // The five profile questions: once for the owner before the dashboard, later changeable on the Train AVA page.
+  // The five profile questions: once for the owner before the dashboard, later changeable on the Train Volgo page.
   const [vragenOpen, setVragenOpen] = useState(false);
   const [leadFilter, setLeadFilter] = useState<"alle" | "nieuw" | "heet" | "open" | "klaar">("alle");
   const [leadZoek, setLeadZoek] = useState("");
@@ -220,7 +220,7 @@ function Dashboard() {
       if (!r) return;
       sinds.current = r.nu;
       const nieuw: Toast[] = [];
-      if (r.meldChat) for (const c of r.chats) nieuw.push({ id: Math.random(), titel: "New conversation with AVA", tekst: c.onderwerp, tab: "gesprekken" });
+      if (r.meldChat) for (const c of r.chats) nieuw.push({ id: Math.random(), titel: "New conversation with Volgo", tekst: c.onderwerp, tab: "gesprekken" });
       if (r.meldLead) for (const l of r.leads) nieuw.push({ id: Math.random(), titel: `New lead: ${l.naam}`, tekst: `Warmth ${l.warmte} · ${l.onderwerp}`, tab: "aanvragen", heet: l.warmte >= 75 });
       if (!r.chats.length && !r.leads.length) return;
       void router.invalidate();
@@ -346,7 +346,7 @@ function Dashboard() {
       <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${tab === "team" && plan.limieten.teamChat ? " v-dash__main--full" : ""}${tab === "home" ? " v-dash__main--home" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
-            Your free trial has {proefDagen} {proefDagen === 1 ? "day" : "days"} left. After that, Volgo {plan.naam} continues automatically at €{plan.prijsTekst} per month.
+            Your trial has {proefDagen} {proefDagen === 1 ? "day" : "days"} left. After that, Volgo {plan.naam} continues automatically at €{plan.prijsTekst} per month.
           </p>
         ) : null}
 
@@ -359,8 +359,8 @@ function Dashboard() {
         {tab === "ava" ? (
           <>
             <header className="v-dash__head">
-              <h1>Train AVA</h1>
-              <p>Tell AVA about your services, prices and area. The more it knows, the better it answers and the warmer your leads.</p>
+              <h1>Train Volgo</h1>
+              <p>Tell Volgo about your services, prices and area. The more it knows, the better it answers and the warmer your leads.</p>
             </header>
             {profiel ? <ProfielSamenvatting profiel={profiel} wijzig={() => setVragenOpen(true)} /> : null}
             <AvaInstellen deel="praten" />
@@ -370,7 +370,7 @@ function Dashboard() {
           <>
             <header className="v-dash__head">
               <h1>Install</h1>
-              <p>Put AVA on your website in a few minutes, or let us do it for you.</p>
+              <p>Put Volgo on your website in a few minutes, or let us do it for you.</p>
             </header>
             <AvaInstellen deel="installeren" />
           </>
@@ -442,7 +442,7 @@ function Dashboard() {
                         <span role="columnheader">Status</span>
                       </div>
                       {leads.length === 0 ? (
-                        <p className="v-feed__empty v-pad">No leads yet. As soon as a visitor leaves their details with AVA, they appear here, hottest first.</p>
+                        <p className="v-feed__empty v-pad">No leads yet. As soon as a visitor leaves their details with Volgo, they appear here, hottest first.</p>
                       ) : lijst.length === 0 ? (
                         <p className="v-feed__empty v-pad">Nothing matches this filter.</p>
                       ) : null}
@@ -517,12 +517,12 @@ function Dashboard() {
               <p className="v-plan-card__name">Volgo {plan.naam}</p>
               <p className="v-plan-card__price">€{plan.prijsTekst} <span>per month, excl. VAT</span></p>
               <p className="v-plan-card__state">
-                {g.status === "proef" ? `Free trial, ${proefDagen} ${proefDagen === 1 ? "day" : "days"} left` : "Active"}
+                {g.status === "proef" ? `Trial, ${proefDagen} ${proefDagen === 1 ? "day" : "days"} left` : "Active"}
                 {g.testmodus ? " · test account" : ""}
               </p>
               <div className="v-meter">
                 <div className="v-meter__kop">
-                  <span>AVA conversations this month</span>
+                  <span>Volgo conversations this month</span>
                   <strong>
                     {data.gebruik.gesprekken.toLocaleString("en-GB")} / {plan.limieten.gesprekken.toLocaleString("en-GB")}
                   </strong>
@@ -535,7 +535,7 @@ function Dashboard() {
                 </div>
                 {data.gebruik.gesprekken >= plan.limieten.gesprekken ? (
                   <p className="v-small">
-                    You've reached this month's limit. AVA keeps capturing leads in basic mode. <a href="/pricing">Upgrade</a> for smart replies again.
+                    You've reached this month's limit. Volgo keeps capturing leads in basic mode. <a href="/pricing">Upgrade</a> for smart replies again.
                   </p>
                 ) : null}
               </div>

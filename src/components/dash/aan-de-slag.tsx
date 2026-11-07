@@ -13,12 +13,12 @@ export function AanDeSlag({ openTab }: { openTab: (t: string) => void }) {
   }, []);
   if (!d || d.verborgen) return null;
   const alle = [
-    { key: "info", klaar: d.stappen.info, titel: "Tell AVA about your business", uitleg: "Services, service area and opening hours. Takes two minutes.", knop: "Fill in", doe: () => openTab("ava") },
+    { key: "info", klaar: d.stappen.info, titel: "Tell Volgo about your business", uitleg: "Services, service area and opening hours. Takes two minutes.", knop: "Fill in", doe: () => openTab("ava") },
     {
       key: "getest",
       klaar: d.stappen.getest,
-      titel: "Talk to AVA yourself",
-      uitleg: "Pretend to be a customer and see how AVA responds.",
+      titel: "Talk to Volgo yourself",
+      uitleg: "Pretend to be a customer and see how Volgo responds.",
       knop: "Try it",
       doe: () => {
         window.open(`/demo/${d.sleutel}`, "_blank", "noopener");
@@ -29,7 +29,7 @@ export function AanDeSlag({ openTab }: { openTab: (t: string) => void }) {
     {
       key: "geinstalleerd",
       klaar: d.stappen.geinstalleerd,
-      titel: "Add AVA to your website",
+      titel: "Add Volgo to your website",
       uitleg: "Copy one line of code to your site, or let us do it for you.",
       knop: "Get the code",
       doe: () => openTab("installeren"),

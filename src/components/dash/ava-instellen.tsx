@@ -61,7 +61,7 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
     const fd = new FormData(e.currentTarget);
     await bewaarAva({
       data: {
-        naam: String(fd.get("naam") ?? "AVA").trim() || "AVA",
+        naam: String(fd.get("naam") ?? "Volgo").trim() || "Volgo",
         begroeting: String(fd.get("begroeting") ?? "").trim(),
         bedrijfsinfo: String(fd.get("bedrijfsinfo") ?? "").trim(),
         kleur,
@@ -71,7 +71,7 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
     window.setTimeout(() => setOpgeslagen(false), 2500);
   }
 
-  if (!ava) return <p className="v-feed__empty">Loading AVA…</p>;
+  if (!ava) return <p className="v-feed__empty">Loading Volgo…</p>;
   const host = typeof window !== "undefined" ? window.location.origin : "";
   const code = `<script src="${host}/ava.js" data-key="${ava.inst.sleutel}" defer></script>`;
 
@@ -84,7 +84,7 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
           <p className="v-muted v-small" style={{ marginBottom: 14 }}>In the dashboard you always see what happens live. Choose what also reaches you by email, so you never miss a customer when you are not logged in.</p>
           <h3 className="v-sub">In the dashboard</h3>
           <div className="v-toggles">
-            <Toggle aan={melding.chat} label="New conversation" onChange={(v) => void wijzigMelding("chat", v)} uitleg="A pop-up (and a browser notification) as soon as someone talks to AVA." />
+            <Toggle aan={melding.chat} label="New conversation" onChange={(v) => void wijzigMelding("chat", v)} uitleg="A pop-up (and a browser notification) as soon as someone talks to Volgo." />
             <Toggle aan={melding.lead} label="New lead" onChange={(v) => void wijzigMelding("lead", v)} uitleg="When a visitor leaves their details, with a warmth score." />
           </div>
           <h3 className="v-sub" style={{ marginTop: 22 }}>By email</h3>
@@ -144,14 +144,14 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
   return (
     <>
       <p className="v-instel__intro">
-        {ava.aiActief ? "AVA has real conversations using AI." : "AVA is running in basic mode: a short, fixed intake."}{" "}
+        {ava.aiActief ? "Volgo has real conversations using AI." : "Volgo is running in basic mode: a short, fixed intake."}{" "}
         <a href={`/demo/${ava.inst.sleutel}`} rel="noopener" target="_blank">
-          Try AVA on a sample site ↗
+          Try Volgo on a sample site ↗
         </a>
       </p>
       <section className="v-dash__panel">
         <div className="v-dash__panel-head">
-          <h2>How AVA talks</h2>
+          <h2>How Volgo talks</h2>
         </div>
         <form className="v-ava-form" onSubmit={(e) => void opslaan(e)}>
           <div className="v-row">
@@ -173,7 +173,7 @@ export function AvaInstellen({ deel }: { deel: AvaDeel }) {
             <input defaultValue={ava.inst.begroeting} id="ava-begroeting" maxLength={300} name="begroeting" />
           </div>
           <div className="v-fld">
-            <label htmlFor="ava-info">What AVA should know about your business</label>
+            <label htmlFor="ava-info">What Volgo should know about your business</label>
             <textarea
               defaultValue={ava.inst.bedrijfsinfo}
               id="ava-info"

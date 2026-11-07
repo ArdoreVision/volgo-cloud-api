@@ -8,7 +8,7 @@ export type Gesprek = DashData["gesprekken"][number];
 export type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
 export const STATUS_LABEL: Record<Status, string> = {
   nieuw: "New",
-  opvolging: "AVA following up",
+  opvolging: "Volgo following up",
   offerte: "Quote",
   afspraak: "Appointment",
   klant: "Customer",

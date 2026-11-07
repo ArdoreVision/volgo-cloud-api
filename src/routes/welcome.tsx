@@ -16,9 +16,9 @@ export const Route = createFileRoute("/welcome")({
 });
 
 const STAPPEN = [
-  { t: "Answer five quick questions", d: "So AVA knows what kind of business you are and how to talk to your customers. Under a minute." },
-  { t: "Put AVA on your website", d: "One line of code, with a guide for every platform. Prefer we do it? Email us from your dashboard and we add it the same day." },
-  { t: "Watch the first leads come in", d: "AVA answers every visitor, collects their details and scores each lead. You get an email for every hot one." },
+  { t: "Answer five quick questions", d: "So Volgo knows what kind of business you are and how to talk to your customers. Under a minute." },
+  { t: "Put Volgo on your website", d: "One line of code, with a guide for every platform. Prefer we do it? Email us from your dashboard and we add it the same day." },
+  { t: "Watch the first leads come in", d: "Volgo answers every visitor, collects their details and scores each lead. You get an email for every hot one." },
 ];
 
 function Welcome() {

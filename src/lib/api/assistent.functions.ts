@@ -22,7 +22,7 @@ const invoer = z.object({
 
 const STATUS_EN: Record<string, string> = {
   nieuw: "new",
-  opvolging: "AVA following up",
+  opvolging: "Volgo following up",
   offerte: "quote sent",
   afspraak: "appointment",
   klant: "customer",
@@ -43,7 +43,7 @@ const ams = (iso: string) =>
     timeZone: "Europe/Amsterdam",
   });
 
-/** AVA voor de ondernemer zelf: beantwoordt vragen over de eigen leads, gesprekken en agenda. */
+/** Volgo voor de ondernemer zelf: beantwoordt vragen over de eigen leads, gesprekken en agenda. */
 export const vraagAssistent = createServerFn({ method: "POST" })
   .validator((d: unknown) => invoer.parse(d))
   .handler(async ({ data }) => {
@@ -81,7 +81,7 @@ export const vraagAssistent = createServerFn({ method: "POST" })
         ok: true as const,
         antwoord: top.length
           ? `You have ${open.length} open ${open.length === 1 ? "lead" : "leads"}. Call these first:\n${top.map((t) => `- ${t}`).join("\n")}`
-          : "You have no open leads right now. As soon as AVA talks to someone on your website, you will see them here.",
+          : "You have no open leads right now. As soon as Volgo talks to someone on your website, you will see them here.",
       };
     }
 
@@ -96,13 +96,13 @@ export const vraagAssistent = createServerFn({ method: "POST" })
       "CALENDAR (upcoming appointments):",
       ...(afspraken.results.length ? afspraken.results.map((a) => `- ${lokaal(a.start)} | ${a.titel}${a.locatie ? ` | ${a.locatie}` : ""}`) : ["(none)"]),
       "",
-      "RECENT AVA CONVERSATIONS ON THE WEBSITE:",
+      "RECENT Volgo CONVERSATIONS ON THE WEBSITE:",
       ...(gesprekken.results.length
         ? gesprekken.results.map((c) => `- ${c.bezoeker} | ${c.status === "live" ? "live" : "finished"} | last message ${ams(c.laatste)} | warmth ${c.warmte} | ${c.onderwerp}`)
         : ["(none)"]),
     ].join("\n");
 
-    const system = `You are AVA, the personal assistant of ${voornaam} at ${naamBedrijf} in the Volgo dashboard.
+    const system = `You are Volgo, the personal assistant of ${voornaam} at ${naamBedrijf} in the Volgo dashboard.
 You help the business owner with their own customers: who to call, what is on the calendar, what visitors asked about, and you write messages and quote texts.
 
 Rules:
@@ -132,7 +132,7 @@ ${context}`;
       return { ok: true as const, antwoord: antwoord || "I don't have an answer to that right now. Try asking it differently." };
     } catch (err) {
       console.error("[assistent]", err);
-      return { ok: false as const, antwoord: "AVA is temporarily unavailable. Please try again in a minute." };
+      return { ok: false as const, antwoord: "Volgo is temporarily unavailable. Please try again in a minute." };
     }
   });
 

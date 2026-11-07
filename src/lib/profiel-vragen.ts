@@ -1,5 +1,5 @@
 // Five closed questions every new account answers before the dashboard opens.
-// The answers tell AVA what kind of business it works for, and how to talk to its customers.
+// The answers tell Volgo what kind of business it works for, and how to talk to its customers.
 
 export type VraagId = "sector" | "klanten" | "vervolg" | "doorlooptijd" | "toon";
 
@@ -8,7 +8,7 @@ export type Optie = {
   label: string;
   /** Short line under the label in the wizard. */
   uitleg?: string;
-  /** What AVA is told. Written as a fact about the business. */
+  /** What Volgo is told. Written as a fact about the business. */
   ava: string;
 };
 
@@ -18,7 +18,7 @@ export const VRAGEN: Vraag[] = [
   {
     id: "sector",
     titel: "What kind of business are you?",
-    sub: "So AVA uses the right words and asks the right questions.",
+    sub: "So Volgo uses the right words and asks the right questions.",
     opties: [
       { id: "bouw", label: "Contractor or renovation", uitleg: "Building, remodeling, roofing, extensions", ava: "The business is a contractor / renovation company (building, remodeling, roofing, extensions). Visitors usually describe a project and want a price indication and a start date." },
       { id: "installatie", label: "Installer", uitleg: "Heating, cooling, solar, electrical, plumbing", ava: "The business is an installer (heating, cooling, solar, electrical or plumbing). Many visitors have an urgent problem or want a new system; ask what, where and how urgent." },
@@ -31,7 +31,7 @@ export const VRAGEN: Vraag[] = [
   {
     id: "klanten",
     titel: "Who are your customers?",
-    sub: "AVA adapts its questions to private customers or companies.",
+    sub: "Volgo adapts its questions to private customers or companies.",
     opties: [
       { id: "particulier", label: "Homeowners and private customers", ava: "Customers are mainly homeowners and private individuals. Keep it simple and personal, ask for their town or postcode and the best moment to reach them." },
       { id: "zakelijk", label: "Businesses", ava: "Customers are mainly businesses. Ask for the company name, the contact person's role and the scale or number of locations." },
@@ -41,7 +41,7 @@ export const VRAGEN: Vraag[] = [
   {
     id: "vervolg",
     titel: "What usually happens after a first request?",
-    sub: "AVA tells visitors exactly what the next step is.",
+    sub: "Volgo tells visitors exactly what the next step is.",
     opties: [
       { id: "bezoek", label: "We visit on site for a free quote", ava: "Next step after a request: a free on-site visit to measure and quote. Offer to plan that visit and collect name, phone number and address or town." },
       { id: "offerte", label: "We send a quote by email", ava: "Next step after a request: the team sends a quote by email. Collect the details needed for it (what, how much, where, when) plus name and email." },
@@ -52,7 +52,7 @@ export const VRAGEN: Vraag[] = [
   {
     id: "doorlooptijd",
     titel: "How soon can you usually start or respond?",
-    sub: "AVA sets honest expectations, without promising dates.",
+    sub: "Volgo sets honest expectations, without promising dates.",
     opties: [
       { id: "dagen", label: "Within a few days", ava: "Typical lead time: the team can usually respond or start within a few days. You may say that, but never promise a specific date." },
       { id: "weken", label: "Within 1 to 2 weeks", ava: "Typical lead time: usually within one to two weeks. You may say that, but never promise a specific date." },
@@ -62,8 +62,8 @@ export const VRAGEN: Vraag[] = [
   },
   {
     id: "toon",
-    titel: "How should AVA sound to your customers?",
-    sub: "AVA writes every reply in this tone.",
+    titel: "How should Volgo sound to your customers?",
+    sub: "Volgo writes every reply in this tone.",
     opties: [
       { id: "vriendelijk", label: "Friendly and casual", uitleg: "Like a helpful colleague", ava: "Tone: friendly and casual, like a helpful colleague. Warm, plain language, no jargon." },
       { id: "zakelijk", label: "Professional and to the point", uitleg: "Short, clear, no small talk", ava: "Tone: professional and to the point. Short, clear sentences, polite, no small talk." },
@@ -100,7 +100,7 @@ export function profielAntwoorden(p: Profiel) {
   return VRAGEN.map((v) => ({ vraag: v, optie: v.opties.find((o) => o.id === p[v.id]) ?? null }));
 }
 
-/** Lines for AVA's system prompt. Empty when nothing was answered. */
+/** Lines for Volgo's system prompt. Empty when nothing was answered. */
 export function profielVoorAva(p: Profiel) {
   return VRAGEN.map((v) => v.opties.find((o) => o.id === p[v.id])?.ava)
     .filter(Boolean)

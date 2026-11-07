@@ -20,7 +20,7 @@ export const Route = createFileRoute("/cookies")({
       </ul>
       <h2>Storage in your browser</h2>
       <p>
-        The chat with AVA stores an anonymous conversation code in your browser, so your conversation doesn’t disappear when you
+        The chat with Volgo stores an anonymous conversation code in your browser, so your conversation doesn’t disappear when you
         go to another page. This code contains no personal data and is not used to track you.
       </p>
       <h2>What we don’t do</h2>

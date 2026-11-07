@@ -56,7 +56,7 @@ function Lijst({ titel, rijen, sleutel }: { titel: string; rijen: { naam: string
   );
 }
 
-/** Website traffic measured by AVA, in plain language. */
+/** Website traffic measured by Volgo, in plain language. */
 export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
   const [dagen, setDagen] = useState(30);
   const [d, setD] = useState<Data | null>(null);
@@ -81,7 +81,7 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
     ? [
         ["Visitors", d.bezoekers],
         ["Opened the chat", d.chatOpen],
-        ["Asked AVA something", d.chatBericht],
+        ["Asked Volgo something", d.chatBericht],
         ["Became a lead", d.leads],
         ["Booked an appointment", d.geboekt],
       ]
@@ -93,7 +93,7 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
         <div>
           <h1>Traffic</h1>
           <p>
-            Who visits your website, where they come from and how many become leads. Measured by AVA, with your visitors’ permission.
+            Who visits your website, where they come from and how many become leads. Measured by Volgo, with your visitors’ permission.
             {d && d.live > 0 ? (
               <span className="v-vk__live">
                 <i /> {d.live} on your site now
@@ -114,9 +114,9 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
       {d && d.views === 0 ? (
         <section className="v-dash__panel v-vk__leeg">
           <h2 className="v-sub">No visits measured yet</h2>
-          <p className="v-muted">As soon as AVA is on your website, every visit shows up here: pages, sources, devices, countries and how many visitors become leads.</p>
+          <p className="v-muted">As soon as Volgo is on your website, every visit shows up here: pages, sources, devices, countries and how many visitors become leads.</p>
           <button className="v-btn-dark" onClick={() => openTab("installeren")} type="button">
-            Install AVA on your website
+            Install Volgo on your website
           </button>
         </section>
       ) : null}
@@ -242,7 +242,7 @@ function LandingTrechter({ t }: { t: Trechter }) {
   const rijen = (b: number, k: number, m: number, a: number) =>
     [
       ["Visits (sessions)", b],
-      ["Clicked “Try AVA live”", k],
+      ["Clicked “Try Volgo live”", k],
       ["Sent a first demo message", m],
       ["Clicked through to the plans", a],
     ] as const;

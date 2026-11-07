@@ -6,7 +6,7 @@ import "@/volgo.css";
 
 const TITEL = "Volgo · AI-assistent die je website-aanvragen 24/7 beantwoordt";
 const OMSCHRIJVING =
-  "AVA beantwoordt vragen op je website, noteert aanvragen, plant afspraken en laat zien wie je het eerst moet terugbellen. Probeer de live demo zonder aanmelden.";
+  "Volgo beantwoordt vragen op je website, noteert aanvragen, plant afspraken en laat zien wie je het eerst moet terugbellen. Probeer de live demo zonder aanmelden.";
 
 /** Dutch landing page, for Dutch ads: thevolgo.app/nl. Same page, Dutch copy and a Dutch sample business in the demo. */
 export const Route = createFileRoute("/nl")({

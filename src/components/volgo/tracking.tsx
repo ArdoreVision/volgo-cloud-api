@@ -126,7 +126,7 @@ export function Tracking() {
 
 /**
  * Steps of the landing page funnel. Stored in Volgo's own cookieless analytics (site_events, per session, no content,
- * no personal data) via the AVA script on this page, and, only with consent, sent to the Meta / Google pixel.
+ * no personal data) via the Volgo script on this page, and, only with consent, sent to the Meta / Google pixel.
  */
 export type FunnelStap = "demo_klik" | "demo_bericht" | "abo_klik";
 
@@ -144,7 +144,7 @@ export function meet(stap: FunnelStap) {
   } catch {
     /* private mode: still count, duplicates are filtered per session on the server */
   }
-  // First-party: the AVA script on thevolgo.app may still be loading, so retry for a few seconds.
+  // First-party: the Volgo script on thevolgo.app may still be loading, so retry for a few seconds.
   let pogingen = 0;
   const stuur = () => {
     const ava = (window as unknown as { VolgoAva?: AvaMeet }).VolgoAva;
