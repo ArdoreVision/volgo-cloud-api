@@ -1,27 +1,19 @@
 import { useEffect, useState } from "react";
 
-import { AvaChat } from "./ava-chat";
-import { Faq } from "./faq";
 import { Footer } from "./footer";
-import { Hero, Stappen } from "./hero";
-import { Diensten, NieuweWebsite } from "./dialed";
-import { LiveDemo, ScrollProgress, useReveal } from "./landing";
-import { Nav } from "./nav";
-import { FinalCta, PricingPreview } from "./pricing-preview";
-import { Reviews } from "./reviews";
-import { TEKST, type RouteTaal } from "./route-teksten";
+import { VolgoMark } from "./logo";
+import { PricingPreview } from "./pricing-preview";
+import { type RouteTaal } from "./route-teksten";
 import { huidigeTaal, kiesTaal } from "./taal";
+import { meet } from "./tracking";
 import "@/volgo-dialed.css";
 
 /**
- * The ad landing page: who it is for and what it does, try Volgo live on this page, then the plans.
- * vast = the language is fixed by the URL (/nl for Dutch ads). Without it, Dutch visitors (browser or language picker)
- * get the hand-written Dutch copy; every other language keeps the English source and the site translator.
+ * The landing page, kept as simple as possible: one Start button to the dashboard and the three plans. Nothing else.
+ * vast = the language is fixed by the URL (/nl for Dutch ads).
  */
 export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: RouteTaal }) {
-  useReveal();
   const [taal, setTaal] = useState<RouteTaal>(vast ?? "en");
-  const [laadDemo, setLaadDemo] = useState(false);
 
   useEffect(() => {
     if (vast) {
@@ -33,24 +25,34 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
     return () => window.removeEventListener("volgo-taal", op);
   }, [vast]);
 
-  const probeer = () => setLaadDemo(true);
+  const nl = taal === "nl";
+  const naar = ingelogd ? "/dashboard" : "/signup";
   return (
     <div className="volgo volgo--simpel volgo--dialed" id="vd">
-      <ScrollProgress />
-      <Nav ingelogd={ingelogd} probeer={{ tekst: TEKST[taal].navProbeer, kort: TEKST[taal].navKort, handgeschreven: taal === "nl", onKlik: probeer }} />
       <main>
-        <Hero onProbeer={probeer} taal={taal} />
-        <Stappen />
+        <section aria-labelledby="hero-title" className="vs-hero" id="top" style={{ minHeight: "auto", paddingBottom: 24 }}>
+          <div className="vs-hero__copy" style={{ textAlign: "center", marginInline: "auto" }}>
+            <p className="vs-hero__voor" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <VolgoMark size={22} /> Volgo
+            </p>
+            <h1 className="vs-hero__title" id="hero-title">
+              {nl ? "Elke klant opgevolgd. Automatisch." : "Every customer followed up. Automatically."}
+            </h1>
+            <div className="vs-hero__acties" style={{ justifyContent: "center" }}>
+              <a className="vs-start vs-start--groot" href={naar} onClick={() => meet("abo_klik")}>
+                {ingelogd ? (nl ? "Naar dashboard →" : "Go to dashboard →") : nl ? "Start →" : "Start →"}
+              </a>
+            </div>
+            {!ingelogd ? (
+              <p className="vs-hero__sub" style={{ marginTop: 16 }}>
+                {nl ? "Al een account?" : "Already have an account?"} <a href="/login">{nl ? "Inloggen" : "Log in"}</a>
+              </p>
+            ) : null}
+          </div>
+        </section>
         <PricingPreview />
-        <LiveDemo laadNu={laadDemo} taal={taal} />
-        <Diensten taal={taal} />
-        <NieuweWebsite taal={taal} />
-        <Reviews />
-        <Faq />
-        <FinalCta />
       </main>
       <Footer />
-      <AvaChat />
     </div>
   );
 }
