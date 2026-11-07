@@ -62,6 +62,10 @@ const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
     ],
   },
   {
+    kop: "Insights",
+    items: [["verkeer", "Traffic"]],
+  },
+  {
     kop: "Setup",
     items: [
       ["ava", "Your assistant"],
