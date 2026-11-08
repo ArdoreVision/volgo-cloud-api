@@ -233,20 +233,26 @@ export async function boekViaChat(
   } else {
     await DB.prepare("UPDATE klant_leads SET status = 'afspraak', laatste_actie = ? WHERE id = ?").bind(`Appointment ${wanneer}`, leadId).run();
   }
-  const bevestiging = `You're booked: ${soortNaam.toLowerCase()} on ${wanneer}. ${inst.bedrijf} has your details${res.soort === "bellen" ? ` and will call you on ${contact}` : ""}. Need to change it? Just tell me here.`;
+  const { taalVan, wanneerTekst } = await import("./automatisch.server");
+  const bezoekerTekst = (await DB.prepare("SELECT group_concat(tekst, ' ') AS t FROM (SELECT tekst FROM ava_berichten WHERE gesprek_id = ? AND rol = 'bezoeker' ORDER BY id LIMIT 6)").bind(gid).first<{ t: string | null }>())?.t ?? "";
+  const nl = taalVan(`${bezoekerTekst} ${b.adres ?? ""}`, "nl") === "nl";
+  const { SOORTEN_NL } = await import("./boeken.server");
+  const bevestiging = nl
+    ? `Je afspraak staat: ${SOORTEN_NL[res.soort].toLowerCase()} op ${wanneerTekst(res.start, "nl")} tot ${res.eind.slice(11, 16)}. ${inst.bedrijf} heeft je gegevens${res.soort === "bellen" ? ` en belt je op ${contact}` : ""}. Wil je iets veranderen? Zeg het gewoon hier.`
+    : `You're booked: ${soortNaam.toLowerCase()} on ${wanneer}. ${inst.bedrijf} has your details${res.soort === "bellen" ? ` and will call you on ${contact}` : ""}. Need to change it? Just tell me here.`;
   await DB.batch([
     DB.prepare("UPDATE ava_gesprek_meta SET naam = ?, contact = ?, lead_id = ? WHERE gesprek_id = ?").bind(naam, contact, leadId, gid),
-    DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'bezoeker', ?)").bind(gid, `Booked: ${soortNaam} · ${wanneer}`),
+    DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'bezoeker', ?)").bind(gid, `Booked: ${nl ? SOORTEN_NL[res.soort] : soortNaam} · ${wanneer}`),
     DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'ava', ?)").bind(gid, bevestiging),
     DB.prepare("UPDATE ava_gesprekken SET bezoeker = ?, warmte = 95, laatste = datetime('now'), status = 'live', berichten = berichten + 2 WHERE id = ?").bind(naam.slice(0, 60), gid),
   ]);
   {
     const { pushNaarTeam } = await import("./webpush.server");
-    await pushNaarTeam(DB, team, `Nieuwe afspraak: ${naam}`, `${soortNaam} · ${wanneer}`, "/dashboard#agenda");
+    await pushNaarTeam(DB, team, `Nieuwe afspraak: ${naam}`, `${SOORTEN_NL[res.soort]} · ${wanneerTekst(res.start, "nl")}`, "/dashboard#agenda");
   }
   {
     const { pushNaarTeam } = await import("./webpush.server");
-    await pushNaarTeam(DB, team, `Nieuwe afspraak: ${naam}`, `${soortNaam} · ${wanneer}`, "/dashboard#agenda");
+    await pushNaarTeam(DB, team, `Nieuwe afspraak: ${naam}`, `${SOORTEN_NL[res.soort]} · ${wanneerTekst(res.start, "nl")}`, "/dashboard#agenda");
   }
   {
     const p = await import("./push.server");

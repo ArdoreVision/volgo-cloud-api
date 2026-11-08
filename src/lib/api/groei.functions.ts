@@ -209,3 +209,18 @@ export const controleerInstallatie = createServerFn({ method: "POST" }).handler(
     return { status: "onbereikbaar" as const };
   }
 });
+
+/** "This week Volgo did…" on the Today screen: what the customer pays for, in four numbers. */
+export const haalWeek = createServerFn({ method: "GET" }).handler(async () => {
+  const { g, DB } = await sessie();
+  const t = g.team_id;
+  const een = async (sql: string) => (await DB.prepare(sql).bind(t).first<{ n: number }>())?.n ?? 0;
+  const [gesprekken, aanvragen, afspraken, berichten, betaald] = await Promise.all([
+    een("SELECT COUNT(*) AS n FROM ava_gesprekken WHERE team_id = ? AND voorbeeld = 0 AND gestart > datetime('now', '-7 days')"),
+    een("SELECT COUNT(*) AS n FROM klant_leads WHERE gebruiker_id = ? AND voorbeeld = 0 AND created_at > datetime('now', '-7 days')"),
+    een("SELECT COUNT(*) AS n FROM ava_berichten b JOIN ava_gesprekken g ON g.id = b.gesprek_id WHERE g.team_id = ? AND b.rol = 'bezoeker' AND b.tekst LIKE 'Booked:%' AND b.created_at > datetime('now', '-7 days')"),
+    een("SELECT COUNT(*) AS n FROM auto_berichten WHERE team_id = ? AND status = 'verstuurd' AND gemaakt > datetime('now', '-7 days')"),
+    een("SELECT COALESCE(SUM(bedrag), 0) AS n FROM betaalverzoeken WHERE team_id = ? AND status = 'betaald' AND betaald > datetime('now', '-7 days')"),
+  ]);
+  return { gesprekken, aanvragen, afspraken, berichten, betaald };
+});

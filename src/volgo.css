@@ -2540,3 +2540,14 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000; }
 .v-g__badge.is-betaald { background: #e8f7ee; color: #067647; }
 .v-g__badge.is-open { background: #eef4ff; color: #1d4ed8; }
 @media (max-width: 640px) { .v-g__scherm iframe { height: 520px; } }
+
+/* Today: what Volgo did this week */
+.v-vd__week { margin: 0 0 18px; }
+.v-vd__week h2 { margin: 0 0 10px; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.v-vd__tegels { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 860px) { .v-vd__tegels { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.v-vd__tegels button { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; text-align: left; cursor: pointer; transition: border-color 0.15s, transform 0.15s; }
+.v-vd__tegels button:hover { border-color: color-mix(in srgb, var(--ink) 30%, var(--line)); transform: translateY(-1px); }
+.v-vd__tegels b { font-size: 26px; letter-spacing: -0.03em; line-height: 1.1; }
+.v-vd__tegels span { font-size: 13px; color: var(--muted); line-height: 1.35; }
+.v-vd__tegel-laden { height: 78px; border-radius: 16px; background: var(--surface); }

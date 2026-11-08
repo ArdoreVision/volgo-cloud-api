@@ -117,3 +117,10 @@
 #vd .vl-faq summary::after { content: "+"; color: #8d8d8d; font-weight: 400; font-size: 22px; line-height: 1; }
 #vd .vl-faq details[open] summary::after { content: "–"; }
 #vd .vl-faq details p { margin: 12px 0 0; color: #9b9b9b; font-size: 15.5px; line-height: 1.6; }
+
+/* Explainer film under the hero button */
+#vd .vl-film { margin: 44px auto 0; max-width: 960px; }
+#vd .vl-film video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 22px; background: #000; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 40px 100px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08); }
+#vd .vl-film figcaption { margin-top: 12px; font-size: 13px; color: #777; }
+#vd .vl-hero { max-width: 1008px; }
+#vd .vl-hero .vl-sub { max-width: 640px; }

@@ -15,6 +15,7 @@ const T = {
     login: "Log in",
     dashboard: "Dashboard",
     oog: "AI assistant for your website",
+    filmLabel: "What Volgo does, in 36 seconds",
     titel: "Your assistant online. 24/7.",
     sub: "Volgo answers every visitor on your website, day and night, and books the appointment straight into your calendar. Then it sends the reminder, asks for the review and follows up. You just do the work.",
     start: "Start",
@@ -88,6 +89,7 @@ const T = {
     login: "Inloggen",
     dashboard: "Dashboard",
     oog: "AI-assistent voor je website",
+    filmLabel: "Wat Volgo doet, in 36 seconden",
     titel: "Jouw assistent online. 24/7.",
     sub: "Volgo beantwoordt elke bezoeker op je website, dag en nacht, en zet de afspraak meteen in je agenda. Daarna stuurt het de herinnering, vraagt het om de review en volgt het op. Jij doet alleen het werk.",
     start: "Start",
@@ -278,42 +280,21 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
             </a>
           </div>
           <p className="vl-klein">{t.klein}</p>
-        </section>
-
-        <section aria-hidden="true" className="vl-beeld">
-          <div className="vl-kaart vl-chat">
-            <div className="vl-kaart__kop">
-              <span className="vl-stip" />
-              {t.chatKop}
-            </div>
-            <div className="vl-chat__body">
-              <p className="vl-bel vl-bel--bez">{t.bez1}</p>
-              <p className="vl-bel">{t.ava1}</p>
-              <p className="vl-bel vl-bel--bez">{t.bez2}</p>
-              <p className="vl-bel">{t.ava2}</p>
-              <p className="vl-geboekt">✓ {t.geboekt}</p>
-            </div>
-          </div>
-          <div className="vl-pijl">→</div>
-          <div className="vl-kaart vl-app">
-            <div className="vl-kaart__kop">
-              <VolgoMark size={14} />
-              {t.appKop}
-            </div>
-            <div className="vl-app__body">
-              <p className="vl-app__label">{t.nieuw}</p>
-              <p className="vl-app__wat">{t.afspraak}</p>
-              <div className="vl-app__persoon">
-                <span className="vl-av">AV</span>
-                <span>
-                  <b>{t.naam}</b>
-                  <small>{t.adres}</small>
-                </span>
-              </div>
-              <p className="vl-app__notitie">{t.notitie}</p>
-              <span className="vl-app__knop">{t.bellen}</span>
-            </div>
-          </div>
+          <figure className="vl-film">
+            <video
+              aria-label={t.filmLabel}
+              autoPlay
+              controls
+              key={taal}
+              loop
+              muted
+              playsInline
+              poster={`/film/poster-${taal === "nl" ? "nl" : "en"}.jpg`}
+              preload="metadata"
+              src={`/film/uitleg-${taal === "nl" ? "nl" : "en"}.mp4`}
+            />
+            <figcaption>{t.filmLabel}</figcaption>
+          </figure>
         </section>
 
         <section aria-labelledby="vl-wat" className="vl-sectie vl-wat">
