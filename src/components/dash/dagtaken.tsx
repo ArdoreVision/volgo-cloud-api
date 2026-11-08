@@ -4,17 +4,17 @@ type Taak = { id: string; titel: string; tab: string };
 
 /** Small things that take a minute and keep the app useful. Five are picked per day. */
 const ALLE: Taak[] = [
-  { id: "chats", titel: "Open your live chats", tab: "gesprekken" },
-  { id: "agenda", titel: "Check your calendar", tab: "agenda" },
-  { id: "terugbellen", titel: "Call back one request", tab: "aanvragen" },
-  { id: "bezoekers", titel: "See who visited your website", tab: "verkeer" },
-  { id: "naam", titel: "Give your assistant a name", tab: "ava" },
-  { id: "foto", titel: "Add a photo to your chat", tab: "ava" },
-  { id: "kleur", titel: "Pick a colour for your chat", tab: "ava" },
-  { id: "vraag", titel: "Add a question your assistant asks", tab: "ava" },
-  { id: "begroeting", titel: "Change your first chat message", tab: "ava" },
-  { id: "profiel", titel: "Update your profile", tab: "account" },
-  { id: "antwoord", titel: "Reply to a customer in the chat", tab: "gesprekken" },
+  { id: "chats", titel: "Open je live gesprekken", tab: "gesprekken" },
+  { id: "agenda", titel: "Bekijk je agenda", tab: "agenda" },
+  { id: "terugbellen", titel: "Bel één aanvraag terug", tab: "aanvragen" },
+  { id: "bezoekers", titel: "Bekijk wie je website bezocht", tab: "verkeer" },
+  { id: "naam", titel: "Geef je assistent een naam", tab: "ava" },
+  { id: "foto", titel: "Zet een foto bij je chat", tab: "ava" },
+  { id: "kleur", titel: "Kies een kleur voor je chat", tab: "ava" },
+  { id: "vraag", titel: "Voeg een vraag toe die je assistent stelt", tab: "ava" },
+  { id: "begroeting", titel: "Pas je eerste chatbericht aan", tab: "ava" },
+  { id: "profiel", titel: "Werk je profiel bij", tab: "account" },
+  { id: "antwoord", titel: "Antwoord een klant in de chat", tab: "gesprekken" },
 ];
 const VAST = ["chats", "agenda", "terugbellen"];
 
@@ -60,9 +60,9 @@ export function Dagtaken({ openTab }: { openTab: (t: string) => void }) {
   return (
     <section aria-labelledby="vd-taken" className="v-vd__blok v-taken">
       <div className="v-vd__blokkop">
-        <h2 id="vd-taken">Your 5 for today</h2>
+        <h2 id="vd-taken">Jouw 5 voor vandaag</h2>
         <span className="v-taken__teller">
-          {aantal}/5{aantal === 5 ? " · all done" : ""}
+          {aantal}/5{aantal === 5 ? " · alles klaar" : ""}
         </span>
       </div>
       <div aria-hidden="true" className="v-taken__balk">

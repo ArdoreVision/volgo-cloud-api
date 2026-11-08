@@ -6,9 +6,9 @@ import { maakAfspraak, verwijderAfspraak } from "@/lib/api/team.functions";
 
 import { type Afspraak, type DashData, dagKey, plusDag } from "./util";
 
-const MAANDEN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const DAGEN_KORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const DAGEN_LANG = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const MAANDEN = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"];
+const DAGEN_KORT = ["ma", "di", "wo", "do", "vr", "za", "zo"];
+const DAGEN_LANG = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag"];
 
 const weekdag = (key: string) => {
   const [y, m, d] = key.split("-").map(Number);
@@ -29,7 +29,7 @@ function Item({ a, onDelete }: { a: Afspraak; onDelete: (id: number) => void }) 
         {a.locatie ? <span>{a.locatie}</span> : null}
         {a.notitie ? <small>{a.notitie}</small> : null}
       </div>
-      <button aria-label={`Delete ${a.titel}`} className="v-ev__del" onClick={() => onDelete(a.id)} type="button">
+      <button aria-label={`${a.titel} verwijderen`} className="v-ev__del" onClick={() => onDelete(a.id)} type="button">
         <svg aria-hidden="true" viewBox="0 0 16 16">
           <path d="M4 4l8 8M12 4l-8 8" />
         </svg>
@@ -82,14 +82,14 @@ export function Agenda({ data }: { data: DashData }) {
     const datum = v("datum");
     const leadId = Number(v("lead")) || undefined;
     const lead = data.leads.find((l) => l.id === leadId);
-    const titel = v("titel") || (lead ? `Consultation · ${lead.naam}` : "");
-    if (titel.length < 2 || !datum || !v("start") || !v("eind")) return setFout("Enter a title, date and times.");
-    if (v("eind") <= v("start")) return setFout("The end time must be after the start time.");
+    const titel = v("titel") || (lead ? `Gesprek · ${lead.naam}` : "");
+    if (titel.length < 2 || !datum || !v("start") || !v("eind")) return setFout("Vul een titel, datum en tijden in.");
+    if (v("eind") <= v("start")) return setFout("De eindtijd moet na de begintijd liggen.");
     setFout("");
     const res = await maakAfspraak({
       data: { titel, start: `${datum}T${v("start")}`, eind: `${datum}T${v("eind")}`, locatie: v("locatie") || undefined, notitie: v("notitie") || undefined, lead_id: leadId },
     });
-    if (!res.ok) return setFout(res.reden || "Could not save. Please try again.");
+    if (!res.ok) return setFout(res.reden || "Opslaan lukte niet. Probeer het opnieuw.");
     setNieuw(false);
     setGekozen(datum);
     setMaand(datum.slice(0, 7));
@@ -107,16 +107,16 @@ export function Agenda({ data }: { data: DashData }) {
           </h1>
         </div>
         <div className="v-cal-bar">
-          <div className="v-seg" role="tablist" aria-label="View">
+          <div className="v-seg" role="tablist" aria-label="Weergave">
             <button aria-selected={weergave === "lijst"} onClick={() => setWeergave("lijst")} role="tab" type="button">
-              List
+              Lijst
             </button>
             <button aria-selected={weergave === "maand"} onClick={() => setWeergave("maand")} role="tab" type="button">
-              Month
+              Maand
             </button>
           </div>
           <div className="v-cal-nav">
-            <button aria-label="Previous month" onClick={() => verschuif(-1)} type="button">
+            <button aria-label="Vorige maand" onClick={() => verschuif(-1)} type="button">
               ‹
             </button>
             <button
@@ -126,14 +126,14 @@ export function Agenda({ data }: { data: DashData }) {
               }}
               type="button"
             >
-              Today
+              Vandaag
             </button>
-            <button aria-label="Next month" onClick={() => verschuif(1)} type="button">
+            <button aria-label="Volgende maand" onClick={() => verschuif(1)} type="button">
               ›
             </button>
           </div>
           <button className="v-addbtn" onClick={() => setNieuw(true)} type="button">
-            + Appointment
+            + Afspraak
           </button>
         </div>
       </header>
@@ -143,7 +143,7 @@ export function Agenda({ data }: { data: DashData }) {
           {lijstDagen.map((k) => (
             <div className="v-cal-day" key={k}>
               <h2 className={k === vandaag ? "is-vandaag" : ""}>
-                {k === vandaag ? <span>Today</span> : null}
+                {k === vandaag ? <span>Vandaag</span> : null}
                 {dagTitel(k)}
               </h2>
               {perDag.get(k)?.length ? (
@@ -153,15 +153,15 @@ export function Agenda({ data }: { data: DashData }) {
                   ))}
                 </ul>
               ) : (
-                <p className="v-cal-empty">No appointments</p>
+                <p className="v-cal-empty">Geen afspraken</p>
               )}
             </div>
           ))}
-          {lijstDagen.length === 0 ? <p className="v-cal-empty">No appointments this month.</p> : null}
+          {lijstDagen.length === 0 ? <p className="v-cal-empty">Geen afspraken deze maand.</p> : null}
         </section>
       ) : (
         <>
-          <section className="v-month" aria-label="Month overview">
+          <section className="v-month" aria-label="Maandoverzicht">
             {DAGEN_KORT.map((d) => (
               <div className="v-month__wd" key={d}>
                 {d}
@@ -193,7 +193,7 @@ export function Agenda({ data }: { data: DashData }) {
           </section>
           <section className="v-cal-day v-cal-day--sel">
             <h2 className={gekozen === vandaag ? "is-vandaag" : ""}>
-              {gekozen === vandaag ? <span>Today</span> : null}
+              {gekozen === vandaag ? <span>Vandaag</span> : null}
               {dagTitel(gekozen)}
             </h2>
             {perDag.get(gekozen)?.length ? (
@@ -203,7 +203,7 @@ export function Agenda({ data }: { data: DashData }) {
                 ))}
               </ul>
             ) : (
-              <p className="v-cal-empty">No appointments</p>
+              <p className="v-cal-empty">Geen afspraken</p>
             )}
           </section>
         </>
@@ -211,12 +211,12 @@ export function Agenda({ data }: { data: DashData }) {
 
       {nieuw ? (
         <div className="v-modal" onClick={(e) => e.target === e.currentTarget && setNieuw(false)} role="presentation">
-          <form aria-label="New appointment" className="v-modal__card" onSubmit={(e) => void opslaan(e)} role="dialog">
-            <h2>New appointment</h2>
+          <form aria-label="Nieuwe afspraak" className="v-modal__card" onSubmit={(e) => void opslaan(e)} role="dialog">
+            <h2>Nieuwe afspraak</h2>
             <div className="v-fld">
-              <label htmlFor="a-lead">Customer (optional)</label>
+              <label htmlFor="a-lead">Klant (optioneel)</label>
               <select defaultValue="" id="a-lead" name="lead">
-                <option value="">No customer linked</option>
+                <option value="">Geen klant gekoppeld</option>
                 {openLeads.map((l) => (
                   <option key={l.id} value={l.id}>
                     {l.naam} · {l.onderwerp}
@@ -225,38 +225,38 @@ export function Agenda({ data }: { data: DashData }) {
               </select>
             </div>
             <div className="v-fld">
-              <label htmlFor="a-titel">Title</label>
-              <input id="a-titel" maxLength={120} name="titel" placeholder="E.g. Consultation" />
+              <label htmlFor="a-titel">Titel</label>
+              <input id="a-titel" maxLength={120} name="titel" placeholder="Bijv. Kennismaking" />
             </div>
             <div className="v-row v-row--3">
               <div className="v-fld">
-                <label htmlFor="a-datum">Date</label>
+                <label htmlFor="a-datum">Datum</label>
                 <input defaultValue={gekozen} id="a-datum" name="datum" type="date" />
               </div>
               <div className="v-fld">
-                <label htmlFor="a-start">From</label>
+                <label htmlFor="a-start">Van</label>
                 <input defaultValue="10:00" id="a-start" name="start" type="time" />
               </div>
               <div className="v-fld">
-                <label htmlFor="a-eind">To</label>
+                <label htmlFor="a-eind">Tot</label>
                 <input defaultValue="11:00" id="a-eind" name="eind" type="time" />
               </div>
             </div>
             <div className="v-fld">
-              <label htmlFor="a-loc">Location</label>
-              <input id="a-loc" maxLength={120} name="locatie" placeholder="At the customer's home" />
+              <label htmlFor="a-loc">Locatie</label>
+              <input id="a-loc" maxLength={120} name="locatie" placeholder="Bij de klant thuis" />
             </div>
             <div className="v-fld">
-              <label htmlFor="a-not">Note</label>
+              <label htmlFor="a-not">Notitie</label>
               <textarea id="a-not" maxLength={1000} name="notitie" rows={2} />
             </div>
             {fout ? <p className="v-err">{fout}</p> : null}
             <div className="v-modal__actions">
               <button className="v-btn-ghost" onClick={() => setNieuw(false)} type="button">
-                Cancel
+                Annuleren
               </button>
               <button className="v-btn-dark" type="submit">
-                Save
+                Opslaan
               </button>
             </div>
           </form>

@@ -70,7 +70,7 @@ Reply in the language of the review (${taal === "nl" ? "Dutch, informal 'je' unl
       `Reviewer: ${data.naam || "unknown"}\nStars: ${data.sterren}/5\nReview: ${data.review}`,
       350,
     );
-    if (!antwoord) return { ok: false as const, antwoord: "", message: "Couldn't write a reply right now. Please try again." };
+    if (!antwoord) return { ok: false as const, antwoord: "", message: "Er kon nu geen antwoord geschreven worden. Probeer het opnieuw." };
     await DB.prepare("INSERT INTO review_antwoorden (team_id, naam, sterren, review, antwoord) VALUES (?, ?, ?, ?, ?)")
       .bind(g.team_id, data.naam ?? "", data.sterren, data.review, antwoord)
       .run();
@@ -119,9 +119,9 @@ export const maakBetaalverzoek = createServerFn({ method: "POST" })
     const { g, DB } = await sessie();
     const i = await instVan(DB, g.team_id);
     const extra = await DB.prepare("SELECT iban, stripe_sleutel FROM ava_instellingen WHERE team_id = ?").bind(g.team_id).first<{ iban: string; stripe_sleutel: string }>();
-    if (!extra?.iban && !extra?.stripe_sleutel) return { ok: false as const, message: "Payments aren't set up yet for your account. Ask Volgo to switch them on." };
+    if (!extra?.iban && !extra?.stripe_sleutel) return { ok: false as const, message: "Betalingen staan nog niet aan voor je account. Vraag Volgo om ze aan te zetten." };
     const { contactVan, stuurBezoeker, taalVan } = await import("../automatisch.server");
-    if (!contactVan(data.contact)) return { ok: false as const, message: "Enter an email address or mobile number." };
+    if (!contactVan(data.contact)) return { ok: false as const, message: "Vul een mailadres of mobiel nummer in." };
     let gesprek: { gesprek_id: number; token: string } | null = null;
     if (data.gesprek_id)
       gesprek = await DB.prepare("SELECT m.gesprek_id, m.token FROM ava_gesprek_meta m JOIN ava_gesprekken g ON g.id = m.gesprek_id WHERE m.gesprek_id = ? AND g.team_id = ?")
@@ -147,8 +147,8 @@ export const maakBetaalverzoek = createServerFn({ method: "POST" })
       taal,
     );
     const { notitie } = await import("../automatisch.server");
-    await notitie(DB, gesprek?.gesprek_id, `Payment request sent: ${euro(data.bedrag)} for "${data.omschrijving}"`);
-    return { ok: true as const, link, verstuurd: Boolean(kanaal), message: kanaal ? "" : "Saved, but sending didn't work. Copy the link and send it yourself." };
+    await notitie(DB, gesprek?.gesprek_id, `Betaalverzoek verstuurd: ${euro(data.bedrag)} voor "${data.omschrijving}"`);
+    return { ok: true as const, link, verstuurd: Boolean(kanaal), message: kanaal ? "" : "Opgeslagen, maar versturen lukte niet. Kopieer de link en stuur hem zelf." };
   });
 
 export const annuleerBetaalverzoek = createServerFn({ method: "POST" })

@@ -9,16 +9,16 @@ const PLATFORMS: { id: string; naam: string; stappen: string[] }[] = [
     id: "wordpress",
     naam: "WordPress",
     stappen: [
-      "Install the free plugin “WPCode” (Plugins → Add new).",
-      "Go to Code Snippets → Header & Footer.",
-      "Paste the code in the Footer box and click Save.",
+      "Installeer de gratis plugin “WPCode” (Plugins → Nieuwe plugin).",
+      "Ga naar Code Snippets → Header & Footer.",
+      "Plak de code in het vak Footer en klik op Save.",
     ],
   },
-  { id: "wix", naam: "Wix", stappen: ["Open Settings → Custom code (under Advanced).", "Click + Add custom code and paste the code.", "Choose All pages, place it in Body - end, and click Apply."] },
-  { id: "squarespace", naam: "Squarespace", stappen: ["Open Settings → Advanced → Code injection.", "Paste the code in the Footer box.", "Click Save."] },
-  { id: "shopify", naam: "Shopify", stappen: ["Open Online Store → Themes → … → Edit code.", "Open theme.liquid and paste the code just above </body>.", "Click Save."] },
-  { id: "webflow", naam: "Webflow", stappen: ["Open Site settings → Custom code.", "Paste the code in Footer code.", "Save and publish your site."] },
-  { id: "anders", naam: "Other / HTML", stappen: ["Paste the code just above </body> on every page (or in your site's footer template).", "Save and publish.", "Can't find it? Send this page to whoever made your website, it takes them two minutes."] },
+  { id: "wix", naam: "Wix", stappen: ["Open Instellingen → Aangepaste code (onder Geavanceerd).", "Klik op + Aangepaste code toevoegen en plak de code.", "Kies Alle pagina's, plaats het in Body - einde en klik op Toepassen."] },
+  { id: "squarespace", naam: "Squarespace", stappen: ["Open Settings → Advanced → Code injection.", "Plak de code in het vak Footer.", "Klik op Opslaan."] },
+  { id: "shopify", naam: "Shopify", stappen: ["Open Online Store → Thema's → … → Code bewerken.", "Open theme.liquid en plak de code net boven </body>.", "Klik op Opslaan."] },
+  { id: "webflow", naam: "Webflow", stappen: ["Open Site settings → Custom code.", "Plak de code bij Footer code.", "Opslaan en je site publiceren."] },
+  { id: "anders", naam: "Anders / HTML", stappen: ["Plak de code net boven </body> op elke pagina (of in de footer-template van je site).", "Opslaan en publiceren.", "Kun je het niet vinden? Stuur deze pagina naar wie je website maakte, dat kost hen twee minuten."] },
 ];
 
 /** Your website: address, the code to install it yourself, and a live preview with your chat on it. */
@@ -42,14 +42,14 @@ export function MijnWebsite({ openTab }: { openTab: (t: string) => void }) {
       })
       .catch(() => undefined);
   }, []);
-  if (!d) return <p className="v-g__leeg">Loading…</p>;
+  if (!d) return <p className="v-g__leeg">Laden…</p>;
 
   const origin = typeof window === "undefined" ? "https://thevolgo.app" : window.location.origin;
   const code = `<script src="${origin}/ava.js" data-key="${d.sleutel}" defer></script>`;
   const formulier = `<form action="${origin}/api/formulier/${d.sleutel}" method="post">
   <input name="naam" placeholder="Name" required>
   <input name="email" type="email" placeholder="Email" required>
-  <input name="telefoon" placeholder="Phone">
+  <input name="telefoon" placeholder="Telefoon">
   <textarea name="bericht" placeholder="Message" required></textarea>
   <input name="website" style="display:none" tabindex="-1" autocomplete="off">
   <button type="submit">Send</button>
@@ -81,30 +81,30 @@ export function MijnWebsite({ openTab }: { openTab: (t: string) => void }) {
   return (
     <div className="v-g">
       <header className="v-g__kop">
-        <h1>Your website</h1>
-        <p>See your own website with your Volgo chat on it, exactly as visitors see it. Install it yourself in two minutes, no technical knowledge needed.</p>
+        <h1>Je website</h1>
+        <p>Zie je eigen website met je Volgo-chat erop, precies zoals bezoekers hem zien. Installeer het zelf in twee minuten, zonder technische kennis.</p>
       </header>
 
       <section className="v-g__kaart">
-        <h2>Your details</h2>
+        <h2>Je gegevens</h2>
         <div className="v-g__form">
           <label className="v-g__veld">
-            Website address
+            Websiteadres
             <input inputMode="url" onChange={(e) => setSite(e.target.value)} placeholder="https://www.yourbusiness.com" value={site} />
           </label>
           <label className="v-g__veld">
-            Google review link
+            Google-reviewlink
             <input inputMode="url" onChange={(e) => setReview(e.target.value)} placeholder="https://g.page/r/…/review" value={review} />
             <small>
-              Find it in your Google Business Profile → <em>Ask for reviews</em> → copy the link.
+              Je vindt hem in je Google-bedrijfsprofiel → <em>Reviews vragen</em> → kopieer de link.
             </small>
           </label>
           <div className="v-g__knoppen is-breed">
             <button className="v-g__knop" onClick={() => void bewaar()} type="button">
-              Save
+              Opslaan
             </button>
-            {opgeslagen === "ok" ? <span className="v-g__ok">Saved.</span> : null}
-            {opgeslagen === "fout" ? <span className="v-g__fout">Check both addresses (they start with https://).</span> : null}
+            {opgeslagen === "ok" ? <span className="v-g__ok">Opgeslagen.</span> : null}
+            {opgeslagen === "fout" ? <span className="v-g__fout">Controleer beide adressen (ze beginnen met https://).</span> : null}
           </div>
         </div>
       </section>
@@ -112,18 +112,18 @@ export function MijnWebsite({ openTab }: { openTab: (t: string) => void }) {
       <section className="v-g__kaart">
         <div className="v-g__knoppen" style={{ justifyContent: "space-between", marginBottom: 10 }}>
           <div>
-            <h2>Preview</h2>
-            <p style={{ margin: 0, color: "var(--muted)", fontSize: 14 }}>Your website with the chat on it. Click the chat bubble to try it.</p>
+            <h2>Voorbeeld</h2>
+            <p style={{ margin: 0, color: "var(--muted)", fontSize: 14 }}>Je website met de chat erop. Klik op de chatknop om hem te proberen.</p>
           </div>
           <div className="v-g__tabs" style={{ margin: 0 }}>
             <button aria-pressed={!mobiel} onClick={() => setMobiel(false)} type="button">
               Computer
             </button>
             <button aria-pressed={mobiel} onClick={() => setMobiel(true)} type="button">
-              Phone
+              Telefoon
             </button>
             <button onClick={() => openTab("ava")} type="button">
-              Change the chat
+              Chat aanpassen
             </button>
           </div>
         </div>
@@ -132,35 +132,35 @@ export function MijnWebsite({ openTab }: { openTab: (t: string) => void }) {
             <i />
             <i />
             <i />
-            <span>{d.siteUrl || "your website"}</span>
+            <span>{d.siteUrl || "je website"}</span>
             {d.siteUrl ? (
               <a href={d.siteUrl} rel="noreferrer" target="_blank">
-                Open ↗
+                Openen ↗
               </a>
             ) : null}
           </div>
-          <iframe key={`${versie}-${mobiel}`} loading="lazy" src={`/api/voorbeeld/${d.sleutel}`} title="Your website with Volgo" />
+          <iframe key={`${versie}-${mobiel}`} loading="lazy" src={`/api/voorbeeld/${d.sleutel}`} title="Je website met Volgo" />
         </div>
         <p className="v-g__leeg" style={{ marginTop: 8 }}>
-          Some parts of a website (like animations or a cookie banner) can look slightly different in this preview. Your real website is not changed.
+          Sommige delen van een website (zoals animaties of een cookiebanner) kunnen er in dit voorbeeld iets anders uitzien. Je echte website verandert niet.
         </p>
       </section>
 
       <section className="v-g__kaart">
-        <h2>Install it yourself</h2>
-        <p>One line of code puts the chat on your whole website. Copy it, then follow the steps for your website builder.</p>
+        <h2>Zelf installeren</h2>
+        <p>Eén regel code zet de chat op je hele website. Kopieer hem en volg de stappen voor jouw websitebouwer.</p>
         <pre className="v-g__code">{code}</pre>
         <div className="v-g__knoppen" style={{ margin: "10px 0 16px" }}>
           <button className="v-g__knop" onClick={() => kopieer(code, "code")} type="button">
-            {gekopieerd === "code" ? "Copied ✓" : "Copy code"}
+            {gekopieerd === "code" ? "Gekopieerd ✓" : "Code kopiëren"}
           </button>
           <button className="v-g__knop2" disabled={check === "bezig"} onClick={() => void controleer()} type="button">
-            {check === "bezig" ? "Checking…" : "Check if it's installed"}
+            {check === "bezig" ? "Controleren…" : "Check of hij goed staat"}
           </button>
-          {check === "ok" ? <span className="v-g__ok">✓ Volgo is on your website.</span> : null}
-          {check === "niet" ? <span className="v-g__fout">Not found yet. Saved and published? It can take a few minutes.</span> : null}
-          {check === "geen" ? <span className="v-g__fout">Save your website address first.</span> : null}
-          {check === "onbereikbaar" ? <span className="v-g__fout">Your website couldn't be reached. Check the address.</span> : null}
+          {check === "ok" ? <span className="v-g__ok">✓ Volgo staat op je website.</span> : null}
+          {check === "niet" ? <span className="v-g__fout">Nog niet gevonden. Opgeslagen en gepubliceerd? Het kan een paar minuten duren.</span> : null}
+          {check === "geen" ? <span className="v-g__fout">Sla eerst je websiteadres op.</span> : null}
+          {check === "onbereikbaar" ? <span className="v-g__fout">Je website was niet bereikbaar. Controleer het adres.</span> : null}
         </div>
         <div className="v-g__tabs">
           {PLATFORMS.map((x) => (
@@ -175,28 +175,28 @@ export function MijnWebsite({ openTab }: { openTab: (t: string) => void }) {
           ))}
         </ol>
         <p className="v-g__leeg" style={{ marginTop: 12 }}>
-          Tip: give any button on your website the attribute <code>data-ava-book</code> and it opens your calendar, for example a “Plan an appointment” button.
+          Tip: geef een knop op je website het attribuut <code>data-ava-book</code> en hij opent je agenda, bijvoorbeeld een knop “Plan een afspraak”.
         </p>
       </section>
 
       <section className="v-g__kaart">
-        <h2>Contact form and email in your Inbox</h2>
-        <p>Messages from your contact form and your email land in the same Inbox as the chat. Volgo follows them up too.</p>
+        <h2>Contactformulier en mail in je Inbox</h2>
+        <p>Berichten van je contactformulier en je mail komen in dezelfde Inbox als de chat. Volgo volgt ze ook op.</p>
         <div className="v-g__form">
           <div className="v-g__veld is-breed">
-            Contact form: send your form to this address (or use this form)
+            Contactformulier: stuur je formulier naar dit adres (of gebruik dit formulier)
             <pre className="v-g__code">{formulier}</pre>
             <div className="v-g__knoppen">
               <button className="v-g__knop2" onClick={() => kopieer(formulier, "form")} type="button">
-                {gekopieerd === "form" ? "Copied ✓" : "Copy form"}
+                {gekopieerd === "form" ? "Gekopieerd ✓" : "Formulier kopiëren"}
               </button>
             </div>
           </div>
           {d.mailIn ? (
           <div className="v-g__veld is-breed">
-            Email: forward your business email to
+            Mail: stuur je zakelijke mail door naar
             <pre className="v-g__code">{`inbox-${d.sleutel}@thevolgo.app`}</pre>
-            <small>In Gmail or Outlook, set up automatic forwarding of your inbox (or only of website messages) to this address.</small>
+            <small>Stel in Gmail of Outlook automatisch doorsturen in van je inbox (of alleen websiteberichten) naar dit adres.</small>
           </div>
           ) : null}
         </div>

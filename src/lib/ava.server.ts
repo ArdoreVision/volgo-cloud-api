@@ -102,7 +102,7 @@ async function maakLead(DB: D1Database, gesprekId: number, team: number, d: { na
   const heet = d.warmte >= 75;
   {
     const { pushNaarTeam } = await import("./webpush.server");
-    await pushNaarTeam(DB, team, `New request: ${d.naam}`, d.onderwerp, "/dashboard#aanvragen");
+    await pushNaarTeam(DB, team, `Nieuwe aanvraag: ${d.naam}`, d.onderwerp, "/dashboard#aanvragen");
   }
   {
     const p = await import("./push.server");
@@ -242,11 +242,11 @@ export async function boekViaChat(
   ]);
   {
     const { pushNaarTeam } = await import("./webpush.server");
-    await pushNaarTeam(DB, team, `New appointment: ${naam}`, `${soortNaam} · ${wanneer}`, "/dashboard#agenda");
+    await pushNaarTeam(DB, team, `Nieuwe afspraak: ${naam}`, `${soortNaam} · ${wanneer}`, "/dashboard#agenda");
   }
   {
     const { pushNaarTeam } = await import("./webpush.server");
-    await pushNaarTeam(DB, team, `New appointment: ${naam}`, `${soortNaam} · ${wanneer}`, "/dashboard#agenda");
+    await pushNaarTeam(DB, team, `Nieuwe afspraak: ${naam}`, `${soortNaam} · ${wanneer}`, "/dashboard#agenda");
   }
   {
     const p = await import("./push.server");
@@ -339,7 +339,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
   await bewaarHerkend(DB, gid, meta, tekst).catch(() => undefined);
   if (isNieuw) {
     const { pushNaarTeam } = await import("./webpush.server");
-    await pushNaarTeam(DB, team, "Someone is chatting on your website", tekst.slice(0, 140), "/dashboard#gesprekken").catch(() => undefined);
+    await pushNaarTeam(DB, team, "Iemand chat op je website", tekst.slice(0, 140), "/dashboard#gesprekken").catch(() => undefined);
   }
 
   // Taken over by a person in the dashboard? Then Volgo stays quiet; the person answers.
