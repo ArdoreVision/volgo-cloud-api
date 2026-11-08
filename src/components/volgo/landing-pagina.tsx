@@ -250,6 +250,16 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
   }, [vast]);
 
   const t = T[taal === "nl" ? "nl" : "en"];
+  // Phones get the portrait version of the film, so the text stays readable.
+  const [smal, setSmal] = useState(false);
+  useEffect(() => {
+    const m = window.matchMedia("(max-width: 640px)");
+    setSmal(m.matches);
+    const op = () => setSmal(m.matches);
+    m.addEventListener("change", op);
+    return () => m.removeEventListener("change", op);
+  }, []);
+  const film = `${taal === "nl" ? "nl" : "en"}${smal ? "-m" : ""}`;
   const naar = ingelogd ? "/dashboard" : "/signup";
 
   return (
@@ -285,13 +295,14 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
               aria-label={t.filmLabel}
               autoPlay
               controls
-              key={taal}
+              className={smal ? "is-staand" : undefined}
+              key={film}
               loop
               muted
               playsInline
-              poster={`/film/poster-${taal === "nl" ? "nl" : "en"}.jpg`}
+              poster={`/film/poster-${film}.jpg`}
               preload="metadata"
-              src={`/film/uitleg-${taal === "nl" ? "nl" : "en"}.mp4`}
+              src={`/film/uitleg-${film}.mp4`}
             />
             <figcaption>{t.filmLabel}</figcaption>
           </figure>

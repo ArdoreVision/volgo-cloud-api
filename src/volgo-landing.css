@@ -124,3 +124,4 @@
 #vd .vl-film figcaption { margin-top: 12px; font-size: 13px; color: #777; }
 #vd .vl-hero { max-width: 1008px; }
 #vd .vl-hero .vl-sub { max-width: 640px; }
+#vd .vl-film video.is-staand { aspect-ratio: 3 / 4; }
