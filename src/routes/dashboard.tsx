@@ -391,7 +391,7 @@ function Open({ data }: { data: DashData }) {
   // Mobile: four main tabs at the bottom, the rest grouped under "Meer".
   const mobiel: [Tab, string][] = [
     ["home", "Vandaag"],
-    ["gesprekken", "Chats"],
+    ["gesprekken", "Inbox"],
     ["agenda", "Agenda"],
     ["aanvragen", "Aanvragen"],
   ];
@@ -698,10 +698,10 @@ function Open({ data }: { data: DashData }) {
         <div className="v-sheet" onClick={() => setMeer(false)} role="presentation">
           <div aria-label="Meer" className="v-sheet__paneel" onClick={(e) => e.stopPropagation()} role="dialog">
             <span aria-hidden="true" className="v-sheet__greep" />
-            {GROEPEN.filter((gr) => gr.kop && gr.kop !== "Vandaag").map((groep) => (
-              <div className="v-sheet__groep" key={groep.kop}>
-                <p className="v-sheet__kop">{groep.kop}</p>
-                {groep.items.map(([id]) => (
+            {GROEPEN.filter((gr) => gr.items.some(([id]) => !mobiel.some(([m]) => m === id))).map((groep) => (
+              <div className="v-sheet__groep" key={groep.kop ?? "jij"}>
+                <p className="v-sheet__kop">{groep.kop ?? "Je website & account"}</p>
+                {groep.items.filter(([id]) => !mobiel.some(([m]) => m === id)).map(([id]) => (
                   <button key={id} onClick={() => setTab(id)} type="button">
                     <Icon name={id} />
                     {TABS.find((t) => t[0] === id)?.[1]}

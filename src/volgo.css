@@ -2551,3 +2551,15 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000; }
 .v-vd__tegels b { font-size: 26px; letter-spacing: -0.03em; line-height: 1.1; }
 .v-vd__tegels span { font-size: 13px; color: var(--muted); line-height: 1.35; }
 .v-vd__tegel-laden { height: 78px; border-radius: 16px; background: var(--surface); }
+
+/* Phones: week numbers as one swipeable row, payment rows stacked */
+@media (max-width: 640px) {
+  .v-vd__tegels { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; margin: 0 -10px; padding: 0 10px 4px; scroll-padding-left: 10px; scrollbar-width: none; }
+  .v-vd__tegels::-webkit-scrollbar { display: none; }
+  .v-vd__tegels button, .v-vd__tegel-laden { flex: 0 0 132px; scroll-snap-align: start; }
+  .v-g__lijst li { grid-template-columns: 1fr; }
+  .v-g__lijst li > :last-child { justify-content: flex-start !important; }
+  .v-g__kaart { padding: 16px; }
+  .v-g__kop h1 { font-size: 23px; }
+  .v-g__scherm.is-mobiel iframe { width: 100%; }
+}
