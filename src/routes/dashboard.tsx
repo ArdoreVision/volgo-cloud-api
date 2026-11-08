@@ -2,6 +2,7 @@ import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/rea
 import { useEffect, useRef, useState } from "react";
 import type { PointerEvent as RPointerEvent } from "react";
 
+import { Meldingen } from "@/components/dash/meldingen";
 import { Account } from "@/components/dash/account";
 import { Agenda } from "@/components/dash/agenda";
 import { BillingButton } from "@/components/dash/billing-button";
@@ -43,6 +44,7 @@ export const Route = createFileRoute("/dashboard")({
 type Tab = "home" | "aanvragen" | "gesprekken" | "agenda" | "overzicht" | "verkeer" | "ava" | "ontwerp" | "installeren" | "website" | "team" | "instellingen";
 type Sub = "meldingen" | "account" | "abonnement";
 const SUBS: [Sub, string][] = [
+  ["meldingen", "Notifications"],
   ["account", "Account"],
   ["abonnement", "Subscription"],
 ];
@@ -318,6 +320,17 @@ function Open({ data }: { data: DashData }) {
     setMeer(false);
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   };
+  // A push notification opens /dashboard#agenda etc.: go straight to that tab.
+  useEffect(() => {
+    const ga = () => {
+      const h = window.location.hash.slice(1);
+      if (["home", "gesprekken", "agenda", "aanvragen", "verkeer", "ava", "instellingen", "meldingen", "account", "abonnement"].includes(h)) setTab(h);
+    };
+    ga();
+    window.addEventListener("hashchange", ga);
+    return () => window.removeEventListener("hashchange", ga);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const sinds = useRef(data.nu.slice(0, 19).replace("T", " "));
 
@@ -604,6 +617,7 @@ function Open({ data }: { data: DashData }) {
               ))}
             </nav>
             
+            {sub === "meldingen" ? <Meldingen /> : null}
             {sub === "account" ? <Account g={g} leden={data.leden} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} /> : null}
             {sub === "abonnement" ? (
               <>

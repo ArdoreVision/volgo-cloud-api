@@ -164,13 +164,17 @@ export const maakAfspraak = createServerFn({ method: "POST" })
     const { g, DB } = await sessie();
     if (data.lead_id) {
       const ok = await DB.prepare("SELECT id FROM klant_leads WHERE id = ? AND gebruiker_id = ?").bind(data.lead_id, g.team_id).first();
-      if (!ok) return { ok: false };
-      await DB.prepare("UPDATE klant_leads SET status = 'afspraak' WHERE id = ? AND status IN ('nieuw','opvolging','offerte')").bind(data.lead_id).run();
+      if (!ok) return { ok: false, reden: "" };
     }
-    await DB.prepare("INSERT INTO afspraken (team_id, lead_id, titel, start, eind, locatie, notitie) VALUES (?, ?, ?, ?, ?, ?, ?)")
-      .bind(g.team_id, data.lead_id ?? null, data.titel, data.start, data.eind, data.locatie ?? "", data.notitie ?? "")
+    // Never two appointments at the same time: checked and saved in one statement.
+    const r = await DB.prepare(
+      "INSERT INTO afspraken (team_id, lead_id, titel, start, eind, locatie, notitie) SELECT ?, ?, ?, ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM afspraken WHERE team_id = ? AND voorbeeld = 0 AND start < ? AND eind > ?)",
+    )
+      .bind(g.team_id, data.lead_id ?? null, data.titel, data.start, data.eind, data.locatie ?? "", data.notitie ?? "", g.team_id, data.eind, data.start)
       .run();
-    return { ok: true };
+    if (!r.meta?.changes) return { ok: false, reden: "There is already an appointment at this time. Pick another time." };
+    if (data.lead_id) await DB.prepare("UPDATE klant_leads SET status = 'afspraak' WHERE id = ? AND status IN ('nieuw','opvolging','offerte')").bind(data.lead_id).run();
+    return { ok: true, reden: "" };
   });
 
 export const verwijderAfspraak = createServerFn({ method: "POST" })
