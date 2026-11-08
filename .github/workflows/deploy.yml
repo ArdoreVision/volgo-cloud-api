@@ -77,6 +77,9 @@ jobs:
           sed -i "s/__D1_ID__/$ID/" wrangler.jsonc
           npx wrangler d1 migrations apply volgo-db --remote
 
+      - name: Opslag voor klantwebsites (R2)
+        run: npx wrangler r2 bucket list 2>/dev/null | grep -q "volgo-sites" || npx wrangler r2 bucket create volgo-sites
+
       - name: Bouwen
         run: npx vite build
 
@@ -101,8 +104,10 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           PUSH_TOPIC: ${{ secrets.PUSH_TOPIC }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
         run: |
-          for naam in ANTHROPIC_API_KEY RESEND_API_KEY STRIPE_SECRET_KEY PUSH_TOPIC; do
+          for naam in ANTHROPIC_API_KEY RESEND_API_KEY STRIPE_SECRET_KEY PUSH_TOPIC CF_API_TOKEN CF_ZONE_ID; do
             waarde="${!naam}"
             if [ -n "$waarde" ]; then
               printf '%s' "$waarde" | npx wrangler secret put "$naam"

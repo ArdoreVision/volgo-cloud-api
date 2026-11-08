@@ -11,11 +11,15 @@
   // Eigen domein (Cloudflare maakt DNS en certificaat automatisch aan). workers.dev blijft ook werken.
   "routes": [
     { "pattern": "thevolgo.app", "custom_domain": true },
-    { "pattern": "www.thevolgo.app", "custom_domain": true }
+    { "pattern": "www.thevolgo.app", "custom_domain": true },
+    // Customer websites hosted in Volgo: {slug}.sites.thevolgo.app (needs a proxied DNS record *.sites in Cloudflare).
+    { "pattern": "*.sites.thevolgo.app/*", "zone_name": "thevolgo.app" }
   ],
   "workers_dev": true,
   "triggers": { "crons": ["0 6 * * *"] },
   "vars": { "HF_ENV": "production", "APP_SLUG": "volgo", "MAIL_FROM": "Volgo <hallo@thevolgo.app>", "MAIL_REPLY_TO": "volgo.app@outlook.com", "BTW": "uit", "ADMIN_EMAILS": "d.hanssens02@gmail.com,damienhanssens@outlook.com,hanssenscornerstone@outlook.com,volgo.app@outlook.com", "META_PIXEL_ID": "1890983858557237", "GOOGLE_TAG_ID": "" },
+  // Files of the customer websites hosted in Volgo.
+  "r2_buckets": [{ "binding": "SITES", "bucket_name": "volgo-sites" }],
   "d1_databases": [
     { "binding": "DB", "database_name": "volgo-db", "database_id": "__D1_ID__", "migrations_dir": "migrations" }
   ]

@@ -44,6 +44,8 @@ export default {
     ctx.waitUntil(
       import("./lib/samenvatting.server").then((m) => m.stuurOchtendSamenvattingen()).catch((e) => console.error("[samenvatting]", e)),
     );
+    // Customer websites: daily check, push to the owner when one is down or lost its chat.
+    ctx.waitUntil(import("./lib/sites.server").then((m) => m.controleerAlleSites()).catch((e) => console.error("[site check]", e)));
     // Website analytics are kept for 13 months at most.
     ctx.waitUntil(
       Promise.all([import("./lib/verkeer.server"), import("./lib/bindings.server")])
@@ -57,6 +59,16 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     // Eén officieel adres: www en workers.dev sturen door naar thevolgo.app (API en widget blijven overal werken).
     const url = new URL(request.url);
+    // Customer websites hosted in Volgo (own domains, {slug}.sites.thevolgo.app) and the owner's /__site/ preview.
+    if (url.pathname.startsWith("/__site/") || !/(^|\.)thevolgo\.app$|\.workers\.dev$|^localhost$|^127\.0\.0\.1$/.test(url.hostname) || url.hostname.endsWith(".sites.thevolgo.app")) {
+      try {
+        const site = await (await import("./lib/sites.server")).serveerSite(request);
+        if (site) return site;
+      } catch (error) {
+        console.error("[site]", error);
+        return new Response("This website is temporarily unavailable.", { status: 503, headers: { "content-type": "text/plain; charset=utf-8" } });
+      }
+    }
     // Altijd https (behalve lokaal).
     if (url.protocol === "http:" && url.hostname.endsWith("thevolgo.app") && request.method === "GET") {
       return Response.redirect(`https://thevolgo.app${url.pathname}${url.search}`, 301);

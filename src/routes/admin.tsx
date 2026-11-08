@@ -239,7 +239,13 @@ function Admin() {
                   tabIndex={0}
                 >
                   <span>
-                    <strong>{k.bedrijf}</strong>
+                    <strong>
+                      <i
+                        className={`v-admin__punt is-${k.site_ok === 0 || k.status === "verlopen" ? "rood" : !k.laatst_actief || Date.now() - new Date(k.laatst_actief.replace(" ", "T") + "Z").getTime() > 14 * 86400000 ? "oranje" : "groen"}`}
+                        title="Health"
+                      />
+                      {k.bedrijf}
+                    </strong>
                     <small>
                       {k.naam} · {k.email}
                     </small>
