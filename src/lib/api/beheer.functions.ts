@@ -36,6 +36,16 @@ const instellingSchema = z.object({
   afspraak_duur: z.number().int().min(15).max(240).optional(),
   afspraak_soorten: z.array(z.enum(SOORTEN)).min(1).max(5).optional(),
   tijdzone: z.string().trim().min(3).max(60).optional(),
+  review_url: z.union([z.literal(""), z.string().trim().max(500).regex(/^https:\/\/[^\s]+$/)]).optional(),
+  taal: z.enum(["nl", "en"]).optional(),
+  auto_herinnering: z.boolean().optional(),
+  auto_review: z.boolean().optional(),
+  auto_opvolging: z.boolean().optional(),
+  auto_seizoen: z.boolean().optional(),
+  antwoord_mail: z.union([z.literal(""), z.string().trim().email().max(160)]).optional(),
+  iban: z.union([z.literal(""), z.string().trim().toUpperCase().regex(/^[A-Z]{2}\d{2}[A-Z0-9 ]{10,32}$/)]).optional(),
+  /** Their own Stripe key (restricted key with Checkout write). "" removes it; leave out to keep it. */
+  stripe_sleutel: z.union([z.literal(""), z.string().trim().regex(/^(rk|sk)_(live|test)_[A-Za-z0-9]{10,}$/)]).optional(),
 });
 type Instelling = z.infer<typeof instellingSchema>;
 
@@ -74,6 +84,12 @@ async function pasAan(DB: DB, id: number, w: Instelling) {
   if (w.afspraak_duur !== undefined) zet("afspraak_duur", w.afspraak_duur);
   if (w.afspraak_soorten !== undefined) zet("afspraak_soorten", [...new Set(w.afspraak_soorten)].join(","));
   if (w.tijdzone !== undefined) zet("tijdzone", w.tijdzone);
+  if (w.review_url !== undefined) zet("review_url", w.review_url);
+  if (w.taal !== undefined) zet("taal", w.taal);
+  for (const k of ["auto_herinnering", "auto_review", "auto_opvolging", "auto_seizoen"] as const) if (w[k] !== undefined) zet(k, w[k] ? 1 : 0);
+  if (w.antwoord_mail !== undefined) zet("antwoord_mail", w.antwoord_mail);
+  if (w.iban !== undefined) zet("iban", w.iban.replace(/\s+/g, " "));
+  if (w.stripe_sleutel !== undefined) zet("stripe_sleutel", w.stripe_sleutel);
   if (!sets.length) return [];
   await DB.prepare(`UPDATE ava_instellingen SET ${sets.join(", ")} WHERE team_id = ?`)
     .bind(...waarden, id)
@@ -116,7 +132,11 @@ async function laadKlant(DB: DB, id: number) {
     .first<{ id: number; bedrijf: string; naam: string; email: string; plan: string; status: string; proef_tot: string | null; created_at: string; testmodus: number }>();
   if (!g) throw new Error("Customer not found.");
   const i = await inst(DB, id);
-  const extra = await DB.prepare("SELECT site_url FROM ava_instellingen WHERE team_id = ?").bind(id).first<{ site_url: string }>();
+  const extra = await DB.prepare(
+    "SELECT site_url, review_url, taal, auto_herinnering, auto_review, auto_opvolging, auto_seizoen, antwoord_mail, iban, stripe_sleutel FROM ava_instellingen WHERE team_id = ?",
+  )
+    .bind(id)
+    .first<{ site_url: string; review_url: string; taal: string; auto_herinnering: number; auto_review: number; auto_opvolging: number; auto_seizoen: number; antwoord_mail: string; iban: string; stripe_sleutel: string }>();
   const [gesprekken, afspraken, leads, telling] = await Promise.all([
     DB.prepare("SELECT id, bezoeker, onderwerp, status, gestart, laatste, berichten, warmte FROM ava_gesprekken WHERE team_id = ? AND voorbeeld = 0 ORDER BY laatste DESC LIMIT 25")
       .bind(id)
@@ -147,6 +167,15 @@ async function laadKlant(DB: DB, id: number) {
       afspraak_duur: i.afspraak_duur,
       afspraak_soorten: i.afspraak_soorten.split(",").filter(Boolean),
       tijdzone: i.tijdzone,
+      review_url: extra?.review_url ?? "",
+      taal: (extra?.taal === "en" ? "en" : "nl") as "nl" | "en",
+      auto_herinnering: Boolean(extra?.auto_herinnering ?? 1),
+      auto_review: Boolean(extra?.auto_review ?? 1),
+      auto_opvolging: Boolean(extra?.auto_opvolging ?? 1),
+      auto_seizoen: Boolean(extra?.auto_seizoen ?? 0),
+      antwoord_mail: extra?.antwoord_mail ?? "",
+      iban: extra?.iban ?? "",
+      stripe: extra?.stripe_sleutel ? `${extra.stripe_sleutel.slice(0, 8)}…${extra.stripe_sleutel.slice(-4)}` : "",
     },
     gesprekken: gesprekken.results,
     afspraken: afspraken.results,

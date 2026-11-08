@@ -40,7 +40,49 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 
 export default {
   // Dagelijkse taak (zie "triggers" in wrangler.jsonc): ochtendsamenvatting per mail.
+  /**
+   * Incoming email (Cloudflare Email Routing → this worker):
+   * - r-<token>@thevolgo.app: a visitor replied to a Volgo message → added to their conversation
+   * - inbox-<key>@thevolgo.app: a business forwards its mail to Volgo → a new conversation in its inbox
+   */
+  async email(message: { from: string; to: string; raw: ReadableStream; setReject: (r: string) => void }) {
+    try {
+      const [{ default: PostalMime }, b, inbox] = await Promise.all([import("postal-mime"), import("./lib/bindings.server"), import("./lib/inbox.server")]);
+      const { DB } = b.bindings();
+      if (!DB) return;
+      const mail = await PostalMime.parse(message.raw);
+      const tekst = inbox.schoonAntwoord(mail.text || (mail.html ?? "").replace(/<[^>]+>/g, " ")).slice(0, 4000);
+      const aan = message.to.toLowerCase();
+      const r = aan.match(/^r-([a-f0-9]{16,64})@/);
+      if (r) {
+        if (tekst) await inbox.antwoordBinnen(DB, r[1], tekst);
+        return;
+      }
+      const k = aan.match(/^inbox-([a-z0-9]{8,64})@/);
+      if (k) {
+        const t = await DB.prepare("SELECT team_id FROM ava_instellingen WHERE sleutel = ?").bind(k[1]).first<{ team_id: number }>();
+        if (!t) return message.setReject("Unknown address");
+        const van = mail.replyTo?.[0]?.address || mail.from?.address || message.from;
+        await inbox.nieuwBinnen(DB, t.team_id, { kanaal: "E-mail", naam: mail.from?.name || "", contact: van, tekst: tekst || "(empty email)", onderwerp: mail.subject || "" });
+        return;
+      }
+      message.setReject("Unknown address");
+    } catch (e) {
+      console.error("[email]", e);
+    }
+  },
   async scheduled(_event: unknown, _env: unknown, ctx: { waitUntil: (p: Promise<unknown>) => void }) {
+    // Every hour: reminders, review requests, follow-ups and seasonal messages.
+    ctx.waitUntil(
+      Promise.all([import("./lib/automatisch.server"), import("./lib/bindings.server")])
+        .then(([a, b]) => {
+          const { DB } = b.bindings();
+          return DB ? a.draaiAutomatisch(DB) : undefined;
+        })
+        .catch((e) => console.error("[automatisch]", e)),
+    );
+    // Once a day (06:00 UTC): morning summary and cleanup.
+    if (new Date().getUTCHours() !== 6) return;
     ctx.waitUntil(
       import("./lib/samenvatting.server").then((m) => m.stuurOchtendSamenvattingen()).catch((e) => console.error("[samenvatting]", e)),
     );

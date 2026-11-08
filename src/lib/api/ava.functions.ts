@@ -150,15 +150,15 @@ export const haalGesprek = createServerFn({ method: "GET" })
 export const haalGesprekken = createServerFn({ method: "GET" }).handler(async () => {
   const { g, DB } = await sessie();
   const r = await DB.prepare(
-    `SELECT g.id, g.bezoeker, g.onderwerp, g.status, g.laatste, g.warmte, g.voorbeeld, m.overgenomen_naam, m.lead_id,
-            (SELECT b.tekst FROM ava_berichten b WHERE b.gesprek_id = g.id AND b.rol != 'systeem' ORDER BY b.id DESC LIMIT 1) AS laatste_tekst,
-            (SELECT b.rol FROM ava_berichten b WHERE b.gesprek_id = g.id AND b.rol != 'systeem' ORDER BY b.id DESC LIMIT 1) AS laatste_rol,
+    `SELECT g.id, g.bezoeker, g.kanaal, g.onderwerp, g.status, g.laatste, g.warmte, g.voorbeeld, m.overgenomen_naam, m.lead_id,
+            (SELECT b.tekst FROM ava_berichten b WHERE b.gesprek_id = g.id AND b.rol NOT IN ('systeem', 'log') ORDER BY b.id DESC LIMIT 1) AS laatste_tekst,
+            (SELECT b.rol FROM ava_berichten b WHERE b.gesprek_id = g.id AND b.rol NOT IN ('systeem', 'log') ORDER BY b.id DESC LIMIT 1) AS laatste_rol,
             datetime('now') AS nu
      FROM ava_gesprekken g LEFT JOIN ava_gesprek_meta m ON m.gesprek_id = g.id
      WHERE g.team_id = ? ORDER BY g.laatste DESC LIMIT 60`,
   )
     .bind(g.team_id)
-    .all<{ id: number; bezoeker: string; onderwerp: string; status: string; laatste: string; warmte: number; voorbeeld: number; overgenomen_naam: string | null; lead_id: number | null; laatste_tekst: string | null; laatste_rol: string | null; nu: string }>();
+    .all<{ id: number; bezoeker: string; kanaal: string; onderwerp: string; status: string; laatste: string; warmte: number; voorbeeld: number; overgenomen_naam: string | null; lead_id: number | null; laatste_tekst: string | null; laatste_rol: string | null; nu: string }>();
   return r.results;
 });
 
@@ -287,16 +287,33 @@ export const stuurMensBericht = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { g, DB } = await sessie();
     const m = await DB.prepare(
-      "SELECT m.overgenomen_door FROM ava_gesprek_meta m JOIN ava_gesprekken g ON g.id = m.gesprek_id WHERE m.gesprek_id = ? AND g.team_id = ?",
+      "SELECT m.overgenomen_door, m.token, m.contact, m.naam, g.kanaal, g.onderwerp FROM ava_gesprek_meta m JOIN ava_gesprekken g ON g.id = m.gesprek_id WHERE m.gesprek_id = ? AND g.team_id = ?",
     )
       .bind(data.id, g.team_id)
-      .first<{ overgenomen_door: number | null }>();
+      .first<{ overgenomen_door: number | null; token: string; contact: string | null; naam: string | null; kanaal: string; onderwerp: string }>();
     if (!m) return { ok: false as const, message: "Conversation not found." };
-    if (!m.overgenomen_door) return { ok: false as const, message: "Take over the conversation first." };
+    // Contact form and email: the reply goes out by email (or text), no live chat to take over.
+    const perMail = m.kanaal === "Contactformulier" || m.kanaal === "E-mail";
+    if (!m.overgenomen_door && !perMail) return { ok: false as const, message: "Take over the conversation first." };
     await DB.batch([
       DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'mens', ?)").bind(data.id, data.tekst),
       DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), status = 'live', berichten = berichten + 1 WHERE id = ?").bind(data.id),
     ]);
+    if (perMail && m.contact) {
+      const a = await import("../automatisch.server");
+      const inst = await a.instVoorAuto(DB, g.team_id);
+      if (!inst) return { ok: true as const, message: "" };
+      const taal = a.taalVan(m.onderwerp, inst.taal === "en" ? "en" : "nl");
+      const vn = (m.naam ?? "").split(/\s+/)[0];
+      const kanaal = await a.stuurBezoeker(
+        inst,
+        m.contact,
+        { onderwerp: taal === "nl" ? `Re: je bericht aan ${inst.bedrijf}` : `Re: your message to ${inst.bedrijf}`, kop: taal === "nl" ? `Hoi${vn ? ` ${vn}` : ""},` : `Hi${vn ? ` ${vn}` : ""},`, tekst: data.tekst, sms: `${inst.bedrijf}: ${data.tekst}` },
+        m.token,
+        taal,
+      );
+      await a.notitie(DB, data.id, kanaal ? `Sent by ${kanaal === "mail" ? "email" : "text"} to ${m.contact}` : `Couldn't send this to ${m.contact}. Contact them directly.`);
+    }
     return { ok: true as const, message: "" };
   });
 

@@ -3,6 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import type { PointerEvent as RPointerEvent } from "react";
 
 import { Meldingen } from "@/components/dash/meldingen";
+import { Automatisch } from "@/components/dash/automatisch";
+import { Betalingen } from "@/components/dash/betalingen";
+import { MijnWebsite } from "@/components/dash/mijn-website";
+import { Reviews } from "@/components/dash/reviews";
 import { Account } from "@/components/dash/account";
 import { Agenda } from "@/components/dash/agenda";
 import { BillingButton } from "@/components/dash/billing-button";
@@ -41,7 +45,7 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-type Tab = "home" | "aanvragen" | "gesprekken" | "agenda" | "overzicht" | "verkeer" | "ava" | "ontwerp" | "installeren" | "website" | "team" | "instellingen";
+type Tab = "home" | "aanvragen" | "gesprekken" | "agenda" | "overzicht" | "verkeer" | "ava" | "ontwerp" | "installeren" | "website" | "team" | "instellingen" | "automatisch" | "reviews" | "betalingen" | "mijnsite";
 type Sub = "meldingen" | "account" | "abonnement";
 const SUBS: [Sub, string][] = [
   ["meldingen", "Notifications"],
@@ -50,7 +54,7 @@ const SUBS: [Sub, string][] = [
 ];
 const isSub = (t: string): t is Sub => SUBS.some(([id]) => id === t);
 /** Old names other parts of the app may still use. */
-const ALIAS: Record<string, Tab> = { stijl: "ontwerp" };
+const ALIAS: Record<string, Tab> = { stijl: "ontwerp", installeren: "mijnsite" };
 
 /** The sidebar, kept to what a business needs every day: who is chatting, what is booked, who to call back. Then the setup. */
 const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
@@ -58,17 +62,23 @@ const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
   {
     kop: "Customers",
     items: [
-      ["gesprekken", "Live chats"],
+      ["gesprekken", "Inbox"],
       ["agenda", "Calendar"],
       ["aanvragen", "Requests"],
+      ["betalingen", "Payments"],
     ],
   },
   {
-    kop: "Insights",
-    items: [["verkeer", "Traffic"]],
+    kop: "Growth",
+    items: [
+      ["automatisch", "Automations"],
+      ["reviews", "Reviews"],
+      ["verkeer", "Traffic"],
+    ],
   },
   {
     items: [
+      ["mijnsite", "Your website"],
       ["ava", "Your chat"],
       ["instellingen", "Settings"],
     ],
@@ -105,6 +115,10 @@ function Icon({ name }: { name: Tab | "uit" | "meer" | "abonnement" | "account" 
     aanvragen: "M3 5h14M3 10h14M3 15h9",
     abonnement: "M3 6h14v9H3zM3 9h14",
     account: "M10 10a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4zM3.5 17.5c.8-3 3.4-4.8 6.5-4.8s5.7 1.8 6.5 4.8",
+    automatisch: "M11 2.5 4.5 11H10l-1 6.5L15.5 9H10z",
+    reviews: "M10 3l2.1 4.3 4.7.7-3.4 3.3.8 4.7L10 13.8 5.8 16l.8-4.7L3.2 8l4.7-.7z",
+    betalingen: "M3 5.5h14v9H3zM3 8.5h14M6 12h3",
+    mijnsite: "M3 4.5h14v11H3zM3 7.5h14M6 6h.01M8 6h.01",
     installeren: "M7 6.5 3.5 10 7 13.5M13 6.5l3.5 3.5-3.5 3.5M11.3 4.5 8.7 15.5",
     uit: "M8 4H4v12h4M12 6.5 15.5 10 12 13.5M15.5 10H8",
   };
@@ -324,7 +338,7 @@ function Open({ data }: { data: DashData }) {
   useEffect(() => {
     const ga = () => {
       const h = window.location.hash.slice(1);
-      if (["home", "gesprekken", "agenda", "aanvragen", "verkeer", "ava", "instellingen", "meldingen", "account", "abonnement"].includes(h)) setTab(h);
+      if (["home", "gesprekken", "agenda", "aanvragen", "betalingen", "automatisch", "reviews", "verkeer", "mijnsite", "ava", "instellingen", "meldingen", "account", "abonnement"].includes(h)) setTab(h);
     };
     ga();
     window.addEventListener("hashchange", ga);
@@ -478,6 +492,10 @@ function Open({ data }: { data: DashData }) {
         {tab === "agenda" ? <Agenda data={data} /> : null}
         {tab === "website" ? <Website /> : null}
         {tab === "ava" ? <MijnChat /> : null}
+        {tab === "automatisch" ? <Automatisch openTab={(t) => setTab(t)} /> : null}
+        {tab === "reviews" ? <Reviews openTab={(t) => setTab(t)} /> : null}
+        {tab === "betalingen" ? <Betalingen /> : null}
+        {tab === "mijnsite" ? <MijnWebsite openTab={(t) => setTab(t)} /> : null}
         {tab === "installeren" ? (
           <>
             <header className="v-dash__head">

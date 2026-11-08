@@ -352,7 +352,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
   }
 
   const historie = (
-    await DB.prepare("SELECT rol, tekst FROM ava_berichten WHERE gesprek_id = ? ORDER BY id").bind(gid).all<{ rol: string; tekst: string }>()
+    await DB.prepare("SELECT rol, tekst FROM ava_berichten WHERE gesprek_id = ? AND rol != 'log' ORDER BY id").bind(gid).all<{ rol: string; tekst: string }>()
   ).results;
   const alleBezoeker = historie.filter((h) => h.rol === "bezoeker").map((h) => h.tekst).join(" \n ");
 
