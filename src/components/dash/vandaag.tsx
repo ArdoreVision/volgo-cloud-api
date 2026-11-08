@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+
+import { haalWeek } from "@/lib/api/groei.functions";
 import { Dagtaken } from "./dagtaken";
 import { type Afspraak, type DashData, type Gesprek, type Lead, dagKey, geleden, sqlDate } from "./util";
 
@@ -38,6 +41,38 @@ function AfspraakRij({ a }: { a: Afspraak }) {
   );
 }
 
+/** What Volgo did for you in the last 7 days: the reason you pay, in five numbers. */
+function WeekStrook({ openTab }: { openTab: (t: string) => void }) {
+  const [w, setW] = useState<Awaited<ReturnType<typeof haalWeek>> | null>(null);
+  useEffect(() => {
+    void haalWeek().then(setW).catch(() => undefined);
+  }, []);
+  const tegels: [string, string, string][] = w
+    ? [
+        [String(w.gesprekken), w.gesprekken === 1 ? "gesprek beantwoord" : "gesprekken beantwoord", "gesprekken"],
+        [String(w.aanvragen), w.aanvragen === 1 ? "nieuwe aanvraag" : "nieuwe aanvragen", "aanvragen"],
+        [String(w.afspraken), w.afspraken === 1 ? "afspraak geboekt" : "afspraken geboekt", "agenda"],
+        [String(w.berichten), "berichten automatisch verstuurd", "automatisch"],
+        [`€ ${Math.round(w.betaald / 100).toLocaleString("nl-NL")}`, "betaald via Volgo", "betalingen"],
+      ]
+    : [];
+  return (
+    <section aria-label="Deze week" className="v-vd__week">
+      <h2>Wat Volgo de afgelopen 7 dagen voor je deed</h2>
+      <div className="v-vd__tegels">
+        {w
+          ? tegels.map(([n, label, tab]) => (
+              <button key={label} onClick={() => openTab(tab)} type="button">
+                <b>{n}</b>
+                <span>{label}</span>
+              </button>
+            ))
+          : [0, 1, 2, 3, 4].map((i) => <span className="v-vd__tegel-laden" key={i} />)}
+      </div>
+    </section>
+  );
+}
+
 /**
  * The start screen: what needs you right now. Who is chatting live, what is booked today and next,
  * and the newest requests to call back. Everything else lives in the other tabs.
@@ -67,6 +102,8 @@ export function Vandaag({ data, voornaam, openTab }: { data: DashData; voornaam:
           {live.length ? `${live.length} ${live.length === 1 ? "persoon chat" : "mensen chatten"} nu met je assistent.` : "Je assistent is online en beantwoordt je website, 24/7."}
         </p>
       </header>
+
+      <WeekStrook openTab={openTab} />
 
       <Dagtaken openTab={openTab} />
 

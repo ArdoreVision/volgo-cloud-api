@@ -360,7 +360,7 @@ async function voorTeam(DB: D1Database, inst: Inst) {
       const ref = `${a.id}-${a.start}`;
       if (!(await claim(DB, inst.team_id, "herinnering", ref, c.contact))) continue;
       const taal = await taalGesprek(DB, c.meta?.gesprek_id, tl(inst));
-      const loc = a.locatie && !/^(phone call|chat):/i.test(a.locatie) ? a.locatie : "";
+      const loc = a.locatie && !/^(phone call|telefoon|chat):/i.test(a.locatie) ? a.locatie : "";
       const b = herinneringTekst(inst, c.naam, a.start, loc, taal);
       const k = await stuurBezoeker(inst, c.contact, b, c.meta?.token, taal);
       await klaar(DB, inst.team_id, "herinnering", ref, k, b.onderwerp);
