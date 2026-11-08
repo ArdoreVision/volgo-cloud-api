@@ -26,7 +26,8 @@ export const haalAdmin = createServerFn({ method: "GET" }).handler(async () => {
               (SELECT COUNT(*) FROM team_leden t WHERE t.team_id = g.id AND t.gebruiker_id != g.id) AS leden,
               (SELECT COUNT(*) FROM ava_gesprekken c WHERE c.team_id = g.id AND c.voorbeeld = 0 AND c.gestart >= datetime('now', 'start of month')) AS gesprekken,
               (SELECT COUNT(*) FROM klant_leads l WHERE l.gebruiker_id = g.id AND l.voorbeeld = 0) AS leads,
-              (SELECT MAX(c.laatste) FROM ava_gesprekken c WHERE c.team_id = g.id AND c.voorbeeld = 0) AS laatst_actief
+              (SELECT MAX(c.laatste) FROM ava_gesprekken c WHERE c.team_id = g.id AND c.voorbeeld = 0) AS laatst_actief,
+              (SELECT sc.ok FROM site_controles sc JOIN klant_sites st ON st.id = sc.site_id WHERE st.team_id = g.id ORDER BY sc.id DESC LIMIT 1) AS site_ok
        FROM gebruikers g
        WHERE g.id NOT IN (SELECT gebruiker_id FROM team_leden WHERE gebruiker_id != team_id) AND g.status != 'verwijderd'
        ORDER BY g.created_at DESC LIMIT 500`,
@@ -44,6 +45,7 @@ export const haalAdmin = createServerFn({ method: "GET" }).handler(async () => {
       gesprekken: number;
       leads: number;
       laatst_actief: string | null;
+      site_ok: number | null;
     }>(),
     DB.prepare(
       `SELECT w.id, w.team_id, w.created_at, w.contact, w.telefoon, w.domein, w.huidige_site, w.wensen, w.status, g.bedrijf, g.naam, g.email, g.plan

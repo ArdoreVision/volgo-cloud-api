@@ -42,6 +42,13 @@ type AppEnv = {
   META_PIXEL_ID?: string;
   GOOGLE_TAG_ID?: string;
   APP_SLUG?: string;
+  /** Files of the customer websites hosted in Volgo. */
+  SITES?: R2Bucket;
+  /** Model for website work in the owner dashboard (default claude-sonnet-5-5). */
+  SITE_MODEL?: string;
+  /** Cloudflare for SaaS: linking customer domains. */
+  CF_API_TOKEN?: string;
+  CF_ZONE_ID?: string;
 };
 
 export function bindings(): AppEnv {

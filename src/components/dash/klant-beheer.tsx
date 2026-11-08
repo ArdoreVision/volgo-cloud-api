@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 
-import { beheerChat, bewaarKlant, haalKlant, haalKlantGesprek } from "@/lib/api/beheer.functions";
+import { beheerChat, bewaarKlant, haalBeheerChat, haalKlant, haalKlantGesprek } from "@/lib/api/beheer.functions";
+
+import { WebsiteBeheer } from "./website-beheer";
 
 type Data = Awaited<ReturnType<typeof haalKlant>>;
 type Inst = Data["inst"];
@@ -36,6 +38,8 @@ export function KlantBeheer({ id, sluit }: { id: number; sluit: () => void }) {
   const [chat, setChat] = useState<Bericht[]>([]);
   const [vraag, setVraag] = useState("");
   const [denkt, setDenkt] = useState(false);
+  const [blad, setBlad] = useState<"overzicht" | "website">("overzicht");
+  const [ververs, setVervers] = useState(0);
   const lijst = useRef<HTMLDivElement>(null);
 
   async function laad() {
@@ -49,6 +53,9 @@ export function KlantBeheer({ id, sluit }: { id: number; sluit: () => void }) {
   }
   useEffect(() => {
     void laad();
+    void haalBeheerChat({ data: { id } })
+      .then(setChat)
+      .catch(() => undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
   useEffect(() => {
@@ -101,7 +108,10 @@ export function KlantBeheer({ id, sluit }: { id: number; sluit: () => void }) {
     try {
       const r = await beheerChat({ data: { id, historie, vraag: v } });
       setChat((c) => [...c, { rol: "ai", tekst: r.antwoord, gewijzigd: r.gewijzigd }]);
-      if (r.gewijzigd.length) void laad();
+      if (r.gewijzigd.length) {
+        void laad();
+        setVervers((n) => n + 1);
+      }
     } catch {
       setChat((c) => [...c, { rol: "ai", tekst: "That didn't work. Try again." }]);
     } finally {
@@ -145,7 +155,21 @@ export function KlantBeheer({ id, sluit }: { id: number; sluit: () => void }) {
         ) : null}
       </header>
 
+      <nav aria-label="Customer" className="v-kb__tabs">
+        <button aria-current={blad === "overzicht" ? "page" : undefined} onClick={() => setBlad("overzicht")} type="button">
+          Chat &amp; calendar
+        </button>
+        <button aria-current={blad === "website" ? "page" : undefined} onClick={() => setBlad("website")} type="button">
+          Website
+        </button>
+      </nav>
+
       <div className="v-kb__raster">
+        {blad === "website" ? (
+          <div className="v-kb__links">
+            <WebsiteBeheer bedrijf={d.klant.bedrijf} id={id} ververs={ververs} />
+          </div>
+        ) : (
         <div className="v-kb__links">
           <section className="v-kb__blok">
             <h3>What needs attention</h3>
@@ -315,16 +339,20 @@ export function KlantBeheer({ id, sluit }: { id: number; sluit: () => void }) {
             )}
           </section>
         </div>
+        )}
 
         <aside className="v-kb__ai" aria-label="AI helper">
           <div className="v-kb__aikop">
             <b>Ask Claude</b>
-            <small>Changes settings for {d.klant.bedrijf} and finds what goes wrong.</small>
+            <small>Changes the chat, calendar and website of {d.klant.bedrijf}, and finds what goes wrong.</small>
           </div>
           <div className="v-kb__aiberichten" ref={lijst}>
             {!chat.length ? (
               <div className="v-kb__voorbeelden">
-                {["What is wrong with this customer?", "Add a question: what is your address?", "Open on Saturday from 9:00 to 13:00", "Summarise the last chats"].map((v) => (
+                {(blad === "website"
+                  ? ["Make the headline bigger and calmer", "Add a page Tuinonderhoud with prices from €45 per hour", "Check the website for problems", "Use the photo I uploaded on the homepage"]
+                  : ["What is wrong with this customer?", "Add a question: what is your address?", "Open on Saturday from 9:00 to 13:00", "Summarise the last chats"]
+                ).map((v) => (
                   <button key={v} onClick={() => setVraag(v)} type="button">
                     {v}
                   </button>

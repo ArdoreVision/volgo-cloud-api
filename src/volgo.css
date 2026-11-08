@@ -2485,3 +2485,42 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000; }
 .v-kb__aiform textarea { flex: 1; font: inherit; font-size: 14px; border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 12px; padding: 9px 11px; resize: none; }
 .v-kb__aiform button { font: inherit; font-weight: 600; background: #111; color: #fff; border: 0; border-radius: 12px; padding: 0 16px; cursor: pointer; }
 .v-kb__aiform button:disabled { opacity: 0.4; }
+
+/* Owner dashboard: website editor */
+.v-kb__tabs { display: flex; gap: 6px; margin: 0 0 16px; }
+.v-kb__tabs button { font: inherit; font-size: 14px; border: 1px solid rgba(0, 0, 0, 0.15); background: #fff; color: inherit; border-radius: 999px; padding: 8px 16px; cursor: pointer; }
+.v-kb__tabs button[aria-current="page"] { background: #111; color: #fff; border-color: #111; }
+.v-kb__link { font: inherit; font-size: 12px; background: none; border: 0; color: inherit; text-decoration: underline; cursor: pointer; margin-left: 10px; opacity: 0.8; }
+.v-kb__problemen .is-groen { background: #e9f7ee; color: #145a32; }
+.v-wb { display: flex; flex-direction: column; gap: 16px; }
+.v-wb__balk { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+.v-wb__status { display: flex; align-items: center; gap: 12px; }
+.v-wb__status span { display: flex; flex-direction: column; }
+.v-wb__status small { opacity: 0.6; font-size: 12.5px; }
+.v-wb__punt { width: 12px !important; height: 12px; border-radius: 50%; display: block !important; flex: none; }
+.v-wb__punt.is-live { background: #16a34a; box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.2); }
+.v-wb__punt.is-concept { background: #f59e0b; }
+.v-wb__punt.is-uit { background: #9ca3af; }
+.v-wb__knoppen { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.v-wb__melding { margin: 0; padding: 10px 14px; border-radius: 12px; background: #f2f2f2; font-size: 14px; }
+.v-wb__voorkop { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+.v-wb__voorkop .v-kb__chips { margin-top: 0; }
+.v-wb__voorkop select { font: inherit; font-size: 13px; border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 10px; padding: 7px 10px; background: #fff; }
+.v-wb__kader { background: #f4f4f4; border-radius: 12px; padding: 12px; display: flex; justify-content: center; overflow: auto; margin-bottom: 10px; }
+.v-wb__kader iframe { height: 640px; border: 0; border-radius: 10px; background: #fff; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1); max-width: 100%; transition: width 0.25s ease; }
+.v-wb__drop { border-style: dashed; }
+.v-wb__drop.is-sleep { background: #f4f8ff; border-color: #1f6feb; }
+.v-wb__bestanden { font-size: 12px; opacity: 0.65; margin: 10px 0 0; word-break: break-all; }
+.v-wb__label { font-style: normal; font-size: 11px; font-weight: 600; background: #16a34a; color: #fff; border-radius: 999px; padding: 2px 8px; margin-left: 8px; }
+.v-wb__label.is-concept { background: #f59e0b; }
+.v-wb__versie { grid-template-columns: 110px minmax(0, 1fr) auto; }
+.v-wb__rij { display: flex; gap: 8px; margin-top: 8px; }
+.v-wb__rij input { flex: 1; font: inherit; font-size: 14px; border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 10px; padding: 9px 11px; }
+.v-wb__start { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
+@media (max-width: 720px) { .v-wb__start { grid-template-columns: 1fr; } }
+.v-wb__start > div { display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 14px; padding: 14px; align-items: flex-start; }
+.v-wb__start textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 14px; border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 10px; padding: 9px 11px; resize: vertical; }
+.v-admin__punt { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+.v-admin__punt.is-rood { background: #dc2626; }
+.v-admin__punt.is-oranje { background: #f59e0b; }
+.v-admin__punt.is-groen { background: #16a34a; }
