@@ -14,7 +14,7 @@
     { "pattern": "www.thevolgo.app", "custom_domain": true }
   ],
   "workers_dev": true,
-  "triggers": { "crons": ["0 6 * * *"] },
+  "triggers": { "crons": ["0 * * * *"] },
   "vars": { "HF_ENV": "production", "APP_SLUG": "volgo", "MAIL_FROM": "Volgo <hallo@thevolgo.app>", "MAIL_REPLY_TO": "volgo.app@outlook.com", "BTW": "uit", "ADMIN_EMAILS": "d.hanssens02@gmail.com,damienhanssens@outlook.com,hanssenscornerstone@outlook.com,volgo.app@outlook.com", "META_PIXEL_ID": "1890983858557237", "GOOGLE_TAG_ID": "" },
   "d1_databases": [
     { "binding": "DB", "database_name": "volgo-db", "database_id": "__D1_ID__", "migrations_dir": "migrations" }

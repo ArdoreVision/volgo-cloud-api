@@ -39,6 +39,12 @@ type AppEnv = {
   ADMIN_EMAILS?: string;
   /** Secret ntfy topic for push notifications to the owner's phone. */
   PUSH_TOPIC?: string;
+  /** Optional SMS via Twilio (reminders, follow-ups, review requests to phone numbers). */
+  TWILIO_SID?: string;
+  TWILIO_TOKEN?: string;
+  TWILIO_FROM?: string;
+  /** "aan" when Cloudflare Email Routing sends r-*@thevolgo.app to this worker: visitor replies land in the inbox. */
+  INBOUND_MAIL?: string;
   META_PIXEL_ID?: string;
   GOOGLE_TAG_ID?: string;
   APP_SLUG?: string;

@@ -31,6 +31,7 @@ export function KlantBeheer({ id, sluit }: { id: number; sluit: () => void }) {
   const [inst, setInst] = useState<Inst | null>(null);
   const [fout, setFout] = useState("");
   const [status, setStatus] = useState("");
+  const [stripeNieuw, setStripeNieuw] = useState("");
   const [open, setOpen] = useState<number | null>(null);
   const [berichten, setBerichten] = useState<{ id: number; rol: string; tekst: string; created_at: string }[]>([]);
   const [chat, setChat] = useState<Bericht[]>([]);
@@ -76,9 +77,19 @@ export function KlantBeheer({ id, sluit }: { id: number; sluit: () => void }) {
             afspraak_duur: inst.afspraak_duur,
             afspraak_soorten: inst.afspraak_soorten as ("bellen" | "langs" | "chat" | "kantoor" | "insta")[],
             tijdzone: inst.tijdzone,
+            review_url: inst.review_url,
+            taal: inst.taal,
+            auto_herinnering: inst.auto_herinnering,
+            auto_review: inst.auto_review,
+            auto_opvolging: inst.auto_opvolging,
+            auto_seizoen: inst.auto_seizoen,
+            antwoord_mail: inst.antwoord_mail,
+            iban: inst.iban,
+            ...(stripeNieuw.trim() ? { stripe_sleutel: stripeNieuw.trim() } : {}),
           },
         },
       });
+      if (r.ok) setStripeNieuw("");
       setStatus(r.ok ? "Saved. Live on their website." : r.message);
       if (r.ok) void laad();
     } catch {
@@ -228,6 +239,47 @@ export function KlantBeheer({ id, sluit }: { id: number; sluit: () => void }) {
                   {t}
                 </button>
               ))}
+            </div>
+          </section>
+
+          <section className="v-kb__blok">
+            <h3>Automations &amp; payments</h3>
+            <label className="v-kb__aan">
+              <input checked={inst.auto_herinnering} onChange={(e) => zet("auto_herinnering", e.target.checked)} type="checkbox" /> Reminder the day before an appointment
+            </label>
+            <label className="v-kb__aan">
+              <input checked={inst.auto_review} onChange={(e) => zet("auto_review", e.target.checked)} type="checkbox" /> Google review request after an appointment
+            </label>
+            <label className="v-kb__aan">
+              <input checked={inst.auto_opvolging} onChange={(e) => zet("auto_opvolging", e.target.checked)} type="checkbox" /> Follow-up after 1 and 3 days (no appointment yet)
+            </label>
+            <label className="v-kb__aan">
+              <input checked={inst.auto_seizoen} onChange={(e) => zet("auto_seizoen", e.target.checked)} type="checkbox" /> Seasonal message to earlier customers (Mar, Jun, Sep, Dec)
+            </label>
+            <div className="v-kb__velden">
+              <label className="is-breed">
+                <span>Google review link</span>
+                <input onChange={(e) => zet("review_url", e.target.value)} placeholder="https://g.page/r/…/review" value={inst.review_url} />
+              </label>
+              <label>
+                <span>Language of messages to customers</span>
+                <select onChange={(e) => zet("taal", e.target.value as "nl" | "en")} value={inst.taal}>
+                  <option value="nl">Dutch</option>
+                  <option value="en">English</option>
+                </select>
+              </label>
+              <label>
+                <span>Replies go to (email)</span>
+                <input onChange={(e) => zet("antwoord_mail", e.target.value)} placeholder="Their account email" value={inst.antwoord_mail} />
+              </label>
+              <label>
+                <span>IBAN (bank transfer)</span>
+                <input onChange={(e) => zet("iban", e.target.value)} placeholder="NL00 BANK 0000 0000 00" value={inst.iban} />
+              </label>
+              <label>
+                <span>Their Stripe key {inst.stripe ? `(now ${inst.stripe})` : "(iDEAL/card)"}</span>
+                <input autoComplete="off" onChange={(e) => setStripeNieuw(e.target.value)} placeholder="rk_live_… (restricted key, Checkout write)" value={stripeNieuw} />
+              </label>
             </div>
           </section>
 

@@ -470,6 +470,8 @@ textarea::placeholder{color:#a3a3a3}\
     if (c && !c.fout) {
       if (PREVIEW) { applyConfig(c); try { parent.postMessage({ volgo: "klaar" }, "*"); } catch (e) {} return; }
       applyConfig(c); toestemmingVragen(c);
+      // Link in a Volgo follow-up mail (…#volgo-boek): open the calendar straight away.
+      if (/^#volgo-boek/.test(location.hash)) setTimeout(function () { open(); if (c.boeken) kalender(); }, 600);
     }
   }).catch(function () {});
   if (!state.msgs.length) setTimeout(function () { var d = $(".dot"); if (d && !panel.classList.contains("open")) d.hidden = false; }, 4000);

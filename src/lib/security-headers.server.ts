@@ -4,6 +4,9 @@
  */
 export function applySecurityHeaders(response: Response): Response {
   const headers = new Headers(response.headers);
+  // A route can set its own policy (site preview, pay page) via x-volgo-csp.
+  const eigen = headers.get("x-volgo-csp");
+  headers.delete("x-volgo-csp");
   // Eigen Cloudflare: wij bepalen zelf dat Volgo niet in andermans iframe mag (clickjacking).
   headers.set(
     "Content-Security-Policy",
@@ -17,6 +20,7 @@ export function applySecurityHeaders(response: Response): Response {
       "frame-src 'self'; frame-ancestors 'self'; " +
       "base-uri 'self'; form-action 'self'",
   );
+  if (eigen) headers.set("Content-Security-Policy", eigen);
   headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");

@@ -7,6 +7,7 @@ import { type DashData, geleden, sqlDate, tijdAms } from "./util";
 
 type Detail = NonNullable<Awaited<ReturnType<typeof haalGesprek>>>;
 type Item = Awaited<ReturnType<typeof haalGesprekken>>[number];
+const KANAAL: Record<string, string> = { Contactformulier: "Form", "E-mail": "Email" };
 
 const KLEUREN = ["#1677d9", "#7c3aed", "#0f9d76", "#d9480f", "#c2255c", "#0b7285", "#5c7cfa", "#b08900"];
 const initialen = (n: string) =>
@@ -119,8 +120,8 @@ export function Gesprekken({ data }: { data: DashData }) {
     const t = tekst.trim();
     if (!t || !detail || bezig) return;
     setBezig(true);
-    // Typing while Volgo is on? Then you take over automatically.
-    if (!ikChat) await neemGesprekOver({ data: { id: detail.gesprek.id, aan: true } }).catch(() => null);
+    // Typing while Volgo is on? Then you take over automatically (not needed for email and contact-form messages).
+    if (!ikChat && !perMail) await neemGesprekOver({ data: { id: detail.gesprek.id, aan: true } }).catch(() => null);
     setTekst("");
     const r = await stuurMensBericht({ data: { id: detail.gesprek.id, tekst: t } }).catch(() => ({ ok: false as const, message: "Not sent. Try again." }));
     if (!r.ok) {
@@ -140,13 +141,14 @@ export function Gesprekken({ data }: { data: DashData }) {
   const isLive = (g: { laatste: string; status: string }) => g.status === "live" && nu - sqlDate(g.laatste).getTime() < 10 * 60000;
   const g = detail?.gesprek;
   const kanChatten = Boolean(g?.kan_chatten);
+  const perMail = g?.kanaal === "Contactformulier" || g?.kanaal === "E-mail";
   const berichten = detail?.berichten ?? [];
 
   return (
     <>
       <header className="v-dash__head">
-        <h1>Chats</h1>
-        <p>Everyone talking to Volgo on your website, live. Open a chat and switch between Volgo and yourself.</p>
+        <h1>Inbox</h1>
+        <p>Website chat, contact form and email in one place. Open a conversation to read along or answer yourself.</p>
       </header>
       <div className={`v-dm${open ? " is-open" : ""}`}>
         <aside className="v-dm__list" aria-label="Chats">
@@ -184,7 +186,10 @@ export function Gesprekken({ data }: { data: DashData }) {
                 <Avatar id={c.id} live={live} naam={c.bezoeker} />
                 <span className="v-dm__wat">
                   <span className="v-dm__rij">
-                    <strong>{c.bezoeker}</strong>
+                    <strong>
+                      {c.bezoeker}
+                      {KANAAL[c.kanaal] ? <span className="v-dm__kanaal">{KANAAL[c.kanaal]}</span> : null}
+                    </strong>
                     <time>{kortTijd(sqlDate(c.laatste), nu)}</time>
                   </span>
                   <span className="v-dm__rij">
@@ -208,11 +213,12 @@ export function Gesprekken({ data }: { data: DashData }) {
                 <div className="v-dm__wie">
                   <strong>{g.bezoeker}</strong>
                   <small>
-                    {isLive(g) ? "Online now" : `Last message ${geleden(sqlDate(g.laatste), nu)}`}
+                    {isLive(g) && !perMail ? "Online now" : `Last message ${geleden(sqlDate(g.laatste), nu)}`}
                     {g.contact ? ` · ${g.contact}` : ""}
+                    {KANAAL[g.kanaal] ? ` · via ${KANAAL[g.kanaal].toLowerCase()}` : ""}
                   </small>
                 </div>
-                {kanChatten ? (
+                {kanChatten && !perMail ? (
                   <div className="v-dm__modus" role="group" aria-label="Who answers">
                     <button aria-pressed={!ikChat} disabled={bezig} onClick={() => void zetModus(false)} type="button">
                       Volgo auto
@@ -224,7 +230,7 @@ export function Gesprekken({ data }: { data: DashData }) {
                 ) : null}
               </header>
 
-              {ikChat ? (
+              {ikChat && !perMail ? (
                 <div className="v-dm__banner">
                   <span>
                     <b>You’re answering.</b> Volgo is paused for this chat.
@@ -239,11 +245,11 @@ export function Gesprekken({ data }: { data: DashData }) {
                 {berichten.map((b, i) => {
                   const vorige = berichten[i - 1];
                   const chip = !vorige || dagLabel(sqlDate(vorige.created_at), nu) !== dagLabel(sqlDate(b.created_at), nu) ? <p className="v-dm__dag" key={`d${b.id}`}>{dagLabel(sqlDate(b.created_at), nu)}</p> : null;
-                  if (b.rol === "systeem")
+                  if (b.rol === "systeem" || b.rol === "log")
                     return (
                       <div key={b.id}>
                         {chip}
-                        <p className="v-dm__sys">{b.tekst}</p>
+                        <p className={`v-dm__sys${b.rol === "log" ? " v-dm__sys--log" : ""}`}>{b.tekst}</p>
                       </div>
                     );
                   const kant = b.rol === "bezoeker" ? "zij" : "wij";
@@ -295,7 +301,7 @@ export function Gesprekken({ data }: { data: DashData }) {
                     aria-label="Your message"
                     onChange={(e) => setTekst(e.target.value)}
                     onKeyDown={onKey}
-                    placeholder={ikChat ? `Message ${g.bezoeker}…` : "Volgo is answering. Type here to take over…"}
+                    placeholder={perMail ? `Reply to ${g.bezoeker} (sent by ${g.contact && g.contact.includes("@") ? "email" : "text"})…` : ikChat ? `Message ${g.bezoeker}…` : "Volgo is answering. Type here to take over…"}
                     rows={1}
                     value={tekst}
                   />

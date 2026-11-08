@@ -2485,3 +2485,58 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000; }
 .v-kb__aiform textarea { flex: 1; font: inherit; font-size: 14px; border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 12px; padding: 9px 11px; resize: none; }
 .v-kb__aiform button { font: inherit; font-weight: 600; background: #111; color: #fff; border: 0; border-radius: 12px; padding: 0 16px; cursor: pointer; }
 .v-kb__aiform button:disabled { opacity: 0.4; }
+.v-dm__sys--log { white-space: pre-wrap; border-radius: 12px; max-width: 88%; text-align: left; background: color-mix(in srgb, #1677d9 8%, var(--surface)); color: var(--text, #0b1220); }
+.v-dm__kanaal { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: var(--surface); color: var(--muted); font-size: 11px; font-weight: 500; vertical-align: middle; }
+
+/* ── Growth pages: Automations, Reviews, Payments, Your website ───────── */
+.v-g { width: 100%; max-width: 980px; margin: 0 auto; padding: 4px 0 48px; display: flex; flex-direction: column; gap: 18px; }
+.v-g__kop h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: -0.02em; }
+.v-g__kop p { margin: 0; color: var(--muted); max-width: 620px; line-height: 1.5; }
+.v-g__kaart { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; }
+.v-g__kaart h2 { margin: 0 0 4px; font-size: 16px; }
+.v-g__kaart > p { margin: 0 0 12px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.v-g__raster { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.v-g__auto { display: flex; flex-direction: column; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+.v-g__auto strong { font-size: 15px; }
+.v-g__auto p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; flex: 1; }
+.v-g__status { align-self: flex-start; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--surface); color: var(--muted); }
+.v-g__status.is-aan { background: #e8f7ee; color: #067647; }
+.v-g__status.is-let { background: #fff4e5; color: #9a5b00; }
+.v-g__getal { font-size: 13px; color: var(--muted); }
+.v-g__getal b { color: var(--ink); font-size: 18px; margin-right: 4px; }
+.v-g__lijst { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.v-g__lijst li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 11px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.v-g__lijst li:first-child { border-top: 0; }
+.v-g__lijst small { color: var(--muted); font-size: 12px; }
+.v-g__leeg { color: var(--muted); font-size: 14px; margin: 0; }
+.v-g__veld { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; }
+.v-g__veld input, .v-g__veld textarea, .v-g__veld select { font: inherit; font-weight: 400; font-size: 15px; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px; }
+.v-g__veld input:focus, .v-g__veld textarea:focus, .v-g__veld select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.v-g__veld small { font-weight: 400; color: var(--muted); }
+.v-g__form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; align-items: end; }
+.v-g__form .is-breed { grid-column: 1 / -1; }
+.v-g__knoppen { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.v-g__knop { font: inherit; font-weight: 600; font-size: 14px; border: 0; border-radius: 999px; padding: 11px 20px; cursor: pointer; background: var(--ink); color: var(--bg); }
+.v-g__knop:disabled { opacity: 0.5; cursor: default; }
+.v-g__knop2 { font: inherit; font-weight: 600; font-size: 13px; border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer; background: var(--card); color: var(--ink); text-decoration: none; }
+.v-g__ok { color: #067647; font-size: 14px; }
+.v-g__fout { color: var(--bad); font-size: 14px; }
+.v-g__code { position: relative; background: #0b1220; color: #e2e8f0; border-radius: 14px; padding: 14px 16px; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; word-break: break-all; margin: 0; }
+.v-g__stappen { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.5; }
+.v-g__tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.v-g__tabs button { font: inherit; font-size: 13px; font-weight: 600; border: 1px solid var(--line); background: var(--card); color: var(--muted); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+.v-g__tabs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.v-g__scherm { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface); }
+.v-g__scherm-balk { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--muted); background: var(--card); }
+.v-g__scherm-balk i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+.v-g__scherm-balk span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-left: 6px; }
+.v-g__scherm iframe { display: block; width: 100%; height: 640px; border: 0; background: #fff; }
+.v-g__scherm.is-mobiel iframe { width: 390px; max-width: 100%; margin: 0 auto; height: 720px; }
+.v-g__antwoord { background: var(--surface); border-radius: 14px; padding: 14px; white-space: pre-wrap; font-size: 15px; line-height: 1.55; margin: 0; }
+.v-g__sterren { display: flex; gap: 4px; }
+.v-g__sterren button { font-size: 22px; line-height: 1; border: 0; background: none; cursor: pointer; color: #d0d5dd; padding: 2px; }
+.v-g__sterren button.is-aan { color: #f5b301; }
+.v-g__badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--surface); color: var(--muted); }
+.v-g__badge.is-betaald { background: #e8f7ee; color: #067647; }
+.v-g__badge.is-open { background: #eef4ff; color: #1d4ed8; }
+@media (max-width: 640px) { .v-g__scherm iframe { height: 520px; } }
