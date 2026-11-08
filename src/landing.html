@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spotter · AI DM setter for fitness coaches</title>
+<meta name="description" content="Spotter answers every Instagram DM in your voice, qualifies the lead and books the call. Built for online fitness coaches.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one dark "gym floor" world. Big confident type left, a live phone on the right. One plan, no noise. */
+:root{
+  --ink:#0B0D10;        /* page */
+  --slab:#14171C;       /* raised surfaces */
+  --line:#262A31;       /* hairlines */
+  --chalk:#F2F1EC;      /* main text */
+  --mute:#9A9EA6;       /* secondary text */
+  --volt:#FF5B2E;       /* the one accent: plate orange */
+  --good:#3FCF8E; --warn:#F2B544;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--ink);color:var(--chalk);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.02em}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--volt);outline-offset:3px;border-radius:8px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:14px 24px;font-weight:600;text-decoration:none;transition:transform .15s ease,background .15s}
+.btn-main{background:var(--volt);color:#fff}
+.btn-main:hover{transform:translateY(-1px);background:#ff6c43}
+.btn-ghost{background:transparent;color:var(--chalk);border:1px solid var(--line)}
+.btn-ghost:hover{border-color:var(--mute)}
+.small{font-size:14px;color:var(--mute)}
+
+/* nav */
+nav.top{position:sticky;top:0;z-index:20;background:rgba(11,13,16,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:20px;text-decoration:none;letter-spacing:-.02em}
+.mark{width:28px;height:28px;border-radius:8px;background:var(--volt);display:grid;place-items:center}
+.navlinks{display:flex;gap:6px;align-items:center}
+.navlinks a.lnk{padding:8px 12px;border-radius:999px;text-decoration:none;color:var(--mute);font-size:15px}
+.navlinks a.lnk:hover,.navlinks a.lnk.on{color:var(--chalk)}
+.navlinks .btn{padding:10px 18px}
+
+/* hero */
+.hero{padding:64px 0 48px}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.tag{display:inline-flex;gap:8px;align-items:center;font-size:13px;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:6px 12px;margin-bottom:22px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 4px rgba(63,207,142,.15)}
+.hero h1{font-size:clamp(44px,7vw,84px);line-height:.95;font-weight:800}
+.hero h1 em{font-style:normal;color:var(--volt)}
+.hero p.lead{font-size:19px;color:var(--mute);max-width:30em;margin:22px 0 30px}
+.hero .ctas{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+/* phone */
+.phone{background:#000;border:1px solid var(--line);border-radius:36px;padding:10px;max-width:380px;width:100%;margin-left:auto;box-shadow:0 40px 80px -30px rgba(255,91,46,.25)}
+.screen{background:var(--slab);border-radius:28px;overflow:hidden;display:flex;flex-direction:column;height:560px}
+.chat-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#FF5B2E,#FFB36B);display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff;flex:none}
+.chat-head b{display:block;font-size:15px}
+.chat-head span{font-size:12px;color:var(--mute)}
+.msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+.bub{max-width:82%;padding:10px 14px;border-radius:20px;font-size:14.5px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word}
+.bub.lead{align-self:flex-end;background:#3A3F48;border-bottom-right-radius:6px}
+.bub.bot{align-self:flex-start;background:#22262D;border-bottom-left-radius:6px}
+.bub.bot.booked{background:rgba(63,207,142,.14);border:1px solid rgba(63,207,142,.4)}
+.typing{align-self:flex-start;color:var(--mute);font-size:13px;padding:4px 6px}
+.composer{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}
+.composer input{flex:1;min-width:0;background:#0B0D10;border:1px solid var(--line);color:var(--chalk);border-radius:999px;padding:11px 16px;font:inherit;font-size:14.5px}
+.composer button{border:0;border-radius:999px;background:var(--volt);color:#fff;padding:0 16px;font-weight:600}
+.composer button:disabled{opacity:.5}
+.phone-note{max-width:380px;margin:12px 0 0 auto;text-align:center}
+.reset{background:none;border:0;color:var(--mute);text-decoration:underline;font-size:13px;padding:0}
+
+/* sections */
+section.band{padding:72px 0;border-top:1px solid var(--line)}
+.eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--volt);font-weight:600;margin-bottom:14px}
+.band h2{font-size:clamp(32px,4.4vw,52px);line-height:1.02;font-weight:800;max-width:16em}
+.band .intro{color:var(--mute);font-size:18px;max-width:34em;margin:16px 0 0}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-top:40px}
+.fact{background:var(--ink);padding:24px}
+.fact b{display:block;font-family:var(--display);font-size:30px;font-weight:700;letter-spacing:-.02em}
+.fact span{color:var(--mute);font-size:14px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+.step{border:1px solid var(--line);border-radius:20px;padding:26px;background:var(--slab)}
+.step .n{font-family:var(--display);font-weight:800;font-size:15px;color:var(--volt)}
+.step h3{font-size:22px;margin:10px 0 8px}
+.step p{color:var(--mute);margin:0;font-size:15px}
+.pain{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:40px}
+.col{border-radius:20px;padding:26px;border:1px solid var(--line)}
+.col.before{background:transparent}
+.col.after{background:var(--slab);border-color:rgba(255,91,46,.45)}
+.col h3{font-size:20px;margin-bottom:12px}
+.col ul{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.col li{display:flex;gap:10px;color:var(--mute);font-size:15.5px}
+.col.after li{color:var(--chalk)}
+.col li:before{content:"–";color:var(--mute)}
+.col.after li:before{content:"✓";color:var(--volt);font-weight:700}
+
+/* pricing */
+.price-wrap{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;margin-top:8px}
+.plan{border:1px solid rgba(255,91,46,.55);border-radius:28px;padding:32px;background:linear-gradient(180deg,rgba(255,91,46,.10),rgba(255,91,46,0) 40%),var(--slab)}
+.plan .name{font-family:var(--display);font-weight:700;font-size:20px}
+.plan .amt{font-family:var(--display);font-weight:800;font-size:64px;letter-spacing:-.03em;line-height:1;margin:14px 0 4px;font-variant-numeric:tabular-nums}
+.plan .amt small{font-size:18px;font-weight:500;color:var(--mute);letter-spacing:0}
+.plan ul{list-style:none;padding:0;margin:24px 0;display:grid;gap:11px}
+.plan li{display:flex;gap:10px;font-size:15.5px}
+.plan li:before{content:"✓";color:var(--volt);font-weight:700}
+.plan .btn{width:100%;justify-content:center}
+.guarantee{border:1px dashed var(--line);border-radius:20px;padding:22px;margin-top:16px}
+.guarantee b{font-family:var(--display);font-size:18px}
+.guarantee p{margin:6px 0 0;color:var(--mute);font-size:15px}
+.faq{display:grid;gap:10px}
+details{border:1px solid var(--line);border-radius:16px;padding:16px 20px;background:var(--slab)}
+summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"+";color:var(--volt);font-weight:700}
+details[open] summary:after{content:"–"}
+details p{color:var(--mute);margin:10px 0 0;font-size:15px}
+.final{text-align:left}
+.final .box{border-radius:28px;padding:48px;background:var(--volt);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.final h2{color:#fff;max-width:12em}
+.final .btn{background:#0B0D10;color:#fff}
+footer{padding:36px 0 48px;color:var(--mute);font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+/* ===== app ===== */
+#view-app{display:none}
+body.app #view-home{display:none}
+body.app #view-app{display:block}
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 64px)}
+.side{border-right:1px solid var(--line);padding:20px 12px;display:flex;flex-direction:column;gap:4px}
+.side button{all:unset;cursor:pointer;padding:10px 14px;border-radius:12px;color:var(--mute);font-size:15px;display:flex;justify-content:space-between;align-items:center}
+.side button:hover{color:var(--chalk);background:var(--slab)}
+.side button.on{color:var(--chalk);background:var(--slab)}
+.side button:focus-visible{outline:2px solid var(--volt)}
+.count{font-size:12px;background:var(--volt);color:#fff;border-radius:999px;padding:1px 8px}
+.side .sep{height:1px;background:var(--line);margin:12px 6px}
+.main{padding:28px;min-width:0}
+.main h2{font-size:30px;font-weight:800}
+.ex{display:inline-block;font-size:12px;color:var(--warn);border:1px solid rgba(242,181,68,.4);border-radius:999px;padding:2px 10px;margin-left:10px;vertical-align:middle;font-family:var(--body);font-weight:500;letter-spacing:0}
+.sub{color:var(--mute);margin:6px 0 24px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tile{background:var(--slab);border:1px solid var(--line);border-radius:18px;padding:18px}
+.tile span{font-size:13px;color:var(--mute)}
+.tile b{display:block;font-family:var(--display);font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:4px}
+.tile i{font-style:normal;font-size:13px;color:var(--good)}
+.panel{background:var(--slab);border:1px solid var(--line);border-radius:18px;margin-top:16px;overflow:hidden}
+.panel h3{font-size:17px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.row{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;color:inherit;text-align:left;width:100%}
+.row:last-child{border-bottom:0}
+.row:hover{background:#181B21}
+.row .who b{font-size:15px}
+.row .who p{margin:2px 0 0;color:var(--mute);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{font-size:12px;border-radius:999px;padding:3px 10px;white-space:nowrap;font-weight:500}
+.p-booked{background:rgba(63,207,142,.14);color:var(--good)}
+.p-qual{background:rgba(242,181,68,.14);color:var(--warn)}
+.p-new{background:rgba(255,91,46,.16);color:#FF8B6B}
+.p-nofit{background:#23272E;color:var(--mute)}
+.inbox{display:grid;grid-template-columns:340px 1fr;gap:16px}
+.thread{background:var(--slab);border:1px solid var(--line);border-radius:18px;display:flex;flex-direction:column;min-height:480px}
+.thread .msgs{max-height:none}
+.thread-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.thread-head .small{margin:0}
+.takeover{font-size:13px;padding:8px 14px}
+.form{display:grid;gap:16px;max-width:640px}
+.field label{display:block;font-weight:600;font-size:15px;margin-bottom:6px}
+.field .hint{font-size:13px;color:var(--mute);margin:-2px 0 8px}
+.field input,.field textarea,.field select{width:100%;background:var(--ink);border:1px solid var(--line);color:var(--chalk);border-radius:12px;padding:12px 14px;font:inherit;font-size:15px}
+.field textarea{min-height:84px;resize:vertical}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:transparent;color:var(--mute);border-radius:999px;padding:8px 14px;font-size:14px}
+.chip.on{border-color:var(--volt);color:var(--chalk);background:rgba(255,91,46,.12)}
+.saved{color:var(--good);font-size:14px;min-height:20px}
+.startbar{border:1px solid rgba(255,91,46,.5);background:rgba(255,91,46,.10);border-radius:16px;padding:14px 18px;margin-bottom:22px;font-size:15px;display:none}
+body.starting .startbar{display:block}
+.golive{border-top:1px solid var(--line);padding-top:22px;margin-top:8px;display:grid;gap:14px}
+.golive b{font-family:var(--display);font-size:20px}
+.golive p{margin:0;color:var(--mute);font-size:15px}
+.setter-grid{display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:start}
+.calls .row{cursor:default}
+.when{font-family:var(--display);font-weight:700;font-size:15px;color:var(--volt);text-align:center;line-height:1.1}
+
+@media (max-width:900px){
+  .hero .wrap,.price-wrap,.setter-grid,.inbox{grid-template-columns:1fr}
+  .phone,.phone-note{margin:0 auto}
+  .facts{grid-template-columns:1fr 1fr}
+  .steps,.pain{grid-template-columns:1fr}
+  .tiles{grid-template-columns:1fr 1fr}
+  .shell{grid-template-columns:1fr}
+  .side{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:10px}
+  .side .sep{display:none}
+  .side button{white-space:nowrap}
+  .main{padding:20px}
+  .navlinks a.lnk.hide-sm{display:none}
+  .final .box{padding:32px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Spotter home">
+      <span class="mark"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="6" width="3" height="4" rx="1" fill="#fff"/><rect x="12" y="6" width="3" height="4" rx="1" fill="#fff"/><rect x="4" y="4" width="2" height="8" rx="1" fill="#fff"/><rect x="10" y="4" width="2" height="8" rx="1" fill="#fff"/><rect x="6" y="7.2" width="4" height="1.6" fill="#fff"/></svg></span>
+      Spotter
+    </a>
+    <div class="navlinks">
+      <a class="lnk hide-sm" href="#pricing" id="nav-home">Pricing</a>
+      <a class="lnk" href="/login" id="nav-app">Log in</a>
+      <a class="btn btn-main" href="/start" id="nav-start">Start</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= LANDING ================= -->
+<main id="view-home">
+  <header class="hero">
+    <div class="wrap">
+      <div>
+        <div class="tag"><span class="dot"></span>Built only for online fitness coaches</div>
+        <h1>You coach.<br><em>Spotter</em> books the calls.</h1>
+        <p class="lead">Spotter answers every Instagram DM in your voice within a minute, finds out if the lead is a fit, and books them straight into your calendar. Day and night.</p>
+        <div class="ctas">
+          <a class="btn btn-main" href="/start">Build your setter in 60 sec</a>
+          <a class="btn btn-ghost" href="#demo-phone" id="try-btn">Try it on the phone</a>
+        </div>
+        <p class="small" style="margin-top:16px">Live in 48 hours. We set it up for you. Cancel anytime.</p>
+      </div>
+      <div>
+        <div class="phone" id="demo-phone">
+          <div class="screen">
+            <div class="chat-head">
+              <div class="av" id="demo-av">MV</div>
+              <div><b id="demo-name">Coach Mila</b><span>Instagram · replies in under a minute</span></div>
+            </div>
+            <div class="msgs" id="demo-msgs" aria-live="polite"></div>
+            <form class="composer" id="demo-form">
+              <label for="demo-input" class="small" style="position:absolute;left:-9999px">Your message</label>
+              <input id="demo-input" autocomplete="off" placeholder="Reply as the lead…">
+              <button type="submit" id="demo-send">Send</button>
+            </form>
+          </div>
+        </div>
+        <p class="phone-note small">You play the lead. Spotter replies live. <button class="reset" id="demo-reset">Start over</button></p>
+      </div>
+    </div>
+  </header>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="eyebrow">The problem</div>
+      <h2>Your content works. Your inbox is where the money leaks.</h2>
+      <p class="intro">A lead who asks "how much?" at 23:40 has moved on by morning. Answering everyone yourself means less time coaching. A human setter costs €1.500+ a month and still sleeps.</p>
+      <div class="pain">
+        <div class="col before">
+          <h3>Without Spotter</h3>
+          <ul>
+            <li>DMs answered hours later, or never</li>
+            <li>Same "what's your goal?" questions, 40 times a week</li>
+            <li>Calls with people who were never going to buy</li>
+            <li>No idea how many leads you lost</li>
+          </ul>
+        </div>
+        <div class="col after">
+          <h3>With Spotter</h3>
+          <ul>
+            <li>Every DM answered in under a minute, 24/7</li>
+            <li>Leads qualified on goal, timeline and budget</li>
+            <li>Only serious people land on your calendar</li>
+            <li>One clear weekly report: DMs, qualified, booked</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="eyebrow">How it works</div>
+      <h2>Three steps. Then you just show up to calls.</h2>
+      <div class="steps">
+        <div class="step"><div class="n">01</div><h3>Connect Instagram</h3><p>Log in with your business account. Takes two minutes. Your followers see you, not a bot account.</p></div>
+        <div class="step"><div class="n">02</div><h3>Answer 6 questions</h3><p>Your program, price, who it's for, and your booking link. We tune Spotter to sound like you within 48 hours.</p></div>
+        <div class="step"><div class="n">03</div><h3>Calls appear</h3><p>Spotter talks, qualifies and books. You get a ping for every call. Jump into any chat with one tap.</p></div>
+      </div>
+      <div class="facts">
+        <div class="fact"><b>&lt; 60 sec</b><span>reply time, any hour</span></div>
+        <div class="fact"><b>4</b><span>qualifying questions, then the link</span></div>
+        <div class="fact"><b>1 follow-up</b><span>before Instagram's 24h window closes</span></div>
+        <div class="fact"><b>1 tap</b><span>to take over any conversation</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="pricing">
+    <div class="wrap">
+      <div class="eyebrow">Pricing</div>
+      <h2>One plan. Everything in it.</h2>
+      <p class="intro">No tiers, no credits, no message limits. If one extra client a month pays for Spotter, everything after is profit.</p>
+      <div class="price-wrap" style="margin-top:40px">
+        <div>
+          <div class="plan">
+            <div class="name">Spotter</div>
+            <div class="amt">€297<small> / month</small></div>
+            <div class="small">First 7 days for €1. Cancel anytime in those 7 days.</div>
+            <ul>
+              <li>Unlimited Instagram DMs</li>
+              <li>Done-for-you setup in 48 hours</li>
+              <li>Trained on your program, price and voice</li>
+              <li>Sends your Calendly or Cal.com link to qualified leads</li>
+              <li>Smart follow-up on leads who go quiet</li>
+              <li>Take over any chat with one tap</li>
+              <li>Weekly report in your inbox</li>
+            </ul>
+            <a class="btn btn-main" href="/start" id="plan-start">Start for €1</a>
+          </div>
+          <div class="guarantee">
+            <b>The 5-call promise</b>
+            <p>If Spotter doesn't send your booking link to 5 qualified leads in your first 30 days, your second month is on us.</p>
+          </div>
+        </div>
+        <div class="faq">
+          <details open><summary>Will my leads know it's AI?</summary><p>Spotter writes short, casual DMs in your tone. If someone asks directly, it answers honestly and offers to bring you in.</p></details>
+          <details><summary>What if it gets a question it can't answer?</summary><p>It tells the lead you'll reply personally, flags the chat in your dashboard and pings your phone.</p></details>
+          <details><summary>Do I need to set anything up?</summary><p>No. You answer 6 questions, test your setter right away, and connect Instagram with one button. Need help? We set it up with you within 48 hours.</p></details>
+          <details><summary>Is this allowed on Instagram?</summary><p>Spotter only replies to people who message you first, through Instagram's official messaging connection for business accounts. No mass DMs, no spam.</p></details>
+          <details><summary>Which coaches is it for?</summary><p>Online fitness and nutrition coaches who sell a program of €500 or more through a call. If you sell a €29 PDF, you don't need a setter.</p></details>
+          <details><summary>Can I cancel?</summary><p>Anytime, from your billing page. No contract, no call needed.</p></details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band final">
+    <div class="wrap">
+      <div class="box">
+        <h2>Stop losing leads in your DMs tonight.</h2>
+        <a class="btn" href="/start">Build your setter now</a>
+      </div>
+    </div>
+  </section>
+
+  <footer><div class="wrap"><span>Spotter · a Hanssens Cornerstone Capital company · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></span><span>Made for coaches who'd rather coach.</span></div></footer>
+</main>
+
+<script>
+(function(){
+  const box=document.getElementById("demo-msgs"), form=document.getElementById("demo-form"), input=document.getElementById("demo-input"), btn=document.getElementById("demo-send");
+  const seed=[{role:"lead",text:"hey! saw your reel about losing weight without cutting carbs. how does your coaching work?"},{role:"bot",text:"hey! so glad that reel landed 🙌 before I explain, what's the main thing you'd love to change in the next few months?"}];
+  let history=[], busy=false;
+  function bubble(role,text){const d=document.createElement("div");d.className="bub "+(role==="lead"?"lead":"bot");if(role!=="lead"&&/calendly|cal\.com|http/i.test(text))d.classList.add("booked");d.textContent=text;box.appendChild(d);box.scrollTop=box.scrollHeight;}
+  function reset(){history=seed.map(m=>({...m}));box.innerHTML="";history.forEach(m=>bubble(m.role,m.text));}
+  form.addEventListener("submit",async e=>{
+    e.preventDefault(); const text=input.value.trim(); if(!text||busy) return; input.value="";
+    busy=true; btn.disabled=true; history.push({role:"lead",text}); bubble("lead",text);
+    const t=document.createElement("div"); t.className="typing"; t.textContent="typing…"; box.appendChild(t); box.scrollTop=box.scrollHeight;
+    let reply="";
+    try{const r=await fetch("/api/demo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({history})});const d=await r.json();reply=d.reply||d.error||"";}
+    catch(err){reply="Connection hiccup. Try again in a second.";}
+    t.remove(); if(reply){bubble("bot",reply);history.push({role:"bot",text:reply});}
+    busy=false; btn.disabled=false; input.focus({preventScroll:true});
+  });
+  document.getElementById("demo-reset").addEventListener("click",reset);
+  reset();
+})();
+</script>
+</body>
+</html>

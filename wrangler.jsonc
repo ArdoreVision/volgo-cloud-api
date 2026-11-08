@@ -1,0 +1,26 @@
+{
+  // Spotter: AI DM setter for online fitness coaches. Separate worker + database, Volgo is not touched.
+  "name": "spotter",
+  "main": "src/index.js",
+  "compatibility_date": "2025-09-15",
+  "observability": { "enabled": true },
+  "workers_dev": true,
+  // Every 30 minutes: follow-ups inside Instagram's 24h window, billing sync, token refresh, weekly report on Mondays.
+  "triggers": { "crons": ["*/30 * * * *"] },
+  "vars": {
+    "APP_NAME": "Spotter",
+    "MAIL_FROM": "Spotter <spotter@thevolgo.app>",
+    "MAIL_REPLY_TO": "hanssenscornerstone@outlook.com",
+    "CONTACT_EMAIL": "hanssenscornerstone@outlook.com",
+    "ADMIN_EMAILS": "damienhanssens@outlook.com,hanssenscornerstone@outlook.com,d.hanssens02@gmail.com",
+    "PRICE_EUR_CENTS": "29700",
+    "TRIAL_EUR_CENTS": "100",
+    "TRIAL_DAYS": "7",
+    "AI_MODEL": "claude-sonnet-5-5",
+    "AI_MODEL_FAST": "claude-haiku-5-5",
+    "META_VERIFY_TOKEN": "spotter-verify-2026"
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "spotter-db", "database_id": "__D1_ID__", "migrations_dir": "migrations" }
+  ]
+}
