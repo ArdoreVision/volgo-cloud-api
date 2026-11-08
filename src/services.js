@@ -100,6 +100,8 @@ export async function stripeCheckout(env, coach, base) {
     "line_items[1][price_data][unit_amount]": env.TRIAL_EUR_CENTS || "100",
     "line_items[1][price_data][product_data][name]": "Spotter, first 7 days",
     allow_promotion_codes: "true",
+    "managed_payments[enabled]": "false", // same as Volgo: plain Stripe checkout
+
     success_url: `${base}/billing/return?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${base}/billing?canceled=1`,
   };

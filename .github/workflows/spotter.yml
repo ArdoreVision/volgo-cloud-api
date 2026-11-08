@@ -103,7 +103,7 @@ jobs:
             -d "line_items[0][price_data][recurring][interval]=month" -d "line_items[0][price_data][product_data][name]=Spotter, AI DM setter" \
             -d "line_items[1][quantity]=1" -d "line_items[1][price_data][currency]=eur" -d "line_items[1][price_data][unit_amount]=100" \
             -d "line_items[1][price_data][product_data][name]=Spotter, first 7 days" \
-            -d allow_promotion_codes=true -d "success_url=$URL/billing/return?session_id={CHECKOUT_SESSION_ID}" -d "cancel_url=$URL/billing")
+            -d allow_promotion_codes=true -d "managed_payments[enabled]=false" -d "success_url=$URL/billing/return?session_id={CHECKOUT_SESSION_ID}" -d "cancel_url=$URL/billing")
           ID=$(echo "$R" | jq -r '.id // empty'); LIVE=$(echo "$R" | jq -r '.livemode')
           if [ -n "$ID" ]; then
             curl -s -X POST "https://api.stripe.com/v1/checkout/sessions/$ID/expire" -u "$STRIPE_SECRET_KEY:" > /dev/null
