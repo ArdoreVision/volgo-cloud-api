@@ -366,7 +366,7 @@ async function voorTeam(DB: D1Database, inst: Inst) {
       await klaar(DB, inst.team_id, "herinnering", ref, k, b.onderwerp);
       if (k) {
         n++;
-        await notitie(DB, c.meta?.gesprek_id, `Volgo sent an appointment reminder by ${k === "mail" ? "email" : "text"} to ${c.contact}`);
+        await notitie(DB, c.meta?.gesprek_id, `Volgo stuurde een herinnering per ${k === "mail" ? "mail" : "sms"} naar ${c.contact}`);
       }
     }
   }
@@ -389,7 +389,7 @@ async function voorTeam(DB: D1Database, inst: Inst) {
       await klaar(DB, inst.team_id, "review", contactVan(c.contact)!.waarde, k, b.onderwerp);
       if (k) {
         n++;
-        await notitie(DB, c.meta?.gesprek_id, `Volgo asked ${c.naam || c.contact} for a review by ${k === "mail" ? "email" : "text"}`);
+        await notitie(DB, c.meta?.gesprek_id, `Volgo vroeg ${c.naam || c.contact} per ${k === "mail" ? "mail" : "sms"} om een review`);
       }
     }
   }
@@ -441,7 +441,7 @@ async function voorTeam(DB: D1Database, inst: Inst) {
       await klaar(DB, inst.team_id, "opvolging", ref, k, b.onderwerp);
       if (k) {
         n++;
-        await notitie(DB, g.id, `Volgo sent follow-up ${dag === 1 ? "1 (after 1 day)" : "2 (after 3 days)"} by ${k === "mail" ? "email" : "text"}:\n${b.tekst}`);
+        await notitie(DB, g.id, `Volgo stuurde opvolging ${dag === 1 ? "1 (na 1 dag)" : "2 (na 3 dagen)"} per ${k === "mail" ? "mail" : "sms"}:\n${b.tekst}`);
       }
     }
   }
@@ -482,7 +482,7 @@ async function voorTeam(DB: D1Database, inst: Inst) {
         if (k) {
           n++;
           deze++;
-          await notitie(DB, p.gesprek_id, `Volgo sent the ${SEIZOEN[maand].en} message by ${k === "mail" ? "email" : "text"}`);
+          await notitie(DB, p.gesprek_id, `Volgo stuurde het ${SEIZOEN[maand].nl}bericht per ${k === "mail" ? "mail" : "sms"}`);
         }
       }
     }

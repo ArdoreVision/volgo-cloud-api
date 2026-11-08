@@ -101,8 +101,12 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           PUSH_TOPIC: ${{ secrets.PUSH_TOPIC }}
+          TWILIO_SID: ${{ secrets.TWILIO_SID }}
+          TWILIO_TOKEN: ${{ secrets.TWILIO_TOKEN }}
+          TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
+          INBOUND_MAIL: ${{ secrets.INBOUND_MAIL }}
         run: |
-          for naam in ANTHROPIC_API_KEY RESEND_API_KEY STRIPE_SECRET_KEY PUSH_TOPIC; do
+          for naam in ANTHROPIC_API_KEY RESEND_API_KEY STRIPE_SECRET_KEY PUSH_TOPIC TWILIO_SID TWILIO_TOKEN TWILIO_FROM INBOUND_MAIL; do
             waarde="${!naam}"
             if [ -n "$waarde" ]; then
               printf '%s' "$waarde" | npx wrangler secret put "$naam"

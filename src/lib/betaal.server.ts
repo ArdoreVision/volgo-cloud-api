@@ -64,9 +64,9 @@ export async function controleerBetaald(DB: D1Database, v: Verzoek, b: Bedrijf, 
   const u = await DB.prepare("UPDATE betaalverzoeken SET status = 'betaald', betaald = datetime('now') WHERE id = ? AND status != 'betaald'").bind(v.id).run();
   if (u.meta?.changes) {
     const { pushNaarTeam } = await import("./webpush.server");
-    await pushNaarTeam(DB, v.team_id, `Paid: ${euro(v.bedrag)}`, `${v.naam} · ${v.omschrijving}`, "/dashboard#betalingen");
+    await pushNaarTeam(DB, v.team_id, `Betaald: ${euro(v.bedrag)}`, `${v.naam} · ${v.omschrijving}`, "/dashboard#betalingen");
     const { notitie } = await import("./automatisch.server");
-    await notitie(DB, v.gesprek_id, `${v.naam} paid ${euro(v.bedrag)} for "${v.omschrijving}"`);
+    await notitie(DB, v.gesprek_id, `${v.naam} betaalde ${euro(v.bedrag)} voor "${v.omschrijving}"`);
   }
   return true;
 }

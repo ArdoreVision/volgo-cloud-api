@@ -9,7 +9,7 @@ import { SITE_URL, esc, mailOpmaak, verstuurMail } from "./mail.server";
  */
 
 export async function nieuwBinnen(DB: D1Database, team: number, b: { kanaal: "Contactformulier" | "E-mail"; naam: string; contact: string; tekst: string; onderwerp?: string }) {
-  const naam = b.naam.trim().slice(0, 60) || (b.kanaal === "E-mail" ? b.contact : "Website visitor");
+  const naam = b.naam.trim().slice(0, 60) || (b.kanaal === "E-mail" ? b.contact : "Websitebezoeker");
   const onderwerp = (b.onderwerp || b.tekst).replace(/\s+/g, " ").trim().slice(0, 120);
   const g = await DB.prepare(
     "INSERT INTO ava_gesprekken (team_id, bezoeker, kanaal, onderwerp, status, gestart, laatste, berichten, warmte, voorbeeld) VALUES (?, ?, ?, ?, 'live', datetime('now'), datetime('now'), 1, 60, 0)",
@@ -25,9 +25,9 @@ export async function nieuwBinnen(DB: D1Database, team: number, b: { kanaal: "Co
   await DB.batch([
     DB.prepare("INSERT INTO ava_gesprek_meta (gesprek_id, token, naam, contact, lead_id) VALUES (?, ?, ?, ?, ?)").bind(id, token, b.naam.trim().slice(0, 100) || null, b.contact.slice(0, 120), leadId),
     DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'bezoeker', ?)").bind(id, b.tekst.slice(0, 4000)),
-    DB.prepare("INSERT OR REPLACE INTO lead_scores (lead_id, warmte, reden) VALUES (?, 70, ?)").bind(leadId, `Sent a message via ${b.kanaal === "E-mail" ? "email" : "the contact form"}`),
+    DB.prepare("INSERT OR REPLACE INTO lead_scores (lead_id, warmte, reden) VALUES (?, 70, ?)").bind(leadId, `Stuurde een bericht via ${b.kanaal === "E-mail" ? "mail" : "het contactformulier"}`),
   ]);
-  await meldTeam(DB, team, `New message: ${naam}`, onderwerp, b.kanaal === "E-mail" ? "email" : "contact form");
+  await meldTeam(DB, team, `Nieuw bericht: ${naam}`, onderwerp, b.kanaal === "E-mail" ? "mail" : "contactformulier");
   return { id, token };
 }
 
@@ -40,9 +40,9 @@ export async function antwoordBinnen(DB: D1Database, token: string, tekst: strin
   await DB.batch([
     DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'bezoeker', ?)").bind(m.gesprek_id, tekst.slice(0, 4000)),
     DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), status = 'live', berichten = berichten + 1 WHERE id = ?").bind(m.gesprek_id),
-    DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'log', 'Reply received by email')").bind(m.gesprek_id),
+    DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'log', 'Antwoord ontvangen per mail')").bind(m.gesprek_id),
   ]);
-  await meldTeam(DB, m.team_id, `${m.bezoeker} replied`, tekst.slice(0, 140), "email");
+  await meldTeam(DB, m.team_id, `${m.bezoeker} antwoordde`, tekst.slice(0, 140), "mail");
   return true;
 }
 
@@ -54,7 +54,7 @@ async function meldTeam(DB: D1Database, team: number, titel: string, tekst: stri
     await verstuurMail(
       e.email,
       titel,
-      mailOpmaak(titel, `<p style="margin:0 0 12px">Via ${esc(via)}:</p><p style="margin:0;white-space:pre-wrap">${esc(tekst)}</p>`, { tekst: "Open your inbox", url: `${SITE_URL}/dashboard#gesprekken` }),
+      mailOpmaak(titel, `<p style="margin:0 0 12px">Via ${esc(via)}:</p><p style="margin:0;white-space:pre-wrap">${esc(tekst)}</p>`, { tekst: "Open je inbox", url: `${SITE_URL}/dashboard#gesprekken` }),
     ).catch(() => false);
 }
 

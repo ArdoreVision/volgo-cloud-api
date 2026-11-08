@@ -42,6 +42,6 @@ export const verwijderPush = createServerFn({ method: "POST" })
 export const testPush = createServerFn({ method: "POST" }).handler(async () => {
   const { g, DB } = await sessie();
   const { pushNaarTeam } = await import("../webpush.server");
-  await pushNaarTeam(DB, g.team_id, "Volgo notifications are on", "You'll get a message here when someone chats or books.", "/dashboard");
+  await pushNaarTeam(DB, g.team_id, "Volgo-meldingen staan aan", "Je krijgt hier een melding als iemand chat of boekt.", "/dashboard");
   return { ok: true };
 });

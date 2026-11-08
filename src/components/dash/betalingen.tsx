@@ -24,13 +24,13 @@ export function Betalingen() {
     const fd = new FormData(form);
     const bedrag = Math.round(Number(String(fd.get("bedrag") ?? "").replace(/\./g, "").replace(",", ".")) * 100);
     const omschrijving = String(fd.get("omschrijving") ?? "").trim();
-    if (!naam.trim() || !contact.trim() || !(bedrag >= 100) || omschrijving.length < 2) return setMelding({ ok: false, tekst: "Fill in name, email or mobile number, amount (at least € 1) and what it's for." });
+    if (!naam.trim() || !contact.trim() || !(bedrag >= 100) || omschrijving.length < 2) return setMelding({ ok: false, tekst: "Vul naam, mail of mobiel nummer, bedrag (minstens € 1) en waarvoor in." });
     setBezig(true);
     const r = await maakBetaalverzoek({ data: { naam: naam.trim(), contact: contact.trim(), bedrag, omschrijving, gesprek_id: gesprek || undefined } }).catch(() => null);
     setBezig(false);
-    if (!r) return setMelding({ ok: false, tekst: "That didn't work. Try again." });
+    if (!r) return setMelding({ ok: false, tekst: "Dat lukte niet. Probeer het opnieuw." });
     if (!r.ok) return setMelding({ ok: false, tekst: r.message });
-    setMelding({ ok: true, tekst: r.verstuurd ? `Sent to ${contact}.` : r.message, link: r.link });
+    setMelding({ ok: true, tekst: r.verstuurd ? `Verstuurd naar ${contact}.` : r.message, link: r.link });
     form.reset();
     setNaam("");
     setContact("");
@@ -38,29 +38,29 @@ export function Betalingen() {
     laad();
   }
 
-  if (!d) return <p className="v-g__leeg">Loading…</p>;
+  if (!d) return <p className="v-g__leeg">Laden…</p>;
   const open = d.verzoeken.filter((v) => v.status === "open").reduce((n, v) => n + v.bedrag, 0);
   const betaald = d.verzoeken.filter((v) => v.status === "betaald").reduce((n, v) => n + v.bedrag, 0);
 
   return (
     <div className="v-g">
       <header className="v-g__kop">
-        <h1>Payments</h1>
-        <p>Job done? Send a payment request in 10 seconds. Your customer gets a link by email or text and pays {d.online ? "with iDEAL or card" : "by bank transfer"}, straight to your account.</p>
+        <h1>Betalingen</h1>
+        <p>Klus klaar? Stuur in 10 seconden een betaalverzoek. Je klant krijgt een link per mail of sms en betaalt {d.online ? "met iDEAL of kaart" : "met een overboeking"}, direct op jouw rekening.</p>
       </header>
 
       {!d.klaar ? (
         <section className="v-g__kaart">
-          <h2>Not switched on yet</h2>
-          <p>Volgo needs your bank account (IBAN) or your Stripe account to send payment requests. Send your Volgo contact a message and it's set up the same day.</p>
+          <h2>Nog niet aangezet</h2>
+          <p>Volgo heeft je rekeningnummer (IBAN) of je Stripe-account nodig om betaalverzoeken te sturen. Stuur je Volgo-contact een bericht, dan staat het dezelfde dag klaar.</p>
         </section>
       ) : (
         <section className="v-g__kaart">
-          <h2>New payment request</h2>
+          <h2>Nieuw betaalverzoek</h2>
           <form className="v-g__form" onSubmit={(e) => void stuur(e)}>
             {d.contacten.length ? (
               <label className="v-g__veld is-breed">
-                From a conversation
+                Uit een gesprek
                 <select
                   onChange={(e) => {
                     const id = Number(e.target.value) || "";
@@ -73,7 +73,7 @@ export function Betalingen() {
                   }}
                   value={gesprek}
                 >
-                  <option value="">Choose a customer (or fill in below)</option>
+                  <option value="">Kies een klant (of vul hieronder in)</option>
                   {d.contacten.map((c) => (
                     <option key={c.gesprek_id} value={c.gesprek_id}>
                       {c.naam} · {c.contact}
@@ -83,29 +83,29 @@ export function Betalingen() {
               </label>
             ) : null}
             <label className="v-g__veld">
-              Name
+              Naam
               <input onChange={(e) => setNaam(e.target.value)} required value={naam} />
             </label>
             <label className="v-g__veld">
-              Email or mobile number
+              Mail of mobiel nummer
               <input onChange={(e) => setContact(e.target.value)} required value={contact} />
             </label>
             <label className="v-g__veld">
-              Amount (€)
+              Bedrag (€)
               <input inputMode="decimal" name="bedrag" placeholder="250,00" required />
             </label>
             <label className="v-g__veld">
-              For
-              <input maxLength={160} name="omschrijving" placeholder="Garden maintenance March" required />
+              Voor
+              <input maxLength={160} name="omschrijving" placeholder="Tuinonderhoud maart" required />
             </label>
             <div className="v-g__knoppen is-breed">
               <button className="v-g__knop" disabled={bezig} type="submit">
-                {bezig ? "Sending…" : "Send payment request"}
+                {bezig ? "Versturen…" : "Betaalverzoek versturen"}
               </button>
               {melding ? <span className={melding.ok ? "v-g__ok" : "v-g__fout"}>{melding.tekst}</span> : null}
               {melding?.link ? (
                 <button className="v-g__knop2" onClick={() => void navigator.clipboard.writeText(melding.link!)} type="button">
-                  Copy link
+                  Link kopiëren
                 </button>
               ) : null}
             </div>
@@ -114,16 +114,16 @@ export function Betalingen() {
       )}
 
       <section className="v-g__kaart">
-        <h2>Requests</h2>
+        <h2>Verzoeken</h2>
         <p>
-          Open: <strong>{euro(open)}</strong> · Paid: <strong>{euro(betaald)}</strong>
+          Open: <strong>{euro(open)}</strong> · Betaald: <strong>{euro(betaald)}</strong>
         </p>
-        {d.verzoeken.length === 0 ? <p className="v-g__leeg">No payment requests yet.</p> : null}
+        {d.verzoeken.length === 0 ? <p className="v-g__leeg">Nog geen betaalverzoeken.</p> : null}
         <ul className="v-g__lijst">
           {d.verzoeken.map((v) => (
             <li key={v.id}>
               <span>
-                <strong>{euro(v.bedrag)}</strong> · {v.naam} <span className={`v-g__badge is-${v.status}`}>{v.status === "betaald" ? "Paid" : v.status === "open" ? "Open" : "Cancelled"}</span>
+                <strong>{euro(v.bedrag)}</strong> · {v.naam} <span className={`v-g__badge is-${v.status}`}>{v.status === "betaald" ? "Betaald" : v.status === "open" ? "Open" : "Geannuleerd"}</span>
                 <br />
                 <small>
                   {v.omschrijving} · {v.contact}
@@ -137,10 +137,10 @@ export function Betalingen() {
                       Link
                     </button>
                     <button className="v-g__knop2" onClick={() => void markeerBetaald({ data: { id: v.id } }).then(laad)} type="button">
-                      Mark paid
+                      Betaald
                     </button>
                     <button className="v-g__knop2" onClick={() => void annuleerBetaalverzoek({ data: { id: v.id } }).then(laad)} type="button">
-                      Cancel
+                      Annuleren
                     </button>
                   </>
                 ) : null}

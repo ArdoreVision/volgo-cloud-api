@@ -291,10 +291,10 @@ export const stuurMensBericht = createServerFn({ method: "POST" })
     )
       .bind(data.id, g.team_id)
       .first<{ overgenomen_door: number | null; token: string; contact: string | null; naam: string | null; kanaal: string; onderwerp: string }>();
-    if (!m) return { ok: false as const, message: "Conversation not found." };
+    if (!m) return { ok: false as const, message: "Gesprek niet gevonden." };
     // Contact form and email: the reply goes out by email (or text), no live chat to take over.
     const perMail = m.kanaal === "Contactformulier" || m.kanaal === "E-mail";
-    if (!m.overgenomen_door && !perMail) return { ok: false as const, message: "Take over the conversation first." };
+    if (!m.overgenomen_door && !perMail) return { ok: false as const, message: "Neem het gesprek eerst over." };
     await DB.batch([
       DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'mens', ?)").bind(data.id, data.tekst),
       DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), status = 'live', berichten = berichten + 1 WHERE id = ?").bind(data.id),
@@ -312,7 +312,7 @@ export const stuurMensBericht = createServerFn({ method: "POST" })
         m.token,
         taal,
       );
-      await a.notitie(DB, data.id, kanaal ? `Sent by ${kanaal === "mail" ? "email" : "text"} to ${m.contact}` : `Couldn't send this to ${m.contact}. Contact them directly.`);
+      await a.notitie(DB, data.id, kanaal ? `Verstuurd per ${kanaal === "mail" ? "mail" : "sms"} naar ${m.contact}` : `Kon niet versturen naar ${m.contact}. Neem zelf contact op.`);
     }
     return { ok: true as const, message: "" };
   });
