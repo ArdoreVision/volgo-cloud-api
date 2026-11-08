@@ -116,8 +116,12 @@ export async function boekAfspraak(DB: D1Database, inst: Inst, b: Boeking, leadI
   const titel = `${SOORTEN[soort]} · ${b.naam.trim()}`.slice(0, 120);
   const notitie = [`Booked by the visitor in the Volgo chat. Contact: ${b.contact.trim()}`, soort !== "langs" && b.adres?.trim() ? `Address: ${b.adres.trim()}` : "", b.notitie?.trim()].filter(Boolean).join("\n").slice(0, 600);
   const locatie = soort === "langs" ? (b.adres ?? "").trim() : soort === "kantoor" ? "At the office" : soort === "chat" ? `Chat: ${b.contact.trim()}` : `Phone call: ${b.contact.trim()}`;
-  await DB.prepare("INSERT INTO afspraken (team_id, lead_id, titel, start, eind, locatie, notitie, voorbeeld) VALUES (?, ?, ?, ?, ?, ?, ?, 0)")
-    .bind(inst.team_id, leadId, titel, start, eind, locatie.slice(0, 160), notitie)
+  // One statement: the slot is checked and taken in the same step, so two visitors can never get the same time.
+  const r = await DB.prepare(
+    "INSERT INTO afspraken (team_id, lead_id, titel, start, eind, locatie, notitie, voorbeeld) SELECT ?, ?, ?, ?, ?, ?, ?, 0 WHERE NOT EXISTS (SELECT 1 FROM afspraken WHERE team_id = ? AND voorbeeld = 0 AND start < ? AND eind > ?)",
+  )
+    .bind(inst.team_id, leadId, titel, start, eind, locatie.slice(0, 160), notitie, inst.team_id, eind, start)
     .run();
+  if (!r.meta?.changes) return { ok: false as const, reden: weg };
   return { ok: true as const, start, eind, soort };
 }

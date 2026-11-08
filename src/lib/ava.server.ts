@@ -101,6 +101,10 @@ async function maakLead(DB: D1Database, gesprekId: number, team: number, d: { na
   ]);
   const heet = d.warmte >= 75;
   {
+    const { pushNaarTeam } = await import("./webpush.server");
+    await pushNaarTeam(DB, team, `New request: ${d.naam}`, d.onderwerp, "/dashboard#aanvragen");
+  }
+  {
     const p = await import("./push.server");
     if (await p.isVolgoZelf(DB, team))
       await p.push(`${heet ? "🔥 Hot lead" : "🙋 New lead"}: ${d.naam} (${d.warmte}/100)`, `${d.onderwerp}\nContact: ${d.contact}`, { tags: [heet ? "fire" : "raising_hand"], prioriteit: heet ? 5 : 4, link: `${SITE_URL}/dashboard` });
@@ -237,6 +241,14 @@ export async function boekViaChat(
     DB.prepare("UPDATE ava_gesprekken SET bezoeker = ?, warmte = 95, laatste = datetime('now'), status = 'live', berichten = berichten + 2 WHERE id = ?").bind(naam.slice(0, 60), gid),
   ]);
   {
+    const { pushNaarTeam } = await import("./webpush.server");
+    await pushNaarTeam(DB, team, `New appointment: ${naam}`, `${soortNaam} · ${wanneer}`, "/dashboard#agenda");
+  }
+  {
+    const { pushNaarTeam } = await import("./webpush.server");
+    await pushNaarTeam(DB, team, `New appointment: ${naam}`, `${soortNaam} · ${wanneer}`, "/dashboard#agenda");
+  }
+  {
     const p = await import("./push.server");
     if (await p.isVolgoZelf(DB, team))
       await p.push(`📅 Booked: ${naam}`, `${soortNaam} · ${wanneer}\nContact: ${contact}`, { tags: ["calendar"], prioriteit: 5, link: `${SITE_URL}/dashboard` });
@@ -257,6 +269,47 @@ export async function boekViaChat(
   return { ok: true as const, token, antwoord: bevestiging, start: res.start, eind: res.eind };
 }
 
+const STANDAARD_NAAM = /^(websitebezoeker|website visitor)$/i;
+const DEELTJE = "(?:van|de|der|den|ter|ten|te|la|le|du|da|di)";
+const NAAM_RE = new RegExp(
+  `(?:mijn naam is|ik heet|ik ben|hier is|my name is|i am|i'm|this is|name'?s)\\s+([A-ZÀ-Ý][\\p{L}'-]+(?:\\s+(?:${DEELTJE}\\s+)*[A-ZÀ-Ý][\\p{L}'-]+){0,2})`,
+  "iu",
+);
+const GEEN_NAAM = /^(op|bezig|benieuwd|geinteresseerd|geïnteresseerd|looking|interested|wondering|just|not|ook|nog|een|de|het|blij|klaar|ready|happy|thinking)$/i;
+
+/** Picks a name, phone number or email address out of a visitor message and saves it on the chat. */
+async function bewaarHerkend(DB: D1Database, gid: number, meta: Meta, tekst: string) {
+  const huidig = await DB.prepare("SELECT bezoeker FROM ava_gesprekken WHERE id = ?").bind(gid).first<{ bezoeker: string }>();
+  const m = NAAM_RE.exec(tekst);
+  // The pattern is case-insensitive for "ik ben" etc., so keep only the capitalised words (and particles between them).
+  const woorden = (m?.[1] ?? "").trim().split(/\s+/);
+  const deel = new RegExp(`^${DEELTJE}$`, "i");
+  const houd: string[] = [];
+  for (let i = 0; i < woorden.length; i++) {
+    const w = woorden[i];
+    if (/^\p{Lu}/u.test(w)) houd.push(w);
+    else if (deel.test(w) && woorden.slice(i + 1).some((x) => /^\p{Lu}/u.test(x))) houd.push(w);
+    else break;
+  }
+  const naam = houd.join(" ").replace(/[,.!?]+$/, "") || undefined;
+  if (naam && /^\p{Lu}/u.test(naam) && !GEEN_NAAM.test(naam.split(/\s+/)[0]) && huidig && STANDAARD_NAAM.test(huidig.bezoeker)) {
+    await DB.batch([
+      DB.prepare("UPDATE ava_gesprek_meta SET naam = ? WHERE gesprek_id = ?").bind(naam.slice(0, 100), gid),
+      DB.prepare("UPDATE ava_gesprekken SET bezoeker = ? WHERE id = ?").bind(naam.slice(0, 60), gid),
+    ]);
+    meta.naam = naam;
+  }
+  if (!meta.contact) {
+    const mail = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/.exec(tekst)?.[0];
+    const tel = /(?:\+|00)?\d[\d\s().-]{7,}\d/.exec(tekst)?.[0];
+    const contact = mail ?? (tel && tel.replace(/\D/g, "").length >= 9 ? tel.trim() : undefined);
+    if (contact) {
+      await DB.prepare("UPDATE ava_gesprek_meta SET contact = ? WHERE gesprek_id = ?").bind(contact.slice(0, 120), gid).run();
+      meta.contact = contact;
+    }
+  }
+}
+
 /** Verwerkt één bericht van een websitebezoeker en geeft Volgo's antwoord terug. */
 export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, tokenIn: string | undefined, tekst: string) {
   const team = inst.team_id;
@@ -266,6 +319,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
         .first<Meta>()
     : null;
   let token = tokenIn ?? "";
+  const isNieuw = !meta;
 
   if (!meta) {
     const n = await nieuwGesprek(DB, inst, tekst);
@@ -281,6 +335,12 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
   }
   const ins = await DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'bezoeker', ?)").bind(gid, tekst).run();
   const bezoekerId = Number(ins.meta?.last_row_id) || 0;
+  // Name and contact details, saved as soon as the visitor writes them (also when the AI forgets to pass them on).
+  await bewaarHerkend(DB, gid, meta, tekst).catch(() => undefined);
+  if (isNieuw) {
+    const { pushNaarTeam } = await import("./webpush.server");
+    await pushNaarTeam(DB, team, "Someone is chatting on your website", tekst.slice(0, 140), "/dashboard#gesprekken").catch(() => undefined);
+  }
 
   // Taken over by a person in the dashboard? Then Volgo stays quiet; the person answers.
   const mens = await DB.prepare("SELECT overgenomen_naam FROM ava_gesprek_meta WHERE gesprek_id = ? AND overgenomen_door IS NOT NULL")
@@ -445,6 +505,7 @@ YOUR GOAL
 - Understand what they need; ask at most one thing per message.
 - When someone wants help: ask for their name and phone number or email address, and whether ${inst.bedrijf} may contact them.
 - If the visitor asks to be called, emailed or visited themselves, or offers their details for that purpose (e.g. "call me on 06..."), that IS permission: don't ask again, thank them and say the team will be in touch.
+- As soon as the visitor tells you their name, phone number, email or address, call the gesprek_bijwerken tool with it straight away (naam = their name as they wrote it), so it shows in the owner's app.
 - After every message in which you learn something new, call the gesprek_bijwerken tool. Set lead_klaar to true as soon as the visitor gave contact details AND gave permission to be contacted (explicitly or by asking for contact themselves).
 - Warmth (0-100): how ready is the visitor to buy? 80+ = wants it soon, asks about price/scheduling; 50-79 = serious interest; below 50 = just exploring.
 

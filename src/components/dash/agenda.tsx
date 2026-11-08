@@ -89,7 +89,7 @@ export function Agenda({ data }: { data: DashData }) {
     const res = await maakAfspraak({
       data: { titel, start: `${datum}T${v("start")}`, eind: `${datum}T${v("eind")}`, locatie: v("locatie") || undefined, notitie: v("notitie") || undefined, lead_id: leadId },
     });
-    if (!res.ok) return setFout("Could not save. Please try again.");
+    if (!res.ok) return setFout(res.reden || "Could not save. Please try again.");
     setNieuw(false);
     setGekozen(datum);
     setMaand(datum.slice(0, 7));
