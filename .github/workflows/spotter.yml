@@ -91,6 +91,29 @@ jobs:
           echo "- **Spotter:** $R" >> STATUS.md
           cat STATUS.md
 
+      - name: Stripe check
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: |
+          # Creates the exact checkout Spotter uses (7 days for €1, then €297/month) and expires it right away. Nothing is charged.
+          R=$(curl -s https://api.stripe.com/v1/checkout/sessions -u "$STRIPE_SECRET_KEY:" \
+            -d mode=subscription -d customer_email=check@spotter.test -d client_reference_id=0 \
+            -d "subscription_data[trial_period_days]=7" \
+            -d "line_items[0][quantity]=1" -d "line_items[0][price_data][currency]=eur" -d "line_items[0][price_data][unit_amount]=29700" \
+            -d "line_items[0][price_data][recurring][interval]=month" -d "line_items[0][price_data][product_data][name]=Spotter, AI DM setter" \
+            -d "line_items[1][quantity]=1" -d "line_items[1][price_data][currency]=eur" -d "line_items[1][price_data][unit_amount]=100" \
+            -d "line_items[1][price_data][product_data][name]=Spotter, first 7 days" \
+            -d allow_promotion_codes=true -d "success_url=$URL/billing/return?session_id={CHECKOUT_SESSION_ID}" -d "cancel_url=$URL/billing")
+          ID=$(echo "$R" | jq -r '.id // empty'); LIVE=$(echo "$R" | jq -r '.livemode')
+          if [ -n "$ID" ]; then
+            curl -s -X POST "https://api.stripe.com/v1/checkout/sessions/$ID/expire" -u "$STRIPE_SECRET_KEY:" > /dev/null
+            echo "::warning::STRIPE OK livemode=$LIVE (test session created and expired)"
+            echo "" >> STATUS.md; echo "Stripe checkout: OK (livemode=$LIVE)" >> STATUS.md
+          else
+            echo "::warning::STRIPE FAIL $(echo "$R" | jq -c '.error')"
+            echo "" >> STATUS.md; echo "Stripe checkout: FAILED $(echo "$R" | jq -c '.error.message')" >> STATUS.md
+          fi
+
       - name: Screenshots
         run: |
           mkdir -p status /tmp/pw && cd /tmp/pw && npm init -y >/dev/null && npm i playwright@1 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
