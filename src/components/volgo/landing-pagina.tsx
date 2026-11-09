@@ -2,11 +2,10 @@ import { useEffect, useState } from "react";
 
 import { Footer } from "./footer";
 import { VolgoMark } from "./logo";
-import { startBetaling } from "@/lib/api/account.functions";
-import { PLANS, type PlanId } from "@/lib/plans";
 import { type RouteTaal } from "./route-teksten";
 import { huidigeTaal, kiesTaal } from "./taal";
-import { meet } from "./tracking";
+import { AvaChat } from "./ava-chat";
+import { INSTAGRAM_DM } from "@/lib/contact";
 import "@/volgo-dialed.css";
 import "@/volgo-landing.css";
 
@@ -14,6 +13,7 @@ const T = {
   en: {
     login: "Log in",
     dashboard: "Dashboard",
+    boek: "Book a call",
     oog: "AI assistant for your website",
     filmLabel: "What Volgo does, in 36 seconds",
     titel: "Your assistant online. 24/7.",
@@ -91,11 +91,12 @@ const T = {
       ["Can I stop?", "Yes, every month. No contract, no notice period."],
     ],
     slotTitel: "Never lose a customer in your inbox again.",
-    slotSub: "Start today. Volgo can be on your website in 2 minutes.",
+    slotSub: "Book a call and we show you what Volgo does for your business.",
   },
   nl: {
     login: "Inloggen",
     dashboard: "Dashboard",
+    boek: "Book a call",
     oog: "AI-assistent voor je website",
     filmLabel: "Wat Volgo doet, in 36 seconden",
     titel: "Jouw assistent online. 24/7.",
@@ -173,11 +174,20 @@ const T = {
       ["Kan ik stoppen?", "Ja, elke maand. Geen contract, geen opzegtermijn."],
     ],
     slotTitel: "Nooit meer een klant kwijt in je mail.",
-    slotSub: "Start vandaag. Volgo kan binnen 2 minuten op je website staan.",
+    slotSub: "Plan een gesprek, dan laten we zien wat Volgo voor jouw bedrijf doet.",
   },
 };
 
 const PLATFORMS = ["WordPress", "Wix", "Squarespace", "Shopify", "Webflow", "HTML"];
+
+/** The only call to action: opens Volgo's own chat on the calendar to book a call (Instagram DM if the chat can't load). */
+function BookACall({ label }: { label: string }) {
+  return (
+    <a className="vl-knop" data-ava-book="" href={INSTAGRAM_DM} rel="noopener noreferrer" target="_blank">
+      {label} →
+    </a>
+  );
+}
 
 function Ico({ i }: { i: number }) {
   const paden = [
@@ -198,58 +208,6 @@ function Ico({ i }: { i: number }) {
   );
 }
 
-function Prijzen({ t }: { t: (typeof T)["en"] | (typeof T)["nl"] }) {
-  const [bezig, setBezig] = useState<PlanId | null>(null);
-  async function kies(plan: PlanId) {
-    if (bezig) return;
-    setBezig(plan);
-    meet("abo_klik");
-    try {
-      const r = await startBetaling({ data: { plan } });
-      if (r.ok) {
-        window.location.href = r.url;
-        return;
-      }
-    } catch {
-      /* fall through */
-    }
-    window.location.href = "/pricing#plans";
-  }
-  return (
-    <section aria-labelledby="vl-prijs" className="vl-sectie" id="pricing">
-      <h2 className="vl-h2" id="vl-prijs" style={{ marginBottom: 10 }}>
-        {t.prijsTitel}
-      </h2>
-      <p className="vl-sub vl-center">{t.prijsSub}</p>
-      <div className="vl-plannen">
-        {(["start", "pro"] as const).map((id) => {
-          const p = t.plannen[id];
-          return (
-            <article className={`vl-plan${id === "pro" ? " is-uit" : ""}`} key={id}>
-              <div className="vl-plan__kop">
-                <h3>{p.naam}</h3>
-                {id === "pro" ? <em>{t.populair}</em> : null}
-              </div>
-              <p className="vl-plan__voor">{p.voor}</p>
-              <p className="vl-plan__prijs">
-                <b>€{PLANS[id].prijsTekst}</b> <span>{t.perMaand}</span>
-              </p>
-              <p className="vl-plan__extra">{p.extra}</p>
-              <button className={`vl-knop${id === "pro" ? "" : " vl-knop--stil"}`} disabled={bezig !== null} onClick={() => void kies(id)} type="button">
-                {bezig === id ? t.eenMoment : `${p.knop} →`}
-              </button>
-              <ul>
-                {p.punten.map((x) => (
-                  <li key={x}>{x}</li>
-                ))}
-              </ul>
-            </article>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
 
 /** The landing page: what Volgo is, why, how to install it, everything it does, the two plans, questions. Only what works today. */
 export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: RouteTaal }) {
@@ -276,7 +234,6 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
     return () => m.removeEventListener("change", op);
   }, []);
   const film = `${taal === "nl" ? "nl" : "en"}${smal ? "-m" : ""}`;
-  const naar = ingelogd ? "/dashboard" : "/signup";
 
   return (
     <div className="volgo volgo--simpel volgo--dialed vl" id="vd">
@@ -285,9 +242,14 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
           <VolgoMark size={22} />
           <span>Volgo</span>
         </a>
-        <a className="vl-top__link" href={ingelogd ? "/dashboard" : "/login"}>
-          {ingelogd ? t.dashboard : t.login}
-        </a>
+        <nav className="vl-top__rechts">
+          <a className="vl-top__tekst" href="/groups">
+            Groups
+          </a>
+          <a className="vl-top__link" href={ingelogd ? "/dashboard" : "/login"}>
+            {ingelogd ? t.dashboard : t.login}
+          </a>
+        </nav>
       </header>
 
       <main>
@@ -298,14 +260,8 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
           </h1>
           <p className="vl-sub">{t.sub}</p>
           <div className="vl-acties">
-            <a className="vl-knop" href={naar} onClick={() => meet("abo_klik")}>
-              {ingelogd ? t.dashboard : t.start} →
-            </a>
-            <a className="vl-knop vl-knop--stil" href="#pricing">
-              {t.prijzen}
-            </a>
+            <BookACall label={t.boek} />
           </div>
-          <p className="vl-klein">{t.klein}</p>
           <figure className="vl-film">
             <video
               aria-label={t.filmLabel}
@@ -316,9 +272,9 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
               loop
               muted
               playsInline
-              poster={`/film/poster-${film}.jpg`}
+              poster={`/film/poster-${film}.jpg?v=2`}
               preload="metadata"
-              src={`/film/uitleg-${film}.mp4`}
+              src={`/film/uitleg-${film}.mp4?v=2`}
             />
             <figcaption>{t.filmLabel}</figcaption>
           </figure>
@@ -437,8 +393,6 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
           </div>
         </section>
 
-        <Prijzen t={t} />
-
         <section aria-labelledby="vl-faq" className="vl-sectie vl-faq">
           <h2 className="vl-h2" id="vl-faq">
             {t.faqKop}
@@ -456,12 +410,11 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
             {t.slotTitel}
           </h2>
           <p className="vl-sub">{t.slotSub}</p>
-          <a className="vl-knop" href={naar} onClick={() => meet("abo_klik")}>
-            {ingelogd ? t.dashboard : t.start} →
-          </a>
+          <BookACall label={t.boek} />
         </section>
       </main>
       <Footer />
+      <AvaChat />
     </div>
   );
 }
