@@ -61,13 +61,17 @@ export const Route = createFileRoute("/api/formulier/$sleutel")({
         if (onderwerp?.startsWith("Team application")) {
           const { INBOX } = await import("@/lib/aanvraag.server");
           const { esc, mailOpmaak, verstuurMail, SITE_URL } = await import("@/lib/mail.server");
+          const snel = await import("@/lib/snel.server");
+          // Notification with reply buttons on Damien's phone.
+          await snel.meldAanmelding(token, naam, onderwerp, bericht.split("\n").slice(0, 3).join("\n")).catch(() => undefined);
+          const knoppen = `<a href="${await snel.snelLink(token)}" style="display:inline-block;padding:10px 18px;border:1px solid #0b1220;border-radius:999px;color:#0b1220;text-decoration:none;font-size:14px">Reply: in a meeting / busy / tomorrow…</a>`;
           const regels = [`Name: ${naam}`, `Contact: ${contact}`, "", bericht, extra].filter((x) => x !== undefined).join("\n");
           await verstuurMail(
             INBOX,
             `${onderwerp}: ${naam}`,
             mailOpmaak(
               `${esc(onderwerp)}: ${esc(naam)}`,
-              `<p style="margin:0;white-space:pre-wrap">${esc(regels)}</p><p style="margin:16px 0 0;color:#64748b">They will now pick a time for the intake call. You get a second mail when it's booked.</p>`,
+              `<p style="margin:0;white-space:pre-wrap">${esc(regels)}</p><p style="margin:16px 0 0;color:#64748b">They will now pick a time for the intake call. You get a second mail when it's booked.</p><p style="margin:20px 0 0">${knoppen}</p>`,
               { tekst: "Open in Volgo", url: `${SITE_URL}/dashboard#gesprekken` },
             ),
           ).catch(() => false);
