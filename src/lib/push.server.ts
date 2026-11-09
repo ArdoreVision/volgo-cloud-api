@@ -21,7 +21,7 @@ let volgoTeam: number | null | undefined;
  * Push notification to the owner's phone via ntfy (app "ntfy", subscribe to the secret topic PUSH_TOPIC).
  * Never throws and never takes longer than 2.5 s, so it can't break or slow down a signup or a visit.
  */
-export async function push(titel: string, tekst: string, opties: { tags?: string[]; prioriteit?: 1 | 2 | 3 | 4 | 5; link?: string } = {}) {
+export async function push(titel: string, tekst: string, opties: { tags?: string[]; prioriteit?: 1 | 2 | 3 | 4 | 5; link?: string; acties?: { label: string; url: string }[] } = {}) {
   const { PUSH_TOPIC } = bindings();
   if (!PUSH_TOPIC) return;
   try {
@@ -35,6 +35,8 @@ export async function push(titel: string, tekst: string, opties: { tags?: string
         tags: opties.tags ?? [],
         priority: opties.prioriteit ?? 3,
         ...(opties.link ? { click: opties.link } : {}),
+        // Tappable buttons in the notification (ntfy allows 3): each one POSTs to its url.
+        ...(opties.acties?.length ? { actions: opties.acties.slice(0, 3).map((x) => ({ action: "http", label: x.label, url: x.url, method: "POST", clear: true })) } : {}),
       }),
       signal: AbortSignal.timeout(2500),
     });

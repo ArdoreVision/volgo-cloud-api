@@ -21,7 +21,7 @@ ${knop ? `<p style="margin:26px 0 0"><a href="${knop.url}" style="display:inline
 }
 
 /** Verstuurt een mail via Resend. Geeft false terug als mail (nog) niet is ingesteld of mislukt. */
-export async function verstuurMail(aan: string, onderwerp: string, html: string) {
+export async function verstuurMail(aan: string, onderwerp: string, html: string, opties: { van?: string; antwoordAan?: string } = {}) {
   const { RESEND_API_KEY, MAIL_FROM, MAIL_REPLY_TO } = bindings();
   if (!RESEND_API_KEY) return false;
   try {
@@ -29,12 +29,12 @@ export async function verstuurMail(aan: string, onderwerp: string, html: string)
       method: "POST",
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: MAIL_FROM || "Volgo <onboarding@resend.dev>",
+        from: opties.van ?? (MAIL_FROM || "Volgo <onboarding@resend.dev>"),
         to: [aan],
         subject: onderwerp,
         html,
         // Replies land in the Volgo inbox.
-        ...(MAIL_REPLY_TO ? { reply_to: MAIL_REPLY_TO } : {}),
+        ...(opties.antwoordAan ? { reply_to: opties.antwoordAan } : MAIL_REPLY_TO ? { reply_to: MAIL_REPLY_TO } : {}),
       }),
     });
     return r.ok;
