@@ -23,7 +23,8 @@ import { Overview } from "@/components/dash/overview";
 import { TeamChat } from "@/components/dash/team-chat";
 import { warmteLabel } from "@/components/dash/util";
 import { VolgoMark } from "@/components/volgo/logo";
-import { haalDashboard, startBetaling, uitloggen, zetLeadStatus } from "@/lib/api/account.functions";
+import { archiveerLead, haalDashboard, startBetaling, uitloggen, verwijderLead, zetLeadStatus } from "@/lib/api/account.functions";
+import { SwipeRij } from "@/components/dash/swipe-rij";
 import { isAdmin } from "@/lib/api/admin.functions";
 import { PlanCall } from "@/components/dash/plan-call";
 import { Verkeer } from "@/components/dash/verkeer";
@@ -270,7 +271,8 @@ function Open({ data }: { data: DashData }) {
   const [admin, setAdmin] = useState(false);
   // The five profile questions: once for the owner before the dashboard, later changeable on the Train Volgo page.
   const [vragenOpen, setVragenOpen] = useState(false);
-  const [leadFilter, setLeadFilter] = useState<"alle" | "nieuw" | "heet" | "open" | "klaar">("alle");
+  const [leadFilter, setLeadFilter] = useState<"alle" | "nieuw" | "heet" | "open" | "klaar" | "archief">("alle");
+  const [ongedaan, setOngedaan] = useState<{ id: number; naam: string } | null>(null);
   const [leadZoek, setLeadZoek] = useState("");
   const [leadOpen, setLeadOpen] = useState<number | null>(null);
   const [profiel, setProfiel] = useState<Profiel | null>(null);
@@ -381,6 +383,23 @@ function Open({ data }: { data: DashData }) {
   const plan = isPlan(g.plan) ? PLANS[g.plan] : PLANS.start;
   const voornaam = g.naam.split(/\s+/)[0];
   const proefDagen = g.proef_tot ? Math.max(0, Math.ceil((new Date(g.proef_tot.replace(" ", "T") + "Z").getTime() - Date.now()) / 86400000)) : 0;
+
+  async function archiveer(id: number, naam: string, aan: boolean) {
+    await archiveerLead({ data: { id, aan } });
+    setOngedaan(aan ? { id, naam } : null);
+    await router.invalidate();
+  }
+  async function wis(id: number, naam: string) {
+    if (!window.confirm(`Aanvraag van ${naam} definitief verwijderen? Het gesprek blijft in je Inbox staan.`)) return;
+    await verwijderLead({ data: { id } });
+    if (leadOpen === id) setLeadOpen(null);
+    await router.invalidate();
+  }
+  useEffect(() => {
+    if (!ongedaan) return;
+    const t = setTimeout(() => setOngedaan(null), 6000);
+    return () => clearTimeout(t);
+  }, [ongedaan]);
 
   async function zetStatus(id: number, status: Status) {
     await zetLeadStatus({ data: { id, status } });
@@ -551,9 +570,10 @@ function Open({ data }: { data: DashData }) {
                 heet: leads.filter((l) => l.warmte >= 75 && open(l)).length,
                 open: leads.filter(open).length,
                 klaar: leads.filter((l) => !open(l)).length,
+                archief: data.archief.length,
               };
               const z = leadZoek.trim().toLowerCase();
-              const lijst = leads.filter((l) => {
+              const lijst = (leadFilter === "archief" ? data.archief : leads).filter((l) => {
                 if (leadFilter === "nieuw" && l.status !== "nieuw") return false;
                 if (leadFilter === "heet" && !(l.warmte >= 75 && open(l))) return false;
                 if (leadFilter === "open" && !open(l)) return false;
@@ -567,6 +587,7 @@ function Open({ data }: { data: DashData }) {
                 ["heet", "Heet"],
                 ["open", "Bezig"],
                 ["klaar", "Gewonnen / verloren"],
+                ["archief", "Archief"],
               ];
               return (
                 <>
@@ -589,15 +610,30 @@ function Open({ data }: { data: DashData }) {
                         <span role="columnheader">Ontvangen</span>
                         <span role="columnheader">Status</span>
                       </div>
-                      {leads.length === 0 ? (
+                      {leadFilter === "archief" && data.archief.length === 0 ? (
+                        <p className="v-feed__empty v-pad">Nog niets gearchiveerd. Veeg een aanvraag naar links (of klik op het archiefknopje) om hem hier te zetten.</p>
+                      ) : leadFilter !== "archief" && leads.length === 0 ? (
                         <p className="v-feed__empty v-pad">Nog geen aanvragen. Zodra een bezoeker zijn gegevens bij Volgo achterlaat, staat hij hier, warmste eerst.</p>
                       ) : lijst.length === 0 ? (
                         <p className="v-feed__empty v-pad">Niets gevonden met dit filter.</p>
                       ) : null}
                       {lijst.map((l) => (
+                        <SwipeRij
+                          acties={
+                            leadFilter === "archief"
+                              ? [
+                                  { label: "Terugzetten", icoon: "terug", kleur: "groen", doe: () => void archiveer(l.id, l.naam, false) },
+                                  { label: "Verwijderen", icoon: "wis", kleur: "rood", doe: () => void wis(l.id, l.naam) },
+                                ]
+                              : [
+                                  { label: "Archiveren", icoon: "archief", kleur: "grijs", doe: () => void archiveer(l.id, l.naam, true) },
+                                  { label: "Verwijderen", icoon: "wis", kleur: "rood", doe: () => void wis(l.id, l.naam) },
+                                ]
+                          }
+                          key={l.id}
+                        >
                         <div
                           className={`v-table__row v-table__row--klik${l.warmte >= 75 && open(l) ? " is-heet" : ""}`}
-                          key={l.id}
                           onClick={(e) => {
                             if ((e.target as HTMLElement).closest("select")) return;
                             setLeadOpen(l.id);
@@ -634,6 +670,7 @@ function Open({ data }: { data: DashData }) {
                             </select>
                           </span>
                         </div>
+                        </SwipeRij>
                       ))}
                     </div>
                   </section>
@@ -748,6 +785,14 @@ function Open({ data }: { data: DashData }) {
               Uitloggen
             </button>
           </div>
+        </div>
+      ) : null}
+      {ongedaan ? (
+        <div className="v-ongedaan" role="status">
+          <span>Aanvraag van {ongedaan.naam} gearchiveerd</span>
+          <button onClick={() => void archiveer(ongedaan.id, ongedaan.naam, false)} type="button">
+            Ongedaan maken
+          </button>
         </div>
       ) : null}
       {leadOpen !== null ? (

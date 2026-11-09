@@ -2597,3 +2597,24 @@ label.v-kn__rij { cursor: pointer; }
 .v-kn__later { align-self: center; border: 0; background: none; color: var(--muted); font: inherit; font-size: 14px; text-decoration: underline; cursor: pointer; }
 .v-kb__let { margin: 0 0 8px; padding: 8px 12px; border-radius: 10px; background: #fff4e5; color: #9a5b00; font-size: 13px; font-weight: 600; }
 .v-table small.v-lead__contact, .v-lead__contact { display: block; margin: 2px 0 6px; color: var(--ink); font-weight: 500; }
+
+/* Swipe rows (archive / delete like DMs) */
+.v-swipe { position: relative; overflow: hidden; }
+.v-swipe__voor { position: relative; z-index: 1; background: var(--card); transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1); touch-action: pan-y; }
+.v-swipe__acties { position: absolute; top: 0; right: 0; bottom: 0; display: flex; }
+.v-swipe__actie { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 0; font: inherit; font-size: 12px; font-weight: 600; color: #fff; cursor: pointer; }
+.v-swipe__actie svg, .v-swipe__mini svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.v-swipe__actie--grijs { background: #64748b; }
+.v-swipe__actie--groen { background: #16a34a; }
+.v-swipe__actie--rood { background: #dc2626; }
+.v-swipe__hover { position: absolute; z-index: 2; right: 14px; top: 50%; transform: translateY(-50%); display: none; gap: 6px; }
+.v-swipe__mini { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
+.v-swipe__mini--rood:hover { color: #dc2626; border-color: #fca5a5; }
+.v-swipe__mini--grijs:hover, .v-swipe__mini--groen:hover { color: var(--ink); }
+@media (hover: hover) and (pointer: fine) { .v-swipe:hover .v-swipe__hover, .v-swipe:focus-within .v-swipe__hover { display: flex; } }
+.v-swipe .v-table__row { border-bottom: 0; }
+.v-swipe + .v-swipe { border-top: 1px solid var(--line); }
+.v-ongedaan { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 60; display: flex; align-items: center; gap: 14px; padding: 12px 16px 12px 20px; border-radius: 999px; background: var(--ink); color: var(--bg); font-size: 14px; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25); }
+.v-ongedaan button { border: 0; background: none; color: inherit; font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+@media (min-width: 900px) { .v-ongedaan { bottom: 28px; } }
+@media (hover: hover) and (pointer: fine) { .v-table:has(.v-swipe) .v-table__row { padding-right: 96px; } }
