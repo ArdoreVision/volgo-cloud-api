@@ -10,10 +10,10 @@ import { SITE_URL, esc, verstuurMail } from "./mail.server";
  */
 
 export const KEUZES = {
-  meeting: { label: "In a meeting", tekst: (n: string) => `Hi ${n}, thanks for applying! I'm in a meeting right now. I'll call you as soon as I have time.` },
-  busy: { label: "Busy now", tekst: (n: string) => `Hi ${n}, thanks for applying! I'm busy right now, but I'll get back to you later today.` },
-  tomorrow: { label: "Tomorrow", tekst: (n: string) => `Hi ${n}, thanks for applying! I'm not available today. I'll get back to you tomorrow.` },
-  soon: { label: "Seen it, calling soon", tekst: (n: string) => `Hi ${n}, thanks for applying! I've seen your application and I'll call you soon.` },
+  meeting: { label: "In a meeting", tekst: (n: string) => `Hi ${n}, thanks for applying! I'm in a meeting right now. I'll reply to your Instagram DM as soon as I have time.` },
+  busy: { label: "Busy now", tekst: (n: string) => `Hi ${n}, thanks for applying! I'm busy right now, but I'll reply to your Instagram DM later today.` },
+  tomorrow: { label: "Tomorrow", tekst: (n: string) => `Hi ${n}, thanks for applying! I'm not available today. I'll reply to your Instagram DM tomorrow.` },
+  soon: { label: "Seen it, DM me", tekst: (n: string) => `Hi ${n}, thanks for applying! I've seen your application. Send me a DM on Instagram (@damienhanssens) and we'll talk there.` },
 } as const;
 export type Keuze = keyof typeof KEUZES;
 export const isKeuze = (k: string): k is Keuze => k in KEUZES;

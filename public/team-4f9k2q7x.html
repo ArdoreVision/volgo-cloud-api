@@ -120,6 +120,13 @@
   .meta { display: flex; gap: 8px; flex-wrap: wrap; }
   .meta span { padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.05); border: 1px solid var(--line); font-size: 13px; color: var(--dim); }
 
+  #dm { text-align: center; align-items: center; padding: 10px 0; }
+  #dm .btn { width: 100%; flex: none; }
+  .code { width: 100%; padding: 18px; border-radius: 16px; border: 1.5px dashed rgba(255,255,255,.35); background: rgba(255,255,255,.04); cursor: pointer; display: flex; flex-direction: column; gap: 4px; align-items: center; transition: border-color .15s, background .15s; }
+  .code:hover { border-color: #fff; background: rgba(255,255,255,.07); }
+  .code span { font-size: 22px; font-weight: 650; letter-spacing: .02em; }
+  .code small { font-size: 12px; color: var(--dim); }
+  .small-note { color: var(--dim); font-size: 13px; }
   .done { text-align: center; align-items: center; padding: 20px 0; }
   .tick { width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center; background: rgba(52,211,153,.12); border: 1px solid rgba(52,211,153,.4); animation: pop .5s cubic-bezier(.2,1.4,.4,1) both; }
   .tick svg { width: 36px; height: 36px; stroke: var(--ok); fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
@@ -227,8 +234,8 @@
       <!-- 5 confirm -->
       <div class="step hide" data-step="5">
         <h2>Last step</h2>
-        <div class="info"><span>✓</span><span>Free. No costs, no course. Next you book a short intake call with the team.</span></div>
-        <label class="check"><input type="checkbox" id="ok_call">I'll book a free intake call</label>
+        <div class="info"><span>✓</span><span>Free. No costs, no course. Next you send us a DM on Instagram.</span></div>
+        <label class="check"><input type="checkbox" id="ok_call">I'll send a DM on Instagram</label>
         <label class="check"><input type="checkbox" id="ok_18">I'm 18 or older</label>
         <label class="check"><input type="checkbox" id="ok_privacy">You may contact me about this</label>
       </div>
@@ -240,14 +247,14 @@
       <p class="err" id="err"></p>
     </form>
 
-    <!-- 6 book -->
-    <div class="step hide" id="book">
-      <h2>Pick a time for your call</h2>
-      <div class="meta"><span>Free</span><span id="dur">30 min</span><span>Phone</span><span>Amsterdam time</span></div>
-      <div class="days" id="days"></div>
-      <div class="times" id="times"></div>
-      <div class="nav"><button type="button" class="btn wait grad" id="bookBtn">Pick a time</button></div>
-      <p class="err" id="bookErr"></p>
+    <!-- 6 dm -->
+    <div class="step hide" id="dm">
+      <div class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h2>Applied. One last step.</h2>
+      <p class="sub" style="font-size:16px">Send us a DM on Instagram with this message:</p>
+      <button type="button" class="code" id="code" title="Tap to copy"><span id="codeText">TEAM</span><small id="copied">Tap to copy</small></button>
+      <a class="btn grad" id="igBtn" href="https://ig.me/m/damienhanssens" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>Open Instagram DM</a>
+      <p class="small-note">@damienhanssens</p>
     </div>
 
     <!-- 7 done -->
@@ -263,9 +270,9 @@
 
 <script>
 /* ===== Settings ===== */
-const VOLGO = '';                                // '' = same site as Volgo (thevolgo.app)
+const VOLGO = '';   // same site as Volgo
 const VOLGO_KEY = 'c2c0abaa339e5c0a8c9e4064';    // applications land in your Volgo inbox + mail to damienhanssens@outlook.com
-const CALL_FROM = '09:00', CALL_TO = '21:00';     // call times shown (Amsterdam time)
+const INSTAGRAM = 'damienhanssens';               // applicants are sent to this Instagram DM
 
 const $ = id => document.getElementById(id);
 const steps = [...document.querySelectorAll('#form .step')];
@@ -341,7 +348,7 @@ function summary() {
   return L.join('\n');
 }
 async function apply() {
-  if (applied) return showBooking();
+  if (applied) return showDm();
   $('next').textContent = 'Sending…'; $('next').classList.add('wait');
   try {
     const r = await fetch(`${VOLGO}/api/formulier/${VOLGO_KEY}`, {
@@ -351,61 +358,27 @@ async function apply() {
     const d = await r.json().catch(() => ({}));
     if (!r.ok || !d.ok) throw new Error();
     applied = true; token = d.token || '';
-    showBooking();
+    showDm();
   } catch {
     $('err').textContent = 'Something went wrong. Try again in a minute.';
     $('next').textContent = 'Apply'; $('next').classList.remove('wait');
   }
 }
 
-let agenda = null, soort = 'bellen';
-const WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-async function showBooking() {
-  $('form').classList.add('hide'); $('book').classList.remove('hide');
-  $('bar').style.width = '88%'; $('stepLabel').textContent = 'Applied ✓'; $('mins').classList.add('hide');
+function showDm() {
+  $('form').classList.add('hide'); $('dm').classList.remove('hide');
+  $('bar').style.width = '100%'; $('stepLabel').textContent = 'Applied ✓'; $('mins').classList.add('hide');
+  const msg = `TEAM – ${val('naam')}`;
+  $('codeText').textContent = msg;
+  $('igBtn').href = `https://ig.me/m/${INSTAGRAM}`; document.querySelector('.small-note').textContent = '@' + INSTAGRAM;
+  $('code').onclick = async () => {
+    try { await navigator.clipboard.writeText(msg); $('copied').textContent = 'Copied ✓'; } catch { $('copied').textContent = 'Copy it by hand'; }
+  };
+  $('igBtn').onclick = () => { try { navigator.clipboard.writeText(msg); } catch {} };
   $('apply').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  $('days').innerHTML = '<span style="color:var(--dim);font-size:14px">Loading times…</span>'; $('times').innerHTML = '';
-  try {
-    const r = await fetch(`${VOLGO}/api/ava`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ actie: 'agenda', sleutel: VOLGO_KEY, token: token || undefined }) });
-    agenda = await r.json();
-    soort = (agenda.soorten || []).find(s => s !== 'insta') || 'bellen';
-    if (agenda.duur) $('dur').textContent = `${agenda.duur} min`;
-    agenda.dagen = (agenda.dagen || []).map(d => ({ ...d, tijden: (d.tijden || []).filter(t => t.vrij && t.t >= CALL_FROM && t.t < CALL_TO) })).filter(d => d.status === 'open' && d.tijden.length);
-    if (!agenda.dagen.length) throw new Error();
-    $('days').innerHTML = agenda.dagen.map((d, i) => { const [, m, dd] = d.datum.split('-').map(Number); return `<button type="button" class="day" data-i="${i}"><small>${WD[d.weekdag]}</small><b>${dd}</b><small>${MON[m - 1]}</small></button>`; }).join('');
-    $('days').querySelectorAll('.day').forEach(b => b.onclick = () => pickDay(+b.dataset.i));
-    pickDay(0);
-  } catch { finish('We got your application. We\'ll contact you within 48 hours to plan your call.'); }
 }
-function pickDay(i) {
-  slot = ''; setBook();
-  $('days').querySelectorAll('.day').forEach(b => b.classList.toggle('on', +b.dataset.i === i));
-  const d = agenda.dagen[i];
-  $('times').innerHTML = d.tijden.map(t => `<button type="button" class="time" data-t="${t.t}">${t.t}</button>`).join('');
-  $('times').querySelectorAll('.time').forEach(b => b.onclick = () => {
-    $('times').querySelectorAll('.time').forEach(x => x.classList.toggle('on', x === b));
-    slot = `${d.datum}T${b.dataset.t}`; setBook();
-  });
-}
-function nice(s) { const [dt, t] = s.split('T'); const [y, m, d] = dt.split('-').map(Number); return `${WD[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]} ${d} ${MON[m - 1]}, ${t}`; }
-function setBook() { $('bookBtn').classList.toggle('wait', !slot); $('bookBtn').textContent = slot ? `Book ${nice(slot)}` : 'Pick a time'; }
-$('bookBtn').onclick = async () => {
-  if (!slot) { $('bookErr').textContent = 'Pick a day and a time.'; return; }
-  $('bookBtn').textContent = 'Booking…'; $('bookBtn').classList.add('wait'); $('bookErr').textContent = '';
-  try {
-    const r = await fetch(`${VOLGO}/api/ava`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
-      actie: 'boek', sleutel: VOLGO_KEY, token: token || undefined, start: slot, soort, naam: val('naam'), contact: `${val('email')} · ${val('tel')}`.slice(0, 120),
-    }) });
-    const d = await r.json();
-    if (!d.ok) throw new Error(d.reden || '');
-    finish(`${nice(slot)} (Amsterdam time). We'll call you on ${val('tel')}.`, true);
-  } catch (e) {
-    $('bookErr').textContent = e.message || 'That time is taken. Pick another one.';
-    showBooking();
-  }
-};
 function finish(text, booked) {
-  $('book').classList.add('hide'); $('form').classList.add('hide'); $('done').classList.remove('hide');
+  $('form').classList.add('hide'); $('done').classList.remove('hide');
   $('bar').style.width = '100%'; $('stepLabel').textContent = 'Done ✓';
   $('doneTitle').textContent = booked ? 'Call booked.' : 'You\'re in.';
   $('doneText').textContent = text;
