@@ -243,9 +243,6 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
           <span>Volgo</span>
         </a>
         <nav className="vl-top__rechts">
-          <a className="vl-top__tekst" href="/groups">
-            Groups
-          </a>
           <a className="vl-top__link" href={ingelogd ? "/dashboard" : "/login"}>
             {ingelogd ? t.dashboard : t.login}
           </a>
