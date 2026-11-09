@@ -77,6 +77,19 @@ async function purgeVoorbeeld(DB: D1Database, team: number) {
   ]);
 }
 
+/** Leads from Volgo's own landing page (thevolgo.app) go to Damien, always, with the [Lead] label. */
+async function mailVolgoLead(onderwerp: string, kop: string, regels: [string, string][]) {
+  const { INBOX } = await import("./aanvraag.server");
+  const html = mailOpmaak(
+    esc(kop),
+    `<p style="margin:0 0 12px;display:inline-block;padding:3px 10px;border-radius:999px;background:#e8f7ee;color:#067647;font-size:12px;font-weight:600">Lead · thevolgo.app</p>
+     <table style="border-collapse:collapse;font-size:15px">${regels.map(([k, v]) => `<tr><td style="padding:4px 16px 4px 0;color:#64748b;vertical-align:top">${esc(k)}</td><td style="padding:4px 0"><strong>${esc(v)}</strong></td></tr>`).join("")}</table>
+     <p style="margin:16px 0 0;color:#64748b;font-size:13px">This is a customer lead from the Volgo landing page, not a team application.</p>`,
+    { tekst: "Open in Volgo", url: `${SITE_URL}/dashboard#aanvragen` },
+  );
+  await verstuurMail(INBOX, onderwerp, html).catch(() => false);
+}
+
 async function mailEigenaar(DB: D1Database, team: number, warmte: number, onderwerp: string, html: string) {
   // Iedereen in het team die mail bij elke lead wil, of (standaard) mail bij een hete lead.
   const ontvangers = await DB.prepare(
@@ -109,8 +122,17 @@ async function maakLead(DB: D1Database, gesprekId: number, team: number, d: { na
   }
   {
     const p = await import("./push.server");
-    if (await p.isVolgoZelf(DB, team))
+    if (await p.isVolgoZelf(DB, team)) {
       await p.push(`${heet ? "🔥 Hot lead" : "🙋 New lead"}: ${d.naam} (${d.warmte}/100)`, `${d.onderwerp}\nContact: ${d.contact}`, { tags: [heet ? "fire" : "raising_hand"], prioriteit: heet ? 5 : 4, link: `${SITE_URL}/dashboard` });
+      // Lead from the thevolgo.app landing page: every one by mail to Damien, clearly apart from team applications.
+      await mailVolgoLead(`[Lead] ${heet ? "Hot lead" : "New lead"} from thevolgo.app: ${d.naam}`, `${heet ? "🔥 " : ""}New lead from thevolgo.app`, [
+        ["Name", d.naam],
+        ["Contact", d.contact],
+        ["Question", d.onderwerp],
+        ["Warmth", `${d.warmte}/100 · ${d.reden}`],
+      ]);
+      return leadId;
+    }
   }
   await mailEigenaar(
     DB,
@@ -257,12 +279,23 @@ export async function boekViaChat(
     const { pushNaarTeam } = await import("./webpush.server");
     await pushNaarTeam(DB, team, `Nieuwe afspraak: ${naam}`, `${SOORTEN_NL[res.soort]} · ${wanneerTekst(res.start, "nl")}`, "/dashboard#agenda");
   }
+  const isTeam = (await DB.prepare("SELECT onderwerp FROM ava_gesprekken WHERE id = ?").bind(gid).first<{ onderwerp: string | null }>())?.onderwerp?.startsWith("Team application") ?? false;
+  const volgoZelf = await (await import("./push.server")).isVolgoZelf(DB, team);
   {
     const p = await import("./push.server");
-    if (await p.isVolgoZelf(DB, team))
-      await p.push(`📅 Booked: ${naam}`, `${soortNaam} · ${wanneer}\nContact: ${contact}`, { tags: ["calendar"], prioriteit: 5, link: `${SITE_URL}/dashboard` });
+    if (volgoZelf)
+      await p.push(`📅 ${isTeam ? "Intake call" : "Call booked"}: ${naam}`, `${soortNaam} · ${wanneer}\nContact: ${contact}`, { tags: ["calendar"], prioriteit: 5, link: `${SITE_URL}/dashboard` });
   }
-  await mailEigenaar(
+  // A lead from the thevolgo.app landing page booked a call: to Damien as [Lead] (team intakes go out as [Team] below).
+  if (volgoZelf && !isTeam)
+    await mailVolgoLead(`[Lead] Call booked from thevolgo.app: ${naam}, ${leesbaar(res.start)}`, "A lead from thevolgo.app booked a call", [
+      ["Name", naam],
+      ["When", `${wanneer} (Amsterdam time)`],
+      ["Type", soortNaam],
+      ["Contact", contact],
+      ...(b.adres ? ([["Address", b.adres]] as [string, string][]) : []),
+    ]);
+  if (!volgoZelf) await mailEigenaar(
     DB,
     team,
     100,
@@ -282,7 +315,7 @@ export async function boekViaChat(
       const { INBOX } = await import("./aanvraag.server");
       await verstuurMail(
         INBOX,
-        `Intake call booked: ${naam}, ${leesbaar(res.start)}`,
+        `[Team] Intake call booked: ${naam}, ${leesbaar(res.start)}`,
         mailOpmaak(
           `Intake call booked: ${esc(naam)}`,
           `<p style="margin:0 0 6px">${esc(g.onderwerp)}</p><p style="margin:0 0 6px"><strong>${esc(wanneer)}</strong> (Amsterdam time)</p><p style="margin:0">Contact: ${esc(contact)}</p>`,
