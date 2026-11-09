@@ -125,3 +125,4 @@
 #vd .vl-hero { max-width: 1008px; }
 #vd .vl-hero .vl-sub { max-width: 640px; }
 #vd .vl-film video.is-staand { aspect-ratio: 3 / 4; }
+#vd .vl-kanaal-label { display: inline-block; margin-bottom: 14px; padding: 5px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: #86efac; background: rgba(34, 197, 94, 0.1); box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.28); }

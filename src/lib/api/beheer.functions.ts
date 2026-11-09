@@ -46,6 +46,12 @@ const instellingSchema = z.object({
   iban: z.union([z.literal(""), z.string().trim().toUpperCase().regex(/^[A-Z]{2}\d{2}[A-Z0-9 ]{10,32}$/)]).optional(),
   /** Their own Stripe key (restricted key with Checkout write). "" removes it; leave out to keep it. */
   stripe_sleutel: z.union([z.literal(""), z.string().trim().regex(/^(rk|sk)_(live|test)_[A-Za-z0-9]{10,}$/)]).optional(),
+  zakelijk_nummer: z.string().trim().max(30).optional(),
+  /** Meta phone number ID of the business's verified WhatsApp number (digits). */
+  wa_phone_id: z.union([z.literal(""), z.string().trim().regex(/^\d{6,30}$/)]).optional(),
+  /** Twilio number in E.164 that forwards calls to the business. */
+  twilio_nummer: z.union([z.literal(""), z.string().trim().regex(/^\+[1-9]\d{7,14}$/)]).optional(),
+  sms_terug: z.boolean().optional(),
 });
 type Instelling = z.infer<typeof instellingSchema>;
 
@@ -90,6 +96,13 @@ async function pasAan(DB: DB, id: number, w: Instelling) {
   if (w.antwoord_mail !== undefined) zet("antwoord_mail", w.antwoord_mail);
   if (w.iban !== undefined) zet("iban", w.iban.replace(/\s+/g, " "));
   if (w.stripe_sleutel !== undefined) zet("stripe_sleutel", w.stripe_sleutel);
+  if (w.zakelijk_nummer !== undefined) {
+    const { normNummer } = await import("../kanalen.server");
+    zet("zakelijk_nummer", w.zakelijk_nummer ? normNummer(w.zakelijk_nummer) : "");
+  }
+  if (w.wa_phone_id !== undefined) zet("wa_phone_id", w.wa_phone_id);
+  if (w.twilio_nummer !== undefined) zet("twilio_nummer", w.twilio_nummer);
+  if (w.sms_terug !== undefined) zet("sms_terug", w.sms_terug ? 1 : 0);
   if (!sets.length) return [];
   await DB.prepare(`UPDATE ava_instellingen SET ${sets.join(", ")} WHERE team_id = ?`)
     .bind(...waarden, id)
@@ -133,10 +146,11 @@ async function laadKlant(DB: DB, id: number) {
   if (!g) throw new Error("Customer not found.");
   const i = await inst(DB, id);
   const extra = await DB.prepare(
-    "SELECT site_url, review_url, taal, auto_herinnering, auto_review, auto_opvolging, auto_seizoen, antwoord_mail, iban, stripe_sleutel FROM ava_instellingen WHERE team_id = ?",
+    "SELECT site_url, review_url, taal, auto_herinnering, auto_review, auto_opvolging, auto_seizoen, antwoord_mail, iban, stripe_sleutel, zakelijk_nummer, wa_phone_id, twilio_nummer, sms_terug, kanaal_wens FROM ava_instellingen WHERE team_id = ?",
   )
     .bind(id)
-    .first<{ site_url: string; review_url: string; taal: string; auto_herinnering: number; auto_review: number; auto_opvolging: number; auto_seizoen: number; antwoord_mail: string; iban: string; stripe_sleutel: string }>();
+    .first<{ site_url: string; review_url: string; taal: string; auto_herinnering: number; auto_review: number; auto_opvolging: number; auto_seizoen: number; antwoord_mail: string; iban: string; stripe_sleutel: string; zakelijk_nummer: string; wa_phone_id: string; twilio_nummer: string; sms_terug: number; kanaal_wens: string }>();
+  const { platform } = await import("../kanalen.server");
   const [gesprekken, afspraken, leads, telling] = await Promise.all([
     DB.prepare("SELECT id, bezoeker, onderwerp, status, gestart, laatste, berichten, warmte FROM ava_gesprekken WHERE team_id = ? AND voorbeeld = 0 ORDER BY laatste DESC LIMIT 25")
       .bind(id)
@@ -176,7 +190,13 @@ async function laadKlant(DB: DB, id: number) {
       antwoord_mail: extra?.antwoord_mail ?? "",
       iban: extra?.iban ?? "",
       stripe: extra?.stripe_sleutel ? `${extra.stripe_sleutel.slice(0, 8)}…${extra.stripe_sleutel.slice(-4)}` : "",
+      zakelijk_nummer: extra?.zakelijk_nummer ?? "",
+      wa_phone_id: extra?.wa_phone_id ?? "",
+      twilio_nummer: extra?.twilio_nummer ?? "",
+      sms_terug: Boolean(extra?.sms_terug),
     },
+    kanaalWens: extra?.kanaal_wens ?? "",
+    platform: platform(),
     gesprekken: gesprekken.results,
     afspraken: afspraken.results,
     leads: leads.results,

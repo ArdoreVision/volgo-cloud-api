@@ -3,11 +3,12 @@ import type { FormEvent, KeyboardEvent } from "react";
 
 import { haalGesprek, haalGesprekken, neemGesprekOver, stuurMensBericht } from "@/lib/api/ava.functions";
 
+import { ContactKnoppen } from "./contact-knoppen";
 import { type DashData, geleden, sqlDate, tijdAms } from "./util";
 
 type Detail = NonNullable<Awaited<ReturnType<typeof haalGesprek>>>;
 type Item = Awaited<ReturnType<typeof haalGesprekken>>[number];
-const KANAAL: Record<string, string> = { Contactformulier: "Formulier", "E-mail": "Mail" };
+const KANAAL: Record<string, string> = { Contactformulier: "Formulier", "E-mail": "Mail", WhatsApp: "WhatsApp", SMS: "Sms", Telefoon: "Telefoon" };
 
 const KLEUREN = ["#1677d9", "#7c3aed", "#0f9d76", "#d9480f", "#c2255c", "#0b7285", "#5c7cfa", "#b08900"];
 const initialen = (n: string) =>
@@ -141,14 +142,16 @@ export function Gesprekken({ data }: { data: DashData }) {
   const isLive = (g: { laatste: string; status: string }) => g.status === "live" && nu - sqlDate(g.laatste).getTime() < 10 * 60000;
   const g = detail?.gesprek;
   const kanChatten = Boolean(g?.kan_chatten);
-  const perMail = g?.kanaal === "Contactformulier" || g?.kanaal === "E-mail";
+  // Not a live website chat: there is no Volgo to take over from, your reply goes out via the channel itself.
+  const perMail = ["Contactformulier", "E-mail", "WhatsApp", "SMS", "Telefoon"].includes(g?.kanaal ?? "");
+  const viaTekst = g?.kanaal === "WhatsApp" ? "via WhatsApp" : g?.kanaal === "SMS" || g?.kanaal === "Telefoon" ? "per sms" : g?.contact?.includes("@") ? "per mail" : "per sms";
   const berichten = detail?.berichten ?? [];
 
   return (
     <>
       <header className="v-dash__head">
         <h1>Inbox</h1>
-        <p>Websitechat, contactformulier en mail op één plek. Open een gesprek om mee te lezen of zelf te antwoorden.</p>
+        <p>Websitechat, contactformulier, mail, WhatsApp en telefoon op één plek (WhatsApp, telefoon en mail zodra ze gekoppeld zijn onder Kanalen). Open een gesprek om mee te lezen of zelf te antwoorden.</p>
       </header>
       <div className={`v-dm${open ? " is-open" : ""}`}>
         <aside className="v-dm__list" aria-label="Chats">
@@ -194,7 +197,7 @@ export function Gesprekken({ data }: { data: DashData }) {
                   </span>
                   <span className="v-dm__rij">
                     <span className="v-dm__voorbeeld">{c.laatste_tekst ? wie + c.laatste_tekst : c.onderwerp}</span>
-                    {ongelezen ? <i aria-label="Ongelezen" className="v-dm__dot" /> : c.overgenomen_naam ? <em className="v-dm__tag v-dm__tag--jij">Jij</em> : live ? <em className="v-dm__tag">Volgo</em> : null}
+                    {ongelezen ? <i aria-label="Ongelezen" className="v-dm__dot" /> : c.overgenomen_naam ? <em className="v-dm__tag v-dm__tag--jij">Jij</em> : live && !KANAAL[c.kanaal] ? <em className="v-dm__tag">Volgo</em> : null}
                   </span>
                 </span>
               </button>
@@ -218,6 +221,7 @@ export function Gesprekken({ data }: { data: DashData }) {
                     {KANAAL[g.kanaal] ? ` · via ${KANAAL[g.kanaal].toLowerCase()}` : ""}
                   </small>
                 </div>
+                <ContactKnoppen contact={g.contact} kanaal={g.kanaal} klein naam={g.bezoeker} onderwerp={g.onderwerp} />
                 {kanChatten && !perMail ? (
                   <div className="v-dm__modus" role="group" aria-label="Wie antwoordt">
                     <button aria-pressed={!ikChat} disabled={bezig} onClick={() => void zetModus(false)} type="button">
@@ -301,7 +305,7 @@ export function Gesprekken({ data }: { data: DashData }) {
                     aria-label="Je bericht"
                     onChange={(e) => setTekst(e.target.value)}
                     onKeyDown={onKey}
-                    placeholder={perMail ? `Antwoord ${g.bezoeker} (per ${g.contact && g.contact.includes("@") ? "mail" : "sms"})…` : ikChat ? `Bericht aan ${g.bezoeker}…` : "Volgo antwoordt. Typ hier om over te nemen…"}
+                    placeholder={perMail ? `Antwoord ${g.bezoeker} (${viaTekst})…` : ikChat ? `Bericht aan ${g.bezoeker}…` : "Volgo antwoordt. Typ hier om over te nemen…"}
                     rows={1}
                     value={tekst}
                   />

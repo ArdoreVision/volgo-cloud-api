@@ -95,7 +95,19 @@ export const Route = createFileRoute("/api/ava")({
         if (body.actie === "config") {
           const { actieveStijl } = await import("@/lib/stijl.server");
           const stijl = await actieveStijl(DB, inst.team_id);
-          return json({ naam: inst.naam, begroeting: inst.begroeting, kleur: inst.kleur, bedrijf: inst.bedrijf, boeken: Boolean(inst.boeken), toestemming: Boolean(inst.toestemming), ...stijl });
+          // Click buttons only: they open WhatsApp or the phone with the business's own number.
+          const nr = inst.zakelijk_nummer || "";
+          return json({
+            naam: inst.naam,
+            begroeting: inst.begroeting,
+            kleur: inst.kleur,
+            bedrijf: inst.bedrijf,
+            boeken: Boolean(inst.boeken),
+            toestemming: Boolean(inst.toestemming),
+            whatsapp: inst.knop_whatsapp && nr ? nr.replace(/^\+/, "") : "",
+            bellen: inst.knop_bellen && nr ? nr : "",
+            ...stijl,
+          });
         }
         if (body.actie === "poll") {
           return json(await pollGesprek(DB, inst.team_id, body.token, body.na_id));

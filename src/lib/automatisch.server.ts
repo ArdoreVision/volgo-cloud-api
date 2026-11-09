@@ -406,6 +406,7 @@ async function voorTeam(DB: D1Database, inst: Inst) {
            AND g.gestart > datetime('now', '-6 days') AND g.gestart <= datetime('now', '-1 day')
            AND COALESCE(l.status, 'nieuw') NOT IN ('afspraak', 'klant', 'verloren')
            AND m.overgenomen_door IS NULL
+           AND g.kanaal NOT IN ('WhatsApp', 'SMS', 'Telefoon') -- these are answered in their own channel by the business
            AND NOT EXISTS (SELECT 1 FROM afspraken a WHERE a.team_id = g.team_id AND m.lead_id IS NOT NULL AND a.lead_id = m.lead_id)
            AND NOT EXISTS (SELECT 1 FROM ava_berichten b WHERE b.gesprek_id = g.id AND b.rol = 'mens')
          ORDER BY g.id LIMIT 30`,

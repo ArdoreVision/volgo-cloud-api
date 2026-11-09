@@ -2563,3 +2563,37 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000; }
   .v-g__kop h1 { font-size: 23px; }
   .v-g__scherm.is-mobiel iframe { width: 100%; }
 }
+
+/* Call / WhatsApp / mail click buttons */
+.v-ck { display: flex; flex-wrap: wrap; gap: 6px; }
+.v-ck__knop { display: inline-flex; align-items: center; gap: 6px; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 13px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.v-ck__knop svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.v-ck__knop:hover { border-color: color-mix(in srgb, var(--ink) 30%, var(--line)); }
+.v-ck__knop--bel { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.v-ck__knop--wa { color: #128c4b; }
+.v-ck--klein .v-ck__knop { padding: 5px 10px; font-size: 12px; }
+.v-ck--klein .v-ck__knop svg { width: 13px; height: 13px; }
+.v-kanaal { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--surface); color: var(--muted); white-space: nowrap; }
+.v-kanaal--whatsapp { background: #e8f7ee; color: #067647; }
+.v-kanaal--telefoon, .v-kanaal--sms { background: #eef4ff; color: #1d4ed8; }
+.v-kanaal--website { background: #f4f0ff; color: #5b3fd1; }
+
+/* Channels */
+.v-kn__lijst { display: flex; flex-direction: column; }
+.v-kn__rij { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); cursor: default; }
+.v-kn__rij:first-child { border-top: 0; padding-top: 4px; }
+label.v-kn__rij { cursor: pointer; }
+.v-kn__rij strong { display: block; font-size: 15px; }
+.v-kn__rij small { display: block; margin-top: 3px; color: var(--muted); font-size: 13.5px; line-height: 1.45; max-width: 560px; }
+.v-kn__rechts { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex: none; }
+.v-kn__mist { margin: 8px 0 0; padding-left: 18px; font-size: 13px; color: #9a5b00; }
+.v-kn__schakel { appearance: none; flex: none; width: 44px; height: 26px; border-radius: 999px; background: var(--line); position: relative; cursor: pointer; transition: background 0.15s; margin-top: 2px; }
+.v-kn__schakel::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); transition: transform 0.15s; }
+.v-kn__schakel:checked { background: #16a34a; }
+.v-kn__schakel:checked::after { transform: translateX(18px); }
+.v-kn__schakel:disabled { opacity: 0.5; }
+.v-kn__stap { margin: 0 0 6px; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.v-kn--onboarding { padding-top: 24px; }
+.v-kn__later { align-self: center; border: 0; background: none; color: var(--muted); font: inherit; font-size: 14px; text-decoration: underline; cursor: pointer; }
+.v-kb__let { margin: 0 0 8px; padding: 8px 12px; border-radius: 10px; background: #fff4e5; color: #9a5b00; font-size: 13px; font-weight: 600; }
+.v-table small.v-lead__contact, .v-lead__contact { display: block; margin: 2px 0 6px; color: var(--ink); font-weight: 500; }

@@ -1,3 +1,4 @@
+import { ContactKnoppen, KanaalLabel } from "./contact-knoppen";
 import { useEffect, useState } from "react";
 
 import { bewaarLeadNotitie, haalLead } from "@/lib/api/account.functions";
@@ -11,14 +12,6 @@ const STATUS_LABEL: Record<Status, string> = { nieuw: "Nieuw", opvolging: "Volgo
 
 const wanneer = (iso: string) =>
   new Date(iso.replace(" ", "T") + "Z").toLocaleString("nl-NL", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
-
-/** Splits "Sarah, 06 1234 5678 / sarah@mail.com" into phone and email, whatever Volgo captured. */
-function contactDelen(c: string | null) {
-  const t = c ?? "";
-  const email = t.match(/[^\s,;/]+@[^\s,;/]+\.[a-z]{2,}/i)?.[0] ?? null;
-  const tel = t.replace(email ?? "", "").match(/\+?[\d][\d\s().-]{6,}\d/)?.[0]?.trim() ?? null;
-  return { email, tel: tel ? tel.replace(/[\s().-]/g, "") : null, telToon: tel };
-}
 
 export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sluit: () => void; zetStatus: (id: number, s: Status) => Promise<void>; openChats: () => void }) {
   const [d, setD] = useState<Data | null | undefined>(undefined);
@@ -57,7 +50,6 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
   }
 
   const l = d?.lead;
-  const c = contactDelen(l?.contact ?? null);
   const kleur = l ? warmteLabel(l.warmte).toLowerCase() : "lauw";
 
   return (
@@ -81,19 +73,11 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
                 </p>
               </div>
             </header>
-            {l.reden ? <p className="v-lp__reden">Why this score: {l.reden}</p> : null}
+            {l.reden ? <p className="v-lp__reden">Waarom deze score: {l.reden}</p> : null}
 
             <div className="v-lp__acties">
-              {c.tel ? (
-                <a className="v-btn-blauw" href={`tel:${c.tel}`}>
-                  Call {c.telToon}
-                </a>
-              ) : null}
-              {c.email ? (
-                <a className="v-btn-wit" href={`mailto:${c.email}?subject=${encodeURIComponent("Je aanvraag: " + l.onderwerp)}`}>
-                  Email
-                </a>
-              ) : null}
+              <KanaalLabel kanaal={l.kanaal} />
+              <ContactKnoppen contact={l.contact} kanaal={l.kanaal} naam={l.naam} onderwerp={l.onderwerp} />
               {l.contact ? (
                 <button className="v-btn-wit" onClick={() => void kopieer(l.contact!)} type="button">
                   {gekopieerd ? "Gekopieerd" : "Contact kopiëren"}
