@@ -272,6 +272,22 @@ export async function boekViaChat(
       { tekst: "Open your calendar", url: `${SITE_URL}/dashboard` },
     ),
   );
+  // By Intent team applications: also mail the booked intake call to Damien.
+  {
+    const g = await DB.prepare("SELECT onderwerp FROM ava_gesprekken WHERE id = ?").bind(gid).first<{ onderwerp: string | null }>();
+    if (g?.onderwerp?.startsWith("Team application")) {
+      const { INBOX } = await import("./aanvraag.server");
+      await verstuurMail(
+        INBOX,
+        `Intake call booked: ${naam}, ${leesbaar(res.start)}`,
+        mailOpmaak(
+          `Intake call booked: ${esc(naam)}`,
+          `<p style="margin:0 0 6px">${esc(g.onderwerp)}</p><p style="margin:0 0 6px"><strong>${esc(wanneer)}</strong> (Amsterdam time)</p><p style="margin:0">Contact: ${esc(contact)}</p>`,
+          { tekst: "Open your calendar", url: `${SITE_URL}/dashboard` },
+        ),
+      ).catch(() => false);
+    }
+  }
   return { ok: true as const, token, antwoord: bevestiging, start: res.start, eind: res.eind };
 }
 

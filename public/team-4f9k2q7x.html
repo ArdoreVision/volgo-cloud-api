@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Join the team · By Intent</title>
+<meta name="description" content="By Intent is looking for cold callers and web developers. Free to apply. You only earn when you deliver.">
+<meta property="og:title" content="By Intent is looking for cold callers and web developers">
+<meta property="og:description" content="Free to apply. No course. A short intake call, then you start.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  ::selection { background: #fff; color: #000; }
+  html { background: #000; scroll-behavior: smooth; }
+  body { background: #000; color: #fff; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 14px; letter-spacing: .02em; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  a { color: #fff; }
+  button, input, textarea { font: inherit; color: inherit; letter-spacing: inherit; }
+  .hide { display: none !important; }
+  .muted { opacity: .55; }
+  .small { font-size: 12px; }
+  .back { position: absolute; top: 28px; left: 32px; opacity: .6; text-decoration: none; transition: opacity .3s; z-index: 5; }
+  .back:hover { opacity: 1; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 22px; }
+  section { padding: 96px 0; border-top: 1px solid #141414; }
+  section:first-of-type { border-top: 0; }
+  h1 { font-size: clamp(26px, 4.4vw, 40px); font-weight: 400; line-height: 1.2; letter-spacing: -.01em; }
+  h2 { font-size: 20px; font-weight: 400; margin-bottom: 22px; }
+  p + p { margin-top: 14px; }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .14em; opacity: .45; margin-bottom: 18px; }
+  .btn { display: inline-block; padding: 14px 24px; border: 1px solid #fff; background: #fff; color: #000; cursor: pointer; text-decoration: none; transition: background .2s, color .2s; }
+  .btn:hover { background: #000; color: #fff; }
+  .btn:disabled { opacity: .35; cursor: default; background: #fff; color: #000; }
+  .ghost { background: none; border: 0; cursor: pointer; opacity: .6; text-decoration: underline; padding: 14px 4px; }
+  .ghost:hover { opacity: 1; }
+  .in { animation: in .7s ease both; }
+  @keyframes in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .hero { min-height: 92vh; display: flex; flex-direction: column; justify-content: center; gap: 26px; }
+  .pill { display: inline-flex; gap: 8px; align-items: center; border: 1px solid #262626; padding: 6px 12px; font-size: 12px; width: fit-content; }
+  .dot { width: 6px; height: 6px; background: #fff; border-radius: 50%; animation: blink 1.6s infinite; }
+  @keyframes blink { 50% { opacity: .2; } }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .box { border: 1px solid #262626; padding: 22px; }
+  .box h3 { font-size: 15px; font-weight: 500; margin-bottom: 10px; }
+  .box ul { list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; opacity: .8; }
+  .box li::before { content: "— "; opacity: .5; }
+  .steps { display: flex; flex-direction: column; gap: 0; counter-reset: s; }
+  .steps div { display: grid; grid-template-columns: 44px 1fr; padding: 18px 0; border-top: 1px solid #141414; }
+  .steps div:first-child { border-top: 0; }
+  .steps b { font-weight: 400; opacity: .4; }
+  .free { border: 1px solid #fff; padding: 22px; margin-top: 28px; }
+  .free strong { font-weight: 500; }
+
+  /* form */
+  .progress { height: 1px; background: #262626; margin-bottom: 34px; }
+  .progress i { display: block; height: 1px; background: #fff; transition: width .4s ease; }
+  .step { display: flex; flex-direction: column; gap: 22px; }
+  .q { display: flex; flex-direction: column; gap: 10px; }
+  .q > span { font-size: 13px; }
+  .q > span em { font-style: normal; opacity: .45; font-size: 12px; }
+  input[type=text], input[type=email], input[type=tel], input[type=url], textarea {
+    width: 100%; background: #0b0b0b; border: 1px solid #262626; padding: 13px 14px; outline: none; border-radius: 0; transition: border-color .2s;
+  }
+  input:focus, textarea:focus { border-color: #fff; }
+  textarea { resize: vertical; min-height: 90px; }
+  .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opt { border: 1px solid #262626; background: #000; padding: 10px 14px; cursor: pointer; font-size: 13px; transition: border-color .15s, background .15s, color .15s; user-select: none; }
+  .opt:hover { border-color: #777; }
+  .opt.on { background: #fff; color: #000; border-color: #fff; }
+  .big { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .big .opt { padding: 20px 16px; text-align: left; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+  .big .opt small { font-size: 11px; opacity: .6; }
+  .check { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; font-size: 13px; }
+  .check input { appearance: none; width: 16px; height: 16px; border: 1px solid #fff; flex: none; margin-top: 3px; display: grid; place-items: center; cursor: pointer; }
+  .check input:checked { background: #fff; }
+  .check input:checked::after { content: ""; width: 6px; height: 6px; background: #000; }
+  .nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px; }
+  .err { color: #ff6b6b; font-size: 12px; min-height: 18px; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+  /* booking */
+  .days { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+  .day { flex: none; width: 74px; border: 1px solid #262626; padding: 10px 6px; text-align: center; cursor: pointer; background: #000; transition: border-color .15s; }
+  .day:hover { border-color: #777; }
+  .day.on { background: #fff; color: #000; border-color: #fff; }
+  .day small { display: block; font-size: 10px; opacity: .6; text-transform: uppercase; letter-spacing: .1em; }
+  .day b { display: block; font-size: 20px; font-weight: 400; }
+  .times { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+  .time { border: 1px solid #262626; padding: 10px 0; text-align: center; cursor: pointer; background: #000; font-size: 13px; }
+  .time:hover { border-color: #777; }
+  .time.on { background: #fff; color: #000; border-color: #fff; }
+  .done { border: 1px solid #fff; padding: 26px; display: flex; flex-direction: column; gap: 12px; }
+
+  footer { padding: 40px 0 60px; text-align: center; font-size: 12px; opacity: .45; }
+
+  @media (max-width: 600px) {
+    .back { top: 20px; left: 20px; }
+    .grid2, .big { grid-template-columns: 1fr; }
+    section { padding: 72px 0; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <!-- intro -->
+  <section class="wrap hero in">
+    <span class="pill"><span class="dot"></span>Now looking for people</span>
+    <h1>We're looking for cold callers and web developers.</h1>
+    <p class="muted">By Intent builds websites and AI systems for local businesses. Some of us sell, some of us build. You join a team, not a course, and you only earn when you deliver something of value.</p>
+    <div><a class="btn" href="#apply">Apply — it's free ↓</a></div>
+  </section>
+
+  <!-- who -->
+  <section class="wrap">
+    <p class="label">Who we're looking for</p>
+    <div class="grid2">
+      <div class="box">
+        <h3>Cold callers</h3>
+        <ul>
+          <li>You're not afraid to pick up the phone</li>
+          <li>You call local businesses from our lead lists</li>
+          <li>You book meetings and help close deals</li>
+          <li>Experience is a plus, not a must</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Web developers</h3>
+        <ul>
+          <li>You build websites, systems or automations</li>
+          <li>Think AI receptionists, CRM, chatbots, funnels</li>
+          <li>You deliver fast and clean</li>
+          <li>Students and juniors welcome</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- how -->
+  <section class="wrap">
+    <p class="label">How it works</p>
+    <div class="steps">
+      <div><b>01</b><span>Apply below. It takes about 2 minutes.</span></div>
+      <div><b>02</b><span>Book a short intake call (30 min) with someone from the team, straight after you apply.</span></div>
+      <div><b>03</b><span>If it's a fit, you join the team and start on real work.</span></div>
+    </div>
+    <div class="free">
+      <p><strong>Applying is completely free.</strong> There are no costs, no course and nothing to buy. The call is only there to get to know you: who you are, what you can do and what you want to learn.</p>
+    </div>
+  </section>
+
+  <!-- form -->
+  <section class="wrap" id="apply">
+    <p class="label">Apply</p>
+    <div class="progress"><i id="bar" style="width:0%"></i></div>
+    <form id="form" novalidate autocomplete="on">
+      <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+      <!-- 1 role -->
+      <div class="step" data-step="1">
+        <h2>What do you want to do?</h2>
+        <div class="big" data-one="role">
+          <button type="button" class="opt" data-v="Cold caller">Cold caller<small>Call businesses, book meetings, help close.</small></button>
+          <button type="button" class="opt" data-v="Web developer">Web developer<small>Build websites, systems and automations.</small></button>
+        </div>
+      </div>
+
+      <!-- 2 about you -->
+      <div class="step hide" data-step="2">
+        <h2>About you</h2>
+        <label class="q"><span>Full name</span><input type="text" id="naam" autocomplete="name" maxlength="80"></label>
+        <label class="q"><span>Email</span><input type="email" id="email" autocomplete="email" maxlength="80"></label>
+        <label class="q"><span>Phone / WhatsApp</span><input type="tel" id="tel" autocomplete="tel" maxlength="30" placeholder="+31 6 …"></label>
+        <label class="q"><span>X, Instagram or LinkedIn <em>(optional)</em></span><input type="text" id="social" maxlength="100" placeholder="@yourname"></label>
+        <label class="q"><span>Where are you based?</span><input type="text" id="plek" maxlength="60" placeholder="City, country"></label>
+        <div class="q"><span>Which languages do you speak well?</span>
+          <div class="opts" data-many="talen"><button type="button" class="opt" data-v="Dutch">Dutch</button><button type="button" class="opt" data-v="English">English</button><button type="button" class="opt" data-v="German">German</button><button type="button" class="opt" data-v="French">French</button><button type="button" class="opt" data-v="Other">Other</button></div>
+        </div>
+      </div>
+
+      <!-- 3a caller -->
+      <div class="step hide" data-step="3" data-role="Cold caller">
+        <h2>Calling</h2>
+        <div class="q"><span>How much sales or calling experience do you have?</span>
+          <div class="opts" data-one="ervaring_c"><button type="button" class="opt" data-v="None yet">None yet</button><button type="button" class="opt" data-v="A little">A little</button><button type="button" class="opt" data-v="1+ year">1+ year</button><button type="button" class="opt" data-v="3+ years">3+ years</button></div>
+        </div>
+        <div class="q"><span>How do you feel about calling strangers?</span>
+          <div class="opts" data-one="bellen"><button type="button" class="opt" data-v="I love it">I love it</button><button type="button" class="opt" data-v="Fine with it">Fine with it</button><button type="button" class="opt" data-v="Nervous, but I want to learn">Nervous, but I want to learn</button></div>
+        </div>
+        <label class="q"><span>What have you sold or done before? <em>(optional)</em></span><textarea id="verleden_c" maxlength="400" placeholder="Jobs, call centre, door-to-door, your own business…"></textarea></label>
+      </div>
+
+      <!-- 3b developer -->
+      <div class="step hide" data-step="3" data-role="Web developer">
+        <h2>Building</h2>
+        <div class="q"><span>What can you build? <em>(tick all that apply)</em></span>
+          <div class="opts" data-many="tools"><button type="button" class="opt" data-v="AI receptionist">AI receptionist</button><button type="button" class="opt" data-v="Reactivation campaigns">Reactivation campaigns</button><button type="button" class="opt" data-v="Review funnels">Review funnels</button><button type="button" class="opt" data-v="CRM">CRM</button><button type="button" class="opt" data-v="Websites">Websites</button><button type="button" class="opt" data-v="Chatbots">Chatbots</button><button type="button" class="opt" data-v="Ads">Ads</button><button type="button" class="opt" data-v="Custom automations">Custom automations</button></div>
+        </div>
+        <div class="q"><span>Your level</span>
+          <div class="opts" data-one="ervaring_d"><button type="button" class="opt" data-v="Beginner">Beginner</button><button type="button" class="opt" data-v="Junior">Junior</button><button type="button" class="opt" data-v="Medior">Medior</button><button type="button" class="opt" data-v="Senior">Senior</button></div>
+        </div>
+        <label class="q"><span>Portfolio, GitHub or a site you built <em>(optional)</em></span><input type="text" id="portfolio" maxlength="200" placeholder="https://"></label>
+      </div>
+
+      <!-- 4 interests -->
+      <div class="step hide" data-step="4">
+        <h2>Your interests</h2>
+        <div class="q"><span>How many hours a week can you work?</span>
+          <div class="opts" data-one="uren"><button type="button" class="opt" data-v="Under 10">Under 10</button><button type="button" class="opt" data-v="10–20">10–20</button><button type="button" class="opt" data-v="20–40">20–40</button><button type="button" class="opt" data-v="Full time">Full time</button></div>
+        </div>
+        <div class="q"><span>What do you want to learn? <em>(tick all that apply)</em></span>
+          <div class="opts" data-many="leren"><button type="button" class="opt" data-v="Cold calling">Cold calling</button><button type="button" class="opt" data-v="Closing deals">Closing deals</button><button type="button" class="opt" data-v="Web design">Web design</button><button type="button" class="opt" data-v="AI automations">AI automations</button><button type="button" class="opt" data-v="Ads">Ads</button><button type="button" class="opt" data-v="Running an agency">Running an agency</button></div>
+        </div>
+        <label class="q"><span>Why do you want to join?</span><textarea id="waarom" maxlength="600" placeholder="A few sentences is enough."></textarea></label>
+        <div class="q"><span>How did you find us?</span>
+          <div class="opts" data-one="bron"><button type="button" class="opt" data-v="X / Twitter">X / Twitter</button><button type="button" class="opt" data-v="Instagram">Instagram</button><button type="button" class="opt" data-v="TikTok">TikTok</button><button type="button" class="opt" data-v="LinkedIn">LinkedIn</button><button type="button" class="opt" data-v="A friend">A friend</button><button type="button" class="opt" data-v="Other">Other</button></div>
+        </div>
+      </div>
+
+      <!-- 5 confirm -->
+      <div class="step hide" data-step="5">
+        <h2>Almost done</h2>
+        <p class="muted">After you apply you'll pick a time for a short intake call with someone from the team. It's free and there are no costs, ever. We just want to see who you are, what you can do and what you want to learn.</p>
+        <label class="check"><input type="checkbox" id="ok_call"><span>I understand that I'll book a free intake call to see if I'm a fit.</span></label>
+        <label class="check"><input type="checkbox" id="ok_18"><span>I'm 18 or older.</span></label>
+        <label class="check"><input type="checkbox" id="ok_privacy"><span>By Intent may use my details to contact me about this application.</span></label>
+      </div>
+
+      <p class="err" id="err"></p>
+      <div class="nav" id="nav">
+        <button type="button" class="ghost" id="prev">← Back</button>
+        <button type="button" class="btn" id="next">Next</button>
+      </div>
+    </form>
+
+    <!-- 6 book -->
+    <div class="step hide in" id="book">
+      <h2>Pick a time for your intake call</h2>
+      <p class="muted small" id="bookSub">Free · 30 minutes · by phone · times in Amsterdam time</p>
+      <div class="days" id="days"></div>
+      <div class="times" id="times"></div>
+      <p class="err" id="bookErr"></p>
+      <div class="nav"><span class="small muted" id="chosen"></span><button type="button" class="btn" id="bookBtn" disabled>Book call</button></div>
+    </div>
+
+    <!-- 7 done -->
+    <div class="done hide in" id="done">
+      <p class="label" style="margin:0">Application received</p>
+      <h2 style="margin:0" id="doneTitle">You're in the queue.</h2>
+      <p class="muted" id="doneText"></p>
+      <p class="muted small">Applying is free. No costs, no course.</p>
+    </div>
+  </section>
+</main>
+
+<footer>By Intent · Hanssens Cornerstone Capital · Vlissingen</footer>
+
+<script>
+/* ===== Settings ===== */
+const VOLGO = '';   // same site as Volgo
+const VOLGO_KEY = 'c2c0abaa339e5c0a8c9e4064';   // your Volgo website key: applications land in your Volgo inbox as leads
+const CALL_FROM = '09:00', CALL_TO = '21:00';    // only show call times in this window (Amsterdam time)
+
+const $ = id => document.getElementById(id);
+const steps = [...document.querySelectorAll('#form .step')];
+const A = { role: '', talen: [], tools: [], leren: [] };
+let cur = 1, token = '', slot = '', applied = false;
+
+/* --- choice buttons --- */
+document.querySelectorAll('[data-one]').forEach(g => g.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+  g.querySelectorAll('.opt').forEach(x => x.classList.toggle('on', x === b));
+  A[g.dataset.one] = b.dataset.v;
+  if (g.dataset.one === 'role') setTimeout(next, 180);
+}));
+document.querySelectorAll('[data-many]').forEach(g => g.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+  b.classList.toggle('on');
+  A[g.dataset.many] = [...g.querySelectorAll('.opt.on')].map(x => x.dataset.v);
+}));
+
+const visible = n => steps.filter(s => +s.dataset.step === n && (!s.dataset.role || s.dataset.role === A.role));
+function paint() {
+  steps.forEach(s => s.classList.add('hide'));
+  visible(cur).forEach(s => { s.classList.remove('hide'); s.classList.add('in'); });
+  $('bar').style.width = ((cur - 1) / 5 * 100) + '%';
+  $('prev').style.visibility = cur > 1 ? 'visible' : 'hidden';
+  $('next').classList.toggle('hide', cur === 1);
+  $('next').textContent = cur === 5 ? 'Apply' : 'Next';
+  $('err').textContent = '';
+}
+const val = id => $(id).value.trim();
+function check(n) {
+  if (n === 1 && !A.role) return 'Choose what you want to do.';
+  if (n === 2) {
+    if (val('naam').length < 2) return 'Fill in your name.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val('email'))) return 'Fill in a valid email address.';
+    if (val('tel').replace(/\D/g, '').length < 8) return 'Fill in your phone number, so we can call you.';
+    if (!val('plek')) return 'Tell us where you are based.';
+    if (!A.talen.length) return 'Pick at least one language.';
+  }
+  if (n === 3 && A.role === 'Cold caller' && (!A.ervaring_c || !A.bellen)) return 'Answer both questions.';
+  if (n === 3 && A.role === 'Web developer' && (!A.tools.length || !A.ervaring_d)) return 'Tick what you can build and choose your level.';
+  if (n === 4) {
+    if (!A.uren) return 'Choose how many hours you can work.';
+    if (!A.leren.length) return 'Tick at least one thing you want to learn.';
+    if (val('waarom').length < 10) return 'Tell us in a few words why you want to join.';
+    if (!A.bron) return 'Tell us how you found us.';
+  }
+  if (n === 5 && (!$('ok_call').checked || !$('ok_18').checked || !$('ok_privacy').checked)) return 'Tick all three boxes to apply.';
+  return '';
+}
+function next() {
+  const e = check(cur);
+  if (e) { $('err').textContent = e; return; }
+  if (cur === 5) return apply();
+  cur++; paint();
+  document.getElementById('apply').scrollIntoView({ behavior: 'smooth' });
+}
+$('next').onclick = next;
+$('prev').onclick = () => { if (cur > 1) { cur--; paint(); } };
+document.getElementById('form').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); next(); } });
+
+/* --- send to Volgo --- */
+function summary() {
+  const L = [`Role: ${A.role}`, `Based in: ${val('plek')}`, `Languages: ${A.talen.join(', ')}`];
+  if (val('social')) L.push(`Social: ${val('social')}`);
+  if (A.role === 'Cold caller') {
+    L.push(`Experience: ${A.ervaring_c}`, `Calling strangers: ${A.bellen}`);
+    if (val('verleden_c')) L.push(`Background: ${val('verleden_c')}`);
+  } else {
+    L.push(`Can build: ${A.tools.join(', ')}`, `Level: ${A.ervaring_d}`);
+    if (val('portfolio')) L.push(`Portfolio: ${val('portfolio')}`);
+  }
+  L.push(`Hours per week: ${A.uren}`, `Wants to learn: ${A.leren.join(', ')}`, `Found us via: ${A.bron}`, '', `Why: ${val('waarom')}`);
+  return L.join('\n');
+}
+async function apply() {
+  if (applied) return showBooking();
+  $('next').disabled = true; $('next').textContent = 'Sending…';
+  try {
+    const r = await fetch(`${VOLGO}/api/formulier/${VOLGO_KEY}`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        naam: val('naam'), email: val('email'), telefoon: val('tel'),
+        onderwerp: `Team application: ${A.role}`,
+        bericht: summary(),
+        _gotcha: document.querySelector('[name=_gotcha]').value,
+      }),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || !d.ok) throw new Error();
+    applied = true; token = d.token || '';
+    $('bar').style.width = '85%';
+    showBooking();
+  } catch {
+    $('err').textContent = 'Sending didn\'t work. Check your connection and try again in a minute.';
+  }
+  $('next').disabled = false; $('next').textContent = 'Apply';
+}
+
+/* --- book the intake call in Volgo --- */
+let agenda = null, soort = 'bellen', dayIdx = -1;
+const WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+async function showBooking() {
+  $('form').classList.add('hide'); $('book').classList.remove('hide');
+  $('book').scrollIntoView({ behavior: 'smooth' });
+  $('days').innerHTML = '<p class="small muted">Loading times…</p>';
+  try {
+    const r = await fetch(`${VOLGO}/api/ava`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ actie: 'agenda', sleutel: VOLGO_KEY, token: token || undefined }) });
+    agenda = await r.json();
+    soort = (agenda.soorten || []).find(s => s !== 'insta') || 'bellen';
+    if (agenda.duur) $('bookSub').textContent = `Free · ${agenda.duur} minutes · by phone · times in Amsterdam time`;
+    agenda.dagen = (agenda.dagen || []).map(d => ({ ...d, tijden: (d.tijden || []).filter(t => t.vrij && t.t >= CALL_FROM && t.t < CALL_TO) })).filter(d => d.status === 'open' && d.tijden.length);
+    if (!agenda.dagen.length) throw new Error();
+    paintDays(); pickDay(0);
+  } catch { noSlots(); }
+}
+function paintDays() {
+  $('days').innerHTML = agenda.dagen.map((d, i) => { const [y, m, dd] = d.datum.split('-').map(Number); return `<button type="button" class="day" data-i="${i}"><small>${WD[d.weekdag]}</small><b>${dd}</b><small>${MON[m - 1]}</small></button>`; }).join('');
+  $('days').querySelectorAll('.day').forEach(b => b.onclick = () => pickDay(+b.dataset.i));
+}
+function pickDay(i) {
+  dayIdx = i; slot = ''; $('bookBtn').disabled = true; $('chosen').textContent = '';
+  $('days').querySelectorAll('.day').forEach(b => b.classList.toggle('on', +b.dataset.i === i));
+  const d = agenda.dagen[i];
+  $('times').innerHTML = d.tijden.map(t => `<button type="button" class="time" data-t="${t.t}">${t.t}</button>`).join('');
+  $('times').querySelectorAll('.time').forEach(b => b.onclick = () => {
+    $('times').querySelectorAll('.time').forEach(x => x.classList.toggle('on', x === b));
+    slot = `${d.datum}T${b.dataset.t}`; $('bookBtn').disabled = false;
+    $('chosen').textContent = nice(slot);
+  });
+}
+function nice(s) { const [dt, t] = s.split('T'); const [y, m, d] = dt.split('-').map(Number); const wd = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); return `${WD[wd]} ${d} ${MON[m - 1]}, ${t}`; }
+$('bookBtn').onclick = async () => {
+  if (!slot) return;
+  $('bookBtn').disabled = true; $('bookBtn').textContent = 'Booking…'; $('bookErr').textContent = '';
+  try {
+    const r = await fetch(`${VOLGO}/api/ava`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
+      actie: 'boek', sleutel: VOLGO_KEY, token: token || undefined, start: slot, soort,
+      naam: val('naam'), contact: `${val('email')} · ${val('tel')}`.slice(0, 120),
+    }) });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.reden || '');
+    finish(`Your intake call is booked: ${nice(slot)} (Amsterdam time). We'll call you on ${val('tel')}.`);
+  } catch (e) {
+    $('bookErr').textContent = e.message || 'That time is no longer available. Pick another one.';
+    $('bookBtn').disabled = false; $('bookBtn').textContent = 'Book call';
+    showBooking();
+  }
+};
+function noSlots() {
+  finish('We have your application. Someone from the team will contact you within 48 hours to plan your free intake call.');
+}
+function finish(text) {
+  $('book').classList.add('hide'); $('done').classList.remove('hide');
+  $('bar').style.width = '100%';
+  $('doneTitle').textContent = slot ? 'See you on the call.' : 'You\'re in the queue.';
+  $('doneText').textContent = text;
+  $('done').scrollIntoView({ behavior: 'smooth' });
+}
+
+paint();
+</script>
+</body>
+</html>

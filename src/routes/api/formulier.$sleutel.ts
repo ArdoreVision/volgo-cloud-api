@@ -8,8 +8,8 @@ import { bindings } from "@/lib/bindings.server";
 // Works as a plain HTML form (redirects back) and with fetch/JSON.
 const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "content-type" };
 
-function terug(request: Request, ok: boolean, json: boolean) {
-  if (json) return new Response(JSON.stringify({ ok }), { status: ok ? 200 : 400, headers: { "Content-Type": "application/json", ...CORS } });
+function terug(request: Request, ok: boolean, json: boolean, token?: string) {
+  if (json) return new Response(JSON.stringify(token ? { ok, token } : { ok }), { status: ok ? 200 : 400, headers: { "Content-Type": "application/json", ...CORS } });
   const ref = request.headers.get("referer");
   if (ref && /^https?:\/\//.test(ref)) {
     const u = new URL(ref);
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/api/formulier/$sleutel")({
         const contact = [s(["email", "e-mail", "mail"]), s(["telefoon", "phone", "tel", "telefoonnummer"])].filter(Boolean).join(" · ").slice(0, 160) || s(["contact"]).slice(0, 160);
         const bericht = s(["bericht", "message", "vraag", "opmerking", "tekst"]).slice(0, 4000);
         const extra = Object.entries(v)
-          .filter(([k, x]) => x && !["naam", "name", "voornaam", "firstname", "email", "e-mail", "mail", "telefoon", "phone", "tel", "telefoonnummer", "contact", "bericht", "message", "vraag", "opmerking", "tekst", "website", "_gotcha"].includes(k))
+          .filter(([k, x]) => x && !["onderwerp", "subject", "naam", "name", "voornaam", "firstname", "email", "e-mail", "mail", "telefoon", "phone", "tel", "telefoonnummer", "contact", "bericht", "message", "vraag", "opmerking", "tekst", "website", "_gotcha"].includes(k))
           .slice(0, 10)
           .map(([k, x]) => `${k}: ${String(x).slice(0, 200)}`)
           .join("\n");
@@ -55,8 +55,25 @@ export const Route = createFileRoute("/api/formulier/$sleutel")({
         const ip = await hashIp(request.headers.get("cf-connecting-ip") ?? "x");
         if (!(await binnenLimiet(DB, `f:${inst.team_id}:${ip}`, 60, 5)) || !(await binnenLimiet(DB, `ft:${inst.team_id}`, 60, 60))) return terug(request, false, isJson);
         const { nieuwBinnen } = await import("@/lib/inbox.server");
-        await nieuwBinnen(DB, inst.team_id, { kanaal: "Contactformulier", naam, contact, tekst: [bericht, extra].filter(Boolean).join("\n\n") });
-        return terug(request, true, isJson);
+        const onderwerp = s(["onderwerp", "subject"]).slice(0, 120) || undefined;
+        const { token } = await nieuwBinnen(DB, inst.team_id, { kanaal: "Contactformulier", naam, contact, onderwerp, tekst: [bericht, extra].filter(Boolean).join("\n\n") });
+        // By Intent team applications: every answer by mail to Damien, in the order they come in.
+        if (onderwerp?.startsWith("Team application")) {
+          const { INBOX } = await import("@/lib/aanvraag.server");
+          const { esc, mailOpmaak, verstuurMail, SITE_URL } = await import("@/lib/mail.server");
+          const regels = [`Name: ${naam}`, `Contact: ${contact}`, "", bericht, extra].filter((x) => x !== undefined).join("\n");
+          await verstuurMail(
+            INBOX,
+            `${onderwerp}: ${naam}`,
+            mailOpmaak(
+              `${esc(onderwerp)}: ${esc(naam)}`,
+              `<p style="margin:0;white-space:pre-wrap">${esc(regels)}</p><p style="margin:16px 0 0;color:#64748b">They will now pick a time for the intake call. You get a second mail when it's booked.</p>`,
+              { tekst: "Open in Volgo", url: `${SITE_URL}/dashboard#gesprekken` },
+            ),
+          ).catch(() => false);
+        }
+        // The token lets the same visitor book a call on this conversation (POST /api/ava, actie "boek").
+        return terug(request, true, isJson, token);
       },
     },
   },
