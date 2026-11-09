@@ -20,7 +20,7 @@ const T = {
     sub: "Volgo answers every visitor on your website, day and night, and books the appointment straight into your calendar. Then it sends the reminder, asks for the review and follows up. You just do the work.",
     start: "Start",
     prijzen: "See pricing",
-    klein: "7 days for €1 · install it yourself in 2 minutes · cancel any time",
+    klein: "7 days for €1 · website chat installed in 2 minutes · cancel any time",
     chatKop: "Your website",
     bez1: "Hi, can someone redo our back garden?",
     ava1: "Of course! Roughly how big is it, and what's the address?",
@@ -48,6 +48,13 @@ const T = {
       ["Paste one line of code", "Copy it from your dashboard and paste it in WordPress, Wix, Squarespace, Shopify or Webflow. Step by step, in 2 minutes. Prefer we do it? Just ask."],
       ["Customers book, you work", "Volgo chats, books and follows up. You see every conversation and appointment in the app, with a notification on your phone."],
     ],
+    kanalenKop: "Website, WhatsApp and phone",
+    kanalenSub: "Customers reach you in different ways. This is exactly what works, and when.",
+    kanalen: [
+      ["Website chat", "Works right away", "Volgo answers every visitor, books appointments and puts everything in your inbox. Install it yourself in 2 minutes."],
+      ["WhatsApp", "Button works right away · inbox via linking", "A “WhatsApp us” button in your chat and a WhatsApp button at every request work immediately. Want WhatsApp messages to land in Volgo and answer them there? We link your number via WhatsApp (Meta). Meta verifies your business first, usually within a few days."],
+      ["Phone", "Button works right away · missed calls via linking", "A “Call us” button in your chat and a call-back button at every request work immediately. Want missed calls caught automatically? You get a Volgo number that forwards to your own phone; we set it up for you."],
+    ],
     allesKop: "Everything Volgo does for you",
     alles: [
       ["Chat that books", "Answers every visitor 24/7 and books phone calls, visits or chat appointments in your calendar."],
@@ -55,7 +62,7 @@ const T = {
       ["Reminder the day before", "Every customer gets a reminder 24 hours before the appointment. Fewer no-shows."],
       ["Reviews on autopilot", "After the appointment Volgo asks for a Google review, and writes your replies to reviews."],
       ["Follow-up after 1 and 3 days", "Left their details but didn't book? Volgo follows up, written for what they asked."],
-      ["One inbox", "Website chat, contact form and email in one place. Answer from the app."],
+      ["One inbox", "Website chat and contact form in one place. WhatsApp messages, missed calls and email join once they are linked."],
       ["Payment requests", "Job done? Send a payment link in 10 seconds. Paid straight to your account."],
       ["Seasonal messages", "A short, useful message to earlier customers four times a year, so they come back."],
       ["Notifications on your phone", "Know right away when someone chats, books or pays."],
@@ -69,13 +76,14 @@ const T = {
     prijsSub: "Excluding VAT. Monthly, cancel any time.",
     perMaand: "per month",
     plannen: {
-      start: { naam: "Assistant", voor: "For businesses that already have a website.", extra: "7 days for €1", knop: "Start 7 days for €1", punten: ["Assistant on your website, 24/7, books in your calendar", "Reminders, follow-ups and review requests", "One inbox for chat, contact form and email", "Payment requests and phone notifications", "Install it yourself, or we do it for you"] },
+      start: { naam: "Assistant", voor: "For businesses that already have a website.", extra: "7 days for €1", knop: "Start 7 days for €1", punten: ["Assistant on your website, 24/7, books in your calendar", "Reminders, follow-ups and review requests", "One inbox: chat, form, WhatsApp and phone", "Payment requests and phone notifications", "Install it yourself, or we do it for you"] },
       pro: { naam: "Complete", voor: "A new premium website, with your assistant inside.", extra: "+ €995 one-time for your website", knop: "Start Complete", punten: ["Everything in Assistant", "New premium website, built for you", "Photos, video and animations", "Your own chat photo and style", "Changes when you need them"] },
     },
     populair: "Most chosen",
     eenMoment: "One moment…",
     faqKop: "Questions",
     faq: [
+      ["Does Volgo work with WhatsApp and phone?", "Yes, in two ways. Buttons to WhatsApp or call you and your customers work right away. Receiving WhatsApp messages and missed calls automatically in Volgo needs a link to WhatsApp (Meta) or a Volgo phone number; we arrange it, and your dashboard shows exactly what is active."],
       ["Do I need technical knowledge?", "No. You copy one line and paste it in your website builder, with steps for WordPress, Wix, Squarespace, Shopify and Webflow. Rather not? We install it for you."],
       ["What do my customers receive?", "Only useful messages from your business name: the appointment, a reminder, a follow-up if they didn't book, and a review request. Follow-ups and seasonal messages always have a stop link."],
       ["Can I change the chat myself?", "Yes: its name, photo, colour, style and the questions it asks. You see it live on your own website in the dashboard."],
@@ -94,7 +102,7 @@ const T = {
     sub: "Volgo beantwoordt elke bezoeker op je website, dag en nacht, en zet de afspraak meteen in je agenda. Daarna stuurt het de herinnering, vraagt het om de review en volgt het op. Jij doet alleen het werk.",
     start: "Start",
     prijzen: "Bekijk de prijzen",
-    klein: "7 dagen voor €1 · zelf te installeren in 2 minuten · maandelijks opzegbaar",
+    klein: "7 dagen voor €1 · website-chat in 2 minuten geïnstalleerd · maandelijks opzegbaar",
     chatKop: "Jouw website",
     bez1: "Hoi, kunnen jullie onze achtertuin opnieuw aanleggen?",
     ava1: "Zeker! Hoe groot is de tuin ongeveer, en wat is het adres?",
@@ -122,6 +130,13 @@ const T = {
       ["Plak één regel code", "Kopieer hem uit je dashboard en plak hem in WordPress, Wix, Squarespace, Shopify of Webflow. Stap voor stap, in 2 minuten. Liever dat wij het doen? Vraag het gewoon."],
       ["Klanten boeken, jij werkt", "Volgo chat, boekt en volgt op. Je ziet elk gesprek en elke afspraak in de app, met een melding op je telefoon."],
     ],
+    kanalenKop: "Website, WhatsApp en telefoon",
+    kanalenSub: "Klanten bereiken je op verschillende manieren. Dit werkt er precies, en vanaf wanneer.",
+    kanalen: [
+      ["Website-chat", "Werkt meteen", "Volgo beantwoordt elke bezoeker, boekt afspraken en zet alles in je inbox. Zelf te installeren in 2 minuten."],
+      ["WhatsApp", "Knop werkt meteen · inbox via koppeling", "Een knop “WhatsApp ons” in je chat en een WhatsApp-knop bij elke aanvraag werken direct. Wil je WhatsApp-berichten in Volgo ontvangen en daar beantwoorden? Dan koppelen wij je nummer via WhatsApp (Meta). Meta verifieert eerst je bedrijf, meestal binnen een paar dagen."],
+      ["Telefoon", "Knop werkt meteen · gemiste oproepen via koppeling", "Een knop “Bel ons” in je chat en een terugbelknop bij elke aanvraag werken direct. Wil je gemiste oproepen automatisch opvangen? Je krijgt een Volgo-nummer dat doorschakelt naar je eigen telefoon; wij zetten het voor je op."],
+    ],
     allesKop: "Alles wat Volgo voor je doet",
     alles: [
       ["Chat die boekt", "Beantwoordt elke bezoeker 24/7 en boekt telefoongesprekken, bezoeken of chatafspraken in je agenda."],
@@ -129,7 +144,7 @@ const T = {
       ["Herinnering een dag van tevoren", "Elke klant krijgt 24 uur voor de afspraak een herinnering. Minder mensen die niet komen opdagen."],
       ["Reviews vanzelf", "Na de afspraak vraagt Volgo om een Google-review, en schrijft het je antwoorden op reviews."],
       ["Opvolging na 1 en 3 dagen", "Gegevens achtergelaten maar niet geboekt? Volgo volgt op, geschreven op wat ze vroegen."],
-      ["Eén inbox", "Websitechat, contactformulier en mail op één plek. Antwoord vanuit de app."],
+      ["Eén inbox", "Websitechat en contactformulier op één plek. WhatsApp-berichten, gemiste oproepen en mail komen erbij zodra ze gekoppeld zijn."],
       ["Betaalverzoeken", "Klus klaar? Stuur in 10 seconden een betaallink. Direct op jouw rekening."],
       ["Seizoensberichten", "Vier keer per jaar een kort, nuttig bericht aan eerdere klanten, zodat ze terugkomen."],
       ["Meldingen op je telefoon", "Weet het meteen als iemand chat, boekt of betaalt."],
@@ -143,13 +158,14 @@ const T = {
     prijsSub: "Exclusief btw. Per maand, maandelijks opzegbaar.",
     perMaand: "per maand",
     plannen: {
-      start: { naam: "Assistent", voor: "Voor bedrijven die al een website hebben.", extra: "7 dagen voor €1", knop: "Start 7 dagen voor €1", punten: ["Assistent op je website, 24/7, boekt in je agenda", "Herinneringen, opvolging en reviewverzoeken", "Eén inbox voor chat, contactformulier en mail", "Betaalverzoeken en meldingen op je telefoon", "Zelf installeren, of wij doen het voor je"] },
+      start: { naam: "Assistent", voor: "Voor bedrijven die al een website hebben.", extra: "7 dagen voor €1", knop: "Start 7 dagen voor €1", punten: ["Assistent op je website, 24/7, boekt in je agenda", "Herinneringen, opvolging en reviewverzoeken", "Eén inbox: chat, formulier, WhatsApp en telefoon", "Betaalverzoeken en meldingen op je telefoon", "Zelf installeren, of wij doen het voor je"] },
       pro: { naam: "Compleet", voor: "Een nieuwe premium website, met je assistent erin.", extra: "+ €995 eenmalig voor je website", knop: "Start Compleet", punten: ["Alles uit Assistent", "Nieuwe premium website, voor je gebouwd", "Foto's, video en animaties", "Eigen chatfoto en stijl", "Aanpassingen wanneer je wilt"] },
     },
     populair: "Meest gekozen",
     eenMoment: "Een moment…",
     faqKop: "Vragen",
     faq: [
+      ["Werkt Volgo met WhatsApp en telefoon?", "Ja, op twee manieren. Knoppen om jou te WhatsAppen of te bellen, en om klanten terug te bellen of te WhatsAppen, werken meteen. WhatsApp-berichten en gemiste oproepen automatisch in Volgo ontvangen kan via een koppeling met WhatsApp (Meta) of een Volgo-telefoonnummer; die regelen wij, en je dashboard laat precies zien wat al actief is."],
       ["Heb ik technische kennis nodig?", "Nee. Je kopieert één regel en plakt die in je websitebouwer, met stappen voor WordPress, Wix, Squarespace, Shopify en Webflow. Liever niet? Dan installeren wij het."],
       ["Wat krijgen mijn klanten?", "Alleen nuttige berichten op naam van jouw bedrijf: de afspraak, een herinnering, een opvolging als ze niet boekten en een reviewverzoek. Opvolg- en seizoensberichten hebben altijd een afmeldlink."],
       ["Kan ik de chat zelf aanpassen?", "Ja: naam, foto, kleur, stijl en de vragen die hij stelt. Je ziet het live op je eigen website in het dashboard."],
@@ -337,6 +353,22 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
               </li>
             ))}
           </ol>
+        </section>
+
+        <section aria-labelledby="vl-kanalen" className="vl-sectie">
+          <h2 className="vl-h2" id="vl-kanalen">
+            {t.kanalenKop}
+          </h2>
+          <p className="vl-sub vl-center vl-breed">{t.kanalenSub}</p>
+          <div className="vl-raster vl-raster--3 vl-kanalen">
+            {t.kanalen.map(([kop, label, tekst]) => (
+              <article key={kop}>
+                <span className="vl-kanaal-label">{label}</span>
+                <h3>{kop}</h3>
+                <p>{tekst}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section aria-labelledby="vl-alles" className="vl-sectie">

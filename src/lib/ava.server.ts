@@ -22,11 +22,14 @@ export type AvaInstellingen = {
   afspraak_duur: number;
   afspraak_soorten: string;
   instagram: string;
+  zakelijk_nummer: string;
+  knop_whatsapp: number;
+  knop_bellen: number;
   toestemming: number;
   profiel: string;
   vragen: string;
 };
-const KOLOMMEN = "a.team_id, a.sleutel, a.naam, a.begroeting, a.bedrijfsinfo, a.kleur, a.boeken, a.tijdzone, a.open_dagen, a.open_van, a.open_tot, a.afspraak_duur, a.afspraak_soorten, a.instagram, a.toestemming, a.profiel, a.vragen, g.bedrijf";
+const KOLOMMEN = "a.team_id, a.sleutel, a.naam, a.begroeting, a.bedrijfsinfo, a.kleur, a.boeken, a.tijdzone, a.open_dagen, a.open_van, a.open_tot, a.afspraak_duur, a.afspraak_soorten, a.instagram, a.toestemming, a.profiel, a.vragen, a.zakelijk_nummer, a.knop_whatsapp, a.knop_bellen, g.bedrijf";
 
 export async function instellingenVoorTeam(DB: D1Database, teamId: number): Promise<AvaInstellingen> {
   const bestaand = await DB.prepare(

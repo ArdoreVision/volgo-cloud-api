@@ -85,6 +85,10 @@ export function KlantBeheer({ id, sluit }: { id: number; sluit: () => void }) {
             auto_seizoen: inst.auto_seizoen,
             antwoord_mail: inst.antwoord_mail,
             iban: inst.iban,
+            zakelijk_nummer: inst.zakelijk_nummer,
+            wa_phone_id: inst.wa_phone_id,
+            twilio_nummer: inst.twilio_nummer,
+            sms_terug: inst.sms_terug,
             ...(stripeNieuw.trim() ? { stripe_sleutel: stripeNieuw.trim() } : {}),
           },
         },
@@ -240,6 +244,35 @@ export function KlantBeheer({ id, sluit }: { id: number; sluit: () => void }) {
                 </button>
               ))}
             </div>
+          </section>
+
+          <section className="v-kb__blok">
+            <h3>Channels: WhatsApp &amp; phone</h3>
+            {d.kanaalWens ? <p className="v-kb__let">Requested by the customer: {d.kanaalWens.split(",").join(", ")}</p> : null}
+            <p className="v-muted v-small">
+              Platform: WhatsApp {d.platform.whatsapp.klaar ? "ready" : `missing ${d.platform.whatsapp.ontbreekt.join(", ")}`} · Phone {d.platform.telefoon.klaar ? "ready" : `missing ${d.platform.telefoon.ontbreekt.join(", ")}`}
+            </p>
+            <div className="v-kb__velden">
+              <label>
+                <span>Business number</span>
+                <input onChange={(e) => zet("zakelijk_nummer", e.target.value)} placeholder="+31612345678" value={inst.zakelijk_nummer} />
+              </label>
+              <label>
+                <span>WhatsApp phone number ID (Meta)</span>
+                <input inputMode="numeric" onChange={(e) => zet("wa_phone_id", e.target.value.trim())} placeholder="From WhatsApp Manager → API setup" value={inst.wa_phone_id} />
+              </label>
+              <label>
+                <span>Volgo phone number (Twilio)</span>
+                <input onChange={(e) => zet("twilio_nummer", e.target.value.trim())} placeholder="+3185…" value={inst.twilio_nummer} />
+              </label>
+            </div>
+            <label className="v-kb__aan">
+              <input checked={inst.sms_terug} onChange={(e) => zet("sms_terug", e.target.checked)} type="checkbox" /> Text back after a missed call (&quot;we&apos;ll call you back&quot;)
+            </label>
+            <p className="v-muted v-small">
+              Twilio number webhooks: voice <code>https://thevolgo.app/api/telefoon?stap=inkomend</code>, messaging <code>https://thevolgo.app/api/telefoon?stap=sms</code> (POST). WhatsApp webhook:{" "}
+              <code>https://thevolgo.app/api/whatsapp</code> (field: messages).
+            </p>
           </section>
 
           <section className="v-kb__blok">

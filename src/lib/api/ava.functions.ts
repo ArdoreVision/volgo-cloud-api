@@ -294,7 +294,24 @@ export const stuurMensBericht = createServerFn({ method: "POST" })
     if (!m) return { ok: false as const, message: "Gesprek niet gevonden." };
     // Contact form and email: the reply goes out by email (or text), no live chat to take over.
     const perMail = m.kanaal === "Contactformulier" || m.kanaal === "E-mail";
-    if (!m.overgenomen_door && !perMail) return { ok: false as const, message: "Neem het gesprek eerst over." };
+    const perTelefoon = m.kanaal === "WhatsApp" || m.kanaal === "SMS" || m.kanaal === "Telefoon";
+    if (!m.overgenomen_door && !perMail && !perTelefoon) return { ok: false as const, message: "Neem het gesprek eerst over." };
+    // WhatsApp, sms and phone: send through the provider first; only a sent message is saved.
+    if (perTelefoon) {
+      const k = await import("../kanalen.server");
+      const i = await k.kanaalInst(DB, g.team_id);
+      const naar = m.contact ?? "";
+      const r =
+        m.kanaal === "WhatsApp"
+          ? await k.stuurWhatsApp(i?.wa_phone_id ?? "", naar, data.tekst)
+          : await k.stuurSmsVan(i?.twilio_nummer ?? "", naar, data.tekst);
+      if (!r.ok) return { ok: false as const, message: r.fout };
+      await DB.batch([
+        DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'mens', ?)").bind(data.id, data.tekst),
+        DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), berichten = berichten + 1 WHERE id = ?").bind(data.id),
+      ]);
+      return { ok: true as const, message: "" };
+    }
     await DB.batch([
       DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'mens', ?)").bind(data.id, data.tekst),
       DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), status = 'live', berichten = berichten + 1 WHERE id = ?").bind(data.id),

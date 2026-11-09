@@ -3,9 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import type { PointerEvent as RPointerEvent } from "react";
 
 import { Meldingen } from "@/components/dash/meldingen";
+import { ContactKnoppen, KanaalLabel } from "@/components/dash/contact-knoppen";
 import { Automatisch } from "@/components/dash/automatisch";
 import { Betalingen } from "@/components/dash/betalingen";
 import { MijnWebsite } from "@/components/dash/mijn-website";
+import { Kanalen } from "@/components/dash/kanalen";
 import { Reviews } from "@/components/dash/reviews";
 import { Account } from "@/components/dash/account";
 import { Agenda } from "@/components/dash/agenda";
@@ -45,7 +47,7 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-type Tab = "home" | "aanvragen" | "gesprekken" | "agenda" | "overzicht" | "verkeer" | "ava" | "ontwerp" | "installeren" | "website" | "team" | "instellingen" | "automatisch" | "reviews" | "betalingen" | "mijnsite";
+type Tab = "home" | "aanvragen" | "gesprekken" | "agenda" | "overzicht" | "verkeer" | "ava" | "ontwerp" | "installeren" | "website" | "team" | "instellingen" | "automatisch" | "reviews" | "betalingen" | "mijnsite" | "kanalen";
 type Sub = "meldingen" | "account" | "abonnement";
 const SUBS: [Sub, string][] = [
   ["meldingen", "Meldingen"],
@@ -79,6 +81,7 @@ const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
   {
     items: [
       ["mijnsite", "Je website"],
+      ["kanalen", "Kanalen"],
       ["ava", "Je chat"],
       ["instellingen", "Instellingen"],
     ],
@@ -119,6 +122,7 @@ function Icon({ name }: { name: Tab | "uit" | "meer" | "abonnement" | "account" 
     reviews: "M10 3l2.1 4.3 4.7.7-3.4 3.3.8 4.7L10 13.8 5.8 16l.8-4.7L3.2 8l4.7-.7z",
     betalingen: "M3 5.5h14v9H3zM3 8.5h14M6 12h3",
     mijnsite: "M3 4.5h14v11H3zM3 7.5h14M6 6h.01M8 6h.01",
+    kanalen: "M4 5h12v8H9l-4 3v-3H4zM15 9h1.5",
     installeren: "M7 6.5 3.5 10 7 13.5M13 6.5l3.5 3.5-3.5 3.5M11.3 4.5 8.7 15.5",
     uit: "M8 4H4v12h4M12 6.5 15.5 10 12 13.5M15.5 10H8",
   };
@@ -338,7 +342,7 @@ function Open({ data }: { data: DashData }) {
   useEffect(() => {
     const ga = () => {
       const h = window.location.hash.slice(1);
-      if (["home", "gesprekken", "agenda", "aanvragen", "betalingen", "automatisch", "reviews", "verkeer", "mijnsite", "ava", "instellingen", "meldingen", "account", "abonnement"].includes(h)) setTab(h);
+      if (["home", "gesprekken", "agenda", "aanvragen", "betalingen", "automatisch", "reviews", "verkeer", "mijnsite", "kanalen", "ava", "instellingen", "meldingen", "account", "abonnement"].includes(h)) setTab(h);
     };
     ga();
     window.addEventListener("hashchange", ga);
@@ -408,6 +412,19 @@ function Open({ data }: { data: DashData }) {
             await router.invalidate();
           }}
           start={vragenOpen ? (profiel ?? {}) : {}}
+        />
+      </div>
+    );
+
+  // Right after the five questions: set the business number and see which channels really work.
+  if (g.rol === "eigenaar" && data.profielKlaar && !data.kanalenGezien)
+    return (
+      <div className="volgo v-dash v-dash--editor" data-thema={thema}>
+        <Kanalen
+          klaar={async () => {
+            await router.invalidate();
+          }}
+          onboarding
         />
       </div>
     );
@@ -496,6 +513,7 @@ function Open({ data }: { data: DashData }) {
         {tab === "reviews" ? <Reviews openTab={(t) => setTab(t)} /> : null}
         {tab === "betalingen" ? <Betalingen /> : null}
         {tab === "mijnsite" ? <MijnWebsite openTab={(t) => setTab(t)} /> : null}
+        {tab === "kanalen" ? <Kanalen openTab={(t) => setTab(t)} /> : null}
         {tab === "installeren" ? (
           <>
             <header className="v-dash__head">
@@ -598,9 +616,13 @@ function Open({ data }: { data: DashData }) {
                           <span role="cell">
                             <strong>{l.naam}</strong>
                             <small>{l.reden || l.onderwerp}</small>
+                            {l.contact ? <small className="v-lead__contact">{l.contact}</small> : null}
                             {l.herkomst ? <small className="v-herkomst">📍 {l.herkomst}</small> : null}
+                            <ContactKnoppen contact={l.contact} kanaal={l.kanaal} klein naam={l.naam} onderwerp={l.onderwerp} />
                           </span>
-                          <span role="cell">{l.kanaal}</span>
+                          <span role="cell">
+                            <KanaalLabel kanaal={l.kanaal} />
+                          </span>
                           <span role="cell">{datum(l.created_at)}</span>
                           <span role="cell">
                             <select aria-label={`Status van ${l.naam}`} className={`v-select v-pill--${l.status}`} onChange={(e) => void zetStatus(l.id, e.target.value as Status)} value={l.status}>

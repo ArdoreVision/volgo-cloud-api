@@ -43,6 +43,10 @@ type AppEnv = {
   TWILIO_SID?: string;
   TWILIO_TOKEN?: string;
   TWILIO_FROM?: string;
+  /** WhatsApp Business Platform (Meta Cloud API): permanent system-user token, app secret (webhook signature) and the verify token of the webhook. */
+  WHATSAPP_TOKEN?: string;
+  WHATSAPP_APP_SECRET?: string;
+  WHATSAPP_VERIFY_TOKEN?: string;
   /** "aan" when Cloudflare Email Routing sends r-*@thevolgo.app to this worker: visitor replies land in the inbox. */
   INBOUND_MAIL?: string;
   META_PIXEL_ID?: string;

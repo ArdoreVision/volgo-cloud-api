@@ -105,8 +105,11 @@ jobs:
           TWILIO_TOKEN: ${{ secrets.TWILIO_TOKEN }}
           TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
           INBOUND_MAIL: ${{ secrets.INBOUND_MAIL }}
+          WHATSAPP_TOKEN: ${{ secrets.WHATSAPP_TOKEN }}
+          WHATSAPP_APP_SECRET: ${{ secrets.WHATSAPP_APP_SECRET }}
+          WHATSAPP_VERIFY_TOKEN: ${{ secrets.WHATSAPP_VERIFY_TOKEN }}
         run: |
-          for naam in ANTHROPIC_API_KEY RESEND_API_KEY STRIPE_SECRET_KEY PUSH_TOPIC TWILIO_SID TWILIO_TOKEN TWILIO_FROM INBOUND_MAIL; do
+          for naam in ANTHROPIC_API_KEY RESEND_API_KEY STRIPE_SECRET_KEY PUSH_TOPIC TWILIO_SID TWILIO_TOKEN TWILIO_FROM INBOUND_MAIL WHATSAPP_TOKEN WHATSAPP_APP_SECRET WHATSAPP_VERIFY_TOKEN; do
             waarde="${!naam}"
             if [ -n "$waarde" ]; then
               printf '%s' "$waarde" | npx wrangler secret put "$naam"
