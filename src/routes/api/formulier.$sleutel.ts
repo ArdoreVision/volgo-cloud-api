@@ -57,6 +57,21 @@ export const Route = createFileRoute("/api/formulier/$sleutel")({
         const { nieuwBinnen } = await import("@/lib/inbox.server");
         const onderwerp = s(["onderwerp", "subject"]).slice(0, 120) || undefined;
         const { token } = await nieuwBinnen(DB, inst.team_id, { kanaal: "Contactformulier", naam, contact, onderwerp, tekst: [bericht, extra].filter(Boolean).join("\n\n") });
+        // By Intent team applications: every answer by mail to Damien, in the order they come in.
+        if (onderwerp?.startsWith("Team application")) {
+          const { INBOX } = await import("@/lib/aanvraag.server");
+          const { esc, mailOpmaak, verstuurMail, SITE_URL } = await import("@/lib/mail.server");
+          const regels = [`Name: ${naam}`, `Contact: ${contact}`, "", bericht, extra].filter((x) => x !== undefined).join("\n");
+          await verstuurMail(
+            INBOX,
+            `${onderwerp}: ${naam}`,
+            mailOpmaak(
+              `${esc(onderwerp)}: ${esc(naam)}`,
+              `<p style="margin:0;white-space:pre-wrap">${esc(regels)}</p><p style="margin:16px 0 0;color:#64748b">They will now pick a time for the intake call. You get a second mail when it's booked.</p>`,
+              { tekst: "Open in Volgo", url: `${SITE_URL}/dashboard#gesprekken` },
+            ),
+          ).catch(() => false);
+        }
         // The token lets the same visitor book a call on this conversation (POST /api/ava, actie "boek").
         return terug(request, true, isJson, token);
       },
