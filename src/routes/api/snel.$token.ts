@@ -33,6 +33,7 @@ export const Route = createFileRoute("/api/snel/$token")({
         const { aanmelder, KEUZES } = await import("@/lib/snel.server");
         const a = await aanmelder(DB, params.token);
         if (!a) return pagina("Not found", "<h1>Application not found.</h1>", 404);
+        const lid = await DB.prepare("SELECT status, rol FROM groep_leden WHERE token = ?").bind(params.token).first<{ status: string; rol: string }>();
         const knoppen = Object.entries(KEUZES)
           .map(([k, v]) => `<button name="k" value="${k}">${esc(v.label)}<small>${esc(v.tekst(a.voornaam))}</small></button>`)
           .join("");
@@ -42,6 +43,8 @@ export const Route = createFileRoute("/api/snel/$token")({
            <h1>Let ${esc(a.voornaam)} know</h1>
            <p class="m">One tap sends an email to ${esc(a.email || "(no email)")} from you.</p>
            ${a.laatst ? `<p class="m">Last sent:</p><div class="box">${esc(a.laatst)}</div>` : ""}
+           ${lid ? `<p class="m">Groups: ${esc(lid.status === "goedgekeurd" ? "approved ✓ (password sent)" : lid.status === "afgewezen" ? "not approved" : "waiting for your approval")} · ${esc(lid.rol)}</p>` : ""}
+           ${lid && lid.status !== "goedgekeurd" ? `<form method="post"><button name="k" value="goedkeuren">Approve for Groups<small>Emails ${esc(a.voornaam)} a personal password for thevolgo.app/groups and the Discord group to pick</small></button>${lid.status === "wacht" ? `<button name="k" value="afwijzen" style="background:#000;color:#fff">Not now<small>No email is sent</small></button>` : ""}</form>` : ""}
            <form method="post">${knoppen}</form>
            <form method="post"><p class="m" style="margin-top:12px">Or write your own message</p><textarea name="tekst" maxlength="1500">Hi ${esc(a.voornaam)}, </textarea><button>Send</button></form>
            <p class="m"><a href="/dashboard#gesprekken">Open in Volgo</a></p>`,
@@ -65,6 +68,12 @@ export const Route = createFileRoute("/api/snel/$token")({
           const f = await request.formData();
           k = String(f.get("k") ?? k);
           eigen = String(f.get("tekst") ?? "").trim().slice(0, 1500);
+        }
+        if (k === "goedkeuren" || k === "afwijzen") {
+          const gr = await import("@/lib/groepen.server");
+          const r = k === "goedkeuren" ? await gr.keurGoed(DB, params.token) : await gr.wijsAf(DB, params.token);
+          if (r.ok) await DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'log', ?)").bind(a.gesprek, k === "goedkeuren" ? "Approved for Groups, password emailed" : "Not approved for Groups").run();
+          return antwoord(r.ok, r.tekst);
         }
         const eigenOk = eigen.replace(/^hi\s+\S+,?\s*/i, "").length >= 3;
         const tekst = isKeuze(k) ? KEUZES[k].tekst(a.voornaam) : eigenOk ? eigen : "";

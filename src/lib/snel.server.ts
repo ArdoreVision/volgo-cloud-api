@@ -41,7 +41,10 @@ export async function meldAanmelding(token: string, naam: string, onderwerp: str
     tags: ["raising_hand"],
     prioriteit: 5,
     link: await snelLink(token),
-    acties: await Promise.all((["meeting", "busy", "tomorrow"] as const).map(async (k) => ({ label: KEUZES[k].label, url: await snelLink(token, k) }))),
+    acties: [
+      { label: "Approve → Groups", url: `${await snelLink(token)}&k=goedkeuren` },
+      ...(await Promise.all((["meeting", "busy"] as const).map(async (k) => ({ label: KEUZES[k].label, url: await snelLink(token, k) })))),
+    ],
   });
 }
 

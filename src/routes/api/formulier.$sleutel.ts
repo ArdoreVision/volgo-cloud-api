@@ -62,9 +62,12 @@ export const Route = createFileRoute("/api/formulier/$sleutel")({
           const { INBOX } = await import("@/lib/aanvraag.server");
           const { esc, mailOpmaak, verstuurMail, SITE_URL } = await import("@/lib/mail.server");
           const snel = await import("@/lib/snel.server");
+          // Waits for Damien's approval before Groups opens for them.
+          const { registreerAanmelding } = await import("@/lib/groepen.server");
+          await registreerAanmelding(DB, token, naam, s(["email", "e-mail", "mail"]), onderwerp).catch(() => undefined);
           // Notification with reply buttons on Damien's phone.
           await snel.meldAanmelding(token, naam, onderwerp, bericht.split("\n").slice(0, 3).join("\n")).catch(() => undefined);
-          const knoppen = `<a href="${await snel.snelLink(token)}" style="display:inline-block;padding:10px 18px;border:1px solid #0b1220;border-radius:999px;color:#0b1220;text-decoration:none;font-size:14px">Reply: in a meeting / busy / tomorrow…</a>`;
+          const knoppen = `<a href="${await snel.snelLink(token)}" style="display:inline-block;padding:10px 18px;border:1px solid #0b1220;border-radius:999px;color:#0b1220;text-decoration:none;font-size:14px">Approve for Groups or reply: in a meeting / busy…</a>`;
           const regels = [`Name: ${naam}`, `Contact: ${contact}`, "", bericht, extra].filter((x) => x !== undefined).join("\n");
           await verstuurMail(
             INBOX,
