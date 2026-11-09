@@ -71,7 +71,7 @@ export const Route = createFileRoute("/api/formulier/$sleutel")({
             `${onderwerp}: ${naam}`,
             mailOpmaak(
               `${esc(onderwerp)}: ${esc(naam)}`,
-              `<p style="margin:0;white-space:pre-wrap">${esc(regels)}</p><p style="margin:16px 0 0;color:#64748b">They will now pick a time for the intake call. You get a second mail when it's booked.</p><p style="margin:20px 0 0">${knoppen}</p>`,
+              `<p style="margin:0;white-space:pre-wrap">${esc(regels)}</p><p style="margin:16px 0 0;color:#64748b">They've been sent to your Instagram DMs (@damienhanssens) with the message \"TEAM – name\". Close them there.</p><p style="margin:20px 0 0">${knoppen}</p>`,
               { tekst: "Open in Volgo", url: `${SITE_URL}/dashboard#gesprekken` },
             ),
           ).catch(() => false);
