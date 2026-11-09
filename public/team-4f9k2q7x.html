@@ -5,8 +5,8 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Join the team · By Intent</title>
-<meta name="description" content="By Intent is looking for cold callers and web developers. Free to apply. You only earn when you deliver.">
-<meta property="og:title" content="By Intent is looking for cold callers and web developers">
+<meta name="description" content="By Intent is looking for cold callers, closers and web developers. Free to apply. You only earn when you deliver.">
+<meta property="og:title" content="By Intent is looking for cold callers, closers and web developers">
 <meta property="og:description" content="Free to apply. No course. A short intake call, then you start.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,7 +24,7 @@
   .back { position: absolute; top: 28px; left: 32px; opacity: .6; text-decoration: none; transition: opacity .3s; z-index: 5; }
   .back:hover { opacity: 1; }
   .wrap { max-width: 640px; margin: 0 auto; padding: 0 22px; }
-  section { padding: 96px 0; border-top: 1px solid #141414; }
+  section, section.wrap { padding: 96px 22px; border-top: 1px solid #141414; }
   section:first-of-type { border-top: 0; }
   h1 { font-size: clamp(26px, 4.4vw, 40px); font-weight: 400; line-height: 1.2; letter-spacing: -.01em; }
   h2 { font-size: 20px; font-weight: 400; margin-bottom: 22px; }
@@ -44,6 +44,12 @@
   @keyframes blink { 50% { opacity: .2; } }
 
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid #262626; }
+  .flow div { padding: 18px 14px; border-left: 1px solid #262626; display: flex; flex-direction: column; gap: 6px; }
+  .flow div:first-child { border-left: 0; }
+  .flow b { font-weight: 400; font-size: 11px; opacity: .45; letter-spacing: .1em; text-transform: uppercase; }
+  .flow span { font-size: 13px; opacity: .85; }
   .box { border: 1px solid #262626; padding: 22px; }
   .box h3 { font-size: 15px; font-weight: 500; margin-bottom: 10px; }
   .box ul { list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; opacity: .8; }
@@ -71,7 +77,7 @@
   .opt { border: 1px solid #262626; background: #000; padding: 10px 14px; cursor: pointer; font-size: 13px; transition: border-color .15s, background .15s, color .15s; user-select: none; }
   .opt:hover { border-color: #777; }
   .opt.on { background: #fff; color: #000; border-color: #fff; }
-  .big { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .big { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
   .big .opt { padding: 20px 16px; text-align: left; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
   .big .opt small { font-size: 11px; opacity: .6; }
   .check { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; font-size: 13px; }
@@ -99,8 +105,11 @@
 
   @media (max-width: 600px) {
     .back { top: 20px; left: 20px; }
-    .grid2, .big { grid-template-columns: 1fr; }
-    section { padding: 72px 0; }
+    .grid2, .grid3, .big { grid-template-columns: 1fr; }
+    .flow { grid-template-columns: 1fr; }
+    .flow div { border-left: 0; border-top: 1px solid #262626; }
+    .flow div:first-child { border-top: 0; }
+    section, section.wrap { padding: 72px 22px; }
   }
 </style>
 </head>
@@ -110,22 +119,31 @@
   <!-- intro -->
   <section class="wrap hero in">
     <span class="pill"><span class="dot"></span>Now looking for people</span>
-    <h1>We're looking for cold callers and web developers.</h1>
-    <p class="muted">By Intent builds websites and AI systems for local businesses. Some of us sell, some of us build. You join a team, not a course, and you only earn when you deliver something of value.</p>
+    <h1>We're looking for cold callers, closers and web developers.</h1>
+    <p class="muted">By Intent builds websites and AI systems for local businesses. Some of us call, some of us close, some of us build. You join a team, not a course, and you only earn when you deliver something of value.</p>
     <div><a class="btn" href="#apply">Apply — it's free ↓</a></div>
   </section>
 
   <!-- who -->
   <section class="wrap">
     <p class="label">Who we're looking for</p>
-    <div class="grid2">
+    <div class="grid3">
       <div class="box">
         <h3>Cold callers</h3>
         <ul>
           <li>You're not afraid to pick up the phone</li>
           <li>You call local businesses from our lead lists</li>
-          <li>You book meetings and help close deals</li>
+          <li>You book meetings for the closers</li>
           <li>Experience is a plus, not a must</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Closers</h3>
+        <ul>
+          <li>You take the booked meetings</li>
+          <li>You show the business what we build</li>
+          <li>You close the deal and make sure it's paid</li>
+          <li>You pass the project on to the developer</li>
         </ul>
       </div>
       <div class="box">
@@ -138,6 +156,18 @@
         </ul>
       </div>
     </div>
+  </section>
+
+  <!-- deal flow -->
+  <section class="wrap">
+    <p class="label">How a deal works</p>
+    <div class="flow">
+      <div><b>1 · Caller</b><span>Calls a local business and books a meeting.</span></div>
+      <div><b>2 · Closer</b><span>Shows what we build and closes the deal.</span></div>
+      <div><b>3 · Payment</b><span>The client pays before any work starts.</span></div>
+      <div><b>4 · Developer</b><span>Gets a clear brief from the closer and builds it.</span></div>
+    </div>
+    <p class="muted small" style="margin-top:16px">Everyone in the chain gets paid for their part once the client has paid.</p>
   </section>
 
   <!-- how -->
@@ -164,7 +194,8 @@
       <div class="step" data-step="1">
         <h2>What do you want to do?</h2>
         <div class="big" data-one="role">
-          <button type="button" class="opt" data-v="Cold caller">Cold caller<small>Call businesses, book meetings, help close.</small></button>
+          <button type="button" class="opt" data-v="Cold caller">Cold caller<small>Call businesses and book meetings.</small></button>
+          <button type="button" class="opt" data-v="Closer">Closer<small>Take meetings, close deals, get them paid.</small></button>
           <button type="button" class="opt" data-v="Web developer">Web developer<small>Build websites, systems and automations.</small></button>
         </div>
       </div>
@@ -194,6 +225,21 @@
         <label class="q"><span>What have you sold or done before? <em>(optional)</em></span><textarea id="verleden_c" maxlength="400" placeholder="Jobs, call centre, door-to-door, your own business…"></textarea></label>
       </div>
 
+      <!-- 3c closer -->
+      <div class="step hide" data-step="3" data-role="Closer">
+        <h2>Closing</h2>
+        <div class="q"><span>How much closing experience do you have?</span>
+          <div class="opts" data-one="ervaring_cl"><button type="button" class="opt" data-v="None yet">None yet</button><button type="button" class="opt" data-v="A little">A little</button><button type="button" class="opt" data-v="1+ year">1+ year</button><button type="button" class="opt" data-v="3+ years">3+ years</button></div>
+        </div>
+        <div class="q"><span>Biggest deal you've closed</span>
+          <div class="opts" data-one="deal"><button type="button" class="opt" data-v="None yet">None yet</button><button type="button" class="opt" data-v="Under €1.000">Under €1.000</button><button type="button" class="opt" data-v="€1.000–5.000">€1.000–5.000</button><button type="button" class="opt" data-v="€5.000+">€5.000+</button></div>
+        </div>
+        <div class="q"><span>Where do you like to close?</span>
+          <div class="opts" data-many="waar"><button type="button" class="opt" data-v="Phone">Phone</button><button type="button" class="opt" data-v="Video call">Video call</button><button type="button" class="opt" data-v="In person">In person</button></div>
+        </div>
+        <label class="q"><span>What have you sold before? <em>(optional)</em></span><textarea id="verleden_cl" maxlength="400" placeholder="Products, services, high-ticket, your own business…"></textarea></label>
+      </div>
+
       <!-- 3b developer -->
       <div class="step hide" data-step="3" data-role="Web developer">
         <h2>Building</h2>
@@ -213,7 +259,7 @@
           <div class="opts" data-one="uren"><button type="button" class="opt" data-v="Under 10">Under 10</button><button type="button" class="opt" data-v="10–20">10–20</button><button type="button" class="opt" data-v="20–40">20–40</button><button type="button" class="opt" data-v="Full time">Full time</button></div>
         </div>
         <div class="q"><span>What do you want to learn? <em>(tick all that apply)</em></span>
-          <div class="opts" data-many="leren"><button type="button" class="opt" data-v="Cold calling">Cold calling</button><button type="button" class="opt" data-v="Closing deals">Closing deals</button><button type="button" class="opt" data-v="Web design">Web design</button><button type="button" class="opt" data-v="AI automations">AI automations</button><button type="button" class="opt" data-v="Ads">Ads</button><button type="button" class="opt" data-v="Running an agency">Running an agency</button></div>
+          <div class="opts" data-many="leren"><button type="button" class="opt" data-v="Cold calling">Cold calling</button><button type="button" class="opt" data-v="Closing deals">Closing deals</button><button type="button" class="opt" data-v="Handling payments">Handling payments</button><button type="button" class="opt" data-v="Web design">Web design</button><button type="button" class="opt" data-v="AI automations">AI automations</button><button type="button" class="opt" data-v="Ads">Ads</button><button type="button" class="opt" data-v="Running an agency">Running an agency</button></div>
         </div>
         <label class="q"><span>Why do you want to join?</span><textarea id="waarom" maxlength="600" placeholder="A few sentences is enough."></textarea></label>
         <div class="q"><span>How did you find us?</span>
@@ -267,7 +313,7 @@ const CALL_FROM = '09:00', CALL_TO = '21:00';    // only show call times in this
 
 const $ = id => document.getElementById(id);
 const steps = [...document.querySelectorAll('#form .step')];
-const A = { role: '', talen: [], tools: [], leren: [] };
+const A = { role: '', talen: [], tools: [], leren: [], waar: [] };
 let cur = 1, token = '', slot = '', applied = false;
 
 /* --- choice buttons --- */
@@ -302,6 +348,7 @@ function check(n) {
     if (!A.talen.length) return 'Pick at least one language.';
   }
   if (n === 3 && A.role === 'Cold caller' && (!A.ervaring_c || !A.bellen)) return 'Answer both questions.';
+  if (n === 3 && A.role === 'Closer' && (!A.ervaring_cl || !A.deal || !A.waar.length)) return 'Answer all three questions.';
   if (n === 3 && A.role === 'Web developer' && (!A.tools.length || !A.ervaring_d)) return 'Tick what you can build and choose your level.';
   if (n === 4) {
     if (!A.uren) return 'Choose how many hours you can work.';
@@ -330,6 +377,9 @@ function summary() {
   if (A.role === 'Cold caller') {
     L.push(`Experience: ${A.ervaring_c}`, `Calling strangers: ${A.bellen}`);
     if (val('verleden_c')) L.push(`Background: ${val('verleden_c')}`);
+  } else if (A.role === 'Closer') {
+    L.push(`Closing experience: ${A.ervaring_cl}`, `Biggest deal: ${A.deal}`, `Closes via: ${A.waar.join(', ')}`);
+    if (val('verleden_cl')) L.push(`Background: ${val('verleden_cl')}`);
   } else {
     L.push(`Can build: ${A.tools.join(', ')}`, `Level: ${A.ervaring_d}`);
     if (val('portfolio')) L.push(`Portfolio: ${val('portfolio')}`);
