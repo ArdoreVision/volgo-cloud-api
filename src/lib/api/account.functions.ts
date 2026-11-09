@@ -433,7 +433,7 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
   const profielKlaar = profielCompleet(leesProfiel(avaProfiel?.profiel));
   const [leads, afspraken, gesprekken, leden, kanalen] = await Promise.all([
     DB.prepare(
-      `SELECT l.id, l.created_at, l.naam, l.onderwerp, l.kanaal, l.status, l.laatste_actie, l.voorbeeld,
+      `SELECT l.id, l.created_at, l.naam, l.onderwerp, l.kanaal, l.status, l.laatste_actie, l.voorbeeld, l.gearchiveerd,
               COALESCE(s.warmte, 50) AS warmte, s.reden,
               (SELECT m.herkomst FROM ava_gesprek_meta m WHERE m.lead_id = l.id LIMIT 1) AS herkomst,
               COALESCE((SELECT m.contact FROM ava_gesprek_meta m WHERE m.lead_id = l.id AND m.contact IS NOT NULL LIMIT 1),
@@ -443,7 +443,7 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
        ORDER BY l.created_at DESC LIMIT 1000`,
     )
       .bind(team, `-${analyticsDagen * 2 + 1} days`)
-      .all<{ id: number; created_at: string; naam: string; onderwerp: string; kanaal: string; status: string; laatste_actie: string | null; voorbeeld: number; warmte: number; reden: string | null; herkomst: string | null; contact: string | null }>(),
+      .all<{ id: number; created_at: string; naam: string; onderwerp: string; kanaal: string; status: string; laatste_actie: string | null; voorbeeld: number; warmte: number; reden: string | null; herkomst: string | null; contact: string | null; gearchiveerd: number }>(),
     DB.prepare("SELECT id, lead_id, titel, start, eind, locatie, notitie, voorbeeld FROM afspraken WHERE team_id = ? ORDER BY start")
       .bind(team)
       .all<{ id: number; lead_id: number | null; titel: string; start: string; eind: string; locatie: string | null; notitie: string | null; voorbeeld: number }>(),
@@ -474,7 +474,8 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
     },
     profielKlaar,
     kanalenGezien: Boolean(avaProfiel?.kanalen_gezien),
-    leads: leads.results,
+    leads: leads.results.filter((l) => !l.gearchiveerd),
+    archief: leads.results.filter((l) => l.gearchiveerd),
     afspraken: afspraken.results,
     gesprekken: gesprekken.results,
     leden: leden.results,
@@ -518,6 +519,35 @@ export const bewaarLeadNotitie = createServerFn({ method: "POST" })
     if (!g || !DB) return { ok: false as const };
     await DB.prepare("UPDATE klant_leads SET notitie = ? WHERE id = ? AND gebruiker_id = ?").bind(data.notitie.trim(), data.id, g.team_id).run();
     return { ok: true as const };
+  });
+
+/** Archive (or restore) a request: hidden from the lists, nothing is lost. */
+export const archiveerLead = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ id: z.number().int(), aan: z.boolean() }).parse(v))
+  .handler(async ({ data }) => {
+    const g = await actieveGebruiker().catch(() => null);
+    const { DB } = bindings();
+    if (!g || !DB) return { ok: false };
+    await DB.prepare("UPDATE klant_leads SET gearchiveerd = ? WHERE id = ? AND gebruiker_id = ?").bind(data.aan ? 1 : 0, data.id, g.team_id).run();
+    return { ok: true };
+  });
+
+/** Delete a request for good. The conversation and appointments stay, without the link to this request. */
+export const verwijderLead = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ id: z.number().int() }).parse(v))
+  .handler(async ({ data }) => {
+    const g = await actieveGebruiker().catch(() => null);
+    const { DB } = bindings();
+    if (!g || !DB) return { ok: false };
+    const van = await DB.prepare("SELECT id FROM klant_leads WHERE id = ? AND gebruiker_id = ?").bind(data.id, g.team_id).first();
+    if (!van) return { ok: false };
+    await DB.batch([
+      DB.prepare("UPDATE ava_gesprek_meta SET lead_id = NULL WHERE lead_id = ?").bind(data.id),
+      DB.prepare("UPDATE afspraken SET lead_id = NULL WHERE lead_id = ? AND team_id = ?").bind(data.id, g.team_id),
+      DB.prepare("DELETE FROM lead_scores WHERE lead_id = ?").bind(data.id),
+      DB.prepare("DELETE FROM klant_leads WHERE id = ? AND gebruiker_id = ?").bind(data.id, g.team_id),
+    ]);
+    return { ok: true };
   });
 
 export const zetLeadStatus = createServerFn({ method: "POST" })
