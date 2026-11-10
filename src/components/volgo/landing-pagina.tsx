@@ -1,9 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { AvaChat } from "./ava-chat";
 import { Footer } from "./footer";
 import { VolgoMark } from "./logo";
 import { type RouteTaal } from "./route-teksten";
+import { TaalKiezer, Vertaler, kiesTaal, opgeslagenTaal, toonTaal } from "./taal";
+import { regioTaal } from "@/lib/api/vertaal.functions";
+import { TALEN, isTaal } from "@/lib/talen";
 import "@/volgo-dialed.css";
 import "@/volgo-landing.css";
 
@@ -63,12 +66,81 @@ function Bel() {
   );
 }
 
+/** The page is written in Dutch; this is its source language for the translator. */
+const BRON = "nl";
+
+/** First visit: show the page in the visitor's regional language and ask them to accept or pick another one. */
+function TaalPopup() {
+  const [open, setOpen] = useState(false);
+  const [keuze, setKeuze] = useState(BRON);
+
+  useEffect(() => {
+    if (opgeslagenTaal()) return;
+    let weg = false;
+    const browser = (navigator.language || "").slice(0, 2).toLowerCase();
+    regioTaal()
+      .catch(() => ({ taal: null as string | null }))
+      .then((r) => {
+        if (weg) return;
+        const taal = r.taal && isTaal(r.taal) ? r.taal : isTaal(browser) ? browser : BRON;
+        setKeuze(taal);
+        if (taal !== BRON) toonTaal(taal);
+        setOpen(true);
+      });
+    const op = (e: Event) => setKeuze((e as CustomEvent<string>).detail);
+    window.addEventListener("volgo-taal", op);
+    return () => {
+      weg = true;
+      window.removeEventListener("volgo-taal", op);
+    };
+  }, []);
+
+  if (!open) return null;
+  return (
+    <div aria-labelledby="vw-taal-kop" className="vw-taalpop" role="dialog">
+      <div className="vw-taalpop__kop">
+        <svg aria-hidden="true" fill="none" height="20" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24" width="20">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18" />
+        </svg>
+        <b id="vw-taal-kop">Kies je taal</b>
+      </div>
+      <p>We tonen deze website in de taal van jouw regio. Je kunt het hier of bovenaan het scherm altijd aanpassen.</p>
+      <div className="vw-taalpop__rij">
+        <select
+          aria-label="Language"
+          className="vw-taalpop__select"
+          data-notranslate=""
+          onChange={(e) => {
+            setKeuze(e.target.value);
+            toonTaal(e.target.value);
+          }}
+          value={keuze}
+        >
+          {TALEN.map((t) => (
+            <option key={t.code} value={t.code}>
+              {t.naam}
+            </option>
+          ))}
+        </select>
+        <button
+          className="vl-knop vw-taalpop__ok"
+          onClick={() => {
+            kiesTaal(keuze);
+            setOpen(false);
+          }}
+          type="button"
+        >
+          Accepteren
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /** The landing page: we build websites and systems that work automatically. One action: Book a call (WhatsApp). */
 export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: RouteTaal }) {
-  useEffect(() => {
-    document.documentElement.lang = "nl";
-  }, [vast]);
-
+  void vast;
   return (
     <div className="volgo volgo--simpel volgo--dialed vl vw" id="vd">
       <header className="vl-top">
@@ -76,7 +148,8 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
           <VolgoMark size={22} />
           <span>Volgo</span>
         </a>
-        <nav className="vl-top__rechts">
+        <nav className="vl-top__rechts vw-top__rechts">
+          <TaalKiezer bron={BRON} compact />
           <a className="vl-top__link" href={ingelogd ? "/dashboard" : "/login"}>
             {ingelogd ? "Dashboard" : "Inloggen"}
           </a>
@@ -204,6 +277,8 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
         </section>
       </main>
       <Footer />
+      <TaalPopup />
+      <Vertaler bron={BRON} />
       <AvaChat />
     </div>
   );

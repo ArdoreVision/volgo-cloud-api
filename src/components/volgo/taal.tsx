@@ -18,6 +18,26 @@ export function huidigeTaal(): string {
   return isTaal(b) ? b : "en";
 }
 
+/** The visitor's own saved choice, or null when they never picked one. */
+export function opgeslagenTaal(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const t = localStorage.getItem(SLEUTEL);
+    return t && isTaal(t) ? t : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Show a language without saving it (the region suggestion, until the visitor accepts). */
+export function toonTaal(code: string) {
+  if (!isTaal(code)) return;
+  window.dispatchEvent(new CustomEvent(EVENT, { detail: code }));
+}
+
+/** Language the page's own texts are written in. Most pages are English; the landing page is Dutch. */
+let bronTaal = "en";
+
 export function kiesTaal(code: string) {
   if (!isTaal(code)) return;
   try {
@@ -114,10 +134,10 @@ async function pasToe(taal: string): Promise<void> {
     try {
       const root = document.body;
       const items = verzamel(root);
-      if (taal === "en") {
+      if (taal === bronTaal) {
         for (const it of items) zet(it.doel, it.bron);
-        document.documentElement.lang = "en";
-        actueel = "en";
+        document.documentElement.lang = bronTaal;
+        actueel = bronTaal;
         return;
       }
       const m = cache.get(taal) ?? new Map<string, string>();
@@ -133,7 +153,7 @@ async function pasToe(taal: string): Promise<void> {
       // Top of the page first, in small batches, so the visitor sees the translation build up within a second or two.
       for (let i = 0; i < open.length; i += 60) {
         const stuk = open.slice(i, i + 60);
-        const r = await vertaalTeksten({ data: { taal, teksten: stuk } }).catch(() => null);
+        const r = await vertaalTeksten({ data: { taal, teksten: stuk, ...(bronTaal !== "en" ? { van: bronTaal } : {}) } }).catch(() => null);
         if (r?.vertalingen)
           for (const [k, v] of Object.entries(r.vertalingen)) {
             m.set(k, v);
@@ -157,9 +177,11 @@ function zet(d: Doel, tekst: string) {
 }
 
 /** Mount once on public pages. Translates on load, on language change, and whenever the page content changes. */
-export function Vertaler() {
+export function Vertaler({ bron = "en" }: { bron?: string } = {}) {
   useEffect(() => {
-    let taal = huidigeTaal();
+    bronTaal = bron;
+    gewenst = actueel = bron;
+    let taal = bron === "en" ? huidigeTaal() : (opgeslagenTaal() ?? bron);
     let timer = 0;
     let eerste = 0;
     const run = () => {
@@ -180,18 +202,18 @@ export function Vertaler() {
     };
     window.addEventListener(EVENT, opTaal);
     const mo = new MutationObserver((muts) => {
-      if (taal === "en") return;
+      if (taal === bronTaal) return;
       // Ignore our own writes: only react when something changed that is not already translated.
       if (muts.some((m) => m.type === "childList" || (m.type === "characterData" && !cacheHit((m.target as Text).nodeValue ?? "")))) run();
     });
     mo.observe(document.body, { childList: true, subtree: true, characterData: true });
-    if (taal !== "en") run();
+    if (taal !== bronTaal) run();
     return () => {
       window.removeEventListener(EVENT, opTaal);
       mo.disconnect();
       window.clearTimeout(timer);
     };
-  }, []);
+  }, [bron]);
   return null;
 }
 
@@ -199,14 +221,14 @@ export function Vertaler() {
 /* The picker (nav + consent card)                                     */
 /* ------------------------------------------------------------------ */
 
-export function TaalKiezer({ compact = false }: { compact?: boolean }) {
-  const [taal, setTaal] = useState("en");
+export function TaalKiezer({ compact = false, bron }: { compact?: boolean; bron?: string }) {
+  const [taal, setTaal] = useState(bron ?? "en");
   useEffect(() => {
-    setTaal(huidigeTaal());
+    setTaal(bron ? (opgeslagenTaal() ?? bron) : huidigeTaal());
     const op = (e: Event) => setTaal((e as CustomEvent<string>).detail);
     window.addEventListener(EVENT, op);
     return () => window.removeEventListener(EVENT, op);
-  }, []);
+  }, [bron]);
   return (
     <label className={`v-taal${compact ? " v-taal--compact" : ""}`} data-notranslate="">
       <span aria-hidden="true" className="v-taal__ico">

@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 import { sha256 } from "../auth.server";
@@ -14,13 +15,15 @@ export const vertaalTeksten = createServerFn({ method: "POST" })
       .object({
         taal: z.string().length(2).refine(isTaal, "Unknown language"),
         teksten: z.array(z.string().min(1).max(800)).min(1).max(200),
+        van: z.string().length(2).refine(isTaal, "Unknown language").optional(),
       })
       .parse(v),
   )
   .handler(async ({ data }) => {
     const { DB, ANTHROPIC_API_KEY, CLAUDE_MODEL } = bindings();
     const uit: Record<string, string> = {};
-    if (data.taal === "en") {
+    const van = data.van ?? "en";
+    if (data.taal === van) {
       for (const t of data.teksten) uit[t] = t;
       return { ok: true as const, vertalingen: uit };
     }
@@ -43,7 +46,7 @@ export const vertaalTeksten = createServerFn({ method: "POST" })
     const taalNaam = TALEN.find((t) => t.code === data.taal)?.engels ?? data.taal;
     const stukken: string[][] = [];
     for (let i = 0; i < ontbreekt.length; i += STUK) stukken.push(ontbreekt.slice(i, i + STUK));
-    const resultaten = await Promise.all(stukken.map((stuk) => vertaalMetClaude(ANTHROPIC_API_KEY, CLAUDE_MODEL || "claude-haiku-5-5", taalNaam, stuk).catch(() => null)));
+    const resultaten = await Promise.all(stukken.map((stuk) => vertaalMetClaude(ANTHROPIC_API_KEY, CLAUDE_MODEL || "claude-haiku-5-5", taalNaam, stuk, TALEN.find((t) => t.code === van)?.engels ?? "English").catch(() => null)));
     const inserts = [];
     for (let k = 0; k < stukken.length; k++) {
       const stuk = stukken[k]!;
@@ -60,8 +63,8 @@ export const vertaalTeksten = createServerFn({ method: "POST" })
     return { ok: true as const, vertalingen: uit };
   });
 
-async function vertaalMetClaude(key: string, model: string, taal: string, teksten: string[]): Promise<string[] | null> {
-  const system = `You translate the user interface and marketing copy of Volgo, a software product, from English into ${taal}.
+async function vertaalMetClaude(key: string, model: string, taal: string, teksten: string[], vanTaal = "English"): Promise<string[] | null> {
+  const system = `You translate the user interface and marketing copy of Volgo, a software product, from ${vanTaal} into ${taal}.
 Rules:
 - Return ONLY a JSON array of strings, same length and order as the input array. No commentary.
 - Keep the tone: short, friendly, confident, written for small business owners (contractors, installers, studios).
@@ -91,3 +94,14 @@ Rules:
   if (!Array.isArray(arr) || arr.length !== teksten.length) return null;
   return arr as string[];
 }
+
+/** Which language fits the visitor's region (from their country; nothing is stored). */
+const LAND_TAAL: Record<string, string> = {
+  NL: "nl", BE: "nl", SR: "nl", DE: "de", AT: "de", CH: "de", LI: "de", LU: "fr", FR: "fr", MC: "fr", ES: "es", MX: "es", AR: "es", CO: "es", CL: "es", PE: "es",
+  PT: "pt", BR: "pt", IT: "it", SM: "it", PL: "pl", SE: "sv", DK: "da", FI: "fi", GR: "el", CY: "el", CZ: "cs", SK: "sk", HU: "hu", RO: "ro", MD: "ro",
+  BG: "bg", HR: "hr", SI: "sl", EE: "et", LV: "lv", LT: "lt", MT: "mt", IE: "en", GB: "en", US: "en", CA: "en", AU: "en", NZ: "en",
+};
+export const regioTaal = createServerFn({ method: "GET" }).handler(async () => {
+  const land = (getRequestHeader("x-volgo-land") || getRequestHeader("cf-ipcountry") || "").toUpperCase();
+  return { land, taal: LAND_TAAL[land] ?? null };
+});
