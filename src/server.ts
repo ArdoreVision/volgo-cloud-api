@@ -115,6 +115,15 @@ export default {
     if (oud[url.pathname]) return Response.redirect(`${url.origin}${oud[url.pathname]}${url.search}`, 301);
     // The Volgo chat API gets the visitor's approximate location from Cloudflare (city level, never the exact address).
     // It is only stored when the visitor gave permission in the consent screen.
+    // The language picker on the landing page asks which country the visitor is in (country only, nothing stored).
+    if (url.pathname.startsWith("/_serverFn/")) {
+      const land = (request as unknown as { cf?: { country?: string } }).cf?.country;
+      if (land) {
+        const h = new Headers(request.headers);
+        h.set("x-volgo-land", land.slice(0, 2));
+        request = new Request(request, { headers: h });
+      }
+    }
     if (url.pathname === "/api/ava" && request.method === "POST") {
       const cf = (request as unknown as { cf?: { city?: string; region?: string; country?: string; timezone?: string } }).cf;
       if (cf) {

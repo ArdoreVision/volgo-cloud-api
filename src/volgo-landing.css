@@ -184,3 +184,18 @@
 @media (max-width: 640px) { #vd .vw-diensten { grid-template-columns: 1fr; } }
 #vd .vw-team { max-width: 820px; margin: 0 auto; padding: clamp(36px, 6vw, 64px) clamp(22px, 5vw, 56px); border-radius: 28px; background: radial-gradient(120% 80% at 50% 0%, rgba(255, 255, 255, 0.07), transparent 70%), #0b0b0b; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); }
 #vd .vw-team .vl-h2 { margin-bottom: 18px; }
+
+/* Language: picker in the top bar + first-visit popup */
+#vd .vw-top__rechts { display: flex; align-items: center; gap: 10px; }
+#vd .vw-top__rechts .v-taal { height: 36px; background: transparent; color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18); }
+#vd .vw-top__rechts .v-taal__ico { color: #bdbdbd; }
+#vd .vw-top__rechts .v-taal select option { color: #000; }
+#vd .vw-taalpop { position: fixed; z-index: 60; left: 24px; bottom: 24px; width: min(380px, calc(100vw - 32px)); padding: 20px; border-radius: 20px; background: rgba(18, 18, 18, 0.96); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14), 0 30px 80px rgba(0, 0, 0, 0.6); color: #fff; animation: vw-in 0.35s ease-out; }
+@keyframes vw-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+#vd .vw-taalpop__kop { display: flex; align-items: center; gap: 10px; font-size: 16px; }
+#vd .vw-taalpop p { margin: 8px 0 16px; color: #a8a8a8; font-size: 14px; line-height: 1.5; }
+#vd .vw-taalpop__rij { display: flex; gap: 10px; }
+#vd .vw-taalpop__select { flex: 1; min-width: 0; height: 46px; padding: 0 12px; border-radius: 12px; border: 0; background: rgba(255, 255, 255, 0.08); color: #fff; font: inherit; font-size: 15px; font-weight: 600; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16); }
+#vd .vw-taalpop__select option { color: #000; }
+#vd .vw-taalpop__ok { min-height: 46px; padding: 0 22px; border: 0; font-family: inherit; cursor: pointer; }
+@media (max-width: 640px) { #vd .vw-taalpop { left: 12px; right: 12px; width: auto; top: 76px; bottom: auto; } }
