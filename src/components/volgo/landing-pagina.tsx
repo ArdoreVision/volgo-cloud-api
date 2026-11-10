@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { AvaChat } from "./ava-chat";
+import { AvaChat, VOLGO_AVA_SLEUTEL } from "./ava-chat";
 import { Footer } from "./footer";
 import { VolgoMark } from "./logo";
 import { type RouteTaal } from "./route-teksten";
@@ -69,7 +69,10 @@ function Bel() {
 /** The page is written in Dutch; this is its source language for the translator. */
 const BRON = "nl";
 
-/** First visit: show the page in the visitor's regional language and ask them to accept or pick another one. */
+/**
+ * First visit: show the page in the visitor's regional language. The Volgo consent popup (Accept) carries the
+ * language picker; when that popup was already answered earlier, this small card asks instead.
+ */
 function TaalPopup() {
   const [open, setOpen] = useState(false);
   const [keuze, setKeuze] = useState(BRON);
@@ -83,9 +86,16 @@ function TaalPopup() {
       .then((r) => {
         if (weg) return;
         const taal = r.taal && isTaal(r.taal) ? r.taal : isTaal(browser) ? browser : BRON;
+        (window as unknown as { __volgoRegioTaal?: string }).__volgoRegioTaal = taal;
         setKeuze(taal);
         if (taal !== BRON) toonTaal(taal);
-        setOpen(true);
+        let consentAlGekozen = false;
+        try {
+          consentAlGekozen = Boolean(localStorage.getItem(`volgo-ok-${VOLGO_AVA_SLEUTEL}`));
+        } catch {
+          /* private mode */
+        }
+        if (consentAlGekozen) setOpen(true);
       });
     const op = (e: Event) => setKeuze((e as CustomEvent<string>).detail);
     window.addEventListener("volgo-taal", op);
