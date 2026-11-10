@@ -4,9 +4,8 @@ import { LandingPagina } from "@/components/volgo/landing-pagina";
 import { isIngelogd } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
 
-const TITEL = "Volgo · AI-assistent die je website-aanvragen 24/7 beantwoordt";
-const OMSCHRIJVING =
-  "Volgo beantwoordt vragen op je website, noteert aanvragen, plant afspraken en laat zien wie je het eerst moet terugbellen. Probeer de live demo zonder aanmelden.";
+const TITEL = "Volgo · Websites en systemen die automatisch leads binnenhalen";
+const OMSCHRIJVING = "We bouwen exact wat je bedrijf nodig heeft: websites met systemen die automatisch leads binnenhalen en opvolgen. Foto's en video's met AI. Live binnen 24 uur.";
 
 /** Dutch landing page, for Dutch ads: thevolgo.app/nl. Same page, Dutch copy and a Dutch sample business in the demo. */
 export const Route = createFileRoute("/nl")({

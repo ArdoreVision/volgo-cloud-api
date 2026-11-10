@@ -1,242 +1,76 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
+import { AvaChat } from "./ava-chat";
 import { Footer } from "./footer";
 import { VolgoMark } from "./logo";
 import { type RouteTaal } from "./route-teksten";
-import { huidigeTaal, kiesTaal } from "./taal";
-import { AvaChat } from "./ava-chat";
-import { INSTAGRAM_DM } from "@/lib/contact";
 import "@/volgo-dialed.css";
 import "@/volgo-landing.css";
 
-const T = {
-  en: {
-    login: "Log in",
-    dashboard: "Dashboard",
-    boek: "Book a call",
-    oog: "AI assistant for your website",
-    filmLabel: "What Volgo does, in 36 seconds",
-    titel: "Your assistant online. 24/7.",
-    sub: "Volgo answers every visitor on your website, day and night, and books the appointment straight into your calendar. Then it sends the reminder, asks for the review and follows up. You just do the work.",
-    start: "Start",
-    prijzen: "See pricing",
-    klein: "7 days for €1 · website chat installed in 2 minutes · cancel any time",
-    chatKop: "Your website",
-    bez1: "Hi, can someone redo our back garden?",
-    ava1: "Of course! Roughly how big is it, and what's the address?",
-    bez2: "About 60 m², Dorpsstraat 12, Middelburg.",
-    ava2: "Thanks! Pick a moment for a visit below.",
-    geboekt: "Booked: Tue 14:00",
-    appKop: "Volgo app",
-    nieuw: "New appointment",
-    afspraak: "Visit at address · Tue 14:00",
-    naam: "Anna de Vries",
-    adres: "Dorpsstraat 12, Middelburg",
-    notitie: "Back garden ~60 m², wants it done in spring",
-    bellen: "Call",
-    watKop: "What is Volgo?",
-    wat: "Volgo is an assistant that lives on your website. It talks to your visitors like a friendly employee would: it answers their questions, asks what you need to know, and plans the appointment. Everything lands in one simple app on your phone.",
-    waaromKop: "Why businesses use it",
-    waarom: [
-      ["No missed customers", "Most people who visit your website never call or email. Volgo starts the conversation with them, also at 22:00 and on Sunday."],
-      ["The fastest answer wins", "People ask several businesses at once. Volgo answers within seconds, so you're first."],
-      ["No calling, no chasing", "Reminders, follow-ups, review requests and payment links go out by themselves. You don't have to remember anything."],
-    ],
-    stappenKop: "Running in 3 steps",
-    stappen: [
-      ["Sign up", "Choose your plan and answer 5 short questions about your business. Volgo learns your services, area and prices."],
-      ["Paste one line of code", "Copy it from your dashboard and paste it in WordPress, Wix, Squarespace, Shopify or Webflow. Step by step, in 2 minutes. Prefer we do it? Just ask."],
-      ["Customers book, you work", "Volgo chats, books and follows up. You see every conversation and appointment in the app, with a notification on your phone."],
-    ],
-    kanalenKop: "Website, WhatsApp and phone",
-    kanalenSub: "Customers reach you in different ways. This is exactly what works, and when.",
-    kanalen: [
-      ["Website chat", "Works right away", "Volgo answers every visitor, books appointments and puts everything in your inbox. Install it yourself in 2 minutes."],
-      ["WhatsApp", "Button works right away · inbox via linking", "A “WhatsApp us” button in your chat and a WhatsApp button at every request work immediately. Want WhatsApp messages to land in Volgo and answer them there? We link your number via WhatsApp (Meta). Meta verifies your business first, usually within a few days."],
-      ["Phone", "Button works right away · missed calls via linking", "A “Call us” button in your chat and a call-back button at every request work immediately. Want missed calls caught automatically? You get a Volgo number that forwards to your own phone; we set it up for you."],
-    ],
-    allesKop: "Everything Volgo does for you",
-    alles: [
-      ["Chat that books", "Answers every visitor 24/7 and books phone calls, visits or chat appointments in your calendar."],
-      ["Never a double booking", "One appointment per time slot. Booked times disappear from the calendar straight away."],
-      ["Reminder the day before", "Every customer gets a reminder 24 hours before the appointment. Fewer no-shows."],
-      ["Reviews on autopilot", "After the appointment Volgo asks for a Google review, and writes your replies to reviews."],
-      ["Follow-up after 1 and 3 days", "Left their details but didn't book? Volgo follows up, written for what they asked."],
-      ["One inbox", "Website chat and contact form in one place. WhatsApp messages, missed calls and email join once they are linked."],
-      ["Payment requests", "Job done? Send a payment link in 10 seconds. Paid straight to your account."],
-      ["Seasonal messages", "A short, useful message to earlier customers four times a year, so they come back."],
-      ["Notifications on your phone", "Know right away when someone chats, books or pays."],
-    ],
-    zienKop: "See your own website in your dashboard",
-    zien: "Fill in your website address and you see your real website with your Volgo chat on it, on a computer and on a phone. Choose your chat's name, photo, colour and the questions it asks. The rest we keep running for you.",
-    zienPunten: ["Your real website, live", "Try the chat yourself", "Change how the chat looks", "Check that it's installed"],
-    installKop: "Install it yourself. Or we do it.",
-    install: "One line of code puts Volgo on every page. Your dashboard shows the exact steps for your website builder, and checks if it worked.",
-    prijsTitel: "Two plans. No surprises.",
-    prijsSub: "Excluding VAT. Monthly, cancel any time.",
-    perMaand: "per month",
-    plannen: {
-      start: { naam: "Assistant", voor: "For businesses that already have a website.", extra: "7 days for €1", knop: "Start 7 days for €1", punten: ["Assistant on your website, 24/7, books in your calendar", "Reminders, follow-ups and review requests", "One inbox: chat, form, WhatsApp and phone", "Payment requests and phone notifications", "Install it yourself, or we do it for you"] },
-      pro: { naam: "Complete", voor: "A new premium website, with your assistant inside.", extra: "+ €995 one-time for your website", knop: "Start Complete", punten: ["Everything in Assistant", "New premium website, built for you", "Photos, video and animations", "Your own chat photo and style", "Changes when you need them"] },
-    },
-    populair: "Most chosen",
-    eenMoment: "One moment…",
-    faqKop: "Questions",
-    faq: [
-      ["Does Volgo work with WhatsApp and phone?", "Yes, in two ways. Buttons to WhatsApp or call you and your customers work right away. Receiving WhatsApp messages and missed calls automatically in Volgo needs a link to WhatsApp (Meta) or a Volgo phone number; we arrange it, and your dashboard shows exactly what is active."],
-      ["Do I need technical knowledge?", "No. You copy one line and paste it in your website builder, with steps for WordPress, Wix, Squarespace, Shopify and Webflow. Rather not? We install it for you."],
-      ["What do my customers receive?", "Only useful messages from your business name: the appointment, a reminder, a follow-up if they didn't book, and a review request. Follow-ups and seasonal messages always have a stop link."],
-      ["Can I change the chat myself?", "Yes: its name, photo, colour, style and the questions it asks. You see it live on your own website in the dashboard."],
-      ["How do payments work?", "You send a payment request from the app. Your customer pays with iDEAL or card through your own Stripe account, or by bank transfer to your IBAN. Volgo never holds your money."],
-      ["Can I stop?", "Yes, every month. No contract, no notice period."],
-    ],
-    slotTitel: "Never lose a customer in your inbox again.",
-    slotSub: "Book a call and we show you what Volgo does for your business.",
-  },
-  nl: {
-    login: "Inloggen",
-    dashboard: "Dashboard",
-    boek: "Book a call",
-    oog: "AI-assistent voor je website",
-    filmLabel: "Wat Volgo doet, in 36 seconden",
-    titel: "Jouw assistent online. 24/7.",
-    sub: "Volgo beantwoordt elke bezoeker op je website, dag en nacht, en zet de afspraak meteen in je agenda. Daarna stuurt het de herinnering, vraagt het om de review en volgt het op. Jij doet alleen het werk.",
-    start: "Start",
-    prijzen: "Bekijk de prijzen",
-    klein: "7 dagen voor €1 · website-chat in 2 minuten geïnstalleerd · maandelijks opzegbaar",
-    chatKop: "Jouw website",
-    bez1: "Hoi, kunnen jullie onze achtertuin opnieuw aanleggen?",
-    ava1: "Zeker! Hoe groot is de tuin ongeveer, en wat is het adres?",
-    bez2: "Zo'n 60 m², Dorpsstraat 12, Middelburg.",
-    ava2: "Dank je! Kies hieronder een moment voor een bezoek.",
-    geboekt: "Geboekt: di 14:00",
-    appKop: "Volgo-app",
-    nieuw: "Nieuwe afspraak",
-    afspraak: "Langskomen · di 14:00",
-    naam: "Anna de Vries",
-    adres: "Dorpsstraat 12, Middelburg",
-    notitie: "Achtertuin ±60 m², wil het in het voorjaar klaar",
-    bellen: "Bellen",
-    watKop: "Wat is Volgo?",
-    wat: "Volgo is een assistent die op je website woont. Het praat met je bezoekers zoals een vriendelijke medewerker dat zou doen: het beantwoordt vragen, vraagt wat jij moet weten en plant de afspraak. Alles komt binnen in één simpele app op je telefoon.",
-    waaromKop: "Waarom bedrijven het gebruiken",
-    waarom: [
-      ["Geen gemiste klanten", "De meeste mensen die je website bekijken bellen of mailen nooit. Volgo begint het gesprek met ze, ook om 22:00 en op zondag."],
-      ["Het snelste antwoord wint", "Mensen vragen bij meerdere bedrijven tegelijk. Volgo antwoordt binnen seconden, dus jij bent de eerste."],
-      ["Niet bellen, niet najagen", "Herinneringen, opvolging, reviewverzoeken en betaallinks gaan vanzelf. Jij hoeft niks te onthouden."],
-    ],
-    stappenKop: "Draaiend in 3 stappen",
-    stappen: [
-      ["Meld je aan", "Kies je pakket en beantwoord 5 korte vragen over je bedrijf. Volgo leert je diensten, werkgebied en prijzen."],
-      ["Plak één regel code", "Kopieer hem uit je dashboard en plak hem in WordPress, Wix, Squarespace, Shopify of Webflow. Stap voor stap, in 2 minuten. Liever dat wij het doen? Vraag het gewoon."],
-      ["Klanten boeken, jij werkt", "Volgo chat, boekt en volgt op. Je ziet elk gesprek en elke afspraak in de app, met een melding op je telefoon."],
-    ],
-    kanalenKop: "Website, WhatsApp en telefoon",
-    kanalenSub: "Klanten bereiken je op verschillende manieren. Dit werkt er precies, en vanaf wanneer.",
-    kanalen: [
-      ["Website-chat", "Werkt meteen", "Volgo beantwoordt elke bezoeker, boekt afspraken en zet alles in je inbox. Zelf te installeren in 2 minuten."],
-      ["WhatsApp", "Knop werkt meteen · inbox via koppeling", "Een knop “WhatsApp ons” in je chat en een WhatsApp-knop bij elke aanvraag werken direct. Wil je WhatsApp-berichten in Volgo ontvangen en daar beantwoorden? Dan koppelen wij je nummer via WhatsApp (Meta). Meta verifieert eerst je bedrijf, meestal binnen een paar dagen."],
-      ["Telefoon", "Knop werkt meteen · gemiste oproepen via koppeling", "Een knop “Bel ons” in je chat en een terugbelknop bij elke aanvraag werken direct. Wil je gemiste oproepen automatisch opvangen? Je krijgt een Volgo-nummer dat doorschakelt naar je eigen telefoon; wij zetten het voor je op."],
-    ],
-    allesKop: "Alles wat Volgo voor je doet",
-    alles: [
-      ["Chat die boekt", "Beantwoordt elke bezoeker 24/7 en boekt telefoongesprekken, bezoeken of chatafspraken in je agenda."],
-      ["Nooit dubbel geboekt", "Eén afspraak per tijdslot. Geboekte tijden verdwijnen meteen uit de agenda."],
-      ["Herinnering een dag van tevoren", "Elke klant krijgt 24 uur voor de afspraak een herinnering. Minder mensen die niet komen opdagen."],
-      ["Reviews vanzelf", "Na de afspraak vraagt Volgo om een Google-review, en schrijft het je antwoorden op reviews."],
-      ["Opvolging na 1 en 3 dagen", "Gegevens achtergelaten maar niet geboekt? Volgo volgt op, geschreven op wat ze vroegen."],
-      ["Eén inbox", "Websitechat en contactformulier op één plek. WhatsApp-berichten, gemiste oproepen en mail komen erbij zodra ze gekoppeld zijn."],
-      ["Betaalverzoeken", "Klus klaar? Stuur in 10 seconden een betaallink. Direct op jouw rekening."],
-      ["Seizoensberichten", "Vier keer per jaar een kort, nuttig bericht aan eerdere klanten, zodat ze terugkomen."],
-      ["Meldingen op je telefoon", "Weet het meteen als iemand chat, boekt of betaalt."],
-    ],
-    zienKop: "Zie je eigen website in je dashboard",
-    zien: "Vul je websiteadres in en je ziet je echte website met je Volgo-chat erop, op de computer en op de telefoon. Kies de naam, foto, kleur en de vragen van je chat. De rest houden wij voor je draaiend.",
-    zienPunten: ["Je echte website, live", "Probeer de chat zelf", "Pas aan hoe de chat eruitziet", "Check of hij goed staat"],
-    installKop: "Zelf installeren. Of wij doen het.",
-    install: "Eén regel code zet Volgo op elke pagina. Je dashboard laat de precieze stappen zien voor jouw websitebouwer, en checkt of het gelukt is.",
-    prijsTitel: "Twee pakketten. Geen verrassingen.",
-    prijsSub: "Exclusief btw. Per maand, maandelijks opzegbaar.",
-    perMaand: "per maand",
-    plannen: {
-      start: { naam: "Assistent", voor: "Voor bedrijven die al een website hebben.", extra: "7 dagen voor €1", knop: "Start 7 dagen voor €1", punten: ["Assistent op je website, 24/7, boekt in je agenda", "Herinneringen, opvolging en reviewverzoeken", "Eén inbox: chat, formulier, WhatsApp en telefoon", "Betaalverzoeken en meldingen op je telefoon", "Zelf installeren, of wij doen het voor je"] },
-      pro: { naam: "Compleet", voor: "Een nieuwe premium website, met je assistent erin.", extra: "+ €995 eenmalig voor je website", knop: "Start Compleet", punten: ["Alles uit Assistent", "Nieuwe premium website, voor je gebouwd", "Foto's, video en animaties", "Eigen chatfoto en stijl", "Aanpassingen wanneer je wilt"] },
-    },
-    populair: "Meest gekozen",
-    eenMoment: "Een moment…",
-    faqKop: "Vragen",
-    faq: [
-      ["Werkt Volgo met WhatsApp en telefoon?", "Ja, op twee manieren. Knoppen om jou te WhatsAppen of te bellen, en om klanten terug te bellen of te WhatsAppen, werken meteen. WhatsApp-berichten en gemiste oproepen automatisch in Volgo ontvangen kan via een koppeling met WhatsApp (Meta) of een Volgo-telefoonnummer; die regelen wij, en je dashboard laat precies zien wat al actief is."],
-      ["Heb ik technische kennis nodig?", "Nee. Je kopieert één regel en plakt die in je websitebouwer, met stappen voor WordPress, Wix, Squarespace, Shopify en Webflow. Liever niet? Dan installeren wij het."],
-      ["Wat krijgen mijn klanten?", "Alleen nuttige berichten op naam van jouw bedrijf: de afspraak, een herinnering, een opvolging als ze niet boekten en een reviewverzoek. Opvolg- en seizoensberichten hebben altijd een afmeldlink."],
-      ["Kan ik de chat zelf aanpassen?", "Ja: naam, foto, kleur, stijl en de vragen die hij stelt. Je ziet het live op je eigen website in het dashboard."],
-      ["Hoe werkt betalen?", "Je stuurt een betaalverzoek vanuit de app. Je klant betaalt met iDEAL of kaart via je eigen Stripe-account, of met een overboeking naar je IBAN. Volgo komt nooit aan je geld."],
-      ["Kan ik stoppen?", "Ja, elke maand. Geen contract, geen opzegtermijn."],
-    ],
-    slotTitel: "Nooit meer een klant kwijt in je mail.",
-    slotSub: "Plan een gesprek, dan laten we zien wat Volgo voor jouw bedrijf doet.",
-  },
-};
+/** Damien's number: every "Book a call" opens WhatsApp, "Bel" calls directly. */
+const NUMMER = "31619752432";
+const NUMMER_LEESBAAR = "+31 6 19 75 24 32";
+const WHATSAPP = `https://wa.me/${NUMMER}?text=${encodeURIComponent("Hoi! Ik wil graag een call boeken over een website / systeem voor mijn bedrijf.")}`;
+const BELLEN = `tel:+${NUMMER}`;
 
-const PLATFORMS = ["WordPress", "Wix", "Squarespace", "Shopify", "Webflow", "HTML"];
+const DIENSTEN: [string, string][] = [
+  ["Websites op maat", "Een snelle, moderne website die precies past bij jouw bedrijf. Geen template, maar gebouwd op wat jij nodig hebt."],
+  ["Systemen die automatisch werken", "Leads binnenhalen, opvolgen, afspraken plannen en herinneringen sturen. Je website werkt voor je, ook als jij slaapt."],
+  ["Foto's en video's met AI", "Productfoto's, video's en animaties zonder dure fotoshoot. Wij maken ze met AI, in de stijl van jouw merk."],
+  ["Alles wat je nodig hebt", "Formulieren, betalingen, chat, koppelingen met je agenda of mail. Wat je ook nodig hebt, wij regelen het."],
+];
 
-/** The only call to action: opens Volgo's own chat on the calendar to book a call (Instagram DM if the chat can't load). */
-function BookACall({ label }: { label: string }) {
+const VOORBEELDEN = [
+  { naam: "Badkamerstudio Noordzee", soort: "Badkamers · website + automatische aanvragen", href: "/voorbeeld/badkamer.html", beeld: "/voorbeeld/badkamer.jpg" },
+  { naam: "Bluebonnet Build Co.", soort: "Aannemer · website + afspraken plannen", href: "/voorbeeld/contractor.html", beeld: "/voorbeeld/contractor.jpg" },
+];
+
+const STAPPEN: [string, string][] = [
+  ["Book a call", "Stuur ons een WhatsApp of bel. In een kort gesprek horen we wat je bedrijf nodig heeft."],
+  ["Wij bouwen", "Ons internationale team van developers bouwt je website en systemen, precies zoals afgesproken."],
+  ["Live in 24 uur", "Binnen 24 uur staat alles online en werkt het. Daarna komen de leads vanzelf binnen."],
+];
+
+const CIJFERS: [string, string][] = [
+  ["24 uur", "van gesprek tot live"],
+  ["24/7", "leads automatisch opgevolgd"],
+  ["Internationaal", "team van developers"],
+  ["AI", "foto's, video's en teksten"],
+];
+
+function WhatsAppIcoon() {
   return (
-    <a className="vl-knop" data-ava-book="" href={INSTAGRAM_DM} rel="noopener noreferrer" target="_blank">
-      {label} →
-    </a>
-  );
-}
-
-function Ico({ i }: { i: number }) {
-  const paden = [
-    "M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 3.5V16A2.5 2.5 0 0 1 4 13.5z",
-    "M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zM4 10h16M8 3v4M16 3v4M9 15l2 2 4-4",
-    "M12 7v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z",
-    "M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z",
-    "M4 12a8 8 0 0 1 13.7-5.7L20 8.5M20 4v4.5h-4.5M20 12a8 8 0 0 1-13.7 5.7L4 15.5M4 20v-4.5h4.5",
-    "M4 7l8 6 8-6M4 6h16v12H4z",
-    "M3 7h18v10H3zM3 10.5h18M7 14h4",
-    "M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z",
-    "M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9zM10 19a2 2 0 0 0 4 0",
-  ];
-  return (
-    <svg aria-hidden="true" className="vl-ico" viewBox="0 0 24 24">
-      <path d={paden[i % paden.length]} />
+    <svg aria-hidden="true" className="vw-wa" viewBox="0 0 24 24">
+      <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.4.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.2z" />
     </svg>
   );
 }
 
+function BookACall({ groot }: { groot?: boolean }) {
+  return (
+    <a className={`vl-knop vw-book${groot ? " vw-book--groot" : ""}`} href={WHATSAPP} rel="noopener noreferrer" target="_blank">
+      <WhatsAppIcoon />
+      Book a call
+    </a>
+  );
+}
 
-/** The landing page: what Volgo is, why, how to install it, everything it does, the two plans, questions. Only what works today. */
+function Bel() {
+  return (
+    <a className="vl-knop vl-knop--stil" href={BELLEN}>
+      Bel {NUMMER_LEESBAAR}
+    </a>
+  );
+}
+
+/** The landing page: we build websites and systems that work automatically. One action: Book a call (WhatsApp). */
 export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: RouteTaal }) {
-  const [taal, setTaal] = useState<RouteTaal>(vast ?? "en");
-
   useEffect(() => {
-    if (vast) {
-      document.documentElement.lang = vast;
-      if (huidigeTaal() !== vast) kiesTaal(vast);
-    } else setTaal(huidigeTaal() === "nl" ? "nl" : "en");
-    const op = (e: Event) => setTaal((e as CustomEvent<string>).detail === "nl" ? "nl" : "en");
-    window.addEventListener("volgo-taal", op);
-    return () => window.removeEventListener("volgo-taal", op);
+    document.documentElement.lang = "nl";
   }, [vast]);
 
-  const t = T[taal === "nl" ? "nl" : "en"];
-  // Phones get the portrait version of the film, so the text stays readable.
-  const [smal, setSmal] = useState(false);
-  useEffect(() => {
-    const m = window.matchMedia("(max-width: 640px)");
-    setSmal(m.matches);
-    const op = () => setSmal(m.matches);
-    m.addEventListener("change", op);
-    return () => m.removeEventListener("change", op);
-  }, []);
-  const film = `${taal === "nl" ? "nl" : "en"}${smal ? "-m" : ""}`;
-
   return (
-    <div className="volgo volgo--simpel volgo--dialed vl" id="vd">
+    <div className="volgo volgo--simpel volgo--dialed vl vw" id="vd">
       <header className="vl-top">
         <a className="vl-merk" href="/">
           <VolgoMark size={22} />
@@ -244,48 +78,45 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
         </a>
         <nav className="vl-top__rechts">
           <a className="vl-top__link" href={ingelogd ? "/dashboard" : "/login"}>
-            {ingelogd ? t.dashboard : t.login}
+            {ingelogd ? "Dashboard" : "Inloggen"}
           </a>
         </nav>
       </header>
 
       <main>
-        <section aria-labelledby="vl-titel" className="vl-hero">
-          <p className="vl-oog">{t.oog}</p>
+        <section aria-labelledby="vl-titel" className="vl-hero vw-hero">
+          <p className="vl-oog">Websites en systemen voor jouw bedrijf</p>
           <h1 className="vl-titel" id="vl-titel">
-            {t.titel}
+            We bouwen exact wat jouw bedrijf nodig heeft.
           </h1>
-          <p className="vl-sub">{t.sub}</p>
+          <p className="vl-sub">
+            Websites met systemen erin die automatisch werken: ze halen leads binnen, volgen ze op en plannen de afspraak. Live binnen 24 uur.
+          </p>
           <div className="vl-acties">
-            <BookACall label={t.boek} />
+            <BookACall groot />
           </div>
-          <figure className="vl-film">
-            <video
-              aria-label={t.filmLabel}
-              autoPlay
-              controls
-              className={smal ? "is-staand" : undefined}
-              key={film}
-              loop
-              muted
-              playsInline
-              poster={`/film/poster-${film}.jpg?v=2`}
-              preload="metadata"
-              src={`/film/uitleg-${film}.mp4?v=2`}
-            />
-            <figcaption>{t.filmLabel}</figcaption>
-          </figure>
+          <p className="vl-klein">Reactie via WhatsApp · of bel direct: <a href={BELLEN}>{NUMMER_LEESBAAR}</a></p>
         </section>
 
-        <section aria-labelledby="vl-wat" className="vl-sectie vl-wat">
+        <section aria-label="In het kort" className="vl-sectie vw-cijfers-wrap">
+          <div className="vw-cijfers">
+            {CIJFERS.map(([groot, klein]) => (
+              <div key={klein}>
+                <b>{groot}</b>
+                <span>{klein}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section aria-labelledby="vl-wat" className="vl-sectie">
           <h2 className="vl-h2" id="vl-wat">
-            {t.watKop}
+            Wat we voor je doen
           </h2>
-          <p className="vl-sub vl-center vl-breed">{t.wat}</p>
-          <h3 className="vl-h3">{t.waaromKop}</h3>
-          <div className="vl-stappen">
-            {t.waarom.map(([kop, tekst]) => (
+          <div className="vl-raster vw-diensten">
+            {DIENSTEN.map(([kop, tekst], i) => (
               <article key={kop}>
+                <span className="vl-nr">{i + 1}</span>
                 <h3>{kop}</h3>
                 <p>{tekst}</p>
               </article>
@@ -293,12 +124,54 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
           </div>
         </section>
 
-        <section aria-labelledby="vl-stappen" className="vl-sectie" id="how">
+        <section aria-labelledby="vl-voorbeelden" className="vl-sectie">
+          <h2 className="vl-h2" id="vl-voorbeelden">
+            Voorbeelden van ons werk
+          </h2>
+          <p className="vl-sub vl-center vl-breed">Klik erop en bekijk de echte website. Zo kan die van jou er ook uitzien.</p>
+          <div className="vw-voorbeelden">
+            {VOORBEELDEN.map((v) => (
+              <a className="vw-voorbeeld" href={v.href} key={v.naam} rel="noopener" target="_blank">
+                <div className="vw-browser">
+                  <div className="vl-kaart__kop">
+                    <i />
+                    <i />
+                    <i />
+                  </div>
+                  <img alt={`Voorbeeldwebsite ${v.naam}`} loading="lazy" src={v.beeld} />
+                </div>
+                <div className="vw-voorbeeld__tekst">
+                  <b>{v.naam}</b>
+                  <span>{v.soort}</span>
+                </div>
+              </a>
+            ))}
+            <a className="vw-voorbeeld vw-voorbeeld--jij" href={WHATSAPP} rel="noopener noreferrer" target="_blank">
+              <div className="vw-browser vw-browser--leeg">
+                <div className="vl-kaart__kop">
+                  <i />
+                  <i />
+                  <i />
+                </div>
+                <div className="vw-jij">
+                  <span>+</span>
+                  <p>Jouw bedrijf hier</p>
+                </div>
+              </div>
+              <div className="vw-voorbeeld__tekst">
+                <b>Jouw website</b>
+                <span>Book a call en zie hem binnen 24 uur live</span>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <section aria-labelledby="vl-stappen" className="vl-sectie">
           <h2 className="vl-h2" id="vl-stappen">
-            {t.stappenKop}
+            Zo werkt het
           </h2>
           <ol className="vl-stappen">
-            {t.stappen.map(([kop, tekst], i) => (
+            {STAPPEN.map(([kop, tekst], i) => (
               <li key={kop}>
                 <span className="vl-nr">{i + 1}</span>
                 <h3>{kop}</h3>
@@ -308,106 +181,26 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
           </ol>
         </section>
 
-        <section aria-labelledby="vl-kanalen" className="vl-sectie">
-          <h2 className="vl-h2" id="vl-kanalen">
-            {t.kanalenKop}
-          </h2>
-          <p className="vl-sub vl-center vl-breed">{t.kanalenSub}</p>
-          <div className="vl-raster vl-raster--3 vl-kanalen">
-            {t.kanalen.map(([kop, label, tekst]) => (
-              <article key={kop}>
-                <span className="vl-kanaal-label">{label}</span>
-                <h3>{kop}</h3>
-                <p>{tekst}</p>
-              </article>
-            ))}
+        <section aria-labelledby="vl-team" className="vl-sectie">
+          <div className="vw-team">
+            <h2 className="vl-h2" id="vl-team">
+              Eén aanspreekpunt. Een heel team erachter.
+            </h2>
+            <p className="vl-sub vl-center">
+              We werken met developers uit verschillende landen, dus er wordt dag en nacht gebouwd. Jij hebt één contactpersoon en hoeft zelf niks technisch te doen. Wat je ook nodig hebt, wij regelen het.
+            </p>
           </div>
-        </section>
-
-        <section aria-labelledby="vl-alles" className="vl-sectie">
-          <h2 className="vl-h2" id="vl-alles">
-            {t.allesKop}
-          </h2>
-          <div className="vl-raster vl-raster--3">
-            {t.alles.map(([kop, tekst], i) => (
-              <article key={kop}>
-                <Ico i={i} />
-                <h3>{kop}</h3>
-                <p>{tekst}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section aria-labelledby="vl-zien" className="vl-sectie">
-          <div className="vl-duo">
-            <div>
-              <h2 className="vl-h2 vl-links" id="vl-zien">
-                {t.zienKop}
-              </h2>
-              <p className="vl-sub vl-links">{t.zien}</p>
-              <ul className="vl-vinkjes">
-                {t.zienPunten.map((x) => (
-                  <li key={x}>{x}</li>
-                ))}
-              </ul>
-            </div>
-            <div aria-hidden="true" className="vl-kaart vl-scherm">
-              <div className="vl-kaart__kop">
-                <i />
-                <i />
-                <i />
-                <span>www.yourbusiness.com</span>
-              </div>
-              <div className="vl-scherm__site">
-                <span className="vl-scherm__balk" />
-                <span className="vl-scherm__titel" />
-                <span className="vl-scherm__regel" />
-                <span className="vl-scherm__regel vl-scherm__regel--kort" />
-                <span className="vl-scherm__foto" />
-                <div className="vl-scherm__chat">
-                  <p className="vl-bel">{t.ava1}</p>
-                  <p className="vl-bel vl-bel--bez">{t.bez2}</p>
-                </div>
-                <span className="vl-scherm__bol">
-                  <VolgoMark size={18} />
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section aria-labelledby="vl-install" className="vl-sectie">
-          <h2 className="vl-h2" id="vl-install">
-            {t.installKop}
-          </h2>
-          <p className="vl-sub vl-center vl-breed">{t.install}</p>
-          <pre aria-label="Install code" className="vl-code">{'<script src="https://thevolgo.app/ava.js" data-key="…" defer></script>'}</pre>
-          <div className="vl-chips">
-            {PLATFORMS.map((p) => (
-              <span key={p}>{p}</span>
-            ))}
-          </div>
-        </section>
-
-        <section aria-labelledby="vl-faq" className="vl-sectie vl-faq">
-          <h2 className="vl-h2" id="vl-faq">
-            {t.faqKop}
-          </h2>
-          {t.faq.map(([v, a]) => (
-            <details key={v}>
-              <summary>{v}</summary>
-              <p>{a}</p>
-            </details>
-          ))}
         </section>
 
         <section aria-labelledby="vl-slot" className="vl-slot">
           <h2 className="vl-h2" id="vl-slot">
-            {t.slotTitel}
+            Klaar voor meer leads?
           </h2>
-          <p className="vl-sub">{t.slotSub}</p>
-          <BookACall label={t.boek} />
+          <p className="vl-sub">Plan een korte call. Binnen 24 uur staat jouw website met systeem live.</p>
+          <div className="vl-acties">
+            <BookACall groot />
+            <Bel />
+          </div>
         </section>
       </main>
       <Footer />
