@@ -529,15 +529,18 @@ textarea::placeholder{color:#a3a3a3}\
     // On Volgo's own website: pick the language of the site right here.
     if (location.hostname === new URL(BASE).hostname) {
       var TALEN = [["en","English"],["nl","Nederlands"],["de","Deutsch"],["fr","Français"],["es","Español"],["pt","Português"],["it","Italiano"],["pl","Polski"],["sv","Svenska"],["da","Dansk"],["fi","Suomi"],["el","Ελληνικά"],["cs","Čeština"],["sk","Slovenčina"],["hu","Magyar"],["ro","Română"],["bg","Български"],["hr","Hrvatski"],["sl","Slovenščina"],["et","Eesti"],["lv","Latviešu"],["lt","Lietuvių"],["ga","Gaeilge"],["mt","Malti"]];
-      var huidig = "en"; try { huidig = localStorage.getItem("volgo-taal") || ((navigator.language || "en").slice(0, 2).toLowerCase()); } catch (e) {}
+      var huidig = "en"; try { huidig = localStorage.getItem("volgo-taal") || window.__volgoRegioTaal || ((navigator.language || "en").slice(0, 2).toLowerCase()); } catch (e) {}
       var rij = document.createElement("label"); rij.className = "ok-taal";
       var sel = document.createElement("select"); sel.setAttribute("aria-label", "Language");
       TALEN.forEach(function (t) { var o = document.createElement("option"); o.value = t[0]; o.textContent = t[1]; if (t[0] === huidig) o.selected = true; sel.appendChild(o); });
       var lbl = document.createElement("span"); lbl.textContent = "🌐"; rij.appendChild(lbl); rij.appendChild(sel);
       sel.addEventListener("change", function () { try { localStorage.setItem("volgo-taal", sel.value); } catch (e) {} window.dispatchEvent(new CustomEvent("volgo-taal", { detail: sel.value })); });
+      // The page may switch to the visitor's regional language a moment later: keep the picker in step.
+      window.addEventListener("volgo-taal", function (e) { if (e && e.detail && sel.value !== e.detail) sel.value = e.detail; });
       laag.querySelector(".ok-kaart").insertBefore(rij, laag.querySelector(".ok-knoppen"));
+      var taalSel = sel;
     }
-    var kies = function (ja) { try { localStorage.setItem(KEUZE_SLEUTEL, JSON.stringify({ ja: ja, op: Date.now() })); } catch (e) {} laag.remove(); keuzeKlaar(ja); try { window.dispatchEvent(new CustomEvent("volgo-ok", { detail: ja })); } catch (e) {} };
+    var kies = function (ja) { try { localStorage.setItem(KEUZE_SLEUTEL, JSON.stringify({ ja: ja, op: Date.now() })); if (taalSel) localStorage.setItem("volgo-taal", taalSel.value); } catch (e) {} laag.remove(); keuzeKlaar(ja); try { window.dispatchEvent(new CustomEvent("volgo-ok", { detail: ja })); } catch (e) {} };
     laag.querySelector(".ok-ja").addEventListener("click", function () { kies(true); });
     laag.querySelector(".ok-nee").addEventListener("click", function () { kies(false); });
     root.querySelector(".w").appendChild(laag);
