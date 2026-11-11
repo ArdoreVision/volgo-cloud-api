@@ -518,7 +518,7 @@ async function dashboard(req, env, coach) {
   ];
   const checklist = steps.every((x) => x[0]) ? "" : `<div class="panel" style="margin:0 0 18px"><h3>Getting started</h3><div class="pad" style="display:grid;gap:10px">${steps.map(([done, label, href], i) => `<a href="${href}" style="display:flex;gap:12px;align-items:center;text-decoration:none"><span class="tick ${done ? "done" : ""}">${done ? "✓" : i + 1}</span><span style="${done ? "color:var(--mute);text-decoration:line-through" : ""}">${label}</span></a>`).join("")}${!firstAnswer && coach.ig_token ? `<p class="small" style="margin:4px 0 0">Send your account a DM from another Instagram account to see Spotter in action.</p>` : ""}</div></div>`;
   const setup = !coach.ig_token
-    ? `<div class="note" style="margin-bottom:18px;display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap"><span><b>One step left:</b> connect Instagram so Spotter can start answering.</span><a class="btn btn-main" href="/connect">Connect Instagram</a></div>`
+    ? checklist ? "" : `<div class="note" style="margin-bottom:18px;display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap"><span><b>One step left:</b> connect Instagram so Spotter can start answering.</span><a class="btn btn-main" href="/connect">Connect Instagram</a></div>`
     : !coach.setter_on
       ? `<div class="note" style="margin-bottom:18px;display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap"><span><b>Spotter is paused.</b> New DMs are not being answered.</span><form method="post" action="/setter/toggle"><button class="btn btn-main" type="submit">Switch back on</button></form></div>`
       : "";
