@@ -95,13 +95,15 @@ export const startBetaling = createServerFn({ method: "POST" })
     if (STRIPE_SECRET_KEY) {
       const b = new URLSearchParams();
       if (bestaand?.stripe_klant) b.set("customer", bestaand.stripe_klant);
+      // New customer: their account email is already filled in on the payment page.
+      else if (ik?.email) b.set("customer_email", ik.email);
       // Tie a logged-in checkout to this team, so the payment can only activate this account.
       if (ik) {
         b.set("metadata[team_id]", String(ik.team_id));
         b.set("subscription_data[metadata][team_id]", String(ik.team_id));
       }
       b.set("mode", "subscription");
-      b.set("locale", "en");
+      b.set("locale", "auto"); // Stripe in the customer's browser language (Dutch for Dutch customers)
       b.set("line_items[0][quantity]", "1");
       b.set("line_items[0][price_data][currency]", "eur");
       b.set("line_items[0][price_data][unit_amount]", String(plan.prijs));
@@ -137,7 +139,7 @@ export const startBetaling = createServerFn({ method: "POST" })
         }
       }
       b.set("success_url", `${origin()}/signup?session_id={CHECKOUT_SESSION_ID}`);
-      b.set("cancel_url", `${origin()}/pricing`);
+      b.set("cancel_url", `${origin()}/dashboard`);
       try {
         const s = await stripe("checkout/sessions", { method: "POST", body: b });
         const { push } = await import("../push.server");
