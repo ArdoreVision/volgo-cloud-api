@@ -6,15 +6,15 @@ import { VolgoMark } from "./logo";
 import { type RouteTaal } from "./route-teksten";
 import { TaalKiezer, Vertaler, kiesTaal, opgeslagenTaal, toonTaal } from "./taal";
 import { regioTaal } from "@/lib/api/vertaal.functions";
+import { INSTAGRAM_PROFIEL } from "@/lib/contact";
 import { PLANS } from "@/lib/plans";
 import { TALEN, isTaal } from "@/lib/talen";
 import "@/volgo-dialed.css";
 import "@/volgo-landing.css";
 
-/** Damien's number. "Book a call" opens the Volgo chat (a few questions, then: DM the owner on WhatsApp or book a call); without the chat it opens WhatsApp. */
+/** Damien's number for the "Bel" link. "Book a call" goes to Instagram. */
 const NUMMER = "31619752432";
 const NUMMER_LEESBAAR = "+31 6 19 75 24 32";
-const WHATSAPP = `https://wa.me/${NUMMER}?text=${encodeURIComponent("Hoi! Ik wil graag een call boeken over een website / systeem voor mijn bedrijf.")}`;
 const BELLEN = `tel:+${NUMMER}`;
 
 /** What Volgo does, step by step, in one conversation (like a human appointment setter would). */
@@ -97,18 +97,21 @@ const FAQ: [string, string][] = [
   ["Zit ik ergens aan vast?", "Nee. Je betaalt per maand en stopt wanneer je wilt."],
 ];
 
-function WhatsAppIcoon() {
+function InstagramIcoon() {
   return (
-    <svg aria-hidden="true" className="vw-wa" viewBox="0 0 24 24">
-      <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.4.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.2z" />
+    <svg aria-hidden="true" fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="18">
+      <rect height="18" rx="5" width="18" x="3" y="3" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" fill="currentColor" r="0.6" stroke="none" />
     </svg>
   );
 }
 
+/** Every "Book a call" goes to Volgo's Instagram page (@thevolgo.app). */
 function BookACall({ groot }: { groot?: boolean }) {
   return (
-    <a className={`vl-knop vw-book${groot ? " vw-book--groot" : ""}`} data-ava-dm={WHATSAPP} data-ava-intake="" href={WHATSAPP} rel="noopener noreferrer" target="_blank">
-      <WhatsAppIcoon />
+    <a className={`vl-knop vw-book${groot ? " vw-book--groot" : ""}`} href={INSTAGRAM_PROFIEL} rel="noopener noreferrer" target="_blank">
+      <InstagramIcoon />
       Book a call
     </a>
   );
