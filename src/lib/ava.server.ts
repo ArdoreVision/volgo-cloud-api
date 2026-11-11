@@ -369,7 +369,8 @@ async function bewaarHerkend(DB: D1Database, gid: number, meta: Meta, tekst: str
 }
 
 /** Verwerkt één bericht van een websitebezoeker en geeft Volgo's antwoord terug. */
-export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, tokenIn: string | undefined, tekst: string) {
+export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, tokenIn: string | undefined, tekst: string, opties: { intake?: boolean } = {}) {
+  const intake = Boolean(opties.intake);
   const team = inst.team_id;
   let meta = tokenIn
     ? await DB.prepare("SELECT m.gesprek_id, m.stap, m.naam, m.contact, m.lead_id FROM ava_gesprek_meta m JOIN ava_gesprekken g ON g.id = m.gesprek_id WHERE m.token = ? AND g.team_id = ?")
@@ -423,7 +424,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
   const { boveLimiet } = await import("./limieten.server");
   if (ANTHROPIC_API_KEY && !(await boveLimiet(DB, team))) {
     try {
-      const r = await claudeAntwoord(ANTHROPIC_API_KEY, inst, historie, meta, Boolean(inst.boeken));
+      const r = await claudeAntwoord(ANTHROPIC_API_KEY, inst, historie, meta, Boolean(inst.boeken), intake);
       if (r.agenda) agenda = true;
       antwoord = r.antwoord;
       if (r.update) {
@@ -451,6 +452,24 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
       console.error("[ava widget]", err);
       antwoord = "";
     }
+  }
+
+  // Intake after "Book a call": a few questions, then the visitor chooses (DM with the owner or book a call).
+  let keuze = false;
+  if (intake) {
+    agenda = false;
+    const aantal = historie.filter((h) => h.rol === "bezoeker").length;
+    if (antwoord.includes("[[KEUZE]]")) keuze = true;
+    antwoord = antwoord.replace(/\s*\[\[KEUZE\]\]\s*/g, " ").trim();
+    const nl = !/^\s*(i'd|i would|hi|hello)/i.test(historie.find((h) => h.rol === "bezoeker")?.tekst ?? "");
+    if (!antwoord) {
+      const vragen = nl
+        ? ["Leuk! Wat voor bedrijf heb je?", "Heb je al een website? Zo ja, welke?", "Wat wil je vooral bereiken: meer afspraken, minder bellen of een nieuwe website?"]
+        : ["Great! What kind of business do you have?", "Do you already have a website? If so, which one?", "What do you want most: more appointments, fewer phone calls or a new website?"];
+      antwoord = aantal <= vragen.length ? vragen[aantal - 1] : nl ? "Dank je! Kies hieronder wat je wilt: direct chatten met de owner, of een call boeken." : "Thanks! Choose below: chat directly with the owner, or book a call.";
+      if (aantal > vragen.length) keuze = true;
+    }
+    if (aantal >= 5) keuze = true;
   }
 
   if (!antwoord && inst.boeken && /(afspraak|langskomen|langs komen|inmeten|terugbellen|bel me|appointment|book|schedule|visit|call me|call back|estimate|termin|rendez)/i.test(tekst)) {
@@ -514,7 +533,7 @@ export async function verwerkBericht(DB: D1Database, inst: AvaInstellingen, toke
     DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), status = 'live', berichten = berichten + 2, warmte = ? WHERE id = ?").bind(warmte, gid),
   ]);
   // Polling only returns team/system messages, so "after the visitor's message" never skips one.
-  return { token, antwoord, mens: null as string | null, laatste_id: bezoekerId, agenda };
+  return { token, antwoord, mens: null as string | null, laatste_id: bezoekerId, agenda, keuze };
 }
 
 /** For the website chat: new messages from a person (or system notes) since na_id. */
@@ -537,6 +556,7 @@ async function claudeAntwoord(
   historie: { rol: string; tekst: string }[],
   meta: Meta,
   boeken = false,
+  intake = false,
 ) {
   const { CLAUDE_MODEL } = bindings();
   const boekTekst = boeken ? (await import("./boeken.server")).agendaInstructies(inst) : "";
@@ -557,7 +577,12 @@ ${inst.vragen
 ` : ""}ABOUT THE BUSINESS
 ${inst.bedrijfsinfo || "(No extra information yet. Answer general questions carefully and refer to the team for details.)"}
 
-YOUR GOAL
+${intake ? `INTAKE MODE (this visitor clicked "Book a call" on the website)
+- Ask at most 3 short questions, ONE per message, 1-2 sentences each: (1) what kind of business they have, (2) whether they already have a website (and which), (3) what they want most (for example more appointments, fewer phone calls, a new website).
+- Skip a question if the visitor already answered it. Do not open the calendar yourself and do not call the agenda tool.
+- When you have the answers (or after 3 questions), thank them in one sentence and say they can now choose below: chat directly with the owner via DM, or book a call. End that message with the exact marker [[KEUZE]].
+
+` : ""}YOUR GOAL
 - Help visitors quickly and kindly. Keep it short (3 sentences max), no emojis.
 - ALWAYS reply in the same language the visitor writes in (a Dutch visitor gets Dutch, an English visitor gets English). In Dutch, use the informal "je".
 - Understand what they need; ask at most one thing per message.

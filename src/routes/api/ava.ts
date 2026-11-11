@@ -25,6 +25,7 @@ const schema = z.discriminatedUnion("actie", [
     tekst: z.string().trim().min(1).max(1500),
     sessie: z.string().max(40).optional(),
     toestemming: z.boolean().optional(),
+    intake: z.boolean().optional(),
   }),
   z.object({ actie: z.literal("agenda"), sleutel: z.string().max(64), token: z.string().max(64).optional() }),
   // Website analytics (no cookies): a page view, its time on page / scroll depth, and chat events.
@@ -179,7 +180,7 @@ export const Route = createFileRoute("/api/ava")({
           await koppel(DB, request, geboekt.token, body.sessie, body.toestemming);
           return json(geboekt);
         }
-        const res = await verwerkBericht(DB, inst, body.token, body.tekst);
+        const res = await verwerkBericht(DB, inst, body.token, body.tekst, { intake: body.intake });
         await koppel(DB, request, res.token, body.sessie, body.toestemming);
         return json(res);
       },

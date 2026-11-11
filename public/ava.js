@@ -15,8 +15,8 @@
   var T = TEKST[TAAL] || TEKST.en;
   // Texts for the appointment calendar inside the chat.
   var KAL = {
-    en: { chipWa: "WhatsApp us", chipBel: "Call us", chipBoek: "Book an appointment", chipPrijs: "What does it cost?", chipVraag: "I have a question", stap: "Step {n} of {m}", s1: "How would you like to meet?", s1h: "Tap one option.", bellen: ["Phone call", "We call you at the time you pick"], langs: ["Visit at your address", "We come to you, for example to measure"], chat: ["Chat appointment", "We chat with you here at the time you pick"], kantoor: ["At our office", "You visit us"], insta: ["DM on Instagram", "Chat with us on Instagram, whenever suits you"], instaT: "Send us a DM on Instagram", instaH: "Tap the button to open Instagram. Start your message with what you need, we reply there.", instaK: "Open Instagram DM", s2: "Pick a day and time", s2h: "Light days still have room. Tap a day, then a time.", dicht: "Closed", vol: "Fully booked", beschikbaar: "Available", nietBeschikbaar: "Not available", vrij: "free", tz: "Times are in {tz} time", geen: "There are no free moments in the coming weeks. Type your phone number in the chat and we'll call you to plan.", s3: "Your details", s3h: "So we know who to expect and how to reach you.", naam: "Your name", contact: "Phone number or email", adres: "Address (street, number, town)", adresOpt: "Address (optional)", bevestig: "Confirm appointment", terug: "Back", bezig: "Booking…", klaar: "Booked", vandaag: "Today", morgen: "Tomorrow", laden: "Loading free moments…", nodig: "Please fill in all fields.", opnieuw: "Pick a time" },
-    nl: { chipWa: "WhatsApp ons", chipBel: "Bel ons", chipBoek: "Afspraak maken", chipPrijs: "Wat kost het?", chipVraag: "Ik heb een vraag", stap: "Stap {n} van {m}", s1: "Hoe wil je afspreken?", s1h: "Tik op één keuze.", bellen: ["Telefoongesprek", "We bellen je op het moment dat jij kiest"], langs: ["Langskomen bij jou", "We komen bij je langs, bijvoorbeeld om op te meten"], chat: ["Chatafspraak", "We chatten hier met je op het moment dat jij kiest"], kantoor: ["Bij ons op kantoor", "Jij komt bij ons langs"], insta: ["DM via Instagram", "Stuur ons een bericht op Instagram, wanneer het jou uitkomt"], instaT: "Stuur ons een DM op Instagram", instaH: "Tik op de knop om Instagram te openen. Zet in je bericht waar je hulp bij zoekt, we antwoorden daar.", instaK: "Instagram-DM openen", s2: "Kies een dag en tijd", s2h: "Lichte dagen hebben nog plek. Tik op een dag, daarna op een tijd.", dicht: "Gesloten", vol: "Vol", beschikbaar: "Beschikbaar", nietBeschikbaar: "Niet beschikbaar", vrij: "vrij", tz: "Tijden zijn in {tz}-tijd", geen: "Er zijn de komende weken geen vrije momenten. Typ je telefoonnummer in de chat, dan bellen we je om te plannen.", s3: "Jouw gegevens", s3h: "Zodat we weten wie we verwachten en hoe we je bereiken.", naam: "Je naam", contact: "Telefoonnummer of e-mail", adres: "Adres (straat, nummer, plaats)", adresOpt: "Adres (optioneel)", bevestig: "Afspraak bevestigen", terug: "Terug", bezig: "Bezig met boeken…", klaar: "Geboekt", vandaag: "Vandaag", morgen: "Morgen", laden: "Vrije momenten laden…", nodig: "Vul alle velden in.", opnieuw: "Kies een tijd" },
+    en: { intakeStart: "I'd like to book a call", keuzeCall: "Book a call", keuzeDm: "Chat with the owner (DM)", chipWa: "WhatsApp us", chipBel: "Call us", chipBoek: "Book an appointment", chipPrijs: "What does it cost?", chipVraag: "I have a question", stap: "Step {n} of {m}", s1: "How would you like to meet?", s1h: "Tap one option.", bellen: ["Phone call", "We call you at the time you pick"], langs: ["Visit at your address", "We come to you, for example to measure"], chat: ["Chat appointment", "We chat with you here at the time you pick"], kantoor: ["At our office", "You visit us"], insta: ["DM on Instagram", "Chat with us on Instagram, whenever suits you"], instaT: "Send us a DM on Instagram", instaH: "Tap the button to open Instagram. Start your message with what you need, we reply there.", instaK: "Open Instagram DM", s2: "Pick a day and time", s2h: "Light days still have room. Tap a day, then a time.", dicht: "Closed", vol: "Fully booked", beschikbaar: "Available", nietBeschikbaar: "Not available", vrij: "free", tz: "Times are in {tz} time", geen: "There are no free moments in the coming weeks. Type your phone number in the chat and we'll call you to plan.", s3: "Your details", s3h: "So we know who to expect and how to reach you.", naam: "Your name", contact: "Phone number or email", adres: "Address (street, number, town)", adresOpt: "Address (optional)", bevestig: "Confirm appointment", terug: "Back", bezig: "Booking…", klaar: "Booked", vandaag: "Today", morgen: "Tomorrow", laden: "Loading free moments…", nodig: "Please fill in all fields.", opnieuw: "Pick a time" },
+    nl: { intakeStart: "Ik wil graag een call boeken", keuzeCall: "Book a call", keuzeDm: "Chat met de owner (DM)", chipWa: "WhatsApp ons", chipBel: "Bel ons", chipBoek: "Afspraak maken", chipPrijs: "Wat kost het?", chipVraag: "Ik heb een vraag", stap: "Stap {n} van {m}", s1: "Hoe wil je afspreken?", s1h: "Tik op één keuze.", bellen: ["Telefoongesprek", "We bellen je op het moment dat jij kiest"], langs: ["Langskomen bij jou", "We komen bij je langs, bijvoorbeeld om op te meten"], chat: ["Chatafspraak", "We chatten hier met je op het moment dat jij kiest"], kantoor: ["Bij ons op kantoor", "Jij komt bij ons langs"], insta: ["DM via Instagram", "Stuur ons een bericht op Instagram, wanneer het jou uitkomt"], instaT: "Stuur ons een DM op Instagram", instaH: "Tik op de knop om Instagram te openen. Zet in je bericht waar je hulp bij zoekt, we antwoorden daar.", instaK: "Instagram-DM openen", s2: "Kies een dag en tijd", s2h: "Lichte dagen hebben nog plek. Tik op een dag, daarna op een tijd.", dicht: "Gesloten", vol: "Vol", beschikbaar: "Beschikbaar", nietBeschikbaar: "Niet beschikbaar", vrij: "vrij", tz: "Tijden zijn in {tz}-tijd", geen: "Er zijn de komende weken geen vrije momenten. Typ je telefoonnummer in de chat, dan bellen we je om te plannen.", s3: "Jouw gegevens", s3h: "Zodat we weten wie we verwachten en hoe we je bereiken.", naam: "Je naam", contact: "Telefoonnummer of e-mail", adres: "Adres (straat, nummer, plaats)", adresOpt: "Adres (optioneel)", bevestig: "Afspraak bevestigen", terug: "Terug", bezig: "Bezig met boeken…", klaar: "Geboekt", vandaag: "Vandaag", morgen: "Morgen", laden: "Vrije momenten laden…", nodig: "Vul alle velden in.", opnieuw: "Kies een tijd" },
   };
   var K = KAL[TAAL] || KAL.en;
   // Consent screen: the visitor chooses before using the site (both choices let them in).
@@ -101,6 +101,7 @@ textarea{flex:1;resize:none;border:0;outline:none;background:transparent;font-si
 .chip{border:0;padding:9px 14px;border-radius:999px;background:#fff;color:#111318;font-size:14px;font-weight:600;cursor:pointer;box-shadow:inset 0 0 0 1.5px var(--c);transition:background .15s,color .15s}\
 .chip:hover,.chip.hoofd{background:var(--c);color:#fff}\
 a.chip{text-decoration:none;display:inline-block;line-height:1.2}\
+.chips.keuze{flex-direction:column;align-items:stretch}.chips.keuze .chip{text-align:center;padding:12px 16px;font-size:15px}\
 .kal{align-self:stretch;margin:4px 0;padding:14px;border-radius:20px;background:#fff;box-shadow:0 0 0 1px #e7eaf0,0 8px 24px rgba(17,19,24,.08);color:#111318;animation:pop .3s cubic-bezier(.16,1,.3,1)}\
 .kal .stp{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#6b7280;font-weight:600;margin-bottom:6px}\
 .kal .bal{display:flex;gap:4px;margin-bottom:12px}.kal .bal i{flex:1;height:4px;border-radius:4px;background:#e7eaf0}.kal .bal i.aan{background:var(--c)}\
@@ -407,7 +408,7 @@ textarea::placeholder{color:#a3a3a3}\
         if (!r || !r.ok) { k.fout = (r && (r.reden || r.antwoord)) || T.fout; k.stap = 2; k.tijd = null; k.dag = null; laad(); return; }
         var l = dagLabel(dg.datum), sam = K[k.soort][0] + " · " + l.wd + " " + l.dt + " · " + k.tijd + "–" + eindTijd(k.tijd, k.data.duur);
         kaart.className = "kal ok";
-        gebeurtenis("geboekt");
+        gebeurtenis("geboekt"); if (state.intake) { state.intake = false; save(state); }
         kaart.innerHTML = '<div class="sam">' + ICOON.kal + "<span><b>✓ " + K.klaar + "</b><br>" + esc(sam) + "</span></div>";
         state.msgs.push({ r: "s", t: "✓ " + K.klaar + ": " + sam });
         if (r.antwoord) { state.msgs.push({ r: "a", t: r.antwoord }); bubble("a", r.antwoord); }
@@ -596,11 +597,39 @@ textarea::placeholder{color:#a3a3a3}\
   function vraag(t) { if (!t) return; var ch = log.querySelector(".chips"); if (ch) ch.remove(); setTimeout(function () { if (busy) return; ta.value = t; verstuur(); }, 350); }
   // Landing-page funnel steps (only these names; just the step and the session, never any content).
   var STAPPEN = { demo_klik: 1, demo_bericht: 1, abo_klik: 1 };
-  window.VolgoAva = { open: open, close: close, afspraak: function () { open(); kalender(); }, vraag: function (t) { open(); vraag(t); }, meet: function (s) { if (STAPPEN[s] === 1) gebeurtenis(s); } };
+  // "Book a call" on a page with data-ava-intake: Volgo first asks a few short questions, then the visitor
+  // chooses: book a call in the calendar, or chat with the owner directly (DM link from data-ava-dm).
+  function intake(dm) {
+    open();
+    if (dm && /^https:\/\//.test(dm)) state.dm = dm;
+    if (state.intake) return;
+    state.intake = true; save(state);
+    var ch = log.querySelector(".chips"); if (ch) ch.remove();
+    setTimeout(function () { if (busy) return; ta.value = K.intakeStart; verstuur(); }, 350);
+  }
+  function keuzeKnoppen() {
+    var oud = log.querySelector(".chips"); if (oud) oud.remove();
+    var c = document.createElement("div"); c.className = "chips keuze";
+    var dm = state.dm || (config && config.whatsapp ? "https://wa.me/" + config.whatsapp : "");
+    if (config && config.boeken) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "chip hoofd"; b.textContent = K.keuzeCall;
+      b.addEventListener("click", function () { c.remove(); kalender(); }); c.appendChild(b);
+    }
+    if (dm) {
+      var samen = state.msgs.filter(function (m) { return m.r === "u"; }).map(function (m) { return m.t; }).slice(1).join(" · ").slice(0, 600);
+      var u = dm.split("?")[0] + "?text=" + encodeURIComponent((TAAL === "nl" ? "Hoi! Ik kom via de website. " : "Hi! I'm coming from the website. ") + samen);
+      var a = document.createElement("a"); a.className = "chip" + (config && config.boeken ? "" : " hoofd"); a.textContent = K.keuzeDm;
+      a.href = u; a.target = "_blank"; a.rel = "noopener noreferrer"; c.appendChild(a);
+    }
+    if (c.childNodes.length) { log.appendChild(c); log.scrollTop = log.scrollHeight; }
+  }
+  window.VolgoAva = { intake: intake, open: open, close: close, afspraak: function () { open(); kalender(); }, vraag: function (t) { open(); vraag(t); }, meet: function (s) { if (STAPPEN[s] === 1) gebeurtenis(s); } };
   document.addEventListener("click", function (e) {
-    var t = e.target && e.target.closest && e.target.closest("[data-ava-open],[data-ava-book],[data-ava-ask]");
+    var t = e.target && e.target.closest && e.target.closest("[data-ava-open],[data-ava-book],[data-ava-ask],[data-ava-intake]");
     if (!t) return;
-    e.preventDefault(); open();
+    e.preventDefault();
+    if (t.hasAttribute("data-ava-intake")) { intake(t.getAttribute("data-ava-dm") || ""); return; }
+    open();
     if (t.hasAttribute("data-ava-book") && config && config.boeken) kalender();
     if (t.hasAttribute("data-ava-ask")) vraag(t.getAttribute("data-ava-ask"));
   });
@@ -647,7 +676,7 @@ textarea::placeholder{color:#a3a3a3}\
     }
     state.msgs.push({ r: "u", t: t }); save(state); bubble("u", t);
     var typ = document.createElement("p"); typ.className = "b a typ"; typ.innerHTML = "<span></span><span></span><span></span>"; log.appendChild(typ); log.scrollTop = log.scrollHeight;
-    post({ actie: "bericht", sleutel: KEY, token: state.token, tekst: t, sessie: SESSIE, toestemming: TOESTEMMING }).then(function (r) {
+    post({ actie: "bericht", sleutel: KEY, token: state.token, tekst: t, sessie: SESSIE, toestemming: TOESTEMMING, intake: state.intake ? true : undefined }).then(function (r) {
       typ.remove();
       if (r.token) state.token = r.token;
       if (r.laatste_id) state.na = Math.max(state.na || 0, r.laatste_id);
@@ -655,6 +684,7 @@ textarea::placeholder{color:#a3a3a3}\
       var a = r.antwoord || T.fout;
       state.msgs.push({ r: "a", t: a }); save(state); bubble("a", a);
       if (r.agenda) kalender();
+      if (r.keuze) keuzeKnoppen();
     }).catch(function () {
       typ.remove(); bubble("a", T.net);
     }).then(function () { busy = false; send.disabled = !ta.value.trim(); });

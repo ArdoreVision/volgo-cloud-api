@@ -11,7 +11,7 @@ import { TALEN, isTaal } from "@/lib/talen";
 import "@/volgo-dialed.css";
 import "@/volgo-landing.css";
 
-/** Damien's number: every "Book a call" opens WhatsApp, "Bel" calls directly. */
+/** Damien's number. "Book a call" opens the Volgo chat (a few questions, then: DM the owner on WhatsApp or book a call); without the chat it opens WhatsApp. */
 const NUMMER = "31619752432";
 const NUMMER_LEESBAAR = "+31 6 19 75 24 32";
 const WHATSAPP = `https://wa.me/${NUMMER}?text=${encodeURIComponent("Hoi! Ik wil graag een call boeken over een website / systeem voor mijn bedrijf.")}`;
@@ -49,9 +49,9 @@ const PLANNEN = [
     naam: "Assistent",
     voor: "Voor bedrijven die al een website hebben.",
     prijs: PLANS.start.prijsTekst,
-    extra: "7 dagen proberen voor €1",
-    knop: "Start voor €1",
-    href: "/signup",
+    extra: "Geen opstartkosten · wij zetten het voor je op",
+    knop: "Book a call",
+    href: "",
     punten: [
       "AI-appointment setter op je website, 24/7",
       "Stelt jouw vragen en plant afspraken direct in je agenda",
@@ -93,6 +93,7 @@ const FAQ: [string, string][] = [
   ["Is het een chatbot?", "Volgo praat via een chat op je website, maar het doel is één ding: de afspraak. Het stelt jouw vragen, beantwoordt twijfels met de info van jouw bedrijf en zet de afspraak in je agenda. Daarna stuurt het de herinnering en volgt het op."],
   ["Moet ik technisch zijn?", "Nee. Je plakt één regel code in je website (stappen voor WordPress, Wix, Squarespace, Shopify en Webflow), of wij doen het voor je."],
   ["Werkt het ook met WhatsApp en telefoon?", "Knoppen om je te WhatsAppen of te bellen werken meteen. WhatsApp-berichten en gemiste oproepen automatisch in Volgo ontvangen kan via een koppeling die wij regelen."],
+  ["Kan ik zien hoe het werkt?", "Ja. Open de chat rechtsonder op deze pagina: dat is Volgo. Vraag iets of plan een afspraak, precies zoals jouw klanten het straks doen."],
   ["Zit ik ergens aan vast?", "Nee. Je betaalt per maand en stopt wanneer je wilt."],
 ];
 
@@ -106,7 +107,7 @@ function WhatsAppIcoon() {
 
 function BookACall({ groot }: { groot?: boolean }) {
   return (
-    <a className={`vl-knop vw-book${groot ? " vw-book--groot" : ""}`} href={WHATSAPP} rel="noopener noreferrer" target="_blank">
+    <a className={`vl-knop vw-book${groot ? " vw-book--groot" : ""}`} data-ava-dm={WHATSAPP} data-ava-intake="" href={WHATSAPP} rel="noopener noreferrer" target="_blank">
       <WhatsAppIcoon />
       Book a call
     </a>
@@ -255,6 +256,64 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
             </a>
           </div>
           <Film />
+        </section>
+
+        <section aria-labelledby="vl-voorbeeld" className="vl-sectie">
+          <p className="vs-label vs-label--midden">Zo ziet het eruit</p>
+          <h2 className="vl-h2" id="vl-voorbeeld">
+            Links je klant. Rechts jij.
+          </h2>
+          <p className="vl-sub vl-center vl-breed">Een echt gesprek op je website, en wat jij daarna op je telefoon krijgt. Jij hebt niks gedaan.</p>
+          <div className="vs-duo">
+            <div className="vs-scherm">
+              <div className="vs-scherm__kop">
+                <span className="vs-dot" /> Op jouw website · 22:14
+              </div>
+              <div className="vs-chat">
+                <p className="vs-b vs-b--klant">Hoi, wat kost een nieuwe schutting ongeveer?</p>
+                <p className="vs-b">Dat hangt af van de lengte en het materiaal. Hoeveel meter ongeveer, en in welke plaats?</p>
+                <p className="vs-b vs-b--klant">Zo'n 12 meter, in Goes.</p>
+                <p className="vs-b">Dank je! Dan komen we graag langs om het op te meten. Wanneer komt het jou uit?</p>
+                <div className="vs-tijden">
+                  <span>Di 10:00</span>
+                  <span className="is-aan">Wo 14:00</span>
+                  <span>Do 09:00</span>
+                </div>
+                <p className="vs-b vs-b--klant">Woensdag 14:00. Ik ben Anna, 06 1234 5678.</p>
+                <p className="vs-geboekt">✓ Afspraak gepland: woensdag 14:00</p>
+              </div>
+            </div>
+            <div className="vs-pijl" aria-hidden="true">→</div>
+            <div className="vs-scherm vs-scherm--app">
+              <div className="vs-melding">
+                <small>VOLGO · nu</small>
+                <b>Nieuwe afspraak: Anna</b>
+                <span>Langskomen · woensdag 14:00</span>
+              </div>
+              <div className="vs-afspraak">
+                <p className="vs-afspraak__kop">In je agenda</p>
+                <b>Langskomen · Anna</b>
+                <span>Woensdag 14:00 – 15:00</span>
+                <dl>
+                  <dt>Telefoon</dt>
+                  <dd>06 1234 5678</dd>
+                  <dt>Plaats</dt>
+                  <dd>Goes</dd>
+                  <dt>Vraag</dt>
+                  <dd>Nieuwe schutting, ±12 meter</dd>
+                </dl>
+                <div className="vs-afspraak__knoppen">
+                  <span>Bellen</span>
+                  <span>WhatsApp</span>
+                </div>
+              </div>
+              <ul className="vs-straks">
+                <li>Dinsdag: Volgo stuurt Anna een herinnering</li>
+                <li>Na de afspraak: Volgo vraagt om een review</li>
+              </ul>
+            </div>
+          </div>
+          <p className="vl-klein vs-probeer">Wil je het zelf zien? Open de chat rechtsonder op deze pagina. Dat is Volgo.</p>
         </section>
 
         <section aria-labelledby="vl-wat" className="vl-sectie">
