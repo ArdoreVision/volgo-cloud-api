@@ -199,3 +199,30 @@
 #vd .vw-taalpop__select option { color: #000; }
 #vd .vw-taalpop__ok { min-height: 46px; padding: 0 22px; border: 0; font-family: inherit; cursor: pointer; }
 @media (max-width: 640px) { #vd .vw-taalpop { left: 12px; right: 12px; width: auto; top: 76px; bottom: auto; } }
+
+/* Appointment setter landing: film, what it is, flow, without/with */
+#vd .vl-film { margin: 44px auto 0; max-width: 960px; }
+#vd .vl-film video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 22px; background: #000; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 40px 100px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08); }
+#vd .vl-film video.is-staand { aspect-ratio: 3 / 4; }
+#vd .vs-wat { max-width: 820px; margin: 0 auto; text-align: center; padding: 44px 32px; border-radius: 28px; background: radial-gradient(120% 80% at 50% 0%, rgba(255, 255, 255, 0.07), transparent 70%), #0a0a0a; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); }
+#vd .vs-label { display: inline-block; margin: 0 0 16px; padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: #86efac; background: rgba(34, 197, 94, 0.1); box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.28); }
+#vd .vs-flow { list-style: none; margin: 36px auto 0; padding: 0; max-width: 1040px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; counter-reset: none; }
+@media (max-width: 900px) { #vd .vs-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { #vd .vs-flow { grid-template-columns: 1fr; } }
+#vd .vs-flow li { position: relative; padding: 24px; border-radius: 20px; background: linear-gradient(180deg, #111, #0a0a0a); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); text-align: left; }
+#vd .vs-flow__nr { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #fff; color: #000; font-weight: 700; font-size: 14px; }
+#vd .vs-flow h3 { margin: 14px 0 6px; font-size: 18px; color: #fff; }
+#vd .vs-flow p { margin: 0; color: #9b9b9b; font-size: 15px; line-height: 1.55; }
+#vd .vs-zm { max-width: 900px; margin: 34px auto 0; border-radius: 22px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); }
+#vd .vs-zm__kop, #vd .vs-zm__rij { display: grid; grid-template-columns: 1fr 1fr; }
+#vd .vs-zm__kop span { padding: 16px 22px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #8d8d8d; background: #0d0d0d; }
+#vd .vs-zm__kop span + span { color: #86efac; }
+#vd .vs-zm__rij span { padding: 16px 22px; font-size: 15px; line-height: 1.45; border-top: 1px solid rgba(255, 255, 255, 0.07); }
+#vd .vs-zm__rij span:first-child { color: #8d8d8d; }
+#vd .vs-zm__rij span:first-child::before { content: "✕  "; color: #f87171; }
+#vd .vs-zm__rij span + span { color: #fff; background: rgba(34, 197, 94, 0.04); }
+#vd .vs-zm__rij span + span::before { content: "✓  "; color: #86efac; font-weight: 700; }
+@media (max-width: 600px) { #vd .vs-zm__kop span, #vd .vs-zm__rij span { padding: 13px 14px; font-size: 14px; } }
+#vd .vl-plan .vw-book { margin-top: 0; }
+#vd .vw-voorbeelden { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 820px; margin-left: auto; margin-right: auto; }
+@media (max-width: 640px) { #vd .vw-voorbeelden { grid-template-columns: 1fr; } }
