@@ -92,6 +92,9 @@ a.row:hover{background:#181B21}
 .steps span{font-size:13px;border:1px solid var(--line);border-radius:999px;padding:5px 12px;color:var(--mute)}
 .steps span.on{border-color:var(--volt);color:var(--chalk)}
 .steps span.done{color:var(--good);border-color:rgba(63,207,142,.4)}
+.tick{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:13px;font-weight:600;color:var(--mute);flex:none}
+.tick.done{background:rgba(63,207,142,.15);border-color:rgba(63,207,142,.5);color:var(--good)}
+details>summary{list-style:none}details>summary::-webkit-details-marker{display:none}
 .status{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--mute)}.dot.on{background:var(--good);box-shadow:0 0 0 4px rgba(63,207,142,.15)}.dot.off{background:var(--bad)}
 table{width:100%;border-collapse:collapse;font-size:14px}
@@ -118,7 +121,7 @@ const LOGO = `<a class="logo" href="/"><span class="mark"><svg width="15" height
 
 export function page({ title, body, coach = null, script = "" }) {
   const right = coach
-    ? `<div class="who-top"><span>${esc(coach.email)}</span><a href="/logout">Log out</a></div>`
+    ? `<div class="who-top"><span>${esc(coach.name || coach.email)}</span><a href="/logout">Log out</a></div>`
     : `<div class="who-top"><a href="/login">Log in</a><a class="btn btn-main" style="padding:9px 16px" href="/start">Start</a></div>`;
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(title)} · Spotter</title>${FONTS}<style>${CSS}</style></head><body>
 <nav class="top"><div class="in">${LOGO}${right}</div></nav>
@@ -137,6 +140,8 @@ export function appPage({ title, coach, active, body, script = "", needs = 0 }) 
     ${link("/setter", "Your setter", "setter")}
     ${link("/connect", "Instagram", "connect")}
     ${link("/billing", "Billing", "billing")}
+    ${link("/settings", "Settings", "settings")}
+    ${link("/help", "Help", "help")}
     ${coach.isAdmin ? `<div class="sep"></div>${link("/admin", "Owner", "admin")}` : ""}
   </aside>`;
   return page({ title, coach, script, body: `<div class="shell">${side}<div class="main">${body}</div></div>` });

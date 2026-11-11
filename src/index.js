@@ -5,9 +5,9 @@ import { page, appPage, STAGE_LABEL, initials, TEST_CHAT_JS, testPhone } from ".
 import { nextDm, scriptedDm, DEFAULT_PROFILE, TONES, profileComplete } from "./ai.js";
 import {
   igConfigured, igAuthorizeUrl, igExchangeCode, igSend, stripeConfigured, stripeCheckout, stripeSession, stripeSubscription,
-  stripePortal, statusFromSub, sendMail, notifyOwner,
+  stripePortal, statusFromSub, sendMail, notifyOwner, stripeCancel,
 } from "./services.js";
-import { verifySignature, parseWebhook, handleEvent, runFollowUps, refreshTokens, weeklyReports, weekStats } from "./engine.js";
+import { verifySignature, parseWebhook, handleEvent, runFollowUps, refreshTokens, weeklyReports, weekStats, DEFAULT_COMMENT_DM } from "./engine.js";
 
 export default {
   async fetch(req, env, ctx) {
@@ -95,6 +95,10 @@ async function route(req, env, ctx) {
   if ((mm = p.match(/^\/inbox\/(\d+)$/))) return threadPage(req, env, coach, +mm[1], url);
   if ((mm = p.match(/^\/inbox\/(\d+)\/(send|pause|resume|stage)$/)) && m === "POST") return threadAction(req, env, coach, +mm[1], mm[2]);
   if (p === "/calls") return callsPage(req, env, coach);
+  if (p === "/settings") return m === "POST" ? settingsPost(req, env, coach) : settingsPage(req, env, coach, url);
+  if (p === "/settings/delete" && m === "POST") return deleteAccount(req, env, coach);
+  if (p === "/help") return helpPage(req, env, coach);
+  if ((mm = p.match(/^\/admin\/coach\/(\d+)$/)) && m === "POST" && coach.isAdmin) return adminAction(req, env, coach, +mm[1]);
   if (p === "/admin" && coach.isAdmin) return adminPage(req, env, coach);
 
   return html(page({ title: "Not found", coach, body: `<div class="auth"><div class="card"><h1>Page not found</h1><p class="sub">That page doesn't exist.</p><a class="btn btn-main" href="/dashboard">Go to dashboard</a></div></div>` }), 404);
@@ -202,6 +206,12 @@ function setterForm(p, action = "/setter", back = "") {
     <div class="field"><label for="f-fit">4. Who it's for</label><p class="hint">Spotter only sends your booking link to people who match this.</p><textarea id="f-fit" name="fit" required placeholder="Women 25–45 who want to lose 5–15 kg, can train 3× a week and want to start within a month.">${esc(p.fit)}</textarea></div>
     <div class="field"><label for="f-link">5. Booking link</label><input id="f-link" name="link" required value="${esc(p.link)}" placeholder="calendly.com/you/strategy-call"></div>
     <div class="field"><label id="tone-l">6. Your tone</label><div class="chips" role="radiogroup" aria-labelledby="tone-l">${TONES.map(chip).join("")}</div></div>
+    <div class="panel" style="margin-top:4px"><h3>Comment-to-DM <span class="small" style="font-family:var(--body);font-weight:400">optional</span></h3><div class="pad" style="display:grid;gap:14px">
+      <p class="small" style="margin:0">Say "comment COACH below" in a reel. Everyone who comments that word gets a DM from you right away, and Spotter takes it from there.</p>
+      <div class="field"><label for="f-kw">Keywords</label><p class="hint">Separate with commas. Leave empty to switch off.</p><input id="f-kw" name="keywords" value="${esc(p.keywords)}" placeholder="COACH, PLAN"></div>
+      <div class="field"><label for="f-cdm">First DM they get</label><textarea id="f-cdm" name="comment_dm" placeholder="${esc(DEFAULT_COMMENT_DM)}">${esc(p.comment_dm)}</textarea></div>
+      <label class="small" style="display:flex;gap:10px;align-items:center;cursor:pointer"><input type="checkbox" name="comment_reply" value="on" ${p.comment_reply !== "off" ? "checked" : ""}> Also reply "Sent you a DM 🙌" under their comment</label>
+    </div></div>
     <details><summary class="small" style="cursor:pointer">Optional: anything else Spotter should know</summary>
       <div class="field" style="margin-top:10px"><label for="f-extra">Extra info</label><p class="hint">FAQs, payment plans, guarantees you really offer, things to never say.</p><textarea id="f-extra" name="extra">${esc(p.extra)}</textarea></div>
       <div class="field"><label for="f-lang">Language</label><select id="f-lang" name="language">${["the language the lead writes in", "English", "Dutch", "German", "Spanish", "French"].map((l) => `<option ${p.language === l ? "selected" : ""} value="${esc(l)}">${l === "the language the lead writes in" ? "Match the lead (recommended)" : l}</option>`).join("")}</select></div>
@@ -214,7 +224,8 @@ function setterForm(p, action = "/setter", back = "") {
 async function setterSave(req, env, coach) {
   const f = await form(req);
   const p = { ...DEFAULT_PROFILE, ...coach.profileObj };
-  for (const k of ["name", "program", "price", "fit", "link", "extra", "language"]) if (typeof f[k] === "string") p[k] = f[k].trim().slice(0, 2000);
+  for (const k of ["name", "program", "price", "fit", "link", "extra", "language", "keywords", "comment_dm"]) if (typeof f[k] === "string") p[k] = f[k].trim().slice(0, 2000);
+  if ("keywords" in f) p.comment_reply = f.comment_reply === "on" ? "on" : "off";
   if (TONES.includes(f.tone)) p.tone = f.tone;
   p.link = p.link.replace(/\s+/g, "");
   await env.DB.prepare("UPDATE coaches SET profile = ? WHERE id = ?").bind(JSON.stringify(p), coach.id).run();
@@ -486,7 +497,7 @@ function leadRow(l) {
   const who = l.username ? "@" + l.username : l.name || "Instagram user";
   const stage = l.paused ? "paused" : l.stage;
   const label = l.paused ? "You took over" : STAGE_LABEL[l.stage] || l.stage;
-  return `<a class="row" href="/inbox/${l.id}"><div class="av ${l.stage === "needs_you" ? "hot" : ""}">${esc(initials(who))}</div><div style="min-width:0"><b>${esc(who)}</b><p>${esc(l.last_text || l.brief || "")}</p></div><div style="text-align:right"><span class="pill p-${stage}">${esc(label)}</span><p class="small" style="margin:4px 0 0">${esc(timeAgo(l.updated_at))}</p></div></a>`;
+  return `<a class="row" href="/inbox/${l.id}"><div class="av ${l.stage === "needs_you" ? "hot" : ""}">${esc(initials(who))}</div><div style="min-width:0"><b>${esc(who)}</b>${l.source === "comment" ? ` <span class="small">· from a comment</span>` : ""}<p>${esc(l.last_text || l.brief || "")}</p></div><div style="text-align:right"><span class="pill p-${stage}">${esc(label)}</span><p class="small" style="margin:4px 0 0">${esc(timeAgo(l.updated_at))}</p></div></a>`;
 }
 
 const LEADS_SQL = `SELECT l.*, (SELECT text FROM messages WHERE lead_id = l.id ORDER BY id DESC LIMIT 1) last_text FROM leads l WHERE l.coach_id = ?`;
@@ -498,13 +509,21 @@ async function dashboard(req, env, coach) {
   const first = (coach.name || "").split(" ")[0];
   const hour = new Date().getUTCHours() + 1;
   const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const firstAnswer = (await env.DB.prepare("SELECT COUNT(*) n FROM messages m JOIN leads l ON l.id = m.lead_id WHERE l.coach_id = ? AND m.role = 'bot'").bind(coach.id).first()).n > 0;
+  const steps = [
+    [profileComplete(coach.profileObj), "Build your setter", "/setter"],
+    [hasAccess(coach), "Go live", "/billing"],
+    [!!coach.ig_token, "Connect Instagram", "/connect"],
+    [firstAnswer, "First DM answered", "/inbox"],
+  ];
+  const checklist = steps.every((x) => x[0]) ? "" : `<div class="panel" style="margin:0 0 18px"><h3>Getting started</h3><div class="pad" style="display:grid;gap:10px">${steps.map(([done, label, href], i) => `<a href="${href}" style="display:flex;gap:12px;align-items:center;text-decoration:none"><span class="tick ${done ? "done" : ""}">${done ? "✓" : i + 1}</span><span style="${done ? "color:var(--mute);text-decoration:line-through" : ""}">${label}</span></a>`).join("")}${!firstAnswer && coach.ig_token ? `<p class="small" style="margin:4px 0 0">Send your account a DM from another Instagram account to see Spotter in action.</p>` : ""}</div></div>`;
   const setup = !coach.ig_token
     ? `<div class="note" style="margin-bottom:18px;display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap"><span><b>One step left:</b> connect Instagram so Spotter can start answering.</span><a class="btn btn-main" href="/connect">Connect Instagram</a></div>`
     : !coach.setter_on
       ? `<div class="note" style="margin-bottom:18px;display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap"><span><b>Spotter is paused.</b> New DMs are not being answered.</span><form method="post" action="/setter/toggle"><button class="btn btn-main" type="submit">Switch back on</button></form></div>`
       : "";
   const status = coach.ig_token ? `<div class="status small" style="margin-bottom:20px"><span class="dot ${coach.setter_on ? "on" : "off"}"></span>${coach.setter_on ? `Spotter is answering DMs for @${esc(coach.ig_username)}` : "Paused"}</div>` : "";
-  const body = `<h2>${greet}, ${esc(first)}</h2><p class="lede">What Spotter did in the last 7 days.</p>${setup}${status}
+  const body = `<h2>${greet}, ${esc(first)}</h2><p class="lede">What Spotter did in the last 7 days.</p>${checklist}${setup}${status}
     <div class="tiles">
       <div class="tile"><span>Conversations</span><b>${s.chats}</b></div>
       <div class="tile"><span>DMs answered</span><b>${s.answered}</b></div>
@@ -604,11 +623,105 @@ async function adminPage(req, env, coach) {
   const body = `<h2>Owner</h2><p class="lede">Everything about Spotter in one place.</p>
     <div class="tiles"><div class="tile"><span>Paying coaches</span><b>${paying}</b></div><div class="tile"><span>On 7-day start</span><b>${trials}</b></div><div class="tile"><span>MRR</span><b>€${mrr.toLocaleString("nl-NL")}</b></div><div class="tile"><span>Accounts</span><b>${coaches.length}</b></div></div>
     <div class="panel"><h3>System</h3><div class="pad" style="display:flex;gap:18px;flex-wrap:wrap">${chk(h.ai, "Claude")}${chk(h.stripe, "Stripe")}${chk(h.mail, "E-mail")}${chk(h.instagram, "Instagram app")}${chk(h.push, "Phone push")}</div></div>
-    <div class="panel"><h3>Coaches</h3><div class="tablewrap"><table><thead><tr><th>#</th><th>Coach</th><th>Status</th><th>Instagram</th><th class="num">Chats</th><th class="num">Links</th><th>Since</th></tr></thead><tbody>
-      ${coaches.map((c) => `<tr><td class="num">${c.id}</td><td>${esc(c.name)}<br><span class="small">${esc(c.email)}</span></td><td>${esc(STATUS_TEXT[c.status] || c.status)}${c.trial_end && c.status === "trial" ? `<br><span class="small">until ${esc(c.trial_end.slice(0, 10))}</span>` : ""}</td><td>${c.ig_username ? "@" + esc(c.ig_username) + (c.setter_on ? "" : " (paused)") : `<span class="small">not connected</span>`}</td><td class="num">${c.leads}</td><td class="num">${c.links}</td><td><span class="small">${esc(c.created_at.slice(0, 10))}</span></td></tr>`).join("") || `<tr><td colspan="7" class="small">No coaches yet.</td></tr>`}
+    <div class="panel"><h3>Coaches</h3><div class="tablewrap"><table><thead><tr><th>#</th><th>Coach</th><th>Status</th><th>Instagram</th><th class="num">Chats</th><th class="num">Links</th><th>Since</th><th></th></tr></thead><tbody>
+      ${coaches.map((c) => `<tr><td class="num">${c.id}</td><td>${esc(c.name)}<br><span class="small">${esc(c.email)}</span></td><td>${esc(STATUS_TEXT[c.status] || c.status)}${c.trial_end && c.status === "trial" ? `<br><span class="small">until ${esc(c.trial_end.slice(0, 10))}</span>` : ""}</td><td>${c.ig_username ? "@" + esc(c.ig_username) + (c.setter_on ? "" : " (paused)") : `<span class="small">not connected</span>`}</td><td class="num">${c.leads}</td><td class="num">${c.links}</td><td><span class="small">${esc(c.created_at.slice(0, 10))}</span></td><td><form method="post" action="/admin/coach/${c.id}" style="display:flex;gap:6px;flex-wrap:wrap">${c.status === "free" ? `<button class="chip" name="do" value="unfree">Remove free</button>` : `<button class="chip" name="do" value="free">Give free</button>`}<button class="chip" name="do" value="${c.setter_on ? "pause" : "resume"}">${c.setter_on ? "Pause" : "Resume"}</button></form></td></tr>`).join("") || `<tr><td colspan="8" class="small">No coaches yet.</td></tr>`}
     </tbody></table></div></div>
     <div class="panel"><h3>Recent activity</h3><div class="tablewrap"><table><tbody>${events.map((e) => `<tr><td><span class="small">${esc(e.created_at)}</span></td><td>${esc(e.kind)}</td><td>${esc(e.email || "")}</td><td class="small">${esc(e.data.slice(0, 160))}</td></tr>`).join("") || `<tr><td class="small">Nothing yet.</td></tr>`}</tbody></table></div></div>`;
   return html(appPage({ title: "Owner", coach, active: "admin", body, needs: await needsCount(env, coach) }));
+}
+
+async function adminAction(req, env, coach, id) {
+  const f = await form(req);
+  const c = await env.DB.prepare("SELECT * FROM coaches WHERE id = ?").bind(id).first();
+  if (!c) return redirect("/admin");
+  if (f.do === "free") await env.DB.prepare("UPDATE coaches SET status = 'free' WHERE id = ?").bind(id).run();
+  if (f.do === "unfree") await env.DB.prepare("UPDATE coaches SET status = CASE WHEN stripe_sub IS NOT NULL THEN 'active' ELSE 'new' END WHERE id = ?").bind(id).run();
+  if (f.do === "pause") await env.DB.prepare("UPDATE coaches SET setter_on = 0 WHERE id = ?").bind(id).run();
+  if (f.do === "resume") await env.DB.prepare("UPDATE coaches SET setter_on = 1 WHERE id = ?").bind(id).run();
+  await logEvent(env, id, "owner_" + f.do, coach.email);
+  return redirect("/admin");
+}
+
+/* ======================= SETTINGS + HELP ======================= */
+
+async function settingsPage(req, env, coach, url, msg = "") {
+  const saved = url?.searchParams.get("saved") ? `<div class="ok" style="margin-bottom:16px">Saved.</div>` : "";
+  const body = `<h2>Settings</h2><p class="lede">Your account and notifications.</p>${saved}${msg}
+    <div class="panel" style="margin-top:0"><h3>Account</h3><div class="pad">
+      <form class="form" method="post" action="/settings" style="max-width:480px">
+        <input type="hidden" name="section" value="account">
+        <div class="field"><label for="s-name">Your name</label><input id="s-name" name="name" required value="${esc(coach.name)}"></div>
+        <div class="field"><label for="s-email">Email</label><input id="s-email" name="email" type="email" required value="${esc(coach.email)}"></div>
+        <label class="small" style="display:flex;gap:10px;align-items:center;cursor:pointer"><input type="checkbox" name="notify_email" value="1" ${coach.notify_email ? "checked" : ""}> Email me when a lead gets my link or needs me personally</label>
+        <div><button class="btn btn-main" type="submit">Save</button></div>
+      </form></div></div>
+    <div class="panel"><h3>Password</h3><div class="pad">
+      <form class="form" method="post" action="/settings" style="max-width:480px">
+        <input type="hidden" name="section" value="password">
+        <div class="field"><label for="s-old">Current password</label><input id="s-old" name="old" type="password" autocomplete="current-password" required></div>
+        <div class="field"><label for="s-new">New password</label><input id="s-new" name="new" type="password" minlength="8" autocomplete="new-password" required></div>
+        <div><button class="btn btn-ghost" type="submit">Change password</button></div>
+      </form></div></div>
+    <div class="panel"><h3>Delete account</h3><div class="pad">
+      <p class="small" style="margin:0 0 12px">Stops Spotter, cancels your subscription and deletes all your conversations. This can't be undone.</p>
+      <form class="form" method="post" action="/settings/delete" style="max-width:480px">
+        <div class="field"><label for="s-del">Type DELETE to confirm</label><input id="s-del" name="confirm" autocomplete="off" required></div>
+        <div><button class="btn btn-ghost" style="border-color:rgba(255,107,107,.5);color:#ffb3b3" type="submit">Delete my account</button></div>
+      </form></div></div>`;
+  return html(appPage({ title: "Settings", coach, active: "settings", body, needs: await needsCount(env, coach) }));
+}
+
+async function settingsPost(req, env, coach) {
+  const f = await form(req);
+  const url = new URL(req.url);
+  const bad = (t) => settingsPage(req, env, coach, null, `<div class="err" style="margin-bottom:16px">${esc(t)}</div>`);
+  if (f.section === "account") {
+    const email = String(f.email || "").trim().toLowerCase();
+    if (!isEmail(email)) return bad("That email address doesn't look right.");
+    if (email !== coach.email) {
+      const taken = await env.DB.prepare("SELECT id FROM coaches WHERE email = ? AND id <> ?").bind(email, coach.id).first();
+      if (taken) return bad("Another account already uses that email.");
+    }
+    await env.DB.prepare("UPDATE coaches SET name = ?, email = ?, notify_email = ? WHERE id = ?").bind(String(f.name || coach.name).trim().slice(0, 120), email, f.notify_email ? 1 : 0, coach.id).run();
+  }
+  if (f.section === "password") {
+    if (!(await checkLogin(env, coach.email, String(f.old || "")))) return bad("Your current password isn't right.");
+    if (String(f.new || "").length < 8) return bad("Your new password needs at least 8 characters.");
+    const { hash, salt } = await hashPassword(String(f.new));
+    await env.DB.prepare("UPDATE coaches SET pw_hash = ?, pw_salt = ? WHERE id = ?").bind(hash, salt, coach.id).run();
+  }
+  return redirect("/settings?saved=1");
+}
+
+async function deleteAccount(req, env, coach) {
+  const f = await form(req);
+  if (String(f.confirm || "").trim().toUpperCase() !== "DELETE") return settingsPage(req, env, coach, null, `<div class="err" style="margin-bottom:16px">Type DELETE to confirm.</div>`);
+  if (coach.stripe_sub && stripeConfigured(env) && coach.status !== "canceled") {
+    try { await stripeCancel(env, coach.stripe_sub); } catch (e) { await logEvent(env, coach.id, "cancel_error", e.message); }
+  }
+  await env.DB.prepare("DELETE FROM messages WHERE lead_id IN (SELECT id FROM leads WHERE coach_id = ?)").bind(coach.id).run();
+  await env.DB.prepare("DELETE FROM leads WHERE coach_id = ?").bind(coach.id).run();
+  await env.DB.prepare("DELETE FROM sessions WHERE coach_id = ?").bind(coach.id).run();
+  await env.DB.prepare("DELETE FROM coaches WHERE id = ?").bind(coach.id).run();
+  await logEvent(env, null, "account_deleted", coach.email);
+  await notifyOwner(env, "Account deleted", `${coach.name} <${coach.email}> deleted their account.`);
+  return redirect("/?deleted=1", { "set-cookie": "spotter_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0" });
+}
+
+async function helpPage(req, env, coach) {
+  const qa = [
+    ["How does Spotter know what to say?", "From your 6 answers on <a href=\"/setter\">Your setter</a>. Change them anytime; the next message uses the new version. Test every change in the test chat."],
+    ["What if I want to reply myself?", "Just reply in Instagram as you normally do. Spotter sees it and stays quiet in that chat. Hand it back from the chat in your <a href=\"/inbox\">Inbox</a>."],
+    ["Which questions does Spotter ask?", "One at a time: their goal, why now, what they tried before, and whether they're ready to invest. Only people who fit get your booking link."],
+    ["What does Spotter never do?", "Message people who didn't contact you first, promise results, discounts or guarantees you didn't give it, or answer medical questions. Those go to you, marked Needs you."],
+    ["What's the 24-hour rule?", "Instagram allows replies up to 24 hours after someone's last message. Spotter sends one friendly follow-up before that window closes."],
+    ["How does Comment-to-DM work?", "Add a keyword like COACH on <a href=\"/setter\">Your setter</a> and say \"comment COACH\" in your reel. Everyone who comments it gets your first DM, and Spotter continues the conversation."],
+    ["How do I pause Spotter?", "On the <a href=\"/connect\">Instagram</a> page. Pausing stops all replies until you switch it back on."],
+    ["How do I cancel?", "On <a href=\"/billing\">Billing</a>. Cancel within your first 7 days and you pay nothing more."],
+  ];
+  const body = `<h2>Help</h2><p class="lede">Quick answers. Anything else? Email ${esc(env.CONTACT_EMAIL)} and you'll hear back the same day.</p>
+    <div style="display:grid;gap:10px;max-width:760px">${qa.map(([q, a], i) => `<details class="panel" style="margin:0" ${i === 0 ? "open" : ""}><summary style="padding:16px 18px;cursor:pointer;font-weight:600">${q}</summary><p style="margin:0;padding:0 18px 16px;color:var(--mute)">${a}</p></details>`).join("")}</div>`;
+  return html(appPage({ title: "Help", coach, active: "help", body, needs: await needsCount(env, coach) }));
 }
 
 /* ======================= LEGAL ======================= */

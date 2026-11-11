@@ -1,6 +1,6 @@
 // The setter itself: receive a DM, decide, reply, keep the lead's stage up to date.
 import { nextDm } from "./ai.js";
-import { igSend, igProfile, sendMail, igRefresh } from "./services.js";
+import { igSend, igProfile, sendMail, igRefresh, igPrivateReply, igCommentReply } from "./services.js";
 import { safeJson } from "./auth.js";
 import { hmacHex, safeEqual, logEvent, now } from "./util.js";
 
@@ -13,11 +13,17 @@ export async function verifySignature(env, req, raw) {
   return safeEqual(sig, await hmacHex(env.META_APP_SECRET, raw));
 }
 
-// Webhook payload → list of {coachIgId, senderId, recipientId, mid, text, echo}
+// Webhook payload → list of {coachIgId, senderId, recipientId, mid, text, echo} or {kind:'comment', ...}
 export function parseWebhook(body) {
   const out = [];
   if (!body || body.object !== "instagram") return out;
   for (const entry of body.entry || []) {
+    for (const ch of entry.changes || []) {
+      const v = ch.value || {};
+      if (ch.field === "comments" && v.id && v.text && v.from?.id) {
+        out.push({ kind: "comment", coachIgId: String(entry.id), commentId: String(v.id), fromId: String(v.from.id), username: v.from.username || "", text: String(v.text), mediaId: v.media?.id || "" });
+      }
+    }
     for (const ev of entry.messaging || []) {
       const m = ev.message;
       if (!m || m.is_deleted) continue;
@@ -32,6 +38,7 @@ export function parseWebhook(body) {
 export async function handleEvent(env, ev) {
   const coach = await env.DB.prepare("SELECT * FROM coaches WHERE ig_user_id = ?").bind(ev.coachIgId).first();
   if (!coach || !coach.ig_token) return;
+  if (ev.kind === "comment") return handleComment(env, coach, ev);
 
   if (ev.echo) return handleEcho(env, coach, ev);
 
@@ -99,6 +106,7 @@ export async function replyToLead(env, coach, leadId, { followUp = false } = {})
 
   if (out.stage !== prevStage && (out.stage === "needs_you" || out.stage === "link_sent" || out.stage === "booked")) {
     const who = lead.username ? "@" + lead.username : lead.name || "A lead";
+    if (!coach.notify_email) return out;
     const subj = out.stage === "needs_you" ? `${who} needs you personally` : out.stage === "booked" ? `${who} booked a call` : `${who} got your booking link`;
     await sendMail(env, {
       to: coach.email,
@@ -186,4 +194,45 @@ export async function weekStats(env, coachId) {
   const booked = (await q("SELECT COUNT(*) n FROM leads WHERE coach_id = ? AND stage = 'booked' AND updated_at > datetime('now','-7 days')")).n;
   const needs = (await q("SELECT COUNT(*) n FROM leads WHERE coach_id = ? AND stage = 'needs_you'")).n;
   return { chats, answered, links, booked, needs };
+}
+
+/* ---------------- comment to DM ---------------- */
+
+export function matchKeyword(keywords, text) {
+  const words = String(keywords || "").split(/[,\n]/).map((k) => k.trim().toLowerCase()).filter(Boolean);
+  if (!words.length) return null;
+  const t = String(text || "").toLowerCase();
+  return words.find((k) => new RegExp(`(^|[^\\p{L}\\p{N}])${k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^\\p{L}\\p{N}])`, "u").test(t)) || null;
+}
+
+export const DEFAULT_COMMENT_DM = "hey! saw your comment 🙌 happy to help. what's the main goal you'd love to hit in the next few months?";
+
+async function handleComment(env, coach, ev) {
+  if (ev.fromId === coach.ig_user_id) return;
+  if (!coach.setter_on || !["trial", "active", "free", "past_due"].includes(coach.status)) return;
+  const profile = safeJson(coach.profile);
+  const kw = matchKeyword(profile.keywords, ev.text);
+  if (!kw) return;
+  const fresh = await env.DB.prepare("INSERT INTO comment_replies (comment_id, coach_id) VALUES (?, ?) ON CONFLICT DO NOTHING RETURNING comment_id").bind(ev.commentId, coach.id).first();
+  if (!fresh) return;
+  const text = String(profile.comment_dm || DEFAULT_COMMENT_DM).trim().slice(0, 900);
+  let lead = await env.DB.prepare("SELECT * FROM leads WHERE coach_id = ? AND ig_sender_id = ?").bind(coach.id, ev.fromId).first();
+  if (!lead) {
+    lead = await env.DB.prepare(
+      "INSERT INTO leads (coach_id, ig_sender_id, username, source, stage) VALUES (?, ?, ?, 'comment', 'qualifying') ON CONFLICT(coach_id, ig_sender_id) DO UPDATE SET updated_at = datetime('now') RETURNING *",
+    ).bind(coach.id, ev.fromId, ev.username).first();
+  }
+  await env.DB.prepare("INSERT INTO messages (lead_id, role, text) VALUES (?, 'lead', ?)").bind(lead.id, `[commented "${ev.text.slice(0, 300)}" on your post]`).run();
+  const msg = await env.DB.prepare("INSERT INTO messages (lead_id, role, text) VALUES (?, 'bot', ?) RETURNING id").bind(lead.id, text).first();
+  try {
+    const r = await igPrivateReply(env, coach, ev.commentId, text);
+    if (r.message_id) await env.DB.prepare("UPDATE messages SET mid = ? WHERE id = ?").bind(r.message_id, msg.id).run().catch(() => {});
+  } catch (e) {
+    await env.DB.prepare("DELETE FROM messages WHERE id = ?").bind(msg.id).run();
+    await logEvent(env, coach.id, "comment_dm_error", e.message);
+    return;
+  }
+  await env.DB.prepare("UPDATE leads SET last_lead_at = datetime('now'), last_out_at = datetime('now'), updated_at = datetime('now') WHERE id = ?").bind(lead.id).run();
+  if (profile.comment_reply !== "off") await igCommentReply(env, coach, ev.commentId, profile.comment_public || "Sent you a DM 🙌");
+  await logEvent(env, coach.id, "comment_dm", `${ev.username}: ${kw}`);
 }

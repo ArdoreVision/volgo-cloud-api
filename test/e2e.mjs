@@ -100,6 +100,31 @@ await fetch(B + "/__scheduled?cron=*/30+*+*+*+*"); await wait(2000);
 lg = await mocklog(); ok(lg.filter((x) => x.p === "/v23.0/17840000/messages").length === before + 1 && lg.some((x) => x.p === "/v1/messages" && x.body.includes("no reply from the lead")), "follow-up sent in window");
 await fetch(B + "/__scheduled?cron=*/30+*+*+*+*"); await wait(1500);
 ok((await mocklog()).filter((x) => x.p === "/v23.0/17840000/messages").length === before + 1, "follow-up only once");
+// comment-to-DM
+r = await req("/setter", { method: "POST", form: { name: "Coach Test", program: "12 weeks 1:1", price: "€997", fit: "Women 25-45", link: "calendly.com/coachtest/call", tone: "Direct and no-nonsense", keywords: "COACH, plan", comment_dm: "hey! here's the info you asked for. what's your goal?", comment_reply: "on" } });
+ok(r.s === 303, "keywords saved");
+const sendsC = (await mocklog()).filter((x) => x.p === "/v23.0/17840000/messages").length;
+const changes = (id, text, from = "fan1") => { const raw = JSON.stringify({ object: "instagram", entry: [{ id: "17840000", time: Date.now(), changes: [{ field: "comments", value: { id, text, from: { id: from, username: "fan_" + from }, media: { id: "media1" } } }] }] }); return req("/webhook/instagram", { method: "POST", raw, headers: { "x-hub-signature-256": sign(raw), "content-type": "application/json" } }); };
+await changes("c1", "COACH please 🙌"); await wait(1200);
+lg = await mocklog();
+const pr = lg.filter((x) => x.p === "/v23.0/17840000/messages");
+ok(pr.length === sendsC + 1 && pr[pr.length - 1].body.includes('"comment_id":"c1"'), "comment keyword → private DM");
+ok(lg.some((x) => x.p === "/v23.0/c1/replies"), "public 'sent you a DM' reply");
+await changes("c1", "COACH please 🙌"); await wait(800);
+await changes("c2", "nice reel!", "fan2"); await wait(800);
+ok((await mocklog()).filter((x) => x.p === "/v23.0/17840000/messages").length === sendsC + 1, "no DM for duplicate or no keyword");
+const fl = sql("SELECT source, stage FROM leads WHERE ig_sender_id='fan1'")[0]; ok(fl && fl.source === "comment", "comment lead stored");
+// fan replies in DM → Spotter continues the same lead
+await hook({ sender: { id: "fan1" }, recipient: { id: "17840000" }, timestamp: Date.now(), message: { mid: "in_fan1", text: "I want to get stronger" } }); await wait(2000);
+ok(sql("SELECT COUNT(*) n FROM leads WHERE ig_sender_id='fan1'")[0].n === 1 && sql("SELECT COUNT(*) n FROM messages m JOIN leads l ON l.id=m.lead_id WHERE l.ig_sender_id='fan1' AND m.role='bot'")[0].n === 2, "conversation continues after comment");
+// settings + help
+r = await req("/settings"); ok(r.s === 200 && r.text.includes("Delete account"), "settings page");
+r = await req("/settings", { method: "POST", form: { section: "account", name: "Test Coach", email: "coach@test.nl" } }); ok(r.loc === "/settings?saved=1" && sql("SELECT notify_email FROM coaches WHERE id=" + cid)[0].notify_email === 0, "notifications off");
+r = await req("/settings", { method: "POST", form: { section: "password", old: "wrong", new: "anotherpass1" } }); ok(r.text.includes("current password"), "wrong current password refused");
+r = await req("/settings", { method: "POST", form: { section: "password", old: "supersecret1", new: "anotherpass1" } }); ok(r.s === 303, "password changed");
+r = await req("/settings", { method: "POST", form: { section: "password", old: "anotherpass1", new: "supersecret1" } }); ok(r.s === 303, "password changed back");
+r = await req("/help"); ok(r.s === 200 && r.text.includes("Comment-to-DM"), "help page");
+r = await req("/dashboard"); ok(r.text.includes("Getting started") || r.text.includes("Latest conversations"), "dashboard renders");
 // billing + logout/login
 r = await req("/billing"); ok(r.text.includes("7-day start"), "billing shows trial");
 r = await req("/billing/portal", { method: "POST" }); ok(r.loc.includes("/portal"), "billing portal");
@@ -111,6 +136,16 @@ jar = {};
 r = await req("/start", { method: "POST", form: { name: "Damien", email: "damienhanssens@outlook.com", password: "ownerpass99" } });
 r = await req("/dashboard"); ok(r.s === 200, "owner gets in free");
 r = await req("/admin"); ok(r.s === 200 && r.text.includes("coach@test.nl") && r.text.includes("Paying coaches"), "owner dashboard");
+r = await req("/admin/coach/" + cid, { method: "POST", form: { do: "free" } }); ok(sql("SELECT status FROM coaches WHERE id=" + cid)[0].status === "free", "owner gives free access");
+r = await req("/admin/coach/" + cid, { method: "POST", form: { do: "unfree" } }); ok(sql("SELECT status FROM coaches WHERE id=" + cid)[0].status === "active", "owner removes free");
+// delete account
+jar = {};
+r = await req("/start", { method: "POST", form: { name: "Leaver", email: "leaver@test.nl", password: "leaverpass1" } });
+r = await req("/settings/delete", { method: "POST", form: { confirm: "nope" } }); ok(r.s === 303 || r.text.includes("Type DELETE"), "delete needs confirm");
+// leaver has no access → settings redirects; give access first
+sql("UPDATE coaches SET status='trial', stripe_sub='sub_1' WHERE email='leaver@test.nl'");
+r = await req("/settings/delete", { method: "POST", form: { confirm: "DELETE" } }); ok(r.s === 303 && sql("SELECT COUNT(*) n FROM coaches WHERE email='leaver@test.nl'")[0].n === 0, "account deleted");
+ok((await mocklog()).some((x) => x.m === "DELETE" && x.p === "/v1/subscriptions/sub_1"), "subscription canceled on delete");
 // pages
 for (const p of ["/privacy", "/terms", "/data-deletion", "/login", "/forgot"]) { jar = {}; r = await req(p); ok(r.s === 200, "page " + p); }
 // data deletion callback

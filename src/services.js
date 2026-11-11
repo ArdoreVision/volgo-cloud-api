@@ -14,7 +14,7 @@ export function igAuthorizeUrl(env, redirectUri, state) {
   u.searchParams.set("client_id", env.META_APP_ID);
   u.searchParams.set("redirect_uri", redirectUri);
   u.searchParams.set("response_type", "code");
-  u.searchParams.set("scope", "instagram_business_basic,instagram_business_manage_messages");
+  u.searchParams.set("scope", "instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments");
   u.searchParams.set("state", state);
   return u.toString();
 }
@@ -36,7 +36,7 @@ export async function igExchangeCode(env, code, redirectUri) {
   const me = await (await fetch(`${GRAPH(env)}/${V}/me?fields=user_id,username&access_token=${encodeURIComponent(long.access_token)}`)).json();
   if (!me.user_id && !me.id) throw new Error("ig_me: " + JSON.stringify(me).slice(0, 300));
   // Receive DMs for this account.
-  await fetch(`${GRAPH(env)}/${V}/me/subscribed_apps?subscribed_fields=messages&access_token=${encodeURIComponent(long.access_token)}`, { method: "POST" });
+  await fetch(`${GRAPH(env)}/${V}/me/subscribed_apps?subscribed_fields=messages,comments&access_token=${encodeURIComponent(long.access_token)}`, { method: "POST" });
   const exp = new Date(Date.now() + (long.expires_in || 5184000) * 1000).toISOString().replace("T", " ").slice(0, 19);
   return { token: long.access_token, userId: String(me.user_id || me.id), username: me.username || "", exp };
 }
@@ -59,6 +59,28 @@ export async function igSend(env, coach, recipientId, text) {
   return d.message_id || null;
 }
 
+// Private reply to a comment: one DM to the commenter (allowed within 7 days of the comment).
+export async function igPrivateReply(env, coach, commentId, text) {
+  const r = await fetch(`${GRAPH(env)}/${V}/${coach.ig_user_id}/messages`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${coach.ig_token}`, "content-type": "application/json" },
+    body: JSON.stringify({ recipient: { comment_id: commentId }, message: { text } }),
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error("ig_private_reply: " + JSON.stringify(d).slice(0, 300));
+  return d;
+}
+
+export async function igCommentReply(env, coach, commentId, text) {
+  try {
+    await fetch(`${GRAPH(env)}/${V}/${commentId}/replies`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${coach.ig_token}`, "content-type": "application/json" },
+      body: JSON.stringify({ message: text }),
+    });
+  } catch {}
+}
+
 export async function igProfile(env, coach, igsid) {
   try {
     const r = await fetch(`${GRAPH(env)}/${V}/${igsid}?fields=name,username&access_token=${encodeURIComponent(coach.ig_token)}`);
@@ -76,7 +98,7 @@ async function stripe(env, path, params, method = "POST") {
   const r = await fetch(STRIPE(env) + path, {
     method,
     headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, "content-type": "application/x-www-form-urlencoded" },
-    body: method === "GET" ? undefined : new URLSearchParams(params || {}),
+    body: method === "GET" || method === "DELETE" ? undefined : new URLSearchParams(params || {}),
   });
   const d = await r.json();
   if (!r.ok) throw new Error("stripe: " + (d.error?.message || r.status));
@@ -112,6 +134,7 @@ export async function stripeCheckout(env, coach, base) {
 
 export const stripeSession = (env, id) => stripe(env, `/v1/checkout/sessions/${encodeURIComponent(id)}?expand[]=subscription`, null, "GET");
 export const stripeSubscription = (env, id) => stripe(env, `/v1/subscriptions/${encodeURIComponent(id)}`, null, "GET");
+export const stripeCancel = (env, id) => stripe(env, `/v1/subscriptions/${encodeURIComponent(id)}`, null, "DELETE");
 export const stripePortal = (env, customer, returnUrl) => stripe(env, "/v1/billing_portal/sessions", { customer, return_url: returnUrl });
 
 export function statusFromSub(sub) {
