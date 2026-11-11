@@ -12,10 +12,6 @@ import { TALEN, isTaal } from "@/lib/talen";
 import "@/volgo-dialed.css";
 import "@/volgo-landing.css";
 
-/** Damien's number for the "Bel" link. "Book a call" goes to Instagram. */
-const NUMMER = "31619752432";
-const NUMMER_LEESBAAR = "+31 6 19 75 24 32";
-const BELLEN = `tel:+${NUMMER}`;
 
 /** What Volgo does, step by step, in one conversation (like a human appointment setter would). */
 const FLOW: [string, string, string][] = [
@@ -113,14 +109,6 @@ function BookACall({ groot }: { groot?: boolean }) {
     <a className={`vl-knop vw-book${groot ? " vw-book--groot" : ""}`} href={INSTAGRAM_PROFIEL} rel="noopener noreferrer" target="_blank">
       <InstagramIcoon />
       Book a call
-    </a>
-  );
-}
-
-function Bel() {
-  return (
-    <a className="vl-knop vl-knop--stil" href={BELLEN}>
-      Bel {NUMMER_LEESBAAR}
     </a>
   );
 }
@@ -457,7 +445,6 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
           <p className="vl-sub">Plan een korte call, dan laten we zien hoe Volgo werkt voor jouw bedrijf.</p>
           <div className="vl-acties">
             <BookACall groot />
-            <Bel />
           </div>
         </section>
       </main>
