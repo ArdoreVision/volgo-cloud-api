@@ -15,6 +15,8 @@ export type Plan = {
   badge?: string;
   /** One-time setup fee in cents, charged with the first payment (0 = none). */
   opstart: number;
+  /** Introductory offer for first-time customers: this price (cents) for the first `maanden` months, then `prijs`. */
+  intro?: { maanden: number; prijs: number; prijsTekst: string };
   /** Old plan, still valid for existing customers but no longer sold. */
   verborgen?: boolean;
   /** Headline limits, shown first on the plan card (like "300 Active Conversations"). */
@@ -62,6 +64,7 @@ export const PLANS: Record<PlanId, Plan> = {
     naam: "Website + Volgo",
     prijs: 49900,
     prijsTekst: "499",
+    intro: { maanden: 3, prijs: 29900, prijsTekst: "299" },
     proefDagen: 0,
     opstart: 0,
     tagline: "A new premium website built for you, with the Volgo chat assistant inside. Every warm customer in one app. You do nothing.",
@@ -139,8 +142,8 @@ export const START_STAPPEN: Record<PlanId, { titel: string; stappen: string[] }>
   pro: {
     titel: "We build your new website with the assistant inside",
     stappen: [
-      "Create your account and open the Website tab.",
-      "Tell us what you want, by chat or in a call. We build your site to measure.",
+      "Pay securely, then create your account. Your dashboard opens right away.",
+      "Open the Website tab and tell us what you want, by chat or in a call. We build your site to measure.",
       "You review it, we launch it on your own domain with Volgo built in.",
       "Your assistant is live on it from day one.",
     ],

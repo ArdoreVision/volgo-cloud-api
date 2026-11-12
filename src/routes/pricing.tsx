@@ -17,8 +17,8 @@ export const Route = createFileRoute("/pricing")({
   loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "", plan: "", eigenaar: false })),
   head: () => ({
     meta: [
-      { title: "Pricing · Volgo · Website + Volgo €499 per month" },
-      { name: "description", content: "Volgo pricing: one package, Website + Volgo, €499 per month. A new premium website with the Volgo chat assistant inside, and every warm customer in one app. No setup fee. Excl. VAT, monthly, cancel any time." },
+      { title: "Pricing · Volgo · Website + Volgo from €299 per month" },
+      { name: "description", content: "Volgo pricing: one package, Website + Volgo: €299 per month for the first 3 months, then €499 per month. A new premium website with the Volgo chat assistant inside, and every warm customer in one app. No setup fee. Excl. VAT, monthly, cancel any time." },
       { property: "og:url", content: "https://thevolgo.app/pricing" },
     ],
     links: [{ rel: "canonical", href: "https://thevolgo.app/pricing" }],
@@ -89,8 +89,13 @@ function Abonnement() {
                 <h2 className="v-plan__name">{p.naam}</h2>
                 <p className="v-plan__tag">{p.tagline}</p>
                 <p className="v-plan__price">
-                  <span>€{p.prijsTekst}</span> per month
+                  <span>€{!wisselen && p.intro ? p.intro.prijsTekst : p.prijsTekst}</span> per month
                 </p>
+                {!wisselen && p.intro ? (
+                  <p className="v-plan__kaart">
+                    First {p.intro.maanden} months · then €{p.prijsTekst} per month · the discount is applied automatically at checkout
+                  </p>
+                ) : null}
                 {!wisselen && p.proefDagen ? <p className="v-plan__kaart">First {p.proefDagen} days for €1 · cancel within {p.proefDagen} days and pay nothing more</p> : null}
                 {p.opstart ? <p className="v-plan__kaart">+ €{p.opstart / 100} one-time setup for your new website</p> : null}
                 <button
@@ -107,7 +112,7 @@ function Abonnement() {
                         : `Switch to ${p.naam}`
                       : p.proefDagen
                         ? `Start ${p.proefDagen} days for €1`
-                        : `Choose ${p.naam}`}
+                        : "Start now · pay securely"}
                 </button>
                 <p className="v-plan__kaart">{wisselen ? "Switches right away" : "Billed monthly · Cancel any time"}</p>
                 <ul className="v-plan__kern">
@@ -135,7 +140,7 @@ function Abonnement() {
             {ZICHTBAAR.map((id) => (
               <article className={`v-na__kaart v-na__kaart--${id}`} key={id}>
                 <p className="v-na__plan">
-                  {PLANS[id].naam} · €{PLANS[id].prijsTekst}/mo
+                  {PLANS[id].naam} · €{PLANS[id].intro ? `${PLANS[id].intro.prijsTekst}/mo for ${PLANS[id].intro.maanden} months, then €${PLANS[id].prijsTekst}/mo` : `${PLANS[id].prijsTekst}/mo`}
                 </p>
                 <h3>{START_STAPPEN[id].titel}</h3>
                 <ol>
@@ -156,7 +161,7 @@ function Abonnement() {
             <div>
               <h3>Install Volgo on your own website</h3>
               <p>
-                After signing up you'll find your personal line of code in your dashboard under <strong>Volgo → On your website</strong>. Paste it once
+                After signing up you'll find your personal line of code in your dashboard under <strong>Je website</strong>, with a step-by-step guide and a button that checks it is live. Paste it once
                 and Volgo appears on every page. Pick your platform:
               </p>
             </div>
@@ -165,7 +170,7 @@ function Abonnement() {
 
           <div className="v-na__regels">
             <p>
-              <strong>Volgo: 7 days for €1.</strong> After that it renews monthly at the full price. Cancel within the 7 days and you pay nothing more. No setup fee. <strong>Website + Volgo:</strong> €499 per month, no setup fee.
+              <strong>Website + Volgo:</strong> €299 per month for the first 3 months, then €499 per month. No setup fee. You pay the first month today, by card, on Stripe's secure payment page.
             </p>
             <p>
               <strong>Cancel any time.</strong> In your dashboard under Subscription. Volgo, your dashboard and the website we built (if you have one)
