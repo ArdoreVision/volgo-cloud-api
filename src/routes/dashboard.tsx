@@ -145,7 +145,7 @@ function Dashboard() {
  * First plan = 7 days for €1, then the full monthly price. Installing Volgo on your website only unlocks after that.
  */
 function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; eigenaar: boolean }) {
-  const [kies, setKies] = useState<PlanId>("start");
+  const [kies, setKies] = useState<PlanId>("pro");
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
   const navigate = useNavigate();

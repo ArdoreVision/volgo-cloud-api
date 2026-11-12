@@ -100,10 +100,10 @@ const VERGELIJK_RIJEN: { label: string; widget: string | boolean; platform: stri
   { label: "Warmth score (0–100) with the reason on every lead", widget: false, platform: false, volgo: true },
   { label: "Books appointments inside the chat", widget: false, platform: true, volgo: true },
   { label: "Hot-lead email plus a daily morning summary", widget: false, platform: "Inbox notifications", volgo: true },
-  { label: "Builds and hosts your website with Volgo inside", widget: false, platform: false, volgo: "Volgo + Website" },
+  { label: "Builds and hosts your website with Volgo inside", widget: false, platform: false, volgo: "Included" },
   { label: "Price on the website, no sales call", widget: true, platform: false, volgo: true },
   { label: "Commitment", widget: "Monthly", platform: "Annual contract", volgo: "Monthly, cancel any time" },
-  { label: "Typical cost per month", widget: "$0–100", platform: "$400–800 with add-ons", volgo: "€99, all-in" },
+  { label: "Typical cost per month", widget: "$0–100", platform: "$400–800 with add-ons", volgo: "€499, all-in" },
 ];
 
 export function Vergelijk() {

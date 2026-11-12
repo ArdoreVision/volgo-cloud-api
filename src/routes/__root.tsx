@@ -43,11 +43,10 @@ const LD_ORGANISATIE = {
         "Appointment booking inside the chat",
         "Hot-lead emails and daily morning summary",
         "Lead pipeline from new to quote to won",
-        "Custom website built and hosted with Volgo inside (Volgo + Website)",
+        "Custom website built and hosted with Volgo inside (Website + Volgo)",
       ],
       offers: [
-        { "@type": "Offer", name: "Volgo", price: "99", priceCurrency: "EUR", url: `${SITE}/pricing`, category: "subscription" },
-        { "@type": "Offer", name: "Volgo + Website", price: "99", priceCurrency: "EUR", url: `${SITE}/pricing`, category: "subscription" },
+        { "@type": "Offer", name: "Website + Volgo", price: "499", priceCurrency: "EUR", url: `${SITE}/pricing`, category: "subscription" },
       ],
     },
     { "@type": "WebSite", "@id": `${SITE}/#website`, url: SITE, name: "Volgo", publisher: { "@id": `${SITE}/#organization` }, inLanguage: "en" },

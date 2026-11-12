@@ -43,6 +43,7 @@ export const PLANS: Record<PlanId, Plan> = {
     prijsTekst: "99",
     proefDagen: PROEF_DAGEN,
     opstart: 0,
+    verborgen: true,
     tagline: "A chat assistant on your own website, 24/7. Every warm customer lands in one app, instead of scattered across your mail and apps.",
     kern: ["Chat assistant on your website, 24/7", "All warm customers in one app", "We set it up for you"],
     features: [
@@ -58,14 +59,14 @@ export const PLANS: Record<PlanId, Plan> = {
   },
   pro: {
     id: "pro",
-    naam: "Volgo + Website",
-    prijs: 9900,
-    prijsTekst: "99",
+    naam: "Website + Volgo",
+    prijs: 49900,
+    prijsTekst: "499",
     proefDagen: 0,
-    opstart: 99700,
-    tagline: "A new premium website built for you, with the Volgo chat assistant inside. You do nothing.",
+    opstart: 0,
+    tagline: "A new premium website built for you, with the Volgo chat assistant inside. Every warm customer in one app. You do nothing.",
     badge: "Most chosen",
-    kern: ["New premium website, built by Volgo", "Assistant on it, 24/7", "€997 one-time for your website"],
+    kern: ["New premium website, built by Volgo", "Assistant on it, 24/7", "No setup fee"],
     features: [
       "Everything in Volgo",
       "Website made to measure, via chat or call",
@@ -100,7 +101,7 @@ export const PLANS: Record<PlanId, Plan> = {
 };
 
 /** The plans that are sold now, in order. Premium stays valid for existing customers only. */
-export const ZICHTBAAR: PlanId[] = ["start", "pro"];
+export const ZICHTBAAR: PlanId[] = ["pro"];
 
 export const isPlan = (v: unknown): v is PlanId => v === "start" || v === "pro" || v === "premium";
 export const planVan = (v: unknown): Plan => (isPlan(v) ? PLANS[v] : PLANS.start);
@@ -118,7 +119,7 @@ export const VERGELIJKING: { label: string; start: string | boolean; pro: string
   { label: "Photos, video and animations on your website", start: false, pro: true, premium: true },
   { label: "Own chat photo and style, no Volgo branding", start: false, pro: true, premium: true },
   { label: "Users", start: "1", pro: "5", premium: "Unlimited" },
-  { label: "Setup fee", start: "€0", pro: "€997 one-time", premium: "—" },
+  { label: "Setup fee", start: "€0", pro: "€0", premium: "—" },
   { label: "Trial", start: "7 days for €1", pro: "—", premium: "—" },
   { label: "Domain name", start: "—", pro: "Not included", premium: "Not included" },
   { label: "Contract", start: "Monthly, cancel any time", pro: "Monthly, cancel any time", premium: "Monthly, cancel any time" },

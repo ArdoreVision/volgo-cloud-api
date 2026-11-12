@@ -91,7 +91,7 @@ export const maakUitnodiging = createServerFn({ method: "POST" })
         gemaild: false,
         fout:
           plan.limieten.leden === 1
-            ? "The Volgo plan is for one person. Upgrade to Volgo + Website to add your team."
+            ? "The Volgo plan is for one person. Upgrade to Website + Volgo to add your team."
             : `Your ${plan.naam} plan includes up to ${plan.limieten.leden} users. Upgrade to Premium for unlimited users.`,
       };
     }

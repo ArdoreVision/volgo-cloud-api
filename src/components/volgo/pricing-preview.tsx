@@ -28,7 +28,7 @@ export function PricingPreview() {
         <h2 className="v-h2 v-center" id="price-title">
           Simple pricing.
         </h2>
-        <p className="v-lede v-center">Volgo (€99/mo): the chat assistant on the website you already have, all warm customers in one app, 7 days for €1. Volgo + Website (€99/mo + €997 one-time): we build you a new premium website with Volgo inside. Monthly, cancel any time.</p>
+        <p className="v-lede v-center">One package, Website + Volgo (€499/mo, no setup fee): we build you a new premium website with Volgo inside. Monthly, cancel any time.</p>
       </header>
       <div className="v-plans" id="plans">
         {ZICHTBAAR.map((id) => {
