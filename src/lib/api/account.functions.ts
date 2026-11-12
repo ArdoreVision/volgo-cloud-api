@@ -323,6 +323,72 @@ export const maakAccountZonderPlan = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+// 3a. Invite for the first customers: the right code gives free access for 3 months, without payment.
+export const controleerInvite = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ code: z.string().max(60) }).parse(v))
+  .handler(async ({ data }) => {
+    const { DB } = bindings();
+    if (!DB) return { ok: false as const, message: "Please try again in a minute." };
+    const ipHash = await hashIp(getRequestHeader("cf-connecting-ip") ?? "onbekend");
+    const { binnenLimiet } = await import("../limiet.server");
+    if (!(await binnenLimiet(DB, `invite:${ipHash}`, 15, 10))) return { ok: false as const, message: "Too many attempts. Please try again in 15 minutes." };
+    const { inviteKlopt } = await import("../eerste.server");
+    return inviteKlopt(data.code) ? { ok: true as const } : { ok: false as const, message: "That code is not right. Check your invitation and try again." };
+  });
+
+export const maakInviteAccount = createServerFn({ method: "POST" })
+  .validator((v: unknown) =>
+    z
+      .object({
+        code: z.string().max(60),
+        naam: z.string().trim().min(2).max(100),
+        bedrijf: z.string().trim().min(2).max(120),
+        email: z.string().trim().toLowerCase().email().max(200),
+        wachtwoord: z.string().min(8).max(200),
+      })
+      .parse(v),
+  )
+  .handler(async ({ data }) => {
+    const { DB } = bindings();
+    if (!DB) return { ok: false as const, message: "Database unavailable." };
+    const { inviteKlopt, INVITE_DAGEN } = await import("../eerste.server");
+    const ipHash = await hashIp(getRequestHeader("cf-connecting-ip") ?? "onbekend");
+    const { binnenLimiet } = await import("../limiet.server");
+    if (!(await binnenLimiet(DB, `signup:${ipHash}`, 60, 5))) return { ok: false as const, message: "Too many new accounts from this network. Please try again later." };
+    if (!inviteKlopt(data.code)) return { ok: false as const, message: "That code is not right. Check your invitation and try again." };
+    const sterkte = beoordeel(data.wachtwoord, [data.naam, data.bedrijf, data.email]);
+    if (!sterkte.ok) return { ok: false as const, message: sterkte.tip };
+    const bestaat = await DB.prepare("SELECT id FROM gebruikers WHERE email = ?").bind(data.email).first();
+    if (bestaat) return { ok: false as const, message: "An account with this email address already exists. Please log in." };
+    const hash = await hashWachtwoord(data.wachtwoord);
+    // Full package (website + Volgo), free until proef_tot. No card, no Stripe: nothing is charged afterwards unless they choose a plan.
+    const res = await DB.prepare(
+      `INSERT INTO gebruikers (email, naam, bedrijf, wachtwoord, plan, status, proef_tot, stripe_klant, stripe_abonnement, testmodus) VALUES (?, ?, ?, ?, 'pro', 'proef', datetime('now', '+${INVITE_DAGEN} days'), '', '', 0)`,
+    )
+      .bind(data.email, data.naam, data.bedrijf, hash)
+      .run();
+    const id = Number(res.meta?.last_row_id);
+    await seedTeam(DB, id);
+    await zorgVoorKanaal(DB, id);
+    await verstuurMail(
+      VOLGO_INBOX,
+      `Invite used: ${data.bedrijf} (3 months free)`,
+      mailOpmaak(
+        `Invite used: ${esc(data.bedrijf)}`,
+        `<p><strong>${esc(data.naam)}</strong> · ${esc(data.email)}</p>
+         <p>Joined with your invite code: Website + Volgo, free for ${INVITE_DAGEN} days. You build their website.</p>
+         <p style="color:#64748b">Account #${id} · ${new Date().toISOString().replace("T", " ").slice(0, 16)} UTC</p>`,
+        { tekst: "Open admin", url: `${origin()}/admin` },
+      ),
+    ).catch(() => false);
+    {
+      const { push } = await import("../push.server");
+      await push(`🎟️ Invite used: ${data.bedrijf}`, `${data.naam} · ${data.email}\nWebsite + Volgo, free for ${INVITE_DAGEN} days. Time to build their website.`, { tags: ["tickets"], prioriteit: 4, link: `${origin()}/admin` }).catch(() => undefined);
+    }
+    await maakSessie(id);
+    return { ok: true as const };
+  });
+
 // 3b. Abonnement (opnieuw) activeren op een bestaand account, bv. na een verlopen proefperiode.
 export const activeerAbonnement = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ token: z.string().min(8).max(200) }).parse(v))
