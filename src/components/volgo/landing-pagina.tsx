@@ -5,90 +5,48 @@ import { Footer } from "./footer";
 import { VolgoMark } from "./logo";
 import { type RouteTaal } from "./route-teksten";
 import { TaalKiezer, Vertaler, kiesTaal, opgeslagenTaal, toonTaal } from "./taal";
-import { regioTaal } from "@/lib/api/vertaal.functions";
 import { startBetaling } from "@/lib/api/account.functions";
-import { PLANS } from "@/lib/plans";
+import { regioTaal } from "@/lib/api/vertaal.functions";
 import { TALEN, isTaal } from "@/lib/talen";
 import "@/volgo-dialed.css";
 import "@/volgo-landing.css";
 
-
-/** What Volgo does, step by step, in one conversation (like a human appointment setter would). */
-const FLOW: [string, string, string][] = [
-  ["1", "Begroet", "Elke bezoeker van je website krijgt binnen een seconde antwoord. Ook om 23:00, als jij offline bent."],
-  ["2", "Stelt jouw vragen", "Wat is je doel, waar loop je op vast, wanneer wil je starten? Volgo vraagt wat jij wilt weten voor een call."],
-  ["3", "Beantwoordt twijfels", "Hoe werkt je traject, voor wie is het, hoe lang duurt het: Volgo antwoordt met de info van jouw coaching."],
-  ["4", "Plant de call", "De lead kiest zelf een vrij moment. Het staat direct in je agenda, nooit dubbel geboekt."],
-  ["5", "Herinnert", "Een dag van tevoren krijgt de lead een herinnering. Minder no-shows."],
-  ["6", "Volgt op", "Niet geboekt? Na 1 en 3 dagen een persoonlijk bericht. Na de call een reviewverzoek."],
+/**
+ * Five pains of an online fitness coach, one per screen while scrolling: how it is now, and how it is with Volgo.
+ * Every "with Volgo" line is something the product really does (website chat, intake questions, calendar, reminder, follow-up).
+ */
+const PIJN: { nu: string[]; met: string; hoe: string }[] = [
+  { nu: ["Lead om 23:07.", "Jij antwoordt om 13:40.", "Weg."], met: "Antwoord in 1 seconde.", hoe: "Volgo antwoordt elke bezoeker van je website. Dag en nacht." },
+  { nu: ["DM's. Mail. WhatsApp.", "Waar stond die lead?"], met: "Alles in één app.", hoe: "Naam, nummer en doel van elke lead. Op één plek." },
+  { nu: ["Een setter is duur.", "En slaapt."], met: "Je website boekt de calls.", hoe: "Volgo stelt jouw intakevragen en zet de call in je agenda." },
+  { nu: ["Call gepland.", "Niemand komt."], met: "Herinnering. Automatisch.", hoe: "De dag ervoor krijgt je lead een bericht." },
+  { nu: ["\"Ik denk er nog even over na.\"", "Nooit meer iets gehoord."], met: "Opvolging. Vanzelf.", hoe: "Niet geboekt? Na 1 en 3 dagen een persoonlijk bericht." },
 ];
 
-const ZONDER_MET: [string, string][] = [
-  ["Leads verspreid over je DM's, mail, WhatsApp en losse notities", "Al je warme leads bij elkaar in één app"],
-  ["Zelf uitzoeken wie wat vroeg en wie je nog moet opvolgen", "Per lead: naam, nummer, doel en status op één plek"],
-  ["Bezoekers lezen je pagina en gaan weg zonder iets te zeggen", "Elke bezoeker wordt meteen aangesproken en geholpen"],
-  ["Vragen 's avonds en in het weekend blijven liggen", "24/7 antwoord, binnen een seconde"],
-  ["Heen en weer appen om een moment voor de call te vinden", "De lead plant zelf een vrij moment in je agenda"],
-  ["Mensen komen niet opdagen op de call", "Automatische herinnering de dag ervoor"],
-  ["Wie niet boekt, hoor je nooit meer", "Volgo volgt automatisch op na 1 en 3 dagen"],
-];
+const ZONDER = ["Leads die verdwijnen", "Uren in je DM's", "Zoeken wie wat vroeg", "No-shows", "Vergeten op te volgen"];
+const MET = ["Elke lead direct geholpen", "Calls staan vanzelf in je agenda", "Alles in één app", "Herinnering de dag ervoor", "Opvolging na 1 en 3 dagen"];
 
-const CONTROLE: [string, string][] = [
-  ["Alles in één app", "Geen gezoek meer in je DM's, mail of appjes. Gesprekken, aanvragen en calls met naam, nummer en doel staan op één plek, op je telefoon en computer."],
-  ["Meldingen op je telefoon", "Je weet het meteen als iemand chat of een call boekt."],
-  ["Zelf overnemen", "Lees elk gesprek live mee en neem het met één tik over."],
-  ["Jouw stijl", "Kies de naam, foto, kleur en de vragen van je assistent, passend bij jouw merk."],
-];
-
-/** Monthly plans: exactly what Volgo does in each. Prices excl. VAT. */
-const PLANNEN = [
-  {
-    id: "pro",
-    naam: "Website + Volgo",
-    voor: "Eén pakket voor coaches: een nieuwe premium website met de Volgo-chatassistent erin.",
-    prijs: "299",
-    extra: "De eerste 3 maanden · daarna €499 per maand · geen opstartkosten",
-    punten: [
-      "Chatassistent op je website, 24/7",
-      "Al je warme leads bij elkaar in één app",
-      "Stelt jouw intakevragen en plant calls direct in je agenda",
-      "Herinnering de dag voor de call en opvolging als iemand niet boekte",
-      "Nieuwe coachingwebsite op maat, gebouwd door ons team",
-      "Foto's, video en animaties met AI",
-      "Eigen foto en stijl voor je assistent, zonder Volgo-logo",
-      "Aanpassingen aan je website wanneer je wilt",
-      "Live binnen 24 uur na akkoord",
-    ],
-  },
-] as const;
-
-const VOORBEELDEN = [
-  { naam: "Badkamerstudio Noordzee", soort: "Voorbeeld uit een andere branche · website met Volgo erin", href: "/voorbeeld/badkamer.html", beeld: "/voorbeeld/badkamer.jpg" },
-  { naam: "Bluebonnet Build Co.", soort: "Voorbeeld uit een andere branche · website met Volgo erin", href: "/voorbeeld/contractor.html", beeld: "/voorbeeld/contractor.jpg" },
-];
+const KRIJGT = ["Nieuwe website, door ons gebouwd", "Assistent erin die je calls boekt, 24/7", "Eén app met al je warme leads", "Herinneringen en opvolging, automatisch"];
 
 const FAQ: [string, string][] = [
-  ["Voor wie is Volgo?", "Voor online coaches: fitness, business, mindset, lifestyle. Je krijgt leads via je content en verkoopt via een call. Volgo zorgt dat die calls geboekt worden en dat geen lead meer kwijtraakt."],
-  ["Wat is Volgo precies?", "Een chatassistent op je website. Hij praat met elke bezoeker, stelt jouw intakevragen en plant de call. Elke warme lead komt daarna in één app terecht, met naam, nummer en doel. Je hoeft niks meer uit te zoeken in je DM's, mail of appjes."],
-  ["Vervangt Volgo mijn setter?", "Volgo doet op je website wat een setter doet: antwoorden, vragen stellen, de call inplannen, herinneren en opvolgen. De call zelf en het sluiten doe jij."],
-  ["Beantwoordt Volgo ook mijn Instagram-DM's?", "Nee. Volgo werkt op je website. Zet de link naar je website in je bio en stuur leads uit je DM's daarheen: daar neemt Volgo het over en plant de call."],
-  ["Wat kost het?", "De eerste 3 maanden €299 per maand, daarna €499 per maand. Je krijgt een nieuwe premium website, gebouwd door ons team, met de Volgo-chatassistent erin. Plus de app waarin al je warme leads bij elkaar staan. Geen opstartkosten, maandelijks opzegbaar."],
-  ["Hoe begin ik?", "Klik op de knop en betaal veilig via Stripe. Daarna maak je je account en opent je dashboard meteen. Daar beantwoord je vijf korte vragen over je coaching en zie je stap voor stap hoe alles wordt aangezet. Je website bouwen wij voor je."],
-  ["Moet ik technisch zijn?", "Nee. Wij bouwen je website en zetten Volgo erin. Heb je al een website, dan plak je één regel code of doen wij het voor je."],
-  ["Kan ik zien hoe het werkt?", "Ja. Open de chat rechtsonder op deze pagina: dat is Volgo. Vraag iets of plan een call, precies zoals jouw leads het straks doen."],
-  ["Zit ik ergens aan vast?", "Nee. Je betaalt per maand en stopt wanneer je wilt."],
+  ["Voor wie is dit?", "Voor online coaches, vooral fitness coaches, die leads via content krijgen en verkopen via een call."],
+  ["Wat doet Volgo precies?", "Een chatassistent op je website. Hij antwoordt elke bezoeker, stelt jouw intakevragen en plant de call. Elke lead staat daarna in één app."],
+  ["Werkt het in mijn Instagram-DM's?", "Nee. Volgo werkt op je website. Zet je website in je bio en stuur leads daarheen: daar neemt Volgo het over."],
+  ["Wat kost het?", "€299 per maand voor de eerste 3 maanden, daarna €499 per maand. Excl. btw, geen opstartkosten, maandelijks opzegbaar. Je domeinnaam zit er niet bij."],
+  ["Wat gebeurt er na betalen?", "Je maakt je account, beantwoordt vijf korte vragen en je dashboard is open. Wij bouwen je website met Volgo erin."],
 ];
 
 /**
  * The one button on the page: straight to the secure Stripe payment page for the package.
  * If Stripe can't be opened, the visitor lands on the pricing page instead, so the button never dead-ends.
  */
-function StartKnop({ groot, ingelogd }: { groot?: boolean; ingelogd: boolean }) {
+function StartKnop({ ingelogd }: { ingelogd: boolean }) {
   const [bezig, setBezig] = useState(false);
   if (ingelogd)
     return (
-      <a className={`vl-knop vw-book${groot ? " vw-book--groot" : ""}`} href="/dashboard">
-        Naar je dashboard →
+      <a className="vc-cta" href="/dashboard">
+        <span>Naar je dashboard</span>
+        <i aria-hidden="true">→</i>
       </a>
     );
   async function start() {
@@ -101,27 +59,10 @@ function StartKnop({ groot, ingelogd }: { groot?: boolean; ingelogd: boolean }) 
     }
   }
   return (
-    <button className={`vl-knop vw-book${groot ? " vw-book--groot" : ""}`} data-notranslate="" disabled={bezig} onClick={() => void start()} type="button">
-      {bezig ? "One moment…" : "Start organizing your leads →"}
+    <button className="vc-cta" data-notranslate="" disabled={bezig} onClick={() => void start()} type="button">
+      <span>{bezig ? "One moment…" : "Start organizing your leads"}</span>
+      <i aria-hidden="true">→</i>
     </button>
-  );
-}
-
-/** 36-second explainer under the hero; phones get the portrait version. */
-function Film() {
-  const [smal, setSmal] = useState(false);
-  useEffect(() => {
-    const m = window.matchMedia("(max-width: 640px)");
-    setSmal(m.matches);
-    const op = () => setSmal(m.matches);
-    m.addEventListener("change", op);
-    return () => m.removeEventListener("change", op);
-  }, []);
-  const f = `nl${smal ? "-m" : ""}`;
-  return (
-    <figure className="vl-film" data-notranslate="">
-      <video aria-label="Wat Volgo doet, in 36 seconden" autoPlay className={smal ? "is-staand" : undefined} controls key={f} loop muted playsInline poster={`/film/poster-${f}.jpg?v=2`} preload="metadata" src={`/film/uitleg-${f}.mp4?v=2`} />
-    </figure>
   );
 }
 
@@ -207,11 +148,33 @@ function TaalPopup() {
   );
 }
 
-/** The landing page, written for online coaches: Volgo is an AI appointment setter inside your website. What it does, step by step, and the monthly plans. */
+
+/** Elements with data-rv fade and slide in when they scroll into view. Without JavaScript everything is simply visible. */
+function useOnthul() {
+  useEffect(() => {
+    const root = document.getElementById("vd");
+    if (!root || !("IntersectionObserver" in window)) return;
+    root.classList.add("vc-js");
+    const io = new IntersectionObserver(
+      (es) => {
+        for (const e of es) if (e.isIntersecting) e.target.classList.add("is-in");
+      },
+      { threshold: 0.25 },
+    );
+    root.querySelectorAll("[data-rv]").forEach((el) => io.observe(el));
+    return () => {
+      io.disconnect();
+      root.classList.remove("vc-js");
+    };
+  }, []);
+}
+
+/** The landing page for online fitness coaches: one pain per screen, few words, one button to the payment page. */
 export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: RouteTaal }) {
   void vast;
+  useOnthul();
   return (
-    <div className="volgo volgo--simpel volgo--dialed vl vw" id="vd">
+    <div className="volgo volgo--simpel volgo--dialed vl vw vc" id="vd">
       <header className="vl-top">
         <a className="vl-merk" href="/">
           <VolgoMark size={22} />
@@ -226,189 +189,134 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
       </header>
 
       <main>
-        <section aria-labelledby="vl-titel" className="vl-hero vw-hero">
-          <p className="vl-oog">Voor online coaches</p>
-          <h1 className="vl-titel" id="vl-titel">
-            Al je warme leads in één app. Je website boekt de calls.
+        <section aria-labelledby="vc-titel" className="vc-hero">
+          <p className="vc-oog">Voor fitness coaches</p>
+          <h1 className="vc-titel" id="vc-titel">
+            Je verliest leads
+            <br />
+            <em>terwijl je traint.</em>
           </h1>
-          <p className="vl-sub">
-            Volgo is een chatassistent op je coachingwebsite. Hij praat met elke bezoeker, stelt jouw intakevragen en plant de call in je agenda. Daarna staat elke lead in één app, met naam, nummer en doel. Geen gezoek meer in je DM's, mail en appjes. Website + Volgo voor €299 per maand, de eerste 3 maanden.
+          <p className="vc-sub">Volgo vangt ze op en boekt de call. Vanzelf.</p>
+          <StartKnop ingelogd={ingelogd} />
+          <p className="vc-klein">Website + Volgo · €299 per maand, eerste 3 maanden · maandelijks opzegbaar</p>
+          <p aria-hidden="true" className="vc-scroll">
+            ↓
           </p>
-          <div className="vl-acties">
-            <StartKnop groot ingelogd={ingelogd} />
-          </div>
-          <p className="vl-klein">Veilig betalen via Stripe · daarna maak je je account en opent je dashboard meteen · maandelijks opzegbaar</p>
-          <Film />
         </section>
 
-        <section aria-labelledby="vl-voorbeeld" className="vl-sectie">
-          <p className="vs-label vs-label--midden">Zo ziet het eruit</p>
-          <h2 className="vl-h2" id="vl-voorbeeld">
-            Links je lead. Rechts jij.
-          </h2>
-          <p className="vl-sub vl-center vl-breed">Een echt gesprek op je website, en wat jij daarna op je telefoon krijgt. Jij hebt niks gedaan.</p>
-          <div className="vs-duo">
-            <div className="vs-scherm">
-              <div className="vs-scherm__kop">
-                <span className="vs-dot" /> Op jouw website · 23:07
-              </div>
-              <div className="vs-chat">
-                <p className="vs-b vs-b--klant">Hoi, ik wil 10 kilo afvallen. Past jouw coaching bij mij?</p>
-                <p className="vs-b">Goed dat je er bent! Wat heb je al geprobeerd, en wanneer zou je willen starten?</p>
-                <p className="vs-b vs-b--klant">Van alles, maar ik hou het niet vol. Het liefst deze maand nog.</p>
-                <p className="vs-b">Dat hoor ik vaker, en juist daar helpt het traject bij. Zullen we een gratis kennismakingscall plannen? Wanneer komt het jou uit?</p>
-                <div className="vs-tijden">
-                  <span>Di 10:00</span>
-                  <span className="is-aan">Wo 14:00</span>
-                  <span>Do 09:00</span>
-                </div>
-                <p className="vs-b vs-b--klant">Woensdag 14:00. Ik ben Anna, 06 1234 5678.</p>
-                <p className="vs-geboekt">✓ Call gepland: woensdag 14:00</p>
-              </div>
-            </div>
-            <div className="vs-pijl" aria-hidden="true">→</div>
-            <div className="vs-scherm vs-scherm--app">
-              <div className="vs-melding">
-                <small>VOLGO · nu</small>
-                <b>Nieuwe call: Anna</b>
-                <span>Kennismaking · woensdag 14:00</span>
-              </div>
-              <div className="vs-afspraak">
-                <p className="vs-afspraak__kop">In je agenda</p>
-                <b>Kennismakingscall · Anna</b>
-                <span>Woensdag 14:00 – 14:30</span>
-                <dl>
-                  <dt>Telefoon</dt>
-                  <dd>06 1234 5678</dd>
-                  <dt>Doel</dt>
-                  <dd>10 kilo afvallen</dd>
-                  <dt>Start</dt>
-                  <dd>Deze maand</dd>
-                </dl>
-                <div className="vs-afspraak__knoppen">
-                  <span>Bellen</span>
-                  <span>WhatsApp</span>
-                </div>
-              </div>
-              <ul className="vs-straks">
-                <li>Dinsdag: Volgo stuurt Anna een herinnering</li>
-                <li>Na de call: Volgo vraagt om een review</li>
-              </ul>
-            </div>
-          </div>
-          <p className="vl-klein vs-probeer">Dit is een voorbeeldgesprek. Wil je het zelf zien? Open de chat rechtsonder op deze pagina. Dat is Volgo.</p>
-        </section>
-
-        <section aria-labelledby="vl-wat" className="vl-sectie">
-          <div className="vs-wat">
-            <p className="vs-label">Wat Volgo is</p>
-            <h2 className="vl-h2" id="vl-wat">
-              Een chatassistent die je leads verzamelt en je calls boekt.
-            </h2>
-            <p className="vl-sub vl-center vl-breed">
-              Nu zitten je leads overal: in je DM's, in je mail, op WhatsApp, in losse notities. Jij moet uitzoeken wie wat vroeg en wie je nog moet opvolgen. Dat kost uren die je liever aan je klanten besteedt. Volgo vangt elke bezoeker op je website op met een chat, stelt je intakevragen en plant de call. Elke warme lead staat daarna bij elkaar in één app. Jij opent die app en weet meteen met wie je gaat bellen.
+        {PIJN.map((p, i) => (
+          <section aria-label={`Probleem ${i + 1}`} className="vc-pijn" key={p.met}>
+            <p className="vc-nr" data-rv="">
+              0{i + 1} <span>/ 05</span>
             </p>
-          </div>
-        </section>
+            <div className="vc-nu" data-rv="">
+              <small>Nu</small>
+              <p>
+                {p.nu.map((r) => (
+                  <span key={r}>{r}</span>
+                ))}
+              </p>
+            </div>
+            <div className="vc-met" data-rv="">
+              <small>Met Volgo</small>
+              <h2>{p.met}</h2>
+              <p>{p.hoe}</p>
+            </div>
+          </section>
+        ))}
 
-        <section aria-labelledby="vl-flow" className="vl-sectie">
-          <h2 className="vl-h2" id="vl-flow">
-            Van bezoeker tot geboekte call, vanzelf
+        <section aria-labelledby="vc-bouw" className="vc-bouw">
+          <h2 className="vc-h2" data-rv="" id="vc-bouw">
+            Wij bouwen je website.
+            <br />
+            <em>Daar landen je leads.</em>
           </h2>
-          <ol className="vs-flow">
-            {FLOW.map(([nr, kop, tekst]) => (
-              <li key={kop}>
-                <span className="vs-flow__nr">{nr}</span>
-                <h3>{kop}</h3>
-                <p>{tekst}</p>
-              </li>
-            ))}
+          <div aria-hidden="true" className="vc-anim" data-rv="">
+            <div className="vc-site">
+              <div className="vc-site__balk">
+                <i />
+                <i />
+                <i />
+                <span>jouwcoaching.nl</span>
+              </div>
+              <div className="vc-site__blok vc-site__blok--kop" />
+              <div className="vc-site__blok" />
+              <div className="vc-site__blok vc-site__blok--kort" />
+              <div className="vc-site__chat">
+                <p className="is-lead">Past jouw coaching bij mij?</p>
+                <p>Wat is je doel? Dan plan ik je call.</p>
+                <p className="is-ok">✓ Call: woensdag 14:00</p>
+              </div>
+            </div>
+            <div className="vc-lijn">
+              <i />
+              <i />
+              <i />
+            </div>
+            <div className="vc-app">
+              <div className="vc-app__kop">Volgo · je leads</div>
+              <div className="vc-lead">
+                <b>Anna</b>
+                <span>10 kilo afvallen · call wo 14:00</span>
+              </div>
+              <div className="vc-lead">
+                <b>Mark</b>
+                <span>Spiermassa · call do 09:30</span>
+              </div>
+              <div className="vc-lead">
+                <b>Sara</b>
+                <span>Fit na zwangerschap · opvolging morgen</span>
+              </div>
+            </div>
+          </div>
+          <ol className="vc-drie" data-rv="">
+            <li>
+              <b>1</b> Wij bouwen je website
+            </li>
+            <li>
+              <b>2</b> Je leads landen daar
+            </li>
+            <li>
+              <b>3</b> Geen één vergeten
+            </li>
           </ol>
         </section>
 
-        <section aria-labelledby="vl-zm" className="vl-sectie">
-          <h2 className="vl-h2" id="vl-zm">
-            Zonder Volgo, met Volgo
+        <section aria-labelledby="vc-zm" className="vc-zm">
+          <h2 className="vc-h2" data-rv="" id="vc-zm">
+            Zonder. <em>Met.</em>
           </h2>
-          <div className="vs-zm" role="table">
-            <div className="vs-zm__kop" role="row">
-              <span role="columnheader">Zonder Volgo</span>
-              <span role="columnheader">Met Volgo</span>
-            </div>
-            {ZONDER_MET.map(([zonder, met]) => (
-              <div className="vs-zm__rij" key={zonder} role="row">
-                <span role="cell">{zonder}</span>
-                <span role="cell">{met}</span>
-              </div>
-            ))}
+          <div className="vc-zm__grid">
+            <ul className="vc-zm__zonder" data-rv="">
+              <li className="vc-zm__kop">Zonder Volgo</li>
+              {ZONDER.map((x) => (
+                <li key={x}>{x}</li>
+              ))}
+            </ul>
+            <ul className="vc-zm__met" data-rv="">
+              <li className="vc-zm__kop">Met Volgo</li>
+              {MET.map((x) => (
+                <li key={x}>{x}</li>
+              ))}
+            </ul>
           </div>
         </section>
 
-        <section aria-labelledby="vl-controle" className="vl-sectie">
-          <h2 className="vl-h2" id="vl-controle">
-            Jij houdt de controle
-          </h2>
-          <div className="vl-raster vw-diensten">
-            {CONTROLE.map(([kop, tekst], i) => (
-              <article key={kop}>
-                <span className="vl-nr">{i + 1}</span>
-                <h3>{kop}</h3>
-                <p>{tekst}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section aria-labelledby="vl-prijs" className="vl-sectie" id="prijzen">
-          <h2 className="vl-h2" id="vl-prijs">
-            Het aanbod
-          </h2>
-          <p className="vl-sub vl-center">Eén pakket voor coaches: website + Volgo. Startaanbod: €299 per maand voor de eerste 3 maanden, daarna €499 per maand. Excl. btw, geen opstartkosten, maandelijks opzegbaar.</p>
-          <div className="vl-plannen">
-            {PLANNEN.map((p) => (
-              <article className={`vl-plan${p.id === "pro" ? " is-uit" : ""}`} key={p.id}>
-                <div className="vl-plan__kop">
-                  <h3>{p.naam}</h3>
-                  {null}
-                </div>
-                <p className="vl-plan__voor">{p.voor}</p>
-                <p className="vl-plan__prijs">
-                  <b>€{p.prijs}</b> <span>per maand</span>
-                </p>
-                <p className="vl-plan__extra">{p.extra}</p>
-                <StartKnop ingelogd={ingelogd} />
-                <ul>
-                  {p.punten.map((x) => (
-                    <li key={x}>{x}</li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section aria-labelledby="vl-voorbeelden" className="vl-sectie">
-          <h2 className="vl-h2" id="vl-voorbeelden">
-            Zo werkt Volgo op een website
-          </h2>
-          <p className="vl-sub vl-center vl-breed">Twee voorbeelden uit een andere branche. Klik erop, open de chat rechtsonder en plan zelf een afspraak. Op jouw coachingwebsite werkt het precies zo.</p>
-          <div className="vw-voorbeelden">
-            {VOORBEELDEN.map((v) => (
-              <a className="vw-voorbeeld" href={v.href} key={v.naam} rel="noopener" target="_blank">
-                <div className="vw-browser">
-                  <div className="vl-kaart__kop">
-                    <i />
-                    <i />
-                    <i />
-                  </div>
-                  <img alt={`Voorbeeldwebsite ${v.naam}`} loading="lazy" src={v.beeld} />
-                </div>
-                <div className="vw-voorbeeld__tekst">
-                  <b>{v.naam}</b>
-                  <span>{v.soort}</span>
-                </div>
-              </a>
-            ))}
+        <section aria-labelledby="vc-aanbod" className="vc-aanbod" id="prijzen">
+          <div className="vc-kaart" data-rv="">
+            <p className="vc-oog">Startaanbod voor de eerste klanten</p>
+            <h2 id="vc-aanbod">Website + Volgo</h2>
+            <p className="vc-prijs">
+              <s>€499</s> <b>€299</b> <span>per maand</span>
+            </p>
+            <p className="vc-klein">Eerste 3 maanden, daarna €499 · excl. btw · geen opstartkosten · maandelijks opzegbaar</p>
+            <ul>
+              {KRIJGT.map((x) => (
+                <li key={x}>{x}</li>
+              ))}
+            </ul>
+            <StartKnop ingelogd={ingelogd} />
+            <p className="vc-klein">Veilig betalen via Stripe. Daarna opent je dashboard meteen.</p>
           </div>
         </section>
 
@@ -424,14 +332,14 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
           ))}
         </section>
 
-        <section aria-labelledby="vl-slot" className="vl-slot">
-          <h2 className="vl-h2" id="vl-slot">
-            Laat je website vanavond al calls boeken.
+        <section aria-labelledby="vc-slot" className="vc-slot">
+          <h2 className="vc-titel" data-rv="" id="vc-slot">
+            Jij traint.
+            <br />
+            <em>Volgo boekt.</em>
           </h2>
-          <p className="vl-sub">Betaal veilig via Stripe en maak je account. Je dashboard staat direct voor je klaar.</p>
-          <div className="vl-acties">
-            <StartKnop groot ingelogd={ingelogd} />
-          </div>
+          <StartKnop ingelogd={ingelogd} />
+          <p className="vc-klein">Liever eerst zien? Open de chat rechtsonder. Dat is Volgo.</p>
         </section>
       </main>
       <Footer />
