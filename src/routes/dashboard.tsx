@@ -17,6 +17,7 @@ import { OntwerpEditor } from "@/components/dash/ontwerp";
 import { Website } from "@/components/dash/website";
 import { AvaInstellen } from "@/components/dash/ava-instellen";
 import { Gesprekken } from "@/components/dash/gesprekken";
+import { Hulp } from "@/components/dash/hulp";
 import { Vandaag } from "@/components/dash/vandaag";
 import { MijnChat } from "@/components/dash/mijn-chat";
 import { Overview } from "@/components/dash/overview";
@@ -80,14 +81,15 @@ const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
     ],
   },
   {
+    kop: "Website",
     items: [
       ["website", "Website bouwen"],
       ["mijnsite", "Je website"],
-      ["kanalen", "Kanalen"],
       ["ava", "Je chat"],
-      ["instellingen", "Instellingen"],
+      ["kanalen", "Kanalen"],
     ],
   },
+  { items: [["instellingen", "Instellingen"]] },
 ];
 const TABS: [Tab, string][] = GROEPEN.flatMap((g) => g.items);
 type Toast = { id: number; titel: string; tekst: string; tab: Tab; heet?: boolean };
@@ -203,7 +205,7 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
           <div className="v-lock__vlak v-lock__vlak--laag" />
         </div>
         <section aria-labelledby="lock-titel" className="v-lock__kaart">
-          <p className="v-lock__hoi">Welcome{naam ? `, ${naam.split(" ")[0]}` : ""}</p>
+          <p className="v-lock__hoi">Welkom{naam ? `, ${naam.split(" ")[0]}` : ""}</p>
           <h1 id="lock-titel">{nieuw ? "Kies je pakket om te starten." : "Kies een pakket om verder te gaan."}</h1>
           <p className="v-lock__sub">
             {nieuw
@@ -224,8 +226,8 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
                       <b>€{nieuw && p.intro ? p.intro.prijsTekst : p.prijsTekst}</b>
                       <span className="v-lock__per">per maand</span>
                       {nieuw && p.intro ? <span className="v-lock__proef">Eerste {p.intro.maanden} maanden, daarna €{p.prijsTekst} per maand</span> : null}
-                      {nieuw && p.proefDagen ? <span className="v-lock__proef">First 7 days {euro1}</span> : null}
-                      {p.opstart ? <span className="v-lock__proef">+ €{p.opstart / 100} one-time setup</span> : null}
+                      {nieuw && p.proefDagen ? <span className="v-lock__proef">Eerste 7 dagen {euro1}</span> : null}
+                      {p.opstart ? <span className="v-lock__proef">+ €{p.opstart / 100} eenmalige opstart</span> : null}
                       <ul>
                         {p.kern.map((k) => (
                           <li key={k}>{k}</li>
@@ -240,7 +242,7 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
                 <p>
                   {nieuw && PLANS[kies].proefDagen
                     ? `Vandaag ${euro1}. Vanaf dag 8: €${PLANS[kies].prijsTekst} per maand voor Volgo ${PLANS[kies].naam}. Veilig betalen via Stripe.`
-                    : `${PLANS[kies].opstart ? `Today €${(PLANS[kies].prijs + PLANS[kies].opstart) / 100} (€${PLANS[kies].opstart / 100} setup + first month), then ` : ""}${nieuw && PLANS[kies].intro ? `€${PLANS[kies].intro.prijsTekst} per maand voor de eerste ${PLANS[kies].intro.maanden} maanden, daarna ` : ""}€${PLANS[kies].prijsTekst} per maand voor Volgo ${PLANS[kies].naam}. Veilig betalen via Stripe.`}
+                    : `${PLANS[kies].opstart ? `Vandaag €${(PLANS[kies].prijs + PLANS[kies].opstart) / 100} (€${PLANS[kies].opstart / 100} opstart + eerste maand), daarna ` : ""}${nieuw && PLANS[kies].intro ? `€${PLANS[kies].intro.prijsTekst} per maand voor de eerste ${PLANS[kies].intro.maanden} maanden, daarna ` : ""}€${PLANS[kies].prijsTekst} per maand voor Volgo ${PLANS[kies].naam}. Veilig betalen via Stripe.`}
                 </p>
                 <button className="v-lock__knop" disabled={bezig} onClick={() => void start()} type="button">
                   {bezig ? "Een moment…" : nieuw && PLANS[kies].proefDagen ? `Start 7 dagen voor ${euro1} →` : `Verder met ${PLANS[kies].naam} →`}
@@ -271,6 +273,9 @@ function Open({ data }: { data: DashData }) {
   const vorige = useRef<Tab>("home");
   const [meer, setMeer] = useState(false);
   const [admin, setAdmin] = useState(false);
+  // Bumped when the help assistant changed the website or the chat, so those pages show the new state.
+  const [hulpVersie, setHulpVersie] = useState(0);
+  const [hulpOpen, setHulpOpen] = useState(false);
   // The five profile questions: once for the owner before the dashboard, later changeable on the Train Volgo page.
   const [vragenOpen, setVragenOpen] = useState(false);
   const [leadFilter, setLeadFilter] = useState<"alle" | "nieuw" | "heet" | "open" | "klaar" | "archief">("alle");
@@ -501,6 +506,12 @@ function Open({ data }: { data: DashData }) {
       </aside>
 
       <div className="v-dash__profiel">
+        <button aria-expanded={hulpOpen} aria-label="Hulp: vraag het Volgo" className="v-hulp__knop" onClick={() => setHulpOpen(!hulpOpen)} type="button">
+          <svg aria-hidden="true" viewBox="0 0 20 20">
+            <path d="M10 2.5l1.7 4.3 4.3 1.7-4.3 1.7L10 14.5l-1.7-4.3L4 8.5l4.3-1.7zM15.5 13l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" />
+          </svg>
+          <span>Hulp</span>
+        </button>
         <button aria-label={thema === "donker" ? "Naar dagmodus" : "Naar nachtmodus"} className="v-thema v-rimpel-uit" onClick={wisselThema} title={thema === "donker" ? "Dagmodus" : "Nachtmodus"} type="button">
           <span className="v-thema__zon" aria-hidden="true">
             <svg fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeWidth="2" viewBox="0 0 24 24" width="18">
@@ -516,12 +527,12 @@ function Open({ data }: { data: DashData }) {
         </button>
         <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={plan.id !== "start"} planNaam={plan.naam} />
       </div>
-      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || tab === "website" ? " v-dash__main--full" : ""}`}>
+      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab === "website" || tab === "ava" ? `${tab}-${hulpVersie}` : tab} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || tab === "website" ? " v-dash__main--full" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
             {proefDagen > PROEF_DAGEN
-              ? `You're one of our first customers: free access, ${proefDagen} days left. Nothing is charged automatically. After that you choose whether to continue.`
-              : `Your trial has ${proefDagen} ${proefDagen === 1 ? "day" : "days"} left. After that, Volgo ${plan.naam} continues automatically at €${plan.prijsTekst} per month.`}
+              ? `Je bent een van onze eerste klanten: gratis toegang, nog ${proefDagen} dagen. Er wordt niets automatisch afgeschreven. Daarna kies je zelf of je doorgaat.`
+              : `Je proefperiode duurt nog ${proefDagen} ${proefDagen === 1 ? "dag" : "dagen"}. Daarna loopt Volgo ${plan.naam} automatisch door voor €${plan.prijsTekst} per maand.`}
           </p>
         ) : null}
 
@@ -745,6 +756,16 @@ function Open({ data }: { data: DashData }) {
           </>
         ) : null}
       </main>
+      <Hulp
+        gewijzigd={() => {
+          setHulpVersie((n) => n + 1);
+          void router.invalidate();
+        }}
+        open={hulpOpen}
+        openTab={(t) => setTab(t)}
+        pagina={tab === "instellingen" ? sub : tab}
+        sluit={() => setHulpOpen(false)}
+      />
       <nav aria-label="Hoofdmenu" className="v-mnav">
         {mobiel.map(([id, label]) => (
           <button aria-current={tab === id ? "page" : undefined} key={id} onClick={() => setTab(id)} type="button">
@@ -763,14 +784,14 @@ function Open({ data }: { data: DashData }) {
             <span aria-hidden="true" className="v-sheet__greep" />
             {GROEPEN.filter((gr) => gr.items.some(([id]) => !mobiel.some(([m]) => m === id))).map((groep) => (
               <div className="v-sheet__groep" key={groep.kop ?? "jij"}>
-                <p className="v-sheet__kop">{groep.kop ?? "Je website & account"}</p>
+                <p className="v-sheet__kop">{groep.kop ?? "Account"}</p>
                 {groep.items.filter(([id]) => !mobiel.some(([m]) => m === id)).map(([id]) => (
                   <button key={id} onClick={() => setTab(id)} type="button">
                     <Icon name={id} />
                     {TABS.find((t) => t[0] === id)?.[1]}
                   </button>
                 ))}
-                {groep.kop === "Werkplek" ? (
+                {groep.items.some(([id]) => id === "instellingen") ? (
                   <button onClick={() => setTab("abonnement")} type="button">
                     <Icon name="abonnement" />
                     Abonnement
