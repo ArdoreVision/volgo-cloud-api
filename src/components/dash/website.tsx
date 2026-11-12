@@ -1,169 +1,235 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 
-import { haalWebsite, stuurWebsiteAanvraag } from "@/lib/api/website.functions";
+import { bouwSite, haalBouwer, herstelSite, publiceerSite } from "@/lib/api/website.functions";
 
-import { PlanCall } from "./plan-call";
 import { Upsell } from "./upsell";
 
-type Data = Awaited<ReturnType<typeof haalWebsite>>;
+type Data = Awaited<ReturnType<typeof haalBouwer>>;
+type Bericht = { rol: "ik" | "volgo"; tekst: string };
 
-const STAPPEN: [string, string, string][] = [
-  ["ontvangen", "Request received", "We read your wishes and contact you within 1 working day, by chat or call."],
-  ["in_gesprek", "Planning together", "We agree on pages, texts, photos, video and style."],
-  ["in_aanbouw", "We're building", "Your website is being built with Volgo inside."],
-  ["review", "Your review", "You check everything and tell us what to change."],
-  ["live", "Live", "Your website is online on your own domain, Volgo included."],
-];
+const IDEEEN = ["Bouw een website voor mijn bedrijf", "Maak hem donker en strak", "Voeg een pagina-onderdeel met veelgestelde vragen toe", "Maak de knop bovenaan opvallender"];
 
+/** Website builder: tell Volgo in the chat what you want, see the result next to it, put it online with one button. */
 export function Website() {
   const [d, setD] = useState<Data | null>(null);
-  const [contact, setContact] = useState<"chat" | "call">("chat");
-  const [fout, setFout] = useState("");
+  const [chat, setChat] = useState<Bericht[]>([]);
+  const [tekst, setTekst] = useState("");
   const [bezig, setBezig] = useState(false);
+  const [fout, setFout] = useState("");
+  const [versie, setVersie] = useState(0);
+  const [mobiel, setMobiel] = useState(false);
+  const [toon, setToon] = useState<"chat" | "voorbeeld">("chat");
+  const [gekopieerd, setGekopieerd] = useState(false);
+  const eind = useRef<HTMLDivElement | null>(null);
 
+  const laad = () =>
+    haalBouwer().then((x) => {
+      setD(x);
+      setChat(x.chat);
+    });
   useEffect(() => {
-    void haalWebsite().then(setD);
+    void laad().catch(() => setFout("Laden lukte niet. Vernieuw de pagina."));
   }, []);
-  if (!d) return <p className="v-muted">Loading…</p>;
+  useEffect(() => {
+    eind.current?.scrollIntoView({ block: "end" });
+  }, [chat, bezig]);
 
-  if (!d.mag) {
+  if (!d) return <p className="v-muted">{fout || "Laden…"}</p>;
+
+  if (!d.mag)
     return (
       <>
         <header className="v-dash__head">
-          <h1>Website</h1>
-          <p>On Start, Volgo runs on your own website. Add it with one line of code under Volgo → On your website.</p>
+          <h1>Website bouwen</h1>
+          <p>Bouw je website door te chatten. Dit zit in Website + Volgo.</p>
         </header>
         <Upsell
-          knop="Upgrade to Website + Volgo"
-          punten={[
-            "A website made to measure, built by Volgo",
-            "Planned with you by chat or call",
-            "Photos, video and animations",
-            "Volgo built in, in your own style",
-          ]}
+          knop="Naar Website + Volgo"
+          punten={["Vertel in de chat wat je wilt", "Direct een voorbeeld ernaast", "Met één knop online", "Volgo-chat staat er al op"]}
           tag="Website + Volgo"
-          tekst="Let us build your website for you, with Volgo already inside. Your domain name is not included (about €10–20 a year); we help you register or connect it."
-          titel="Get a custom website"
+          tekst="Je bouwt je website door gewoon te typen wat je wilt. Volgo maakt hem, jij kijkt mee en past aan."
+          titel="Bouw je website in een chat"
         />
       </>
     );
-  }
 
-  async function verstuur(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    const v = (k: string) => String(fd.get(k) ?? "").trim();
-    if (v("wensen").length < 10) return setFout("Tell us a little more about the website you want.");
-    setBezig(true);
+  async function stuur(vraag: string) {
+    const v = vraag.trim();
+    if (v.length < 2 || bezig) return;
     setFout("");
-    const r = await stuurWebsiteAanvraag({
-      data: { contact, telefoon: v("telefoon"), domein: v("domein"), huidige_site: v("huidige_site"), wensen: v("wensen") },
-    }).catch(() => ({ ok: false as const, message: "Something went wrong. Please try again." }));
+    setTekst("");
+    setChat((c) => [...c, { rol: "ik", tekst: v }]);
+    setBezig(true);
+    const r = await bouwSite({ data: { tekst: v } }).catch(() => ({ ok: false as const, message: "Er ging iets mis. Probeer het opnieuw." }));
+    setBezig(false);
     if (!r.ok) {
       setFout(r.message);
-      setBezig(false);
+      setChat((c) => c.slice(0, -1));
+      setTekst(v);
       return;
     }
-    setD(await haalWebsite());
-    setBezig(false);
+    await laad();
+    if (r.gewijzigd) {
+      setVersie((n) => n + 1);
+      setToon("voorbeeld");
+    }
+  }
+  const verstuur = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    void stuur(tekst);
+  };
+  async function zetOnline(aan: boolean) {
+    await publiceerSite({ data: { aan } });
+    await laad();
+  }
+  async function ongedaan() {
+    const r = await herstelSite();
+    if (r.ok) {
+      await laad();
+      setVersie((n) => n + 1);
+    }
   }
 
-  const a = d.aanvraag;
-  const stap = a ? Math.max(0, STAPPEN.findIndex((s) => s[0] === a.status)) : -1;
+  const origin = typeof window === "undefined" ? "https://thevolgo.app" : window.location.origin;
+  const adres = d.slug ? `${origin}/s/${d.slug}` : "";
 
   return (
-    <>
-      <header className="v-dash__head">
-        <h1>Your website</h1>
-        <p>Included in {d.plan}: we build your website to measure, with Volgo inside. Your domain name is not included.</p>
+    <div className="v-bw">
+      <header className="v-bw__kop">
+        <div>
+          <h1>Website bouwen</h1>
+          <p>Typ wat je wilt. Volgo bouwt het, jij kijkt mee.</p>
+        </div>
+        {d.heeftSite ? (
+          <div className="v-bw__acties">
+            <span className={`v-bw__status${d.gepubliceerd ? " is-online" : ""}`}>{d.gepubliceerd ? "Online" : "Concept"}</span>
+            {d.heeftVorige ? (
+              <button className="v-bw__stil" disabled={bezig} onClick={() => void ongedaan()} type="button">
+                Ongedaan maken
+              </button>
+            ) : null}
+            {d.eigenaar ? (
+              d.gepubliceerd ? (
+                <button className="v-bw__stil" onClick={() => void zetOnline(false)} type="button">
+                  Offline halen
+                </button>
+              ) : (
+                <button className="v-bw__online" onClick={() => void zetOnline(true)} type="button">
+                  Online zetten
+                </button>
+              )
+            ) : null}
+          </div>
+        ) : null}
       </header>
 
-      {a ? (
-        <section className="v-dash__panel">
-          <ol className="v-tijdlijn">
-            {STAPPEN.map(([id, titel, uitleg], i) => (
-              <li className={i < stap ? "is-klaar" : i === stap ? "is-nu" : ""} key={id}>
-                <span aria-hidden="true">{i < stap ? "✓" : i + 1}</span>
-                <div>
-                  <strong>{titel}</strong>
-                  <small>{uitleg}</small>
-                </div>
-              </li>
+      {d.gepubliceerd && adres ? (
+        <p className="v-bw__adres">
+          <span>Je website staat online op</span>
+          <a href={adres} rel="noopener noreferrer" target="_blank">
+            {adres.replace(/^https?:\/\//, "")}
+          </a>
+          <button
+            onClick={() => {
+              void navigator.clipboard?.writeText(adres).then(() => {
+                setGekopieerd(true);
+                window.setTimeout(() => setGekopieerd(false), 1800);
+              });
+            }}
+            type="button"
+          >
+            {gekopieerd ? "Gekopieerd" : "Kopieer link"}
+          </button>
+        </p>
+      ) : null}
+
+      <div className="v-bw__wissel" role="tablist">
+        <button aria-selected={toon === "chat"} onClick={() => setToon("chat")} role="tab" type="button">
+          Chat
+        </button>
+        <button aria-selected={toon === "voorbeeld"} onClick={() => setToon("voorbeeld")} role="tab" type="button">
+          Voorbeeld
+        </button>
+      </div>
+
+      <div className="v-bw__vlak" data-toon={toon}>
+        <section aria-label="Chat met Volgo" className="v-bw__chat">
+          <div className="v-bw__berichten">
+            {chat.length === 0 ? (
+              <div className="v-bw__start">
+                <strong>Wat voor website wil je?</strong>
+                <p>Vertel het in je eigen woorden. Bijvoorbeeld wat je doet, voor wie, en welke stijl je mooi vindt. Volgo kent je bedrijf al uit je instellingen.</p>
+              </div>
+            ) : null}
+            {chat.map((b, i) => (
+              <p className={`v-bw__b v-bw__b--${b.rol}`} key={i}>
+                {b.tekst}
+              </p>
             ))}
-          </ol>
-          <div className="v-website__samenvatting">
-            <p>
-              <strong>Your request</strong> · we'll reach you by {a.contact === "call" ? "a call (send PLAN in a DM to @thevolgo.app on Instagram to pick a time)" : "chat and email"}
-              {a.domein ? ` · domain: ${a.domein}` : ""}
-            </p>
-            <p className="v-website__wensen">{a.wensen}</p>
-            <a
-              className="v-dash__logout"
-              href={`mailto:volgo.app@outlook.com?subject=${encodeURIComponent("My Volgo website")}&body=${encodeURIComponent(`Hi Volgo,\n\nAbout my website request:\n\n`)}`}
-            >
-              Message the Volgo team
-            </a>
+            {bezig ? (
+              <p className="v-bw__b v-bw__b--volgo v-bw__b--bezig">
+                <i />
+                <i />
+                <i />
+                <span>Volgo bouwt. Dit duurt ongeveer een minuut.</span>
+              </p>
+            ) : null}
+            <div ref={eind} />
           </div>
-        </section>
-      ) : (
-        <section className="v-dash__panel">
-          <div className="v-website__intro">
-            {STAPPEN.slice(0, 5).map(([id, titel], i) => (
-              <span key={id}>
-                <em>{i + 1}</em> {titel}
-              </span>
-            ))}
-          </div>
-          <form className="v-website__form" noValidate onSubmit={(e) => void verstuur(e)}>
-            <div className="v-fld">
-              <span className="v-fld__label">How would you like to plan your website?</span>
-              <div className="v-seg" role="radiogroup" aria-label="Contact">
-                <button aria-checked={contact === "chat"} aria-selected={contact === "chat"} onClick={() => setContact("chat")} role="radio" type="button">
-                  By chat / email
+          {!bezig ? (
+            <div className="v-bw__ideeen">
+              {(d.heeftSite ? IDEEEN.slice(1) : IDEEEN.slice(0, 1)).map((x) => (
+                <button key={x} onClick={() => void stuur(x)} type="button">
+                  {x}
                 </button>
-                <button aria-checked={contact === "call"} aria-selected={contact === "call"} onClick={() => setContact("call")} role="radio" type="button">
-                  In a call
-                </button>
-              </div>
+              ))}
             </div>
-            {contact === "call" ? <PlanCall compact /> : null}
-            <div className="v-row">
-              <div className="v-fld">
-                <label htmlFor="w-domein">
-                  Your domain <em>if you have one</em>
-                </label>
-                <input id="w-domein" name="domein" placeholder="yourbusiness.com" />
-              </div>
-              <div className="v-fld">
-                <label htmlFor="w-site">
-                  Current website <em>optional</em>
-                </label>
-                <input id="w-site" name="huidige_site" placeholder="https://…" />
-              </div>
-            </div>
-            <div className="v-fld">
-              <label htmlFor="w-wensen">What should your website do and look like?</label>
-              <textarea
-                id="w-wensen"
-                name="wensen"
-                placeholder="E.g. pages for our services, a photo gallery of our work, a short video on the homepage, calm green colors. Sites we like: …"
-                rows={6}
-              />
-            </div>
-            <p className="v-muted v-small">
-              Your domain name is not included in your plan (about €10–20 a year). No domain yet? We help you register one. If you cancel your
-              subscription, Volgo and the website stop at the end of your paid period.
-            </p>
-            {fout ? <p className="v-err">{fout}</p> : null}
-            <div className="v-form-actie">
-              <button className="v-btn-blauw" disabled={bezig} type="submit">
-                {bezig ? "Sending…" : "Request my website"}
-              </button>
-            </div>
+          ) : null}
+          {fout ? <p className="v-err v-bw__fout">{fout}</p> : null}
+          <form className="v-bw__invoer" onSubmit={verstuur}>
+            <textarea
+              aria-label="Je bericht"
+              disabled={bezig}
+              maxLength={3000}
+              onChange={(e) => setTekst(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  void stuur(tekst);
+                }
+              }}
+              placeholder={d.heeftSite ? "Wat wil je aanpassen?" : "Beschrijf je website…"}
+              rows={1}
+              value={tekst}
+            />
+            <button aria-label="Versturen" disabled={bezig || tekst.trim().length < 2} type="submit">
+              ↑
+            </button>
           </form>
         </section>
-      )}
-    </>
+
+        <section aria-label="Voorbeeld van je website" className="v-bw__voorbeeld">
+          <div className="v-bw__balk">
+            <div className="v-seg" role="radiogroup" aria-label="Schermgrootte">
+              <button aria-checked={!mobiel} aria-selected={!mobiel} onClick={() => setMobiel(false)} role="radio" type="button">
+                Computer
+              </button>
+              <button aria-checked={mobiel} aria-selected={mobiel} onClick={() => setMobiel(true)} role="radio" type="button">
+                Telefoon
+              </button>
+            </div>
+            {d.heeftSite ? (
+              <a href="/api/site-concept" rel="noopener noreferrer" target="_blank">
+                Open groot
+              </a>
+            ) : null}
+          </div>
+          <div className={`v-bw__scherm${mobiel ? " is-mobiel" : ""}`}>
+            <iframe key={versie} src="/api/site-concept" title="Voorbeeld van je website" />
+          </div>
+        </section>
+      </div>
+    </div>
   );
 }

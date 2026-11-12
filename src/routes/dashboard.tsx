@@ -81,6 +81,7 @@ const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
   },
   {
     items: [
+      ["website", "Website bouwen"],
       ["mijnsite", "Je website"],
       ["kanalen", "Kanalen"],
       ["ava", "Je chat"],
@@ -283,8 +284,8 @@ function Open({ data }: { data: DashData }) {
       .then((a) => setProfiel(leesProfiel(a.inst.profiel)))
       .catch(() => setProfiel({}));
   }, [tab, vragenOpen]);
-  // Day or night mode: remembered per device, follows the phone/computer setting the first time.
-  const [thema, setThema] = useState<"licht" | "donker">("licht");
+  // Day or night mode: remembered per device. Night (the landing page look) is the default.
+  const [thema, setThema] = useState<"licht" | "donker">("donker");
   useEffect(() => {
     let t: string | null = null;
     try {
@@ -292,7 +293,7 @@ function Open({ data }: { data: DashData }) {
     } catch {
       /* private mode */
     }
-    setThema(t === "donker" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "donker" : "licht");
+    setThema(t === "licht" ? "licht" : "donker");
   }, []);
   useEffect(() => {
     document.documentElement.style.colorScheme = thema === "donker" ? "dark" : "light";
@@ -345,7 +346,7 @@ function Open({ data }: { data: DashData }) {
   useEffect(() => {
     const ga = () => {
       const h = window.location.hash.slice(1);
-      if (["home", "gesprekken", "agenda", "aanvragen", "betalingen", "automatisch", "reviews", "verkeer", "mijnsite", "kanalen", "ava", "instellingen", "meldingen", "account", "abonnement"].includes(h)) setTab(h);
+      if (["home", "gesprekken", "agenda", "aanvragen", "betalingen", "automatisch", "reviews", "verkeer", "mijnsite", "website", "kanalen", "ava", "instellingen", "meldingen", "account", "abonnement"].includes(h)) setTab(h);
     };
     ga();
     window.addEventListener("hashchange", ga);
@@ -515,7 +516,7 @@ function Open({ data }: { data: DashData }) {
         </button>
         <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={plan.id !== "start"} planNaam={plan.naam} />
       </div>
-      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${tab === "team" && plan.limieten.teamChat ? " v-dash__main--full" : ""}`}>
+      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || tab === "website" ? " v-dash__main--full" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
             {proefDagen > PROEF_DAGEN

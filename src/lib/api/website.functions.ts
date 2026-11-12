@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { huidigeGebruiker } from "../auth.server";
 import { bindings } from "../bindings.server";
+import { bouwBeurt, haalSite, vorigeSite } from "../bouwer.server";
+import { binnenLimiet } from "../limiet.server";
 import { actieveGebruiker } from "../toegang.server";
 import { planVoorTeam } from "../limieten.server";
 import { VOLGO_INBOX, esc, mailOpmaak, verstuurMail } from "../mail.server";
@@ -54,3 +56,45 @@ export const stuurWebsiteAanvraag = createServerFn({ method: "POST" })
     );
     return { ok: true as const, message: "" };
   });
+
+/** Website builder by chat: the draft, the conversation and whether it is online. */
+export const haalBouwer = createServerFn({ method: "GET" }).handler(async () => {
+  const { g, DB, plan } = await sessie();
+  const site = plan.limieten.website ? await haalSite(DB, g.team_id) : null;
+  return {
+    mag: plan.limieten.website,
+    eigenaar: g.rol === "eigenaar",
+    bedrijf: g.bedrijf,
+    heeftSite: Boolean(site?.html),
+    chat: site?.chat ?? [],
+    slug: site?.slug ?? "",
+    gepubliceerd: site?.gepubliceerd ?? false,
+    heeftVorige: site?.heeftVorige ?? false,
+  };
+});
+
+export const bouwSite = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ tekst: z.string().trim().min(2).max(3000) }).parse(v))
+  .handler(async ({ data }) => {
+    const { g, DB, plan } = await sessie();
+    if (!plan.limieten.website) return { ok: false as const, message: "De websitebouwer zit in Website + Volgo." };
+    if (!(await binnenLimiet(DB, `bouw:${g.team_id}`, 60 * 24, 40))) return { ok: false as const, message: "Je hebt vandaag het maximum aantal aanpassingen bereikt. Morgen kun je weer verder." };
+    return bouwBeurt(DB, g.team_id, data.tekst);
+  });
+
+export const publiceerSite = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ aan: z.boolean() }).parse(v))
+  .handler(async ({ data }) => {
+    const { g, DB, plan } = await sessie();
+    if (!plan.limieten.website || g.rol !== "eigenaar") return { ok: false as const };
+    const site = await haalSite(DB, g.team_id);
+    if (!site?.html) return { ok: false as const };
+    await DB.prepare("UPDATE sites SET gepubliceerd = ? WHERE team_id = ?").bind(data.aan ? 1 : 0, g.team_id).run();
+    return { ok: true as const };
+  });
+
+export const herstelSite = createServerFn({ method: "POST" }).handler(async () => {
+  const { g, DB, plan } = await sessie();
+  if (!plan.limieten.website) return { ok: false as const };
+  return { ok: await vorigeSite(DB, g.team_id) };
+});
