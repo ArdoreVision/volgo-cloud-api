@@ -264,7 +264,7 @@
 #vd button.vl-knop { border: 0; cursor: pointer; font-family: inherit; }
 #vd button.vl-knop:disabled { opacity: 0.7; cursor: default; }
 
-/* ---- Landing for fitness coaches (.vc): one pain per screen, big words, one button ---- */
+/* ---- General landing (.vc): one pain per screen, big words, one button ---- */
 #vd.vc { --vc: #c8ff3e; }
 #vd.vc main { overflow-x: clip; }
 #vd.vc main > section { box-sizing: border-box; }
