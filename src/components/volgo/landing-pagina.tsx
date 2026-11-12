@@ -12,26 +12,27 @@ import "@/volgo-dialed.css";
 import "@/volgo-landing.css";
 
 /**
- * Five pains of an online fitness coach, one per screen while scrolling: how it is now, and how it is with Volgo.
+ * Five pains of anyone who plans appointments with customers, one per screen while scrolling: how it is now, and how it is with Volgo.
  * Every "with Volgo" line is something the product really does (website chat, intake questions, calendar, reminder, follow-up).
+ * The page names no niche on purpose: Volgo is for everyone who schedules appointments.
  */
 const PIJN: { nu: string[]; met: string; hoe: string }[] = [
-  { nu: ["Lead om 23:07.", "Jij antwoordt om 13:40.", "Weg."], met: "Antwoord in 1 seconde.", hoe: "Volgo antwoordt elke bezoeker van je website. Dag en nacht." },
-  { nu: ["DM's. Mail. WhatsApp.", "Waar stond die lead?"], met: "Alles in één app.", hoe: "Naam, nummer en doel van elke lead. Op één plek." },
-  { nu: ["Een setter is duur.", "En slaapt."], met: "Je website boekt de calls.", hoe: "Volgo stelt jouw intakevragen en zet de call in je agenda." },
-  { nu: ["Call gepland.", "Niemand komt."], met: "Herinnering. Automatisch.", hoe: "De dag ervoor krijgt je lead een bericht." },
+  { nu: ["Aanvraag om 23:07.", "Jij antwoordt om 13:40.", "Weg."], met: "Antwoord in 1 seconde.", hoe: "Volgo antwoordt elke bezoeker van je website. Dag en nacht." },
+  { nu: ["Mail. WhatsApp. Telefoon.", "Waar stond die aanvraag?"], met: "Alles in één app.", hoe: "Naam, nummer en vraag van elke klant. Op één plek." },
+  { nu: ["Afspraken plannen kost uren.", "Heen en weer appen."], met: "Je website plant de afspraken.", hoe: "Volgo stelt jouw vragen en zet de afspraak in je agenda." },
+  { nu: ["Afspraak gepland.", "Niemand komt."], met: "Herinnering. Automatisch.", hoe: "De dag ervoor krijgt je klant een bericht." },
   { nu: ["\"Ik denk er nog even over na.\"", "Nooit meer iets gehoord."], met: "Opvolging. Vanzelf.", hoe: "Niet geboekt? Na 1 en 3 dagen een persoonlijk bericht." },
 ];
 
-const ZONDER = ["Leads die verdwijnen", "Uren in je DM's", "Zoeken wie wat vroeg", "No-shows", "Vergeten op te volgen"];
-const MET = ["Elke lead direct geholpen", "Calls staan vanzelf in je agenda", "Alles in één app", "Herinnering de dag ervoor", "Opvolging na 1 en 3 dagen"];
+const ZONDER = ["Aanvragen die verdwijnen", "Uren heen en weer appen", "Zoeken wie wat vroeg", "No-shows", "Vergeten op te volgen"];
+const MET = ["Elke aanvraag direct geholpen", "Afspraken staan vanzelf in je agenda", "Alles in één app", "Herinnering de dag ervoor", "Opvolging na 1 en 3 dagen"];
 
-const KRIJGT = ["Nieuwe website, door ons gebouwd", "Assistent erin die je calls boekt, 24/7", "Eén app met al je warme leads", "Herinneringen en opvolging, automatisch"];
+const KRIJGT = ["Nieuwe website, door ons gebouwd", "Assistent erin die je afspraken plant, 24/7", "Eén app met al je aanvragen", "Herinneringen en opvolging, automatisch"];
 
 const FAQ: [string, string][] = [
-  ["Voor wie is dit?", "Voor online coaches, vooral fitness coaches, die leads via content krijgen en verkopen via een call."],
-  ["Wat doet Volgo precies?", "Een chatassistent op je website. Hij antwoordt elke bezoeker, stelt jouw intakevragen en plant de call. Elke lead staat daarna in één app."],
-  ["Werkt het in mijn Instagram-DM's?", "Nee. Volgo werkt op je website. Zet je website in je bio en stuur leads daarheen: daar neemt Volgo het over."],
+  ["Voor wie is dit?", "Voor iedereen die afspraken inplant met klanten."],
+  ["Wat doet Volgo precies?", "Een chatassistent op je website. Hij antwoordt elke bezoeker, stelt jouw vragen en plant de afspraak. Elke aanvraag staat daarna in één app."],
+  ["Werkt het ook in WhatsApp of Instagram?", "Nee. Volgo werkt op je website. Stuur mensen naar je website: daar neemt Volgo het over."],
   ["Wat kost het?", "€299 per maand voor de eerste 3 maanden, daarna €499 per maand. Excl. btw, geen opstartkosten, maandelijks opzegbaar. Je domeinnaam zit er niet bij."],
   ["Wat gebeurt er na betalen?", "Je maakt je account, beantwoordt vijf korte vragen en je dashboard is open. Wij bouwen je website met Volgo erin."],
 ];
@@ -169,7 +170,7 @@ function useOnthul() {
   }, []);
 }
 
-/** The landing page for online fitness coaches: one pain per screen, few words, one button to the payment page. */
+/** The landing page, general on purpose (no niche): one pain per screen, few words, one button to the payment page. */
 export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: RouteTaal }) {
   void vast;
   useOnthul();
@@ -190,13 +191,13 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
 
       <main>
         <section aria-labelledby="vc-titel" className="vc-hero">
-          <p className="vc-oog">Voor fitness coaches</p>
+          <p className="vc-oog">Voor iedereen die afspraken inplant</p>
           <h1 className="vc-titel" id="vc-titel">
-            Je verliest leads
+            Je mist afspraken
             <br />
-            <em>terwijl je traint.</em>
+            <em>terwijl je werkt.</em>
           </h1>
-          <p className="vc-sub">Volgo vangt ze op en boekt de call. Vanzelf.</p>
+          <p className="vc-sub">Volgo vangt elke aanvraag op en plant de afspraak. Vanzelf.</p>
           <StartKnop ingelogd={ingelogd} />
           <p className="vc-klein">Website + Volgo · €299 per maand, eerste 3 maanden · maandelijks opzegbaar</p>
           <p aria-hidden="true" className="vc-scroll">
@@ -229,7 +230,7 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
           <h2 className="vc-h2" data-rv="" id="vc-bouw">
             Wij bouwen je website.
             <br />
-            <em>Daar landen je leads.</em>
+            <em>Daar komen je aanvragen binnen.</em>
           </h2>
           <div aria-hidden="true" className="vc-anim" data-rv="">
             <div className="vc-site">
@@ -237,15 +238,15 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
                 <i />
                 <i />
                 <i />
-                <span>jouwcoaching.nl</span>
+                <span>jouwbedrijf.nl</span>
               </div>
               <div className="vc-site__blok vc-site__blok--kop" />
               <div className="vc-site__blok" />
               <div className="vc-site__blok vc-site__blok--kort" />
               <div className="vc-site__chat">
-                <p className="is-lead">Past jouw coaching bij mij?</p>
-                <p>Wat is je doel? Dan plan ik je call.</p>
-                <p className="is-ok">✓ Call: woensdag 14:00</p>
+                <p className="is-lead">Kan ik deze week nog terecht?</p>
+                <p>Waarmee kan ik je helpen? Dan plan ik je afspraak.</p>
+                <p className="is-ok">✓ Afspraak: woensdag 14:00</p>
               </div>
             </div>
             <div className="vc-lijn">
@@ -254,18 +255,18 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
               <i />
             </div>
             <div className="vc-app">
-              <div className="vc-app__kop">Volgo · je leads</div>
+              <div className="vc-app__kop">Volgo · je aanvragen</div>
               <div className="vc-lead">
                 <b>Anna</b>
-                <span>10 kilo afvallen · call wo 14:00</span>
+                <span>Kennismaking · afspraak wo 14:00</span>
               </div>
               <div className="vc-lead">
                 <b>Mark</b>
-                <span>Spiermassa · call do 09:30</span>
+                <span>Offerte · afspraak do 09:30</span>
               </div>
               <div className="vc-lead">
                 <b>Sara</b>
-                <span>Fit na zwangerschap · opvolging morgen</span>
+                <span>Vraag over prijzen · opvolging morgen</span>
               </div>
             </div>
           </div>
@@ -274,7 +275,7 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
               <b>1</b> Wij bouwen je website
             </li>
             <li>
-              <b>2</b> Je leads landen daar
+              <b>2</b> Je aanvragen komen daar binnen
             </li>
             <li>
               <b>3</b> Geen één vergeten
@@ -334,9 +335,9 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
 
         <section aria-labelledby="vc-slot" className="vc-slot">
           <h2 className="vc-titel" data-rv="" id="vc-slot">
-            Jij traint.
+            Jij werkt.
             <br />
-            <em>Volgo boekt.</em>
+            <em>Volgo plant.</em>
           </h2>
           <StartKnop ingelogd={ingelogd} />
           <p className="vc-klein">Liever eerst zien? Open de chat rechtsonder. Dat is Volgo.</p>

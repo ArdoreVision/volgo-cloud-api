@@ -4,8 +4,8 @@ import { LandingPagina } from "@/components/volgo/landing-pagina";
 import { isIngelogd } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
 
-const TITEL = "Volgo · Voor online coaches: al je warme leads in één app";
-const OMSCHRIJVING = "Voor online coaches: een nieuwe website met een chatassistent erin die elke bezoeker antwoordt, je intakevragen stelt en de call boekt. Al je warme leads in één app.";
+const TITEL = "Volgo · Je website plant je afspraken, vanzelf";
+const OMSCHRIJVING = "Voor iedereen die afspraken inplant: een nieuwe website met een chatassistent erin die elke bezoeker antwoordt, je vragen stelt en de afspraak plant. Al je aanvragen in één app.";
 
 export const Route = createFileRoute("/")({
   loader: async () => ({ ingelogd: await isIngelogd().catch(() => false) }),
