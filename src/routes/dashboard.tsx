@@ -34,7 +34,7 @@ import { LeadDetail } from "@/components/dash/lead-detail";
 import { haalAva } from "@/lib/api/ava.functions";
 import { leesProfiel, type Profiel } from "@/lib/profiel-vragen";
 import { checkNieuw } from "@/lib/api/ava.functions";
-import { PLANS, PROEF_PRIJS, isPlan, type PlanId, ZICHTBAAR } from "@/lib/plans";
+import { PLANS, PROEF_DAGEN, PROEF_PRIJS, isPlan, type PlanId, ZICHTBAAR } from "@/lib/plans";
 import "@/volgo.css";
 import "@/volgo-donker.css";
 
@@ -517,7 +517,9 @@ function Open({ data }: { data: DashData }) {
       <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${tab === "team" && plan.limieten.teamChat ? " v-dash__main--full" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
-            Your trial has {proefDagen} {proefDagen === 1 ? "day" : "days"} left. After that, Volgo {plan.naam} continues automatically at €{plan.prijsTekst} per month.
+            {proefDagen > PROEF_DAGEN
+              ? `You're one of our first customers: free access, ${proefDagen} days left. Nothing is charged automatically. After that you choose whether to continue.`
+              : `Your trial has ${proefDagen} ${proefDagen === 1 ? "day" : "days"} left. After that, Volgo ${plan.naam} continues automatically at €${plan.prijsTekst} per month.`}
           </p>
         ) : null}
 
