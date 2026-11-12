@@ -19,7 +19,7 @@ WHAT VOLGO IS
   - Analytics: today, week, month, 60 and 90 days.
   - Notifications: instant alerts in the dashboard, an email when a hot lead comes in, and a short morning summary email.
 - Setup is done for you; the business only tells Volgo about its services once.
-- Plans (per month, excl. VAT, cancel monthly): Assistant €197 (Volgo on the customer's own website, answers 24/7, books phone, visit and chat appointments in the Volgo calendar, notification when someone chats, set up for them; starts with 7 days for €1). Complete €297 plus €995 one-time setup (Volgo builds a new premium website with Volgo inside, own chat style, up to 5 users). Billed monthly, cancel any time. Start a plan at /pricing; existing customers log in at /login.
+- Plans (per month, excl. VAT, cancel monthly): Volgo €99 (a chat assistant on the customer's own website, answers 24/7, books phone, visit and chat appointments in the Volgo calendar, notification when someone chats, set up for them; keeps every warm customer together in one app instead of scattered across mail and apps; starts with 7 days for €1). Volgo + Website €99 plus €997 one-time setup (Volgo builds a new premium website with Volgo inside, own chat style, up to 5 users). Billed monthly, cancel any time. Start a plan at /pricing; existing customers log in at /login.
 - Privacy: visitor data is only used to follow up on their request; there is a data processing agreement (/dpa).
 
 YOUR GOAL

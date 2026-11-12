@@ -35,14 +35,14 @@ export function Website() {
           <p>On Start, Volgo runs on your own website. Add it with one line of code under Volgo → On your website.</p>
         </header>
         <Upsell
-          knop="Upgrade to Complete"
+          knop="Upgrade to Volgo + Website"
           punten={[
             "A website made to measure, built by Volgo",
             "Planned with you by chat or call",
             "Photos, video and animations",
             "Volgo built in, in your own style",
           ]}
-          tag="Complete"
+          tag="Volgo + Website"
           tekst="Let us build your website for you, with Volgo already inside. Your domain name is not included (about €10–20 a year); we help you register or connect it."
           titel="Get a custom website"
         />
