@@ -46,8 +46,8 @@ const PLANNEN = [
     id: "pro",
     naam: "Website + Volgo",
     voor: "Eén pakket: een nieuwe premium website met de Volgo-chatassistent erin.",
-    prijs: PLANS.pro.prijsTekst,
-    extra: "Geen opstartkosten · alles inbegrepen",
+    prijs: "299",
+    extra: "De eerste 3 maanden · daarna €499 per maand · geen opstartkosten",
     knop: "Book a call",
     href: "",
     punten: [
@@ -72,7 +72,7 @@ const VOORBEELDEN = [
 const FAQ: [string, string][] = [
   ["Wat is een appointment setter?", "Iemand die nieuwe klanten te woord staat, uitzoekt wat ze nodig hebben en een afspraak met je inplant. Volgo doet precies dat, maar dan met AI in je website, dag en nacht."],
   ["Wat is Volgo precies?", "Volgo is een chatassistent op je website. Hij praat met elke bezoeker, stelt jouw vragen en plant de afspraak. Elke warme klant komt daarna in één app terecht, met naam, nummer en wat ze willen. Je hoeft niks meer uit te vogelen in je mail of tussen al je appjes."],
-  ["Wat krijg ik voor €499 per maand?", "Een nieuwe premium website, gebouwd door ons team, met de Volgo-chatassistent erin. Plus de app waarin al je warme klanten bij elkaar staan. Geen opstartkosten, maandelijks opzegbaar. Buiten Europa is het $499 per maand."],
+  ["Wat kost het?", "De eerste 3 maanden €299 per maand, daarna €499 per maand. Je krijgt een nieuwe premium website, gebouwd door ons team, met de Volgo-chatassistent erin. Plus de app waarin al je warme klanten bij elkaar staan. Geen opstartkosten, maandelijks opzegbaar. Buiten Europa is het $299 en daarna $499 per maand."],
   ["Moet ik technisch zijn?", "Nee. Je plakt één regel code in je website (stappen voor WordPress, Wix, Squarespace, Shopify en Webflow), of wij doen het voor je."],
   ["Werkt het ook met WhatsApp en telefoon?", "Knoppen om je te WhatsAppen of te bellen werken meteen. WhatsApp-berichten en gemiste oproepen automatisch in Volgo ontvangen kan via een koppeling die wij regelen."],
   ["Kan ik zien hoe het werkt?", "Ja. Open de chat rechtsonder op deze pagina: dat is Volgo. Vraag iets of plan een afspraak, precies zoals jouw klanten het straks doen."],
@@ -224,7 +224,7 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
             Al je warme klanten in één app.
           </h1>
           <p className="vl-sub">
-            Volgo is een chatassistent op je website. Hij praat met elke bezoeker, stelt jouw vragen en plant de afspraak. Daarna staat elke klant in één app, met naam, nummer en wat ze willen. Geen gezoek meer in je mail of tussen al je appjes. Website + Volgo voor €499 per maand.
+            Volgo is een chatassistent op je website. Hij praat met elke bezoeker, stelt jouw vragen en plant de afspraak. Daarna staat elke klant in één app, met naam, nummer en wat ze willen. Geen gezoek meer in je mail of tussen al je appjes. Website + Volgo voor €299 per maand, de eerste 3 maanden.
           </p>
           <div className="vl-acties">
             <BookACall groot />
@@ -357,7 +357,7 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
           <h2 className="vl-h2" id="vl-prijs">
             Het aanbod
           </h2>
-          <p className="vl-sub vl-center">Eén pakket: website + Volgo. €499 per maand, of $499 buiten Europa. Excl. btw, geen opstartkosten, maandelijks opzegbaar.</p>
+          <p className="vl-sub vl-center">Eén pakket: website + Volgo. Startaanbod: €299 per maand voor de eerste 3 maanden, daarna €499 per maand ($299 en $499 buiten Europa). Excl. btw, geen opstartkosten, maandelijks opzegbaar.</p>
           <div className="vl-plannen">
             {PLANNEN.map((p) => (
               <article className={`vl-plan${p.id === "pro" ? " is-uit" : ""}`} key={p.id}>
