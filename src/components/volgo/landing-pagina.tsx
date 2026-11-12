@@ -43,36 +43,18 @@ const CONTROLE: [string, string][] = [
 /** Monthly plans: exactly what Volgo does in each. Prices excl. VAT. */
 const PLANNEN = [
   {
-    id: "start",
-    naam: "Volgo",
-    voor: "De chatassistent op je bestaande website.",
-    prijs: PLANS.start.prijsTekst,
-    extra: "Geen opstartkosten · wij zetten het voor je op",
+    id: "pro",
+    naam: "Website + Volgo",
+    voor: "Eén pakket: een nieuwe premium website met de Volgo-chatassistent erin.",
+    prijs: PLANS.pro.prijsTekst,
+    extra: "Geen opstartkosten · alles inbegrepen",
     knop: "Book a call",
     href: "",
     punten: [
       "Chatassistent op je website, 24/7",
       "Al je warme klanten bij elkaar in één app",
       "Stelt jouw vragen en plant afspraken direct in je agenda",
-      "Telefoongesprek, bezoek op adres of chatafspraak",
-      "Nooit dubbel geboekt",
-      "Herinnering de dag voor de afspraak",
-      "Opvolging na 1 en 3 dagen als iemand niet boekte",
-      "Reviewverzoek na de afspraak",
-      "Inbox, aanvragen en meldingen op je telefoon",
-      "Zelf te installeren in 2 minuten, of wij doen het",
-    ],
-  },
-  {
-    id: "pro",
-    naam: "Volgo + nieuwe website",
-    voor: "Een nieuwe premium website, met de Volgo-chatassistent erin.",
-    prijs: PLANS.pro.prijsTekst,
-    extra: `+ €${(PLANS.pro.opstart / 100).toLocaleString("nl-NL")} eenmalig voor je website`,
-    knop: "Book a call",
-    href: "",
-    punten: [
-      "Alles uit Volgo",
+      "Herinnering de dag voor de afspraak en opvolging als iemand niet boekte",
       "Nieuwe website op maat, gebouwd door ons team",
       "Foto's, video en animaties met AI",
       "Eigen foto en stijl voor je assistent, zonder Volgo-logo",
@@ -90,7 +72,7 @@ const VOORBEELDEN = [
 const FAQ: [string, string][] = [
   ["Wat is een appointment setter?", "Iemand die nieuwe klanten te woord staat, uitzoekt wat ze nodig hebben en een afspraak met je inplant. Volgo doet precies dat, maar dan met AI in je website, dag en nacht."],
   ["Wat is Volgo precies?", "Volgo is een chatassistent op je website. Hij praat met elke bezoeker, stelt jouw vragen en plant de afspraak. Elke warme klant komt daarna in één app terecht, met naam, nummer en wat ze willen. Je hoeft niks meer uit te vogelen in je mail of tussen al je appjes."],
-  ["Kost het in dollars ook $99?", "Ja. Buiten Europa betaal je $99 per maand, en $997 eenmalig voor een nieuwe website."],
+  ["Wat krijg ik voor €499 per maand?", "Een nieuwe premium website, gebouwd door ons team, met de Volgo-chatassistent erin. Plus de app waarin al je warme klanten bij elkaar staan. Geen opstartkosten, maandelijks opzegbaar. Buiten Europa is het $499 per maand."],
   ["Moet ik technisch zijn?", "Nee. Je plakt één regel code in je website (stappen voor WordPress, Wix, Squarespace, Shopify en Webflow), of wij doen het voor je."],
   ["Werkt het ook met WhatsApp en telefoon?", "Knoppen om je te WhatsAppen of te bellen werken meteen. WhatsApp-berichten en gemiste oproepen automatisch in Volgo ontvangen kan via een koppeling die wij regelen."],
   ["Kan ik zien hoe het werkt?", "Ja. Open de chat rechtsonder op deze pagina: dat is Volgo. Vraag iets of plan een afspraak, precies zoals jouw klanten het straks doen."],
@@ -242,7 +224,7 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
             Al je warme klanten in één app.
           </h1>
           <p className="vl-sub">
-            Volgo is een chatassistent op je website. Hij praat met elke bezoeker, stelt jouw vragen en plant de afspraak. Daarna staat elke klant in één app, met naam, nummer en wat ze willen. Geen gezoek meer in je mail of tussen al je appjes. €99 per maand.
+            Volgo is een chatassistent op je website. Hij praat met elke bezoeker, stelt jouw vragen en plant de afspraak. Daarna staat elke klant in één app, met naam, nummer en wat ze willen. Geen gezoek meer in je mail of tussen al je appjes. Website + Volgo voor €499 per maand.
           </p>
           <div className="vl-acties">
             <BookACall groot />
@@ -373,15 +355,15 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
 
         <section aria-labelledby="vl-prijs" className="vl-sectie" id="prijzen">
           <h2 className="vl-h2" id="vl-prijs">
-            Prijzen per maand
+            Het aanbod
           </h2>
-          <p className="vl-sub vl-center">€99 per maand, of $99 buiten Europa. Excl. btw, maandelijks opzegbaar.</p>
+          <p className="vl-sub vl-center">Eén pakket: website + Volgo. €499 per maand, of $499 buiten Europa. Excl. btw, geen opstartkosten, maandelijks opzegbaar.</p>
           <div className="vl-plannen">
             {PLANNEN.map((p) => (
               <article className={`vl-plan${p.id === "pro" ? " is-uit" : ""}`} key={p.id}>
                 <div className="vl-plan__kop">
                   <h3>{p.naam}</h3>
-                  {p.id === "pro" ? <em>Meest gekozen</em> : null}
+                  {null}
                 </div>
                 <p className="vl-plan__voor">{p.voor}</p>
                 <p className="vl-plan__prijs">

@@ -17,8 +17,8 @@ export const Route = createFileRoute("/pricing")({
   loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "", plan: "", eigenaar: false })),
   head: () => ({
     meta: [
-      { title: "Pricing · Volgo · Volgo €99 per month, Volgo + Website €99 per month + €997" },
-      { name: "description", content: "Volgo pricing: Volgo €99 per month (7 days for €1), a chat assistant on your website that keeps all warm customers in one app. Volgo + Website €99 per month plus €997 one-time for a new premium website with Volgo inside. Excl. VAT, monthly, cancel any time." },
+      { title: "Pricing · Volgo · Website + Volgo €499 per month" },
+      { name: "description", content: "Volgo pricing: one package, Website + Volgo, €499 per month. A new premium website with the Volgo chat assistant inside, and every warm customer in one app. No setup fee. Excl. VAT, monthly, cancel any time." },
       { property: "og:url", content: "https://thevolgo.app/pricing" },
     ],
     links: [{ rel: "canonical", href: "https://thevolgo.app/pricing" }],
@@ -144,7 +144,7 @@ function Abonnement() {
                   ))}
                 </ol>
                 {id === "start" ? (
-                  <p className="v-na__slot">Custom website, photo and video tools: available on Volgo + Website.</p>
+                  <p className="v-na__slot">Custom website, photo and video tools: included.</p>
                 ) : (
                   <p className="v-na__noot">Website included. Your domain name (about €10–20 a year) is not included; we help you register or connect it.</p>
                 )}
@@ -165,14 +165,14 @@ function Abonnement() {
 
           <div className="v-na__regels">
             <p>
-              <strong>Volgo: 7 days for €1.</strong> After that it renews monthly at the full price. Cancel within the 7 days and you pay nothing more. No setup fee. <strong>Volgo + Website:</strong> €997 one-time for your new website plus the first month, then monthly.
+              <strong>Volgo: 7 days for €1.</strong> After that it renews monthly at the full price. Cancel within the 7 days and you pay nothing more. No setup fee. <strong>Website + Volgo:</strong> €499 per month, no setup fee.
             </p>
             <p>
               <strong>Cancel any time.</strong> In your dashboard under Subscription. Volgo, your dashboard and the website we built (if you have one)
               stop at the end of your paid period.
             </p>
             <p>
-              <strong>Switch any time.</strong> Upgrade from Volgo to Volgo + Website to get your new website; your chats, requests and settings stay.
+              <strong>Switch any time.</strong> Upgrade from Volgo to Website + Volgo to get your new website; your chats, requests and settings stay.
             </p>
           </div>
         </section>
