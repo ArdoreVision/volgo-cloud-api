@@ -17,7 +17,6 @@ export function Footer() {
         <a href="/dpa">Data Processing Agreement</a>
         <a href="/cookies">Cookies</a>
         <a href="mailto:volgo.app@outlook.com">Contact</a>
-        <a href="/team-4f9k2q7x">Join By Intent</a>
       </nav>
       <div className="v-footer__social">
         <a aria-label="Volgo on Instagram" href={VOLGO_INSTAGRAM} rel="noopener noreferrer" target="_blank" title="Instagram">
