@@ -48,8 +48,8 @@ const PLANNEN = [
     voor: "Eén pakket: een nieuwe premium website met de Volgo-chatassistent erin.",
     prijs: "299",
     extra: "De eerste 3 maanden · daarna €499 per maand · geen opstartkosten",
-    knop: "Book a call",
-    href: "",
+    knop: "Start nu",
+    href: "/pricing",
     punten: [
       "Chatassistent op je website, 24/7",
       "Al je warme klanten bij elkaar in één app",
@@ -73,6 +73,7 @@ const FAQ: [string, string][] = [
   ["Wat is een appointment setter?", "Iemand die nieuwe klanten te woord staat, uitzoekt wat ze nodig hebben en een afspraak met je inplant. Volgo doet precies dat, maar dan met AI in je website, dag en nacht."],
   ["Wat is Volgo precies?", "Volgo is een chatassistent op je website. Hij praat met elke bezoeker, stelt jouw vragen en plant de afspraak. Elke warme klant komt daarna in één app terecht, met naam, nummer en wat ze willen. Je hoeft niks meer uit te vogelen in je mail of tussen al je appjes."],
   ["Wat kost het?", "De eerste 3 maanden €299 per maand, daarna €499 per maand. Je krijgt een nieuwe premium website, gebouwd door ons team, met de Volgo-chatassistent erin. Plus de app waarin al je warme klanten bij elkaar staan. Geen opstartkosten, maandelijks opzegbaar. Buiten Europa is het $299 en daarna $499 per maand."],
+  ["Hoe begin ik?", "Klik op de knop, kies het pakket en betaal veilig via Stripe. Daarna maak je je account en opent je dashboard meteen. Daar beantwoord je vijf korte vragen over je bedrijf en zie je stap voor stap hoe alles wordt aangezet. Je website bouwen wij voor je."],
   ["Moet ik technisch zijn?", "Nee. Je plakt één regel code in je website (stappen voor WordPress, Wix, Squarespace, Shopify en Webflow), of wij doen het voor je."],
   ["Werkt het ook met WhatsApp en telefoon?", "Knoppen om je te WhatsAppen of te bellen werken meteen. WhatsApp-berichten en gemiste oproepen automatisch in Volgo ontvangen kan via een koppeling die wij regelen."],
   ["Kan ik zien hoe het werkt?", "Ja. Open de chat rechtsonder op deze pagina: dat is Volgo. Vraag iets of plan een afspraak, precies zoals jouw klanten het straks doen."],
@@ -95,6 +96,15 @@ function BookACall({ groot }: { groot?: boolean }) {
     <a className={`vl-knop vw-book${groot ? " vw-book--groot" : ""}`} href={INSTAGRAM_PROFIEL} rel="noopener noreferrer" target="_blank">
       <InstagramIcoon />
       Book a call
+    </a>
+  );
+}
+
+/** The main button everywhere: straight to the price and the secure payment page. */
+function StartKnop({ groot, ingelogd, tekst }: { groot?: boolean; ingelogd: boolean; tekst?: string }) {
+  return (
+    <a className={`vl-knop vw-book${groot ? " vw-book--groot" : ""}`} href={ingelogd ? "/dashboard" : "/pricing"}>
+      {ingelogd ? "Naar je dashboard" : (tekst ?? "Bekijk prijs en start")} →
     </a>
   );
 }
@@ -227,11 +237,9 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
             Volgo is een chatassistent op je website. Hij praat met elke bezoeker, stelt jouw vragen en plant de afspraak. Daarna staat elke klant in één app, met naam, nummer en wat ze willen. Geen gezoek meer in je mail of tussen al je appjes. Website + Volgo voor €299 per maand, de eerste 3 maanden.
           </p>
           <div className="vl-acties">
-            <BookACall groot />
-            <a className="vl-knop vl-knop--stil" href="#prijzen">
-              Bekijk de prijzen
-            </a>
+            <StartKnop groot ingelogd={ingelogd} />
           </div>
+          <p className="vl-klein">Veilig betalen via Stripe · daarna maak je je account en opent je dashboard meteen · maandelijks opzegbaar</p>
           <Film />
         </section>
 
@@ -371,8 +379,8 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
                 </p>
                 <p className="vl-plan__extra">{p.extra}</p>
                 {p.href ? (
-                  <a className="vl-knop vl-knop--stil" href={ingelogd ? "/dashboard" : p.href}>
-                    {p.knop} →
+                  <a className="vl-knop vw-book" href={ingelogd ? "/dashboard" : p.href}>
+                    {ingelogd ? "Naar je dashboard" : p.knop} →
                   </a>
                 ) : (
                   <BookACall />
@@ -428,9 +436,10 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
           <h2 className="vl-h2" id="vl-slot">
             Laat je website vanavond al afspraken plannen.
           </h2>
-          <p className="vl-sub">Plan een korte call, dan laten we zien hoe Volgo werkt voor jouw bedrijf.</p>
+          <p className="vl-sub">Kies je pakket, betaal veilig en maak je account. Je dashboard staat direct voor je klaar. Liever eerst even praten? Stuur ons een bericht.</p>
           <div className="vl-acties">
-            <BookACall groot />
+            <StartKnop groot ingelogd={ingelogd} tekst="Start nu" />
+            <BookACall />
           </div>
         </section>
       </main>

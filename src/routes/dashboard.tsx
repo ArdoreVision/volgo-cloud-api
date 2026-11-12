@@ -206,7 +206,7 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
           <h1 id="lock-titel">{nieuw ? "Kies je pakket om te starten." : "Kies een pakket om verder te gaan."}</h1>
           <p className="v-lock__sub">
             {nieuw
-              ? `Je dashboard staat klaar, maar is nog op slot. Assistent: je betaalt vandaag ${euro1}, de maandprijs start na 7 dagen, stop je binnen 7 dagen dan betaal je niets meer. Complete: wij bouwen je nieuwe website, je betaalt vandaag de opstartkosten en de eerste maand.`
+              ? "Je dashboard staat klaar, maar is nog op slot. Kies het pakket en betaal veilig via Stripe. Daarna opent je dashboard meteen en bouwen wij je nieuwe website met Volgo erin."
               : "Je proefperiode of abonnement is afgelopen. Al je gegevens staan er nog. Kies een pakket om je dashboard weer te openen."}
           </p>
           {eigenaar ? (
@@ -220,8 +220,9 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
                         {p.naam}
                         {p.badge ? <em>{p.badge}</em> : null}
                       </span>
-                      <b>€{p.prijsTekst}</b>
+                      <b>€{nieuw && p.intro ? p.intro.prijsTekst : p.prijsTekst}</b>
                       <span className="v-lock__per">per maand</span>
+                      {nieuw && p.intro ? <span className="v-lock__proef">Eerste {p.intro.maanden} maanden, daarna €{p.prijsTekst} per maand</span> : null}
                       {nieuw && p.proefDagen ? <span className="v-lock__proef">First 7 days {euro1}</span> : null}
                       {p.opstart ? <span className="v-lock__proef">+ €{p.opstart / 100} one-time setup</span> : null}
                       <ul>
@@ -238,7 +239,7 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
                 <p>
                   {nieuw && PLANS[kies].proefDagen
                     ? `Vandaag ${euro1}. Vanaf dag 8: €${PLANS[kies].prijsTekst} per maand voor Volgo ${PLANS[kies].naam}. Veilig betalen via Stripe.`
-                    : `${PLANS[kies].opstart ? `Today €${(PLANS[kies].prijs + PLANS[kies].opstart) / 100} (€${PLANS[kies].opstart / 100} setup + first month), then ` : ""}€${PLANS[kies].prijsTekst} per maand voor Volgo ${PLANS[kies].naam}. Veilig betalen via Stripe.`}
+                    : `${PLANS[kies].opstart ? `Today €${(PLANS[kies].prijs + PLANS[kies].opstart) / 100} (€${PLANS[kies].opstart / 100} setup + first month), then ` : ""}${nieuw && PLANS[kies].intro ? `€${PLANS[kies].intro.prijsTekst} per maand voor de eerste ${PLANS[kies].intro.maanden} maanden, daarna ` : ""}€${PLANS[kies].prijsTekst} per maand voor Volgo ${PLANS[kies].naam}. Veilig betalen via Stripe.`}
                 </p>
                 <button className="v-lock__knop" disabled={bezig} onClick={() => void start()} type="button">
                   {bezig ? "Een moment…" : nieuw && PLANS[kies].proefDagen ? `Start 7 dagen voor ${euro1} →` : `Verder met ${PLANS[kies].naam} →`}

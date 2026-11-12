@@ -31,6 +31,25 @@ async function stripe(path: string, init?: { method?: string; body?: URLSearchPa
   return json;
 }
 
+/** Finds (or creates once) the Stripe coupon for a plan's introductory offer: a fixed amount off for the first months. */
+async function introCoupon(planId: string, intro: { maanden: number; prijs: number }, vol: number) {
+  const id = `volgo-intro-${planId}-${intro.prijs}-${intro.maanden}m`;
+  try {
+    await stripe(`coupons/${id}`);
+    return id;
+  } catch {
+    const c = new URLSearchParams();
+    c.set("id", id);
+    c.set("name", `Intro offer: first ${intro.maanden} months`);
+    c.set("amount_off", String(vol - intro.prijs));
+    c.set("currency", "eur");
+    c.set("duration", "repeating");
+    c.set("duration_in_months", String(intro.maanden));
+    await stripe("coupons", { method: "POST", body: c });
+    return id;
+  }
+}
+
 // 1. Abonnement kiezen → naar betalen (Stripe) of naar de testbetaling.
 export const startBetaling = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ plan: z.string() }).parse(v))
@@ -125,6 +144,9 @@ export const startBetaling = createServerFn({ method: "POST" })
         b.set(`line_items[${n}][price_data][unit_amount]`, String(plan.opstart));
         b.set(`line_items[${n}][price_data][product_data][name]`, `Volgo ${plan.naam} · one-time setup (website)`);
       }
+      // Introductory offer (first-time customers only): the lower price for the first months, then the full price automatically.
+      // If the coupon can't be set up, the checkout fails (below) rather than charging more than the advertised price.
+      const metIntro = Boolean(plan.intro && proefMag);
       b.set("metadata[plan]", plan.id);
       // HCC is zelf de verkoper; Stripe "Managed Payments" (Stripe als verkoper) staat uit.
       b.set("managed_payments[enabled]", "false");
@@ -139,8 +161,9 @@ export const startBetaling = createServerFn({ method: "POST" })
         }
       }
       b.set("success_url", `${origin()}/signup?session_id={CHECKOUT_SESSION_ID}`);
-      b.set("cancel_url", `${origin()}/dashboard`);
+      b.set("cancel_url", `${origin()}${ik ? "/dashboard" : "/pricing"}`);
       try {
+        if (metIntro && plan.intro) b.set("discounts[0][coupon]", await introCoupon(plan.id, plan.intro, plan.prijs));
         const s = await stripe("checkout/sessions", { method: "POST", body: b });
         const { push } = await import("../push.server");
         await push(`🛒 Checkout opened: ${plan.naam}`, `Someone is at the Stripe payment page for Volgo ${plan.naam} (€${plan.prijsTekst}/mo${plan.opstart ? ` + €${plan.opstart / 100} setup` : ""})${ik ? " — existing customer switching plans" : ""}.`, { tags: ["shopping_cart"], prioriteit: 3 });
