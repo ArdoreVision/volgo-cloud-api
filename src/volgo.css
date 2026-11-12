@@ -2705,3 +2705,35 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #050505;
   .v-bw__balk .v-seg { display: none; }
 }
 .v-dash .v-bw__invoer textarea { background: transparent !important; }
+
+/* ── Help: ask Volgo on every dashboard page ─────────────────────────────── */
+.v-hulp__knop { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 16px 0 13px; border: 0; border-radius: 999px; background: var(--card); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.v-hulp__knop:hover, .v-hulp__knop[aria-expanded="true"] { background: var(--accent); color: var(--on-accent); box-shadow: none; }
+.v-hulp__knop svg { width: 17px; height: 17px; fill: currentColor; }
+.v-hulp { position: fixed; top: 12px; right: 12px; bottom: 12px; z-index: 90; display: flex; flex-direction: column; width: min(400px, calc(100vw - 24px)); border-radius: 22px; background: var(--card); color: var(--ink); box-shadow: 0 0 0 1px var(--line), 0 24px 70px rgba(0, 0, 0, 0.3); overflow: hidden; animation: v-hulp-in 0.28s var(--ease); }
+@keyframes v-hulp-in { from { opacity: 0; transform: translateX(18px); } }
+.v-hulp__kop { display: flex; align-items: center; gap: 8px; padding: 14px 12px 12px 18px; border-bottom: 1px solid var(--line); }
+.v-hulp__kop div { flex: 1; min-width: 0; }
+.v-hulp__kop strong { display: block; font-size: 16px; letter-spacing: -0.02em; }
+.v-hulp__kop small { color: var(--muted); font-size: 12.5px; }
+.v-hulp__stil { min-height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink-2); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.v-hulp__sluit { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; }
+.v-hulp__sluit:hover, .v-hulp__stil:hover { background: var(--surface); color: var(--ink); }
+.v-hulp__sluit svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.v-hulp__berichten { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 16px 14px 8px; }
+.v-hulp__start { margin: auto 0; padding: 4px; }
+.v-hulp__start strong { display: block; font-size: 19px; letter-spacing: -0.02em; }
+.v-hulp__start p { margin: 8px 0 0; color: var(--muted); font-size: 14.5px; line-height: 1.5; }
+.v-hulp__rij { display: flex; flex-direction: column; gap: 6px; }
+.v-hulp__rij--ik { align-items: flex-end; }
+.v-hulp__rij--volgo { align-items: flex-start; }
+.v-hulp__acties { display: flex; flex-wrap: wrap; gap: 6px; }
+.v-hulp__acties button { min-height: 34px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.v-hulp__acties button:hover { border-color: var(--muted); }
+.v-hulp .v-bw__ideeen { flex-wrap: wrap; overflow: visible; padding-top: 6px; }
+.v-hulp .v-bw__ideeen button { flex: 0 1 auto; text-align: left; }
+.v-dash .v-hulp .v-bw__invoer textarea { background: transparent !important; }
+@media (max-width: 900px) {
+  .v-hulp__knop { min-height: 40px; padding: 0 12px 0 10px; }
+  .v-hulp { inset: 0; width: 100%; border-radius: 0; z-index: 95; padding-bottom: env(safe-area-inset-bottom); }
+}
