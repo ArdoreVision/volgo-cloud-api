@@ -50,7 +50,7 @@ function Betalen() {
         </div>
         <div>
           <span>Price</span>
-          <strong>€{p.prijsTekst} per month</strong>
+          <strong>{p.opstart ? `€${p.opstart / 100} one-time + ` : ""}€{p.prijsTekst} per month</strong>
         </div>
         {p.proefDagen ? (
           <div>
@@ -61,7 +61,9 @@ function Betalen() {
         <p className="v-summary__note">
           {p.proefDagen
             ? `Your first ${p.proefDagen} days are free. After that you pay €${p.prijsTekst} per month, excluding VAT.`
-            : `You pay €${p.prijsTekst} per month, excluding VAT.`}
+            : p.opstart
+              ? `Today you pay €${p.opstart / 100} for your website plus the first month of Volgo. After that €${p.prijsTekst} per month, excluding VAT.`
+              : `You pay €${p.prijsTekst} per month, excluding VAT.`}
         </p>
       </div>
       <button className="v-auth__btn" disabled={bezig} onClick={() => void rondAf()} type="button">

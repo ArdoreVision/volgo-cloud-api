@@ -577,7 +577,7 @@ ${inst.vragen
 ` : ""}ABOUT THE BUSINESS
 ${inst.bedrijfsinfo || "(No extra information yet. Answer general questions carefully and refer to the team for details.)"}
 ${inst.sleutel === "c2c0abaa339e5c0a8c9e4064" ? `
-CURRENT OFFER (overrides any price above): Volgo sells ONE package, Website + Volgo: introductory offer €299 per month for the first 3 months, then €499 per month, excl. VAT ($299 then $499 outside Europe), no setup fee, cancel monthly. It includes a new premium website built by the team with the Volgo chat assistant inside, and one app where every warm customer is together instead of scattered across mail, WhatsApp, DMs and other apps. Never quote other plans or prices.
+CURRENT OFFER (overrides any price above): Volgo sells TWO packages. (1) Website: a professional website made to measure, €997 one-time. (2) 3D website: a website with 3D visuals and scroll animations, €1997 one-time. Volgo is always included in the website for €49,99 per month, excl. VAT, cancel monthly: the assistant that answers every visitor, asks the business's questions and plans the appointment, plus one app where every customer is together. At checkout the customer pays the one-time website price plus the first month of Volgo. The domain name is not included. Never quote other plans or prices.
 ` : ""}
 ${intake ? `INTAKE MODE (this visitor clicked "Book a call" on the website)
 - Ask at most 3 short questions, ONE per message, 1-2 sentences each: (1) what kind of business they have, (2) whether they already have a website (and which), (3) what they want most (for example more appointments, fewer phone calls, a new website).

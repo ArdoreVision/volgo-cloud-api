@@ -92,11 +92,12 @@ export const startBetaling = createServerFn({ method: "POST" })
             u.set("items[0][price_data][unit_amount]", String(plan.prijs));
             u.set("items[0][price_data][recurring][interval]", "month");
             u.set("proration_behavior", "create_prorations");
-            // Moving up to a plan with a setup fee: charge it once, on the next invoice.
-            if (plan.opstart && !PLANS[(isPlan(bestaand?.plan) ? bestaand.plan : "start") as keyof typeof PLANS].opstart) {
+            // Moving up to a bigger website (for example Website -> 3D website): charge the difference in the one-time price once, on the next invoice.
+            const alBetaald = PLANS[(isPlan(bestaand?.plan) ? bestaand.plan : "start") as keyof typeof PLANS].opstart;
+            if (plan.opstart > alBetaald) {
               u.set("add_invoice_items[0][price_data][currency]", "eur");
               u.set("add_invoice_items[0][price_data][product]", product.id);
-              u.set("add_invoice_items[0][price_data][unit_amount]", String(plan.opstart));
+              u.set("add_invoice_items[0][price_data][unit_amount]", String(plan.opstart - alBetaald));
             }
             if (bindings().BTW === "aan") u.set("automatic_tax[enabled]", "true");
             u.set("metadata[plan]", plan.id);
@@ -127,7 +128,7 @@ export const startBetaling = createServerFn({ method: "POST" })
       b.set("line_items[0][price_data][currency]", "eur");
       b.set("line_items[0][price_data][unit_amount]", String(plan.prijs));
       b.set("line_items[0][price_data][recurring][interval]", "month");
-      b.set("line_items[0][price_data][product_data][name]", `Volgo ${plan.naam}`);
+      b.set("line_items[0][price_data][product_data][name]", plan.opstart ? "Volgo · assistant in your website (monthly)" : `Volgo ${plan.naam}`);
       if (plan.proefDagen && proefMag) {
         b.set("subscription_data[trial_period_days]", String(plan.proefDagen));
         // The trial is not free: €1 is charged today (one-time, on the first invoice), the full monthly price after the trial.
@@ -136,13 +137,13 @@ export const startBetaling = createServerFn({ method: "POST" })
         b.set("line_items[1][price_data][unit_amount]", String(PROEF_PRIJS));
         b.set("line_items[1][price_data][product_data][name]", `Volgo ${plan.naam} · ${plan.proefDagen}-day trial`);
       }
-      // One-time setup fee (Complete), on the first invoice next to the first month.
+      // One-time price of the website (Website / 3D website), on the first invoice next to the first month of Volgo.
       if (plan.opstart) {
         const n = plan.proefDagen && proefMag ? 2 : 1;
         b.set(`line_items[${n}][quantity]`, "1");
         b.set(`line_items[${n}][price_data][currency]`, "eur");
         b.set(`line_items[${n}][price_data][unit_amount]`, String(plan.opstart));
-        b.set(`line_items[${n}][price_data][product_data][name]`, `Volgo ${plan.naam} · one-time setup (website)`);
+        b.set(`line_items[${n}][price_data][product_data][name]`, `${plan.naam} · built by Volgo (one-time)`);
       }
       // Introductory offer (first-time customers only): the lower price for the first months, then the full price automatically.
       // If the coupon can't be set up, the checkout fails (below) rather than charging more than the advertised price.
@@ -166,7 +167,7 @@ export const startBetaling = createServerFn({ method: "POST" })
         if (metIntro && plan.intro) b.set("discounts[0][coupon]", await introCoupon(plan.id, plan.intro, plan.prijs));
         const s = await stripe("checkout/sessions", { method: "POST", body: b });
         const { push } = await import("../push.server");
-        await push(`🛒 Checkout opened: ${plan.naam}`, `Someone is at the Stripe payment page for Volgo ${plan.naam} (€${plan.prijsTekst}/mo${plan.opstart ? ` + €${plan.opstart / 100} setup` : ""})${ik ? " — existing customer switching plans" : ""}.`, { tags: ["shopping_cart"], prioriteit: 3 });
+        await push(`🛒 Checkout opened: ${plan.naam}`, `Someone is at the Stripe payment page for Volgo ${plan.naam} (${plan.opstart ? `€${plan.opstart / 100} one-time + ` : ""}€${plan.prijsTekst}/mo)${ik ? " — existing customer switching plans" : ""}.`, { tags: ["shopping_cart"], prioriteit: 3 });
         return { ok: true as const, url: String(s.url) };
       } catch (err) {
         console.error("[betaling]", err);
