@@ -7,40 +7,75 @@ import { type RouteTaal } from "./route-teksten";
 import { TaalKiezer, Vertaler, kiesTaal, opgeslagenTaal, toonTaal } from "./taal";
 import { startBetaling } from "@/lib/api/account.functions";
 import { regioTaal } from "@/lib/api/vertaal.functions";
+import { type PlanId } from "@/lib/plans";
 import { TALEN, isTaal } from "@/lib/talen";
 import "@/volgo-dialed.css";
 import "@/volgo-landing.css";
 
 /**
- * Five pains of any business that gets leads, one per screen while scrolling: how it is now, and how it is with Volgo.
- * Every "with Volgo" line is something the product really does (website chat, intake questions, calendar, reminder, follow-up).
+ * The two packages, in the order of the page: Start -> Website -> 3D website. Both include the same Volgo for the same monthly price.
+ * The example images are AI-made examples of fictional businesses (made with Higgsfield), labelled as examples on the page.
  */
-const PIJN: { nu: string[]; met: string; hoe: string }[] = [
-  { nu: ["Aanvraag om 23:07.", "Jij antwoordt om 13:40.", "Weg."], met: "Antwoord in 1 seconde.", hoe: "Volgo antwoordt elke bezoeker van je website. Dag en nacht." },
-  { nu: ["Mail. WhatsApp. DM's.", "Waar stond die klant?"], met: "Alles in één app.", hoe: "Naam, nummer en vraag van elke klant. Op één plek." },
-  { nu: ["Zelf elke aanvraag oppakken.", "Ook 's avonds."], met: "Je website plant de afspraken.", hoe: "Volgo stelt jouw vragen en zet de afspraak in je agenda." },
-  { nu: ["Afspraak gepland.", "Niemand komt."], met: "Herinnering. Automatisch.", hoe: "De dag ervoor krijgt je klant een bericht." },
-  { nu: ["\"Ik denk er nog even over na.\"", "Nooit meer iets gehoord."], met: "Opvolging. Vanzelf.", hoe: "Niet geboekt? Na 1 en 3 dagen een persoonlijk bericht." },
+const PAKKETTEN: { plan: PlanId; soort: string; nr: string; naam: string; regel: string; prijs: string; beeld: string; alt: string; adres: string; bij: string; punten: string[]; knop: string; vandaag: string }[] = [
+  {
+    plan: "pro",
+    soort: "gewoon",
+    nr: "Pakket 1",
+    naam: "Website",
+    regel: "Een professionele website. Strak, modern en op maat gemaakt.",
+    prijs: "€997",
+    beeld: "/assets/volgo/voorbeeld-website.jpg",
+    alt: "Voorbeeld van een professionele website voor een hovenier: grote foto van een tuin, een knop om een afspraak te plannen en de chat van Volgo rechtsonder",
+    adres: "jouwbedrijf.nl",
+    bij: "Voorbeeld: zo kan jouw professionele website eruitzien.",
+    punten: ["Professionele website op maat", "Met foto's en video", "Volgo erin: plant je afspraken, 24/7", "Aanpassingen wanneer je ze nodig hebt"],
+    knop: "Kies Website",
+    vandaag: "Vandaag €1.046,99: je website + de eerste maand Volgo. Excl. btw.",
+  },
+  {
+    plan: "premium",
+    soort: "3d",
+    nr: "Pakket 2",
+    naam: "3D website",
+    regel: "Een 3D-website die blijft hangen. Beelden die bewegen terwijl je scrolt.",
+    prijs: "€1997",
+    beeld: "/assets/volgo/voorbeeld-3d.jpg",
+    alt: "Voorbeeld van een 3D-website voor een bouwbedrijf: een huis in 3D dat in beeld zweeft, een knop om een afspraak te plannen en de chat van Volgo rechtsonder",
+    adres: "jouwbedrijf.nl",
+    bij: "Voorbeeld: zo kan jouw 3D-website eruitzien.",
+    punten: ["Alles uit pakket Website", "3D-beelden die bewegen als je scrolt", "Scroll-animaties door de hele site", "Volgo erin: plant je afspraken, 24/7"],
+    knop: "Kies 3D website",
+    vandaag: "Vandaag €2.046,99: je website + de eerste maand Volgo. Excl. btw.",
+  },
 ];
 
 const ZONDER = ["Aanvragen die verdwijnen", "Uren in je mail en appjes", "Zoeken wie wat vroeg", "No-shows", "Vergeten op te volgen"];
 const MET = ["Elke bezoeker direct geholpen", "Afspraken staan vanzelf in je agenda", "Alles in één app", "Herinnering de dag ervoor", "Opvolging na 1 en 3 dagen"];
 
-const KRIJGT = ["Nieuwe website, door ons gebouwd", "Assistent erin die je afspraken plant, 24/7", "Eén app met al je warme klanten", "Herinneringen en opvolging, automatisch"];
-
 const FAQ: [string, string][] = [
   ["Voor wie is dit?", "Voor elk bedrijf dat klanten krijgt via aanvragen en afspraken. Van coaches en salons tot hoveniers, verbouwers en praktijken."],
-  ["Wat doet Volgo precies?", "Een chatassistent op je website. Hij antwoordt elke bezoeker, stelt jouw vragen en plant de afspraak. Elke klant staat daarna in één app."],
+  ["Wat is het verschil tussen Website en 3D website?", "Website is een professionele website op maat. De 3D website heeft daar bovenop 3D-beelden en scroll-animaties. In allebei zit Volgo."],
+  ["Wat doet Volgo precies?", "Volgo is de assistent in je website. Hij antwoordt elke bezoeker, stelt jouw vragen en plant de afspraak. Elke klant staat daarna in één app."],
+  ["Wat kost het?", "Website: €997 eenmalig. 3D website: €1997 eenmalig. Volgo zit er altijd in, voor €49,99 per maand. Excl. btw, Volgo is maandelijks opzegbaar. Je domeinnaam zit er niet bij."],
   ["Werkt het in mijn Instagram-DM's?", "Nee. Volgo werkt op je website. Zet je website in je bio en stuur mensen daarheen: daar neemt Volgo het over."],
-  ["Wat kost het?", "€299 per maand voor de eerste 3 maanden, daarna €499 per maand. Excl. btw, geen opstartkosten, maandelijks opzegbaar. Je domeinnaam zit er niet bij."],
   ["Wat gebeurt er na betalen?", "Je maakt je account, beantwoordt vijf korte vragen en je dashboard is open. Wij bouwen je website met Volgo erin."],
 ];
 
+/** The Start button: takes the visitor down to the two packages. Logged-in customers go to their dashboard instead. */
+function StartKnop({ ingelogd }: { ingelogd: boolean }) {
+  return (
+    <a className="vc-cta" href={ingelogd ? "/dashboard" : "#pakketten"}>
+      <span>{ingelogd ? "Naar je dashboard" : "Start"}</span>
+      <i aria-hidden="true">{ingelogd ? "→" : "↓"}</i>
+    </a>
+  );
+}
+
 /**
- * The one button on the page: straight to the secure Stripe payment page for the package.
+ * The button on a package: straight to the secure Stripe payment page for that package.
  * If Stripe can't be opened, the visitor lands on the pricing page instead, so the button never dead-ends.
  */
-function StartKnop({ ingelogd }: { ingelogd: boolean }) {
+function KiesKnop({ ingelogd, plan, tekst }: { ingelogd: boolean; plan: PlanId; tekst: string }) {
   const [bezig, setBezig] = useState(false);
   if (ingelogd)
     return (
@@ -52,15 +87,15 @@ function StartKnop({ ingelogd }: { ingelogd: boolean }) {
   async function start() {
     setBezig(true);
     try {
-      const r = await startBetaling({ data: { plan: "pro" } });
+      const r = await startBetaling({ data: { plan } });
       window.location.href = r.ok ? r.url : "/pricing";
     } catch {
       window.location.href = "/pricing";
     }
   }
   return (
-    <button className="vc-cta" data-notranslate="" disabled={bezig} onClick={() => void start()} type="button">
-      <span>{bezig ? "One moment…" : "Start organizing your leads"}</span>
+    <button className="vc-cta" disabled={bezig} onClick={() => void start()} type="button">
+      <span>{bezig ? "Een moment…" : tekst}</span>
       <i aria-hidden="true">→</i>
     </button>
   );
@@ -169,7 +204,7 @@ function useOnthul() {
   }, []);
 }
 
-/** The general landing page, for any business: one pain per screen, few words, one button to the payment page. */
+/** The general landing page, for any business: Start, then the two packages (Website and 3D website) with an example of each, then what Volgo does. */
 export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: RouteTaal }) {
   void vast;
   useOnthul();
@@ -190,47 +225,70 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
 
       <main>
         <section aria-labelledby="vc-titel" className="vc-hero">
-          <p className="vc-oog">Voor elk bedrijf met klanten</p>
+          <p className="vc-oog">Website laten maken · met Volgo erin</p>
           <h1 className="vc-titel" id="vc-titel">
-            Je verliest klanten
+            Jouw website.
             <br />
-            <em>terwijl je werkt.</em>
+            <em>Met Volgo erin.</em>
           </h1>
-          <p className="vc-sub">Volgo vangt ze op en plant de afspraak. Vanzelf.</p>
+          <p className="vc-sub">Wij bouwen je website. Volgo plant je afspraken. Vanzelf.</p>
           <StartKnop ingelogd={ingelogd} />
-          <p className="vc-klein">Website + Volgo · €299 per maand, eerste 3 maanden · maandelijks opzegbaar</p>
+          <p className="vc-klein">Website €997 · 3D website €1997 · Volgo altijd inbegrepen, €49,99 p/m</p>
           <p aria-hidden="true" className="vc-scroll">
             ↓
           </p>
         </section>
 
-        {PIJN.map((p, i) => (
-          <section aria-label={`Probleem ${i + 1}`} className="vc-pijn" key={p.met}>
-            <p className="vc-nr" data-rv="">
-              0{i + 1} <span>/ 05</span>
-            </p>
-            <div className="vc-nu" data-rv="">
-              <small>Nu</small>
-              <p>
-                {p.nu.map((r) => (
-                  <span key={r}>{r}</span>
-                ))}
-              </p>
-            </div>
-            <div className="vc-met" data-rv="">
-              <small>Met Volgo</small>
-              <h2>{p.met}</h2>
-              <p>{p.hoe}</p>
-            </div>
-          </section>
-        ))}
+        <section aria-labelledby="vc-pakketten" className="vc-pakketten" id="pakketten">
+          <h2 className="vc-h2" data-rv="" id="vc-pakketten">
+            Kies je <em>website.</em>
+          </h2>
+          <p className="vc-sub vc-sub--midden" data-rv="">
+            Eén keer betalen voor je website. Volgo zit er altijd in.
+          </p>
+          {PAKKETTEN.map((p, i) => (
+            <article aria-labelledby={`vc-pakket-${p.plan}`} className={`vc-pakket vc-pakket--${p.soort}${i % 2 ? " vc-pakket--om" : ""}`} id={i === 0 ? "prijzen" : undefined} key={p.plan}>
+              <figure className="vc-venster" data-rv="">
+                <div aria-hidden="true" className="vc-venster__balk">
+                  <i />
+                  <i />
+                  <i />
+                  <span>{p.adres}</span>
+                </div>
+                <img alt={p.alt} decoding="async" height={752} loading="lazy" src={p.beeld} width={1344} />
+                <figcaption>{p.bij}</figcaption>
+              </figure>
+              <div className="vc-pakket__tekst" data-rv="">
+                <p className="vc-oog">{p.nr}</p>
+                <h3 id={`vc-pakket-${p.plan}`}>{p.naam}</h3>
+                <p className="vc-pakket__regel">{p.regel}</p>
+                <p className="vc-pakket__prijs">
+                  <b>{p.prijs}</b> <span>eenmalig</span>
+                </p>
+                <p className="vc-volgo-rij">
+                  <span>Volgo inbegrepen</span> <span>€49,99 p/m</span>
+                </p>
+                <ul>
+                  {p.punten.map((x) => (
+                    <li key={x}>{x}</li>
+                  ))}
+                </ul>
+                <KiesKnop ingelogd={ingelogd} plan={p.plan} tekst={p.knop} />
+                <p className="vc-klein">{p.vandaag} Veilig betalen via Stripe.</p>
+              </div>
+            </article>
+          ))}
+        </section>
 
         <section aria-labelledby="vc-bouw" className="vc-bouw">
           <h2 className="vc-h2" data-rv="" id="vc-bouw">
-            Wij bouwen je website.
+            Volgo zit er
             <br />
-            <em>Daar landen je klanten.</em>
+            <em>altijd in.</em>
           </h2>
+          <p className="vc-sub vc-sub--midden" data-rv="">
+            De assistent in je website. Hij antwoordt elke bezoeker en plant de afspraak. €49,99 per maand, bij elk pakket.
+          </p>
           <div aria-hidden="true" className="vc-anim" data-rv="">
             <div className="vc-site">
               <div className="vc-site__balk">
@@ -299,24 +357,6 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
                 <li key={x}>{x}</li>
               ))}
             </ul>
-          </div>
-        </section>
-
-        <section aria-labelledby="vc-aanbod" className="vc-aanbod" id="prijzen">
-          <div className="vc-kaart" data-rv="">
-            <p className="vc-oog">Startaanbod voor de eerste klanten</p>
-            <h2 id="vc-aanbod">Website + Volgo</h2>
-            <p className="vc-prijs">
-              <s>€499</s> <b>€299</b> <span>per maand</span>
-            </p>
-            <p className="vc-klein">Eerste 3 maanden, daarna €499 · excl. btw · geen opstartkosten · maandelijks opzegbaar</p>
-            <ul>
-              {KRIJGT.map((x) => (
-                <li key={x}>{x}</li>
-              ))}
-            </ul>
-            <StartKnop ingelogd={ingelogd} />
-            <p className="vc-klein">Veilig betalen via Stripe. Daarna opent je dashboard meteen.</p>
           </div>
         </section>
 

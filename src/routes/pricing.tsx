@@ -17,8 +17,8 @@ export const Route = createFileRoute("/pricing")({
   loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "", plan: "", eigenaar: false })),
   head: () => ({
     meta: [
-      { title: "Pricing · Volgo · Website + Volgo from €299 per month" },
-      { name: "description", content: "Volgo pricing: one package, Website + Volgo: €299 per month for the first 3 months, then €499 per month. A new premium website with the Volgo chat assistant inside, and every warm customer in one app. No setup fee. Excl. VAT, monthly, cancel any time." },
+      { title: "Pricing · Volgo · Website €997 or 3D website €1997, Volgo included" },
+      { name: "description", content: "Volgo pricing: have a professional website made for €997 one-time, or a 3D website for €1997 one-time. Volgo is always included for €49,99 per month: the assistant in your website that answers every visitor and plans your appointments. Excl. VAT, cancel any time." },
       { property: "og:url", content: "https://thevolgo.app/pricing" },
     ],
     links: [{ rel: "canonical", href: "https://thevolgo.app/pricing" }],
@@ -78,7 +78,7 @@ function Abonnement() {
             <p className="v-melding">Your trial or subscription has ended. Choose a plan to continue — all your data is still here.</p>
           ) : null}
           <h1 className="v-h2 v-center">{wisselen ? "Switch plans." : "Choose your plan."}</h1>
-          <p className="v-lede v-center">Billed monthly, no setup fee. Switch or cancel any time.</p>
+          <p className="v-lede v-center">Pay once for your website. Volgo is always included, for €49,99 per month. Cancel any time.</p>
         </header>
         <div className="v-plans" id="plans">
           {ZICHTBAAR.map((id) => {
@@ -89,7 +89,15 @@ function Abonnement() {
                 <h2 className="v-plan__name">{p.naam}</h2>
                 <p className="v-plan__tag">{p.tagline}</p>
                 <p className="v-plan__price">
-                  <span>€{!wisselen && p.intro ? p.intro.prijsTekst : p.prijsTekst}</span> per month
+                  {p.opstart ? (
+                    <>
+                      <span>€{p.opstart / 100}</span> one-time
+                    </>
+                  ) : (
+                    <>
+                      <span>€{!wisselen && p.intro ? p.intro.prijsTekst : p.prijsTekst}</span> per month
+                    </>
+                  )}
                 </p>
                 {!wisselen && p.intro ? (
                   <p className="v-plan__kaart">
@@ -97,7 +105,7 @@ function Abonnement() {
                   </p>
                 ) : null}
                 {!wisselen && p.proefDagen ? <p className="v-plan__kaart">First {p.proefDagen} days for €1 · cancel within {p.proefDagen} days and pay nothing more</p> : null}
-                {p.opstart ? <p className="v-plan__kaart">+ €{p.opstart / 100} one-time setup for your new website</p> : null}
+                {p.opstart ? <p className="v-plan__kaart">Volgo included · €{p.prijsTekst} per month</p> : null}
                 <button
                   className={`v-plan__cta v-plan__cta--${id}`}
                   disabled={bezig !== null || (wisselen && (huidig === id || !eigenaar))}
@@ -114,7 +122,7 @@ function Abonnement() {
                         ? `Start ${p.proefDagen} days for €1`
                         : "Start now · pay securely"}
                 </button>
-                <p className="v-plan__kaart">{wisselen ? "Switches right away" : "Billed monthly · Cancel any time"}</p>
+                <p className="v-plan__kaart">{wisselen ? "Switches right away" : p.opstart ? `Today €${((p.prijs + p.opstart) / 100).toFixed(2).replace(".", ",")}: your website + the first month of Volgo` : "Billed monthly · Cancel any time"}</p>
                 <ul className="v-plan__kern">
                   {p.kern.map((f) => (
                     <li key={f}>{f}</li>
@@ -140,7 +148,7 @@ function Abonnement() {
             {ZICHTBAAR.map((id) => (
               <article className={`v-na__kaart v-na__kaart--${id}`} key={id}>
                 <p className="v-na__plan">
-                  {PLANS[id].naam} · €{PLANS[id].intro ? `${PLANS[id].intro.prijsTekst}/mo for ${PLANS[id].intro.maanden} months, then €${PLANS[id].prijsTekst}/mo` : `${PLANS[id].prijsTekst}/mo`}
+                  {PLANS[id].naam} · {PLANS[id].opstart ? `€${PLANS[id].opstart / 100} one-time + ` : ""}€{PLANS[id].intro ? `${PLANS[id].intro.prijsTekst}/mo for ${PLANS[id].intro.maanden} months, then €${PLANS[id].prijsTekst}/mo` : `${PLANS[id].prijsTekst}/mo`}
                 </p>
                 <h3>{START_STAPPEN[id].titel}</h3>
                 <ol>
@@ -170,14 +178,14 @@ function Abonnement() {
 
           <div className="v-na__regels">
             <p>
-              <strong>Website + Volgo:</strong> €299 per month for the first 3 months, then €499 per month. No setup fee. You pay the first month today, by card, on Stripe's secure payment page.
+<strong>Website or 3D website:</strong> €997 or €1997 one-time for your website, with Volgo included for €49,99 per month. Today you pay the website and the first month of Volgo, by card, on Stripe's secure payment page.
             </p>
             <p>
               <strong>Cancel any time.</strong> In your dashboard under Subscription. Volgo, your dashboard and the website we built (if you have one)
               stop at the end of your paid period.
             </p>
             <p>
-              <strong>Switch any time.</strong> Upgrade from Volgo to Website + Volgo to get your new website; your chats, requests and settings stay.
+              <strong>Switch any time.</strong> Upgrade from Website to 3D website and you only pay the difference; your chats, requests and settings stay.
             </p>
           </div>
         </section>
@@ -196,7 +204,7 @@ function Abonnement() {
                   {ZICHTBAAR.map((id) => (
                     <th key={id} scope="col">
                       {PLANS[id].naam}
-                      <small>€{PLANS[id].prijsTekst}/mo</small>
+                      <small>{PLANS[id].opstart ? `€${PLANS[id].opstart / 100} + ` : ""}€{PLANS[id].prijsTekst}/mo</small>
                     </th>
                   ))}
                 </tr>

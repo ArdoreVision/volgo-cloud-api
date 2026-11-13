@@ -4,8 +4,8 @@ import { LandingPagina } from "@/components/volgo/landing-pagina";
 import { isIngelogd } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
 
-const TITEL = "Volgo · Al je warme klanten in één app";
-const OMSCHRIJVING = "Een nieuwe website met een chatassistent erin die elke bezoeker antwoordt, jouw vragen stelt en de afspraak plant. Al je warme klanten in één app. Voor elk bedrijf.";
+const TITEL = "Volgo · Website laten maken, met Volgo erin";
+const OMSCHRIJVING = "Professionele website laten maken voor €997, of een 3D-website voor €1997. Volgo zit er altijd in: de assistent die elke bezoeker antwoordt en je afspraken plant, voor €49,99 per maand.";
 
 /** Dutch landing page, for Dutch ads: thevolgo.app/nl. Same page, Dutch copy and a Dutch sample business in the demo. */
 export const Route = createFileRoute("/nl")({

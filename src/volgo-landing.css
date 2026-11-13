@@ -386,3 +386,35 @@
   #vd .vc-cta, #vd .vc-cta::before, #vd .vc-scroll, #vd .vc-anim.is-in * { animation: none !important; }
   #vd.vc-js [data-rv] { opacity: 1; transform: none; transition: none; }
 }
+
+/* Two packages (Website, 3D website): an example of the site on one side, the offer on the other */
+html:has(#vd.vc) { scroll-behavior: smooth; }
+#vd .vc-sub--midden { max-width: 620px; margin: calc(-1 * clamp(14px, 3vw, 34px)) auto 0; text-align: center; }
+#vd .vc-pakketten { width: 100%; max-width: 1140px; padding: clamp(80px, 12vw, 150px) 24px clamp(20px, 4vw, 50px); border-top: 1px solid rgba(255, 255, 255, 0.07); scroll-margin-top: 64px; }
+#vd .vc-pakket { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: center; gap: clamp(26px, 5vw, 64px); padding: clamp(46px, 8vw, 100px) 0; scroll-margin-top: 64px; }
+#vd .vc-pakket + .vc-pakket { border-top: 1px solid rgba(255, 255, 255, 0.07); }
+#vd .vc-pakket--om .vc-venster { order: 2; }
+#vd .vc-venster { margin: 0; border-radius: 22px; overflow: hidden; background: linear-gradient(180deg, #141414, #0a0a0a); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 40px 110px rgba(0, 0, 0, 0.6); }
+#vd .vc-pakket--3d .vc-venster { box-shadow: inset 0 0 0 1px rgba(200, 255, 62, 0.4), 0 50px 140px rgba(200, 255, 62, 0.14); }
+#vd .vc-venster__balk { display: flex; align-items: center; gap: 6px; padding: 12px 16px; font-size: 12px; color: #8a8a8a; }
+#vd .vc-venster__balk i { width: 8px; height: 8px; border-radius: 50%; background: #333; }
+#vd .vc-venster__balk span { margin-left: 8px; }
+#vd .vc-venster img { display: block; width: 100%; height: auto; }
+#vd .vc-venster figcaption { padding: 12px 16px 14px; font-size: 13px; color: #8a8a8a; text-align: left; }
+#vd .vc-pakket__tekst { text-align: left; }
+#vd .vc-pakket__tekst .vc-oog { display: inline-block; margin-bottom: 16px; }
+#vd .vc-pakket h3 { margin: 0; font-size: clamp(40px, 6.4vw, 72px); line-height: 0.98; font-weight: 800; letter-spacing: -0.05em; color: #fff; }
+#vd .vc-pakket__regel { margin: 14px 0 0; font-size: clamp(16px, 2vw, 19px); line-height: 1.45; color: #a9a9a9; }
+#vd .vc-pakket__prijs { margin: 22px 0 0; display: flex; align-items: baseline; gap: 12px; font-size: 18px; color: #9a9a9a; }
+#vd .vc-pakket__prijs b { font-size: clamp(64px, 9vw, 100px); line-height: 1; font-weight: 800; letter-spacing: -0.06em; color: #fff; }
+#vd .vc-volgo-rij { margin: 20px 0 0; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 16px; padding: 14px 18px; border-radius: 16px; background: rgba(200, 255, 62, 0.07); box-shadow: inset 0 0 0 1px rgba(200, 255, 62, 0.35); font-size: 16px; font-weight: 700; color: #fff; }
+#vd .vc-volgo-rij span:last-child { color: var(--vc); }
+#vd .vc-pakket ul { list-style: none; margin: 24px 0 30px; padding: 0; display: grid; gap: 12px; font-size: clamp(16px, 2vw, 18px); font-weight: 600; color: #fff; }
+#vd .vc-pakket li { display: flex; align-items: flex-start; gap: 12px; }
+#vd .vc-pakket li::before { content: "✓"; flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--vc); color: #000; font-size: 13px; }
+#vd .vc-bouw .vc-sub--midden { margin-bottom: clamp(30px, 5vw, 56px); }
+@media (max-width: 860px) {
+  #vd .vc-pakket { grid-template-columns: 1fr; }
+  #vd .vc-pakket--om .vc-venster { order: 0; }
+}
+@media (prefers-reduced-motion: reduce) { html:has(#vd.vc) { scroll-behavior: auto; } }

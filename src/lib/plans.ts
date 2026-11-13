@@ -13,7 +13,7 @@ export type Plan = {
   proefDagen: number;
   tagline: string;
   badge?: string;
-  /** One-time setup fee in cents, charged with the first payment (0 = none). */
+  /** One-time price of the website in cents, charged with the first payment (0 = none). */
   opstart: number;
   /** Introductory offer for first-time customers: this price (cents) for the first `maanden` months, then `prijs`. */
   intro?: { maanden: number; prijs: number; prijsTekst: string };
@@ -36,6 +36,9 @@ export type Plan = {
     analyticsDagen: number;
   };
 };
+
+/** Both website packages come with the same Volgo: the price and the limits are identical, only the website differs. */
+const WEBSITE_LIMIETEN: Plan["limieten"] = { leden: 5, teamChat: true, eigenStijl: true, website: true, gesprekken: 3000, analyticsDagen: 90 };
 
 export const PLANS: Record<PlanId, Plan> = {
   start: {
@@ -61,71 +64,65 @@ export const PLANS: Record<PlanId, Plan> = {
   },
   pro: {
     id: "pro",
-    naam: "Website + Volgo",
-    prijs: 49900,
-    prijsTekst: "499",
-    intro: { maanden: 3, prijs: 29900, prijsTekst: "299" },
+    naam: "Website",
+    prijs: 4999,
+    prijsTekst: "49,99",
     proefDagen: 0,
-    opstart: 0,
-    tagline: "A new premium website built for you, with the Volgo chat assistant inside. Every warm customer in one app. You do nothing.",
-    badge: "Most chosen",
-    kern: ["New premium website, built by Volgo", "Assistant on it, 24/7", "No setup fee"],
+    opstart: 99700,
+    tagline: "A professional website built for you, with Volgo inside: the assistant that answers every visitor and plans your appointments.",
+    kern: ["Professional website, made to measure", "Volgo inside, 24/7", "All your customers in one app"],
     features: [
-      "Everything in Volgo",
       "Website made to measure, via chat or call",
-      "Photos, video and animations on your site",
+      "Photos and video on your site",
+      "Volgo answers every visitor and plans the appointment",
       "Your own chat photo and style, no Volgo branding",
       "Changes to your website when you need them",
-      "Priority support",
     ],
-    limieten: { leden: 5, teamChat: true, eigenStijl: true, website: true, gesprekken: 3000, analyticsDagen: 90 },
+    limieten: WEBSITE_LIMIETEN,
   },
   premium: {
     id: "premium",
-    naam: "Premium",
-    prijs: 99700,
-    prijsTekst: "997",
-    proefDagen: PROEF_DAGEN,
-    opstart: 0,
-    verborgen: true,
-    tagline: "Everything in Pro, for high-volume teams with bigger websites.",
-    badge: "For teams",
-    kern: ["5,000 Volgo conversations / month", "Unlimited users", "Larger custom website"],
+    naam: "3D website",
+    prijs: 4999,
+    prijsTekst: "49,99",
+    proefDagen: 0,
+    opstart: 199700,
+    tagline: "A 3D website that people remember: 3D visuals and scroll animations, with Volgo inside to plan your appointments.",
+    kern: ["3D website with scroll animations", "Volgo inside, 24/7", "All your customers in one app"],
     features: [
-      "Everything in Pro",
-      "More pages, advanced animations and video",
-      "Photo and video tools for your site",
-      "Changes to your website whenever you need them",
-      "Volgo on multiple websites or locations",
-      "Fastest support",
+      "Everything in Website",
+      "3D visuals that move as you scroll",
+      "Scroll animations across the whole site",
+      "Volgo answers every visitor and plans the appointment",
+      "Changes to your website when you need them",
     ],
-    limieten: { leden: null, teamChat: true, eigenStijl: true, website: true, gesprekken: 5000, analyticsDagen: 90 },
+    limieten: WEBSITE_LIMIETEN,
   },
 };
 
-/** The plans that are sold now, in order. Premium stays valid for existing customers only. */
-export const ZICHTBAAR: PlanId[] = ["pro"];
+/** The plans that are sold now, in order: Website (one-time €997) and 3D website (one-time €1997), each with Volgo at €49,99 a month. */
+export const ZICHTBAAR: PlanId[] = ["pro", "premium"];
 
 export const isPlan = (v: unknown): v is PlanId => v === "start" || v === "pro" || v === "premium";
 export const planVan = (v: unknown): Plan => (isPlan(v) ? PLANS[v] : PLANS.start);
 
 /** For the comparison table on the pricing page. */
 export const VERGELIJKING: { label: string; start: string | boolean; pro: string | boolean; premium: string | boolean }[] = [
-  { label: "Chat assistant on your website, 24/7", start: true, pro: true, premium: true },
-  { label: "All warm customers together in one app", start: true, pro: true, premium: true },
+  { label: "Professional website, made to measure", start: false, pro: true, premium: true },
+  { label: "Photos and video on your website", start: false, pro: true, premium: true },
+  { label: "3D visuals that move as you scroll", start: false, pro: false, premium: true },
+  { label: "Scroll animations across the whole site", start: false, pro: false, premium: true },
+  { label: "Volgo on your website, 24/7", start: true, pro: true, premium: true },
   { label: "Asks your questions before an appointment", start: true, pro: true, premium: true },
   { label: "Phone, visit and chat appointments in your calendar", start: true, pro: true, premium: true },
+  { label: "All your customers together in one app", start: true, pro: true, premium: true },
   { label: "Notification when someone starts chatting", start: true, pro: true, premium: true },
-  { label: "Read chats live and take over", start: true, pro: true, premium: true },
-  { label: "Set up for you", start: true, pro: true, premium: true },
-  { label: "New premium website built by Volgo", start: false, pro: true, premium: true },
-  { label: "Photos, video and animations on your website", start: false, pro: true, premium: true },
   { label: "Own chat photo and style, no Volgo branding", start: false, pro: true, premium: true },
-  { label: "Users", start: "1", pro: "5", premium: "Unlimited" },
-  { label: "Setup fee", start: "€0", pro: "€0", premium: "—" },
-  { label: "Trial", start: "7 days for €1", pro: "—", premium: "—" },
+  { label: "Users", start: "1", pro: "5", premium: "5" },
+  { label: "Website, one-time", start: "—", pro: "€997", premium: "€1997" },
+  { label: "Volgo, per month", start: "€99", pro: "€49,99", premium: "€49,99" },
   { label: "Domain name", start: "—", pro: "Not included", premium: "Not included" },
-  { label: "Contract", start: "Monthly, cancel any time", pro: "Monthly, cancel any time", premium: "Monthly, cancel any time" },
+  { label: "Volgo subscription", start: "Monthly, cancel any time", pro: "Monthly, cancel any time", premium: "Monthly, cancel any time" },
 ];
 
 /** What happens after you subscribe, per plan. Shown on the pricing page. */
@@ -140,21 +137,21 @@ export const START_STAPPEN: Record<PlanId, { titel: string; stappen: string[] }>
     ],
   },
   pro: {
-    titel: "We build your new website with the assistant inside",
+    titel: "We build your website with Volgo inside",
     stappen: [
       "Pay securely, then create your account. Your dashboard opens right away.",
       "Open the Website tab and tell us what you want, by chat or in a call. We build your site to measure.",
       "You review it, we launch it on your own domain with Volgo built in.",
-      "Your assistant is live on it from day one.",
+      "Volgo is live on it from day one.",
     ],
   },
   premium: {
-    titel: "We build a larger website with Volgo inside",
+    titel: "We build your 3D website with Volgo inside",
     stappen: [
-      "Create your account and open the Website tab.",
-      "We plan your site together by chat or call: pages, photos, video, animations.",
-      "We launch it on your own domain with Volgo built in, and set up your team.",
-      "Need changes later? Ask any time, we handle them.",
+      "Pay securely, then create your account. Your dashboard opens right away.",
+      "Open the Website tab and tell us what you want, by chat or in a call: pages, 3D visuals, animations.",
+      "You review it, we launch it on your own domain with Volgo built in.",
+      "Volgo is live on it from day one.",
     ],
   },
 };

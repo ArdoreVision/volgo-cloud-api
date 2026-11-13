@@ -221,11 +221,11 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
                         {p.naam}
                         {p.badge ? <em>{p.badge}</em> : null}
                       </span>
-                      <b>€{nieuw && p.intro ? p.intro.prijsTekst : p.prijsTekst}</b>
-                      <span className="v-lock__per">per maand</span>
+                      <b>€{p.opstart ? p.opstart / 100 : nieuw && p.intro ? p.intro.prijsTekst : p.prijsTekst}</b>
+                      <span className="v-lock__per">{p.opstart ? "eenmalig" : "per maand"}</span>
                       {nieuw && p.intro ? <span className="v-lock__proef">Eerste {p.intro.maanden} maanden, daarna €{p.prijsTekst} per maand</span> : null}
                       {nieuw && p.proefDagen ? <span className="v-lock__proef">First 7 days {euro1}</span> : null}
-                      {p.opstart ? <span className="v-lock__proef">+ €{p.opstart / 100} one-time setup</span> : null}
+                      {p.opstart ? <span className="v-lock__proef">Volgo inbegrepen · €{p.prijsTekst} per maand</span> : null}
                       <ul>
                         {p.kern.map((k) => (
                           <li key={k}>{k}</li>
@@ -240,7 +240,9 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
                 <p>
                   {nieuw && PLANS[kies].proefDagen
                     ? `Vandaag ${euro1}. Vanaf dag 8: €${PLANS[kies].prijsTekst} per maand voor Volgo ${PLANS[kies].naam}. Veilig betalen via Stripe.`
-                    : `${PLANS[kies].opstart ? `Today €${(PLANS[kies].prijs + PLANS[kies].opstart) / 100} (€${PLANS[kies].opstart / 100} setup + first month), then ` : ""}${nieuw && PLANS[kies].intro ? `€${PLANS[kies].intro.prijsTekst} per maand voor de eerste ${PLANS[kies].intro.maanden} maanden, daarna ` : ""}€${PLANS[kies].prijsTekst} per maand voor Volgo ${PLANS[kies].naam}. Veilig betalen via Stripe.`}
+                    : PLANS[kies].opstart
+                      ? `Vandaag €${((PLANS[kies].prijs + PLANS[kies].opstart) / 100).toFixed(2).replace(".", ",")} (€${PLANS[kies].opstart / 100} voor je ${PLANS[kies].naam.toLowerCase()} + eerste maand Volgo), daarna €${PLANS[kies].prijsTekst} per maand voor Volgo. Veilig betalen via Stripe.`
+                      : `${nieuw && PLANS[kies].intro ? `€${PLANS[kies].intro.prijsTekst} per maand voor de eerste ${PLANS[kies].intro.maanden} maanden, daarna ` : ""}€${PLANS[kies].prijsTekst} per maand voor Volgo ${PLANS[kies].naam}. Veilig betalen via Stripe.`}
                 </p>
                 <button className="v-lock__knop" disabled={bezig} onClick={() => void start()} type="button">
                   {bezig ? "Een moment…" : nieuw && PLANS[kies].proefDagen ? `Start 7 dagen voor ${euro1} →` : `Verder met ${PLANS[kies].naam} →`}

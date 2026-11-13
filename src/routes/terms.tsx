@@ -7,7 +7,7 @@ export const Route = createFileRoute("/terms")({
   head: () => ({ meta: [{ title: "Terms of Service · Volgo" }, { name: "description", content: "Volgo's Terms of Service." }] }),
   component: () => (
     <LegalPage
-      bijgewerkt="October 31, 2026"
+      bijgewerkt="November 13, 2026"
       intro={<p>These terms apply to all use of Volgo. By starting a subscription, you agree to them.</p>}
       titel="Terms of Service"
     >
@@ -30,8 +30,8 @@ export const Route = createFileRoute("/terms")({
 
       <h2>3. Prices and payment</h2>
       <ul>
-        <li>Every plan starts with a 7-day trial for €1, charged when you choose a plan. After 7 days the full monthly price is charged automatically, unless you cancel within the trial. There is no setup fee.</li>
-        <li>The subscription renews automatically every month at the current monthly price. Prices exclude VAT.</li>
+        <li>The website packages (Website and 3D website) have a one-time price for the website. It is charged at checkout, together with the first month of Volgo. After that, Volgo is billed every month.</li>
+        <li>The Volgo subscription renews automatically every month at the current monthly price. Prices exclude VAT.</li>
         <li>Payment is made monthly in advance through our payment partner. If a payment fails, we may suspend the service after a reminder.</li>
         <li>We may adjust prices once a year. We’ll let you know at least 30 days in advance; you may then cancel before the change takes effect.</li>
       </ul>
