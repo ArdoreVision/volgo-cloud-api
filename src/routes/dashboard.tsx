@@ -77,6 +77,7 @@ const ALLE_GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
       ["gesprekken", "Inbox"],
       ["agenda", "Calendar"],
       ["aanvragen", "Requests"],
+      ["verkeer", "Analytics"],
       ["vraag", "Ask Volgo"],
     ],
   },
@@ -97,7 +98,6 @@ const OVERIG: [Tab, string][] = [
   ["mijnsite", "My website"],
   ["kanalen", "Connections"],
   ["ava", "Your chat"],
-  ["verkeer", "Visitors"],
   ["inbouwen", "Install in your own website"],
 ];
 /** Plans without a website from Volgo have no Website page. */
@@ -602,7 +602,7 @@ function Open({ data }: { data: DashData }) {
         {(tab === "home" || tab === "gesprekken") && g.rol === "eigenaar" ? <InstelLijst kort metWebsite={plan.limieten.website} openTab={(t) => setTab(t)} /> : null}
         {tab === "home" ? <Vandaag data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "overzicht" ? <Overview data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
-        {tab === "verkeer" ? <Verkeer openTab={(t) => setTab(t)} /> : null}
+        {tab === "verkeer" ? <Verkeer afspraken={data.afspraken} gesprekken={data.gesprekken} leads={data.leads} openTab={(t) => setTab(t)} /> : null}
         {tab === "gesprekken" ? <Gesprekken data={data} /> : null}
         {tab === "agenda" ? (
           <>
