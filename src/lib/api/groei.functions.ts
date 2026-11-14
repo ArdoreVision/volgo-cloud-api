@@ -236,7 +236,22 @@ export const controleerInstallatie = createServerFn({ method: "POST" }).handler(
     const html = await r.text();
     let staat = html.includes(i.sleutel) && html.includes("ava.js");
     // Some builders (Wix, Squarespace) load scripts later: then the chat itself reports a visit.
-    if (!staat) staat = Boolean(await DB.prepare("SELECT 1 FROM site_views WHERE team_id = ? AND dag >= date('now', '-7 days') LIMIT 1").bind(g.team_id).first().catch(() => null));
+    // Only visits on this website count. Visits from before the host was stored count as long as the owner never
+    // started over with another website; after a reset only visits since then, on the new website, count.
+    if (!staat) {
+      const { schoneHost } = await import("../verkeer.server");
+      const host = schoneHost(new URL(i.site_url).host);
+      const reset = (await DB.prepare("SELECT installatie_reset FROM ava_instellingen WHERE team_id = ?").bind(g.team_id).first<{ installatie_reset: string }>().catch(() => null))?.installatie_reset ?? "";
+      staat = Boolean(
+        await DB.prepare(
+          `SELECT 1 FROM site_views WHERE team_id = ?1 AND dag >= date('now', '-7 days')
+             AND (host = ?2 OR (host IS NULL AND ?3 = '')) AND (?3 = '' OR created_at > ?3) LIMIT 1`,
+        )
+          .bind(g.team_id, host, reset)
+          .first()
+          .catch(() => null),
+      );
+    }
     if (!staat) return { status: "niet" as const };
     // Found: tick "Add Volgo to your website" in Get started, so the customer never has to confirm it by hand.
     await DB.prepare("INSERT INTO onboarding (team_id, geinstalleerd) VALUES (?, 1) ON CONFLICT(team_id) DO UPDATE SET geinstalleerd = 1").bind(g.team_id).run().catch(() => undefined);
@@ -244,6 +259,20 @@ export const controleerInstallatie = createServerFn({ method: "POST" }).handler(
   } catch {
     return { status: "onbereikbaar" as const };
   }
+});
+
+/**
+ * Start over with another website: forget the address and the "installed" tick, and remember the moment, so the
+ * live check does not count visits on the earlier website. The line (the code) stays the same, and so do all
+ * conversations, requests and appointments. Volgo stays visible on the earlier website until the line is removed there.
+ */
+export const resetInstallatie = createServerFn({ method: "POST" }).handler(async () => {
+  const { g, DB } = await sessie();
+  if (g.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can connect another website." };
+  await instVan(DB, g.team_id);
+  await DB.prepare("UPDATE ava_instellingen SET site_url = '', installatie_reset = datetime('now') WHERE team_id = ?").bind(g.team_id).run();
+  await DB.prepare("UPDATE onboarding SET geinstalleerd = 0 WHERE team_id = ?").bind(g.team_id).run().catch(() => undefined);
+  return { ok: true as const, message: "" };
 });
 
 /** "This week Volgo did…" on the Today screen: what the customer pays for, in four numbers. */

@@ -82,6 +82,12 @@ export function herkomstTekst(h: Headers, ua: string) {
   return [plek, `${apparaatVan(ua)} (${osVan(ua)})`, browserVan(ua)].filter(Boolean).join(" · ").slice(0, 200);
 }
 
+/** "WWW.Shop.nl:443" → "shop.nl". Empty when it is not a host name. */
+export function schoneHost(h: string) {
+  const s = h.trim().toLowerCase().replace(/:\d+$/, "").replace(/^www\./, "");
+  return /^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?$/.test(s) ? s : "";
+}
+
 export async function slaViewOp(
   DB: D1Database,
   d: {
@@ -100,11 +106,13 @@ export async function slaViewOp(
     browser?: string;
     os?: string;
     taal?: string;
+    /** The website the visit was on (its host name), so visits on an earlier website are not counted for a new one. */
+    host?: string;
   },
 ) {
   const t = Boolean(d.toestemming);
   const r = await DB.prepare(
-    "INSERT INTO site_views (team_id, dag, bezoeker, sessie, pad, titel, bron, apparaat, land, toestemming, vast, stad, regio, browser, os, taal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    "INSERT INTO site_views (team_id, dag, bezoeker, sessie, pad, titel, bron, apparaat, land, toestemming, vast, stad, regio, browser, os, taal, host) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
   )
     .bind(
       d.team,
@@ -123,6 +131,7 @@ export async function slaViewOp(
       t ? d.browser || null : null,
       t ? d.os || null : null,
       t ? (d.taal ?? "").slice(0, 12) || null : null,
+      schoneHost(d.host ?? "") || null,
     )
     .run();
   return Number(r.meta?.last_row_id) || 0;

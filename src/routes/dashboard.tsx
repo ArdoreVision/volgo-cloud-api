@@ -570,7 +570,7 @@ function Open({ data }: { data: DashData }) {
         {tab === "automatisch" ? <Automatisch openTab={(t) => setTab(t)} /> : null}
         {tab === "reviews" ? <Reviews openTab={(t) => setTab(t)} /> : null}
         {tab === "betalingen" ? <Betalingen /> : null}
-        {tab === "installeren" ? <Installeren klaar={() => setGeinstalleerd(true)} openTab={(t) => setTab(t)} wijDoenHet={plan.id !== "starter"} /> : null}
+        {tab === "installeren" ? <Installeren klaar={() => setGeinstalleerd(true)} opnieuw={() => setGeinstalleerd(false)} openTab={(t) => setTab(t)} wijDoenHet={plan.id !== "starter"} /> : null}
         {tab === "mijnsite" ? <MijnWebsite gebouwd={plan.limieten.website} openTab={(t) => setTab(t)} /> : null}
         {tab === "kanalen" ? <Kanalen openTab={(t) => setTab(t)} /> : null}
         {tab === "team" ? (
