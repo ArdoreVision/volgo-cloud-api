@@ -42,6 +42,7 @@ import { checkNieuw } from "@/lib/api/ava.functions";
 import { PLANS, PROEF_DAGEN, isPlan, type PlanId, ZICHTBAAR, aantalTekst, planTitel, vandaagTekst } from "@/lib/plans";
 import "@/volgo.css";
 import "@/volgo-wit.css";
+import "@/volgo-shop.css";
 
 export const Route = createFileRoute("/dashboard")({
   loader: async () => {
@@ -493,6 +494,18 @@ function Open({ data }: { data: DashData }) {
 
   return (
     <div className="volgo v-dash" data-thema={thema} onPointerDown={rimpel}>
+      {/* Top bar (computer): the logo and one field that opens Ask Volgo, where you search and change things. */}
+      <header className="v-top">
+        <button aria-label="Volgo, to your inbox" className="v-top__merk" onClick={() => setTab("gesprekken")} type="button">
+          <VolgoMark size={26} />
+          <span>Volgo</span>
+        </button>
+        <button aria-current={tab === "vraag" ? "page" : undefined} className="v-top__zoek" onClick={() => setTab("vraag")} type="button">
+          <Icon name="vraag" />
+          <span>Ask Volgo or search your account</span>
+          <kbd>Ctrl K</kbd>
+        </button>
+      </header>
       <aside className="v-dash__side">
         <button aria-label="Volgo, to your inbox" className="v-nav__brand v-dash__brand" onClick={() => setTab("gesprekken")} type="button">
           <VolgoMark />
@@ -535,6 +548,9 @@ function Open({ data }: { data: DashData }) {
       </aside>
 
       <div className="v-dash__profiel">
+        <button aria-current={tab === "vraag" ? "page" : undefined} aria-label="Ask Volgo" className="v-top__vraag" onClick={() => setTab("vraag")} type="button">
+          <Icon name="vraag" />
+        </button>
         <button aria-label={thema === "donker" ? "Switch to light" : "Switch to dark"} className="v-thema v-rimpel-uit" onClick={wisselThema} title={thema === "donker" ? "Light" : "Dark"} type="button">
           <span className="v-thema__zon" aria-hidden="true">
             <svg fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeWidth="2" viewBox="0 0 24 24" width="18">

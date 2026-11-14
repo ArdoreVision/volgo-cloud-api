@@ -13,6 +13,8 @@ type Punt = { id: string; titel: string; uitleg: string; klaar: boolean; status:
  */
 export function InstelLijst({ openTab, kort = false, metWebsite = false }: { openTab: (t: string) => void; kort?: boolean; metWebsite?: boolean }) {
   const [d, setD] = useState<Data | null>(null);
+  // On Inbox and Today the list starts closed: one row with the progress, so the page itself comes first.
+  const [open, setOpen] = useState(!kort);
   useEffect(() => {
     void haalInstelStatus().then(setD).catch(() => undefined);
   }, []);
@@ -35,6 +37,24 @@ export function InstelLijst({ openTab, kort = false, metWebsite = false }: { ope
   const nodigOpen = punten.filter((p) => p.nodig && !p.klaar).length;
   if (kort && nodigOpen === 0) return null;
 
+  if (kort && !open)
+    return (
+      <section className="v-g__kaart v-il v-il--dicht">
+        <div className="v-il__rij">
+          <h2>Set up Volgo</h2>
+          <span className="v-g__status is-let">
+            {klaar} of {punten.length} done
+          </span>
+          <div aria-hidden="true" className="v-wiz__balk">
+            <i style={{ width: `${(klaar / punten.length) * 100}%` }} />
+          </div>
+          <button className="v-il__toon" onClick={() => setOpen(true)} type="button">
+            Continue setup
+          </button>
+        </div>
+      </section>
+    );
+
   return (
     <section className="v-g__kaart v-il">
       <div className="v-mw__kop">
@@ -44,9 +64,16 @@ export function InstelLijst({ openTab, kort = false, metWebsite = false }: { ope
             {klaar} of {punten.length} done
           </span>
         </div>
-        <button className="v-g__knop2" onClick={() => vraagVolgo("Help me set up Volgo. What should I still do?")} type="button">
-          Ask Volgo to help
-        </button>
+        <div className="v-il__rij">
+          <button className="v-g__knop2" onClick={() => vraagVolgo("Help me set up Volgo. What should I still do?")} type="button">
+            Ask Volgo to help
+          </button>
+          {kort ? (
+            <button className="v-il__toon v-il__toon--stil" onClick={() => setOpen(false)} type="button">
+              Hide
+            </button>
+          ) : null}
+        </div>
       </div>
       <div aria-hidden="true" className="v-wiz__balk" style={{ margin: "12px 0 4px" }}>
         <i style={{ width: `${(klaar / punten.length) * 100}%` }} />
