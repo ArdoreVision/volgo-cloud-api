@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import { bewaarLeadNotitie, haalLead } from "@/lib/api/account.functions";
 
-import { warmteLabel } from "./util";
+import { warmteKlasse, warmteLabel } from "./util";
 
 type Data = NonNullable<Awaited<ReturnType<typeof haalLead>>>;
 type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
@@ -50,7 +50,7 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
   }
 
   const l = d?.lead;
-  const kleur = l ? warmteLabel(l.warmte).toLowerCase() : "lauw";
+  const kleur = l ? warmteKlasse(l.warmte) : "lauw";
 
   return (
     <div className="v-lp" onClick={sluit} role="presentation">
@@ -80,7 +80,7 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
               <ContactKnoppen contact={l.contact} kanaal={l.kanaal} naam={l.naam} onderwerp={l.onderwerp} />
               {l.contact ? (
                 <button className="v-btn-wit" onClick={() => void kopieer(l.contact!)} type="button">
-                  {gekopieerd ? "Copied" : "Contact kopiëren"}
+                  {gekopieerd ? "Copied" : "Copy contact"}
                 </button>
               ) : (
                 <p className="v-muted v-small">Volgo has no contact details yet.</p>
@@ -114,7 +114,7 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
               ) : null}
               {l.herkomst ? (
                 <div>
-                  <dt>Locatie</dt>
+                  <dt>Location</dt>
                   <dd>📍 {l.herkomst}</dd>
                 </div>
               ) : null}
@@ -136,7 +136,7 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
             <section className="v-lp__blok">
               <h3>Your notes</h3>
               <textarea
-                aria-label="Notities"
+                aria-label="Notes"
                 className="v-lp__notitie"
                 onBlur={() => void bewaar()}
                 onChange={(e) => setNotitie(e.target.value)}
@@ -144,7 +144,7 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
                 rows={3}
                 value={notitie}
               />
-              <p className="v-hint">{bewaard ? "Opgeslagen." : "Saved automatically when you click away."}</p>
+              <p className="v-hint">{bewaard ? "Saved." : "Saved automatically when you click away."}</p>
             </section>
 
             <section className="v-lp__blok">

@@ -30,6 +30,17 @@ async function instVan(DB: Awaited<ReturnType<typeof sessie>>["DB"], team: numbe
 
 // ── Automations ─────────────────────────────────────────
 
+/** The language Volgo writes to this business's customers in. New accounts start in English. */
+export const bewaarBerichtTaal = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ taal: z.enum(["en", "nl"]) }).parse(v))
+  .handler(async ({ data }) => {
+    const { g, DB } = await sessie();
+    if (g.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can change this." };
+    await instVan(DB, g.team_id);
+    await DB.prepare("UPDATE ava_instellingen SET taal = ? WHERE team_id = ?").bind(data.taal, g.team_id).run();
+    return { ok: true as const, message: "" };
+  });
+
 export const haalAutomatisch = createServerFn({ method: "GET" }).handler(async () => {
   const { g, DB } = await sessie();
   const i = await instVan(DB, g.team_id);
@@ -46,6 +57,9 @@ export const haalAutomatisch = createServerFn({ method: "GET" }).handler(async (
   return {
     aan: { herinnering: !!i.auto_herinnering, review: !!i.auto_review, opvolging: !!i.auto_opvolging, seizoen: !!i.auto_seizoen },
     reviewUrl: i.review_url,
+    // Language of the messages Volgo sends to this business's customers (confirmation, reminder, follow-up, review request).
+    taal: (i.taal === "nl" ? "nl" : "en") as "nl" | "en",
+    eigenaar: g.rol === "eigenaar",
     sms: smsAan(),
     mailIn: bindings().INBOUND_MAIL === "aan",
     sleutel: i.sleutel,
@@ -147,8 +161,8 @@ export const maakBetaalverzoek = createServerFn({ method: "POST" })
       taal,
     );
     const { notitie } = await import("../automatisch.server");
-    await notitie(DB, gesprek?.gesprek_id, `Betaalverzoek verstuurd: ${euro(data.bedrag)} voor "${data.omschrijving}"`);
-    return { ok: true as const, link, verstuurd: Boolean(kanaal), message: kanaal ? "" : "Opgeslagen, maar versturen lukte niet. Kopieer de link en stuur hem zelf." };
+    await notitie(DB, gesprek?.gesprek_id, `Payment request sent: ${euro(data.bedrag)} for "${data.omschrijving}"`);
+    return { ok: true as const, link, verstuurd: Boolean(kanaal), message: kanaal ? "" : "Saved, but sending did not work. Copy the link and send it yourself." };
   });
 
 export const annuleerBetaalverzoek = createServerFn({ method: "POST" })

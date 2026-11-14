@@ -93,7 +93,7 @@ async function vraagClaude(key: string, model: string, system: string, messages:
 export async function bouwBeurt(DB: D1Database, team: number, vraag: string) {
   const { ANTHROPIC_API_KEY, CLAUDE_MODEL } = bindings();
   const bouwModel = (bindings() as { CLAUDE_BOUW_MODEL?: string }).CLAUDE_BOUW_MODEL;
-  if (!ANTHROPIC_API_KEY) return { ok: false as const, message: "De websitebouwer is nu niet bereikbaar. Probeer het later opnieuw." };
+  if (!ANTHROPIC_API_KEY) return { ok: false as const, message: "The website builder is unavailable right now. Please try again later." };
   const inst = await instellingenVoorTeam(DB, team);
   const site = await haalSite(DB, team);
   const chat = site?.chat ?? [];

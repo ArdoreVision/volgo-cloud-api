@@ -8,7 +8,7 @@ import { Upsell } from "./upsell";
 type Data = Awaited<ReturnType<typeof haalBouwer>>;
 type Bericht = { rol: "ik" | "volgo"; tekst: string };
 
-const IDEEEN = ["Build a website for my business", "Maak hem donker en strak", "Add a section with frequently asked questions", "Maak de knop bovenaan opvallender"];
+const IDEEEN = ["Build a website for my business", "Make it dark and sleek", "Add a section with frequently asked questions", "Make the button at the top stand out more"];
 
 /** Website builder: tell Volgo in the chat what you want, see the result next to it, put it online with one button. */
 export function Website() {
@@ -46,8 +46,8 @@ export function Website() {
         </header>
         <Upsell
           knop="See Complete"
-          punten={["Tell the chat what you want", "A preview right next to it", "Met één knop online", "The Volgo chat is already on it"]}
-          tag="Website + Volgo"
+          punten={["Tell the chat what you want", "A preview right next to it", "Online with one button", "The Volgo chat is already on it"]}
+          tag="Complete"
           tekst="You build your website by simply typing what you want. Volgo makes it, you watch along and adjust."
           titel="Build your website in a chat"
         />
@@ -112,7 +112,7 @@ export function Website() {
             {d.eigenaar ? (
               d.gepubliceerd ? (
                 <button className="v-bw__stil" onClick={() => void zetOnline(false)} type="button">
-                  Offline halen
+                  Take offline
                 </button>
               ) : (
                 <button className="v-bw__online" onClick={() => void zetOnline(true)} type="button">
@@ -139,7 +139,7 @@ export function Website() {
             }}
             type="button"
           >
-            {gekopieerd ? "Copied" : "Kopieer link"}
+            {gekopieerd ? "Copied" : "Copy link"}
           </button>
         </p>
       ) : null}

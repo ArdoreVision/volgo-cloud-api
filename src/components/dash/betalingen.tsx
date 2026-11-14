@@ -91,7 +91,7 @@ export function Betalingen() {
               <input onChange={(e) => setContact(e.target.value)} required value={contact} />
             </label>
             <label className="v-g__veld">
-              Bedrag (€)
+              Amount (€)
               <input inputMode="decimal" name="bedrag" placeholder="250,00" required />
             </label>
             <label className="v-g__veld">
@@ -105,7 +105,7 @@ export function Betalingen() {
               {melding ? <span className={melding.ok ? "v-g__ok" : "v-g__fout"}>{melding.tekst}</span> : null}
               {melding?.link ? (
                 <button className="v-g__knop2" onClick={() => void navigator.clipboard.writeText(melding.link!)} type="button">
-                  Link kopiëren
+                  Copy link
                 </button>
               ) : null}
             </div>

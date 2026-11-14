@@ -109,7 +109,7 @@ export function Reviews({ openTab }: { openTab: (t: string) => void }) {
                 }}
                 type="button"
               >
-                {gekopieerd ? "Copied ✓" : "Antwoord kopiëren"}
+                {gekopieerd ? "Copied ✓" : "Copy reply"}
               </button>
               <button className="v-g__knop2" disabled={bezig} onClick={() => void schrijf()} type="button">
                 Write another version

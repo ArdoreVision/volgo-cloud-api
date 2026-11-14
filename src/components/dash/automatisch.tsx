@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 
-import { haalAutomatisch } from "@/lib/api/groei.functions";
+import { bewaarBerichtTaal, haalAutomatisch } from "@/lib/api/groei.functions";
 
 import { datumAms, sqlDate } from "./util";
 
 type Data = Awaited<ReturnType<typeof haalAutomatisch>>;
 
-const SOORT: Record<string, string> = { bevestiging: "Bevestiging", herinnering: "Herinnering", review: "Review request", opvolging: "Opvolging", seizoen: "Seasonal message" };
+const SOORT: Record<string, string> = { bevestiging: "Confirmation", herinnering: "Reminder", review: "Review request", opvolging: "Follow-up", seizoen: "Seasonal message" };
 
 /** What Volgo does by itself after a chat or appointment. The customer sees it; Volgo (the owner) switches it. */
 export function Automatisch({ openTab }: { openTab: (t: string) => void }) {
   const [d, setD] = useState<Data | null>(null);
+  const [taalMelding, setTaalMelding] = useState("");
   useEffect(() => {
     void haalAutomatisch().then(setD).catch(() => undefined);
   }, []);
@@ -59,6 +60,34 @@ export function Automatisch({ openTab }: { openTab: (t: string) => void }) {
       <p className="v-g__leeg">Want one switched on or off? Email volgo.app@outlook.com and we change it for you.</p>
 
       <section className="v-g__kaart">
+        <h2>Language of your messages</h2>
+        <p>The language Volgo writes to your customers in: confirmation, reminder, follow-up and review request.</p>
+        <div className="v-g__form">
+          <label className="v-g__veld">
+            Language
+            <select
+              disabled={!d.eigenaar}
+              onChange={(e) => {
+                const taal = e.target.value === "nl" ? "nl" : "en";
+                setTaalMelding("");
+                void bewaarBerichtTaal({ data: { taal } })
+                  .then((r) => {
+                    if (r.ok) setD({ ...d, taal });
+                    setTaalMelding(r.ok ? "Saved." : r.message);
+                  })
+                  .catch(() => setTaalMelding("Saving did not work. Please try again."));
+              }}
+              value={d.taal}
+            >
+              <option value="en">English</option>
+              <option value="nl">Dutch</option>
+            </select>
+          </label>
+          {taalMelding ? <span className={taalMelding === "Saved." ? "v-g__ok" : "v-g__fout"}>{taalMelding}</span> : null}
+        </div>
+      </section>
+
+      <section className="v-g__kaart">
         <h2>Sent by Volgo</h2>
         <p>The latest automatic messages. You also find them in the conversation in your inbox.</p>
         {d.log.length === 0 ? <p className="v-g__leeg">Nothing sent yet. As soon as someone books or leaves their details, you see it here.</p> : null}
@@ -66,7 +95,7 @@ export function Automatisch({ openTab }: { openTab: (t: string) => void }) {
           {d.log.map((l) => (
             <li key={l.id}>
               <span>
-                <strong>{SOORT[l.soort] ?? l.soort}</strong> aan {l.aan}
+                <strong>{SOORT[l.soort] ?? l.soort}</strong> to {l.aan}
                 <br />
                 <small>{l.onderwerp}</small>
               </span>

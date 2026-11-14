@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 
-/** Volgo's own chat (the same one our customers get), on thevolgo.app. Leads and booked calls land in the Volgo dashboard. */
+/**
+ * Volgo's own script on thevolgo.app. The chat itself is switched off here (no button in the corner);
+ * the script still shows the consent screen and counts visits for the Volgo dashboard.
+ */
 export const VOLGO_AVA_SLEUTEL = "c2c0abaa339e5c0a8c9e4064";
 
 type AvaApi = { open: () => void; afspraak: () => void; vraag: (t: string) => void };
@@ -18,6 +21,7 @@ export function AvaChat() {
     s.defer = true;
     s.setAttribute("data-key", VOLGO_AVA_SLEUTEL);
     s.setAttribute("data-volgo-eigen", "1");
+    s.setAttribute("data-chat", "uit");
     document.body.appendChild(s);
   }, []);
   return null;

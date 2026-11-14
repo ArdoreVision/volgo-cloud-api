@@ -102,6 +102,17 @@ function KiesKnop({ id, kijker, licht = false, opFout }: { id: PlanId; kijker: K
   );
 }
 
+/**
+ * What a website from the Complete package can look like. All four are examples with invented companies:
+ * two are working sample sites you can open (with Volgo on them), two are design examples.
+ */
+const VOORBEELDEN: { naam: string; soort: string; tekst: string; beeld: string; b: number; h: number; link?: string }[] = [
+  { naam: "Bluebonnet Build Co.", soort: "Service business", tekst: "Dark and bold, with a clear button to book. A working sample: try the Volgo chat on it.", beeld: "/voorbeeld/contractor.jpg", b: 1440, h: 900, link: "/voorbeeld/contractor" },
+  { naam: "Badkamerstudio Noordzee", soort: "Showroom or studio", tekst: "Light and calm, built around trust and a price indication. A working sample, in Dutch.", beeld: "/voorbeeld/badkamer.jpg", b: 1440, h: 900, link: "/voorbeeld/badkamer" },
+  { naam: "Groenhof", soort: "Photo-led website", tekst: "Large photos of your work, your services in three blocks and one button to book.", beeld: "/assets/volgo/voorbeeld-website.jpg", b: 1344, h: 752 },
+  { naam: "Bouwhuis", soort: "3D and scroll animation", tekst: "A website that moves as you scroll, for a business that wants to stand out.", beeld: "/assets/volgo/voorbeeld-3d.jpg", b: 1344, h: 752 },
+];
+
 /** The three plans for a website you already have, and under them the package where we build the website too. */
 export function Prijzen({ kijker, kop = true }: { kijker: Kijker; kop?: boolean }) {
   const [fout, setFout] = useState("");
@@ -171,6 +182,36 @@ export function Prijzen({ kijker, kop = true }: { kijker: Kijker; kop?: boolean 
           <p className="vn-klein">Today you pay for the website and the first month. After that €{c.prijsTekst} per month.</p>
         </div>
       </article>
+      <div className="vn-vb" data-rv="">
+        <div className="vn-vb__kop">
+          <h3>What your website can look like</h3>
+          <p>Four examples of the kinds of websites we build with Complete. These companies do not exist; yours is made to measure, with your own photos and texts.</p>
+        </div>
+        <div className="vn-vb__grid">
+          {VOORBEELDEN.map((v) => (
+            <figure className="vn-vb__kaart" key={v.naam}>
+              {v.link ? (
+                <a href={v.link} rel="noopener noreferrer" target="_blank">
+                  <img alt={`Example website: ${v.naam}`} height={v.h} loading="lazy" src={v.beeld} width={v.b} />
+                </a>
+              ) : (
+                <img alt={`Example website: ${v.naam}`} height={v.h} loading="lazy" src={v.beeld} width={v.b} />
+              )}
+              <figcaption>
+                <strong>{v.soort}</strong>
+                <span>{v.tekst}</span>
+                {v.link ? (
+                  <a href={v.link} rel="noopener noreferrer" target="_blank">
+                    Open this example ↗
+                  </a>
+                ) : (
+                  <em>Design example</em>
+                )}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
       {fout ? (
         <p className="vn-fout" role="alert">
           {fout}

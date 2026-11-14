@@ -24,7 +24,7 @@ const taalNaam = (code: string) => {
 };
 const landNaam = (code: string) => {
   try {
-    return code === "??" ? "Onbekend" : (new Intl.DisplayNames(["en"], { type: "region" }).of(code) ?? code);
+    return code === "??" ? "Unknown" : (new Intl.DisplayNames(["en"], { type: "region" }).of(code) ?? code);
   } catch {
     return code;
   }
@@ -81,7 +81,7 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
     ? [
         ["Visitors", d.bezoekers],
         ["Opened the chat", d.chatOpen],
-        ["Vroeg Volgo iets", d.chatBericht],
+        ["Asked Volgo something", d.chatBericht],
         ["Became a request", d.leads],
         ["Booked an appointment", d.geboekt],
       ]
@@ -101,7 +101,7 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
             ) : null}
           </p>
         </div>
-        <div className="v-seg" role="tablist" aria-label="Periode">
+        <div className="v-seg" role="tablist" aria-label="Period">
           {BEREIK.map(([n, l]) => (
             <button aria-selected={dagen === n} disabled={d ? n > d.max : false} key={n} onClick={() => setDagen(n)} role="tab" type="button">
               {l}
@@ -203,13 +203,13 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
               rijen={d.steden.map((s) => ({ naam: `${vlag(s.land ?? "")}  ${s.stad}${s.regio ? `, ${s.regio}` : ""}`, n: s.n }))}
               titel="Cities and regions"
             />
-            <Lijst rijen={d.paginas.map((p) => ({ naam: p.pad, n: p.views, extra: `${tijd(p.duur)} · ${p.scroll}%` }))} titel="Populairste pagina's" />
+            <Lijst rijen={d.paginas.map((p) => ({ naam: p.pad, n: p.views, extra: `${tijd(p.duur)} · ${p.scroll}%` }))} titel="Most visited pages" />
             <Lijst rijen={d.bronnen} titel="Where visitors come from" />
             <Lijst rijen={d.apparaten} titel="Devices" />
             <Lijst rijen={d.landen} sleutel={(c) => `${vlag(c)}  ${landNaam(c)}`} titel="Countries" />
             <Lijst rijen={d.browsers} titel="Browsers" />
             <Lijst rijen={d.systemen} titel="Operating systems" />
-            <Lijst rijen={d.talen} sleutel={(c) => taalNaam(c)} titel="Talen" />
+            <Lijst rijen={d.talen} sleutel={(c) => taalNaam(c)} titel="Languages" />
             <section className="v-dash__panel v-vk__lijst">
               <h2 className="v-sub">Visitors who said yes</h2>
               <p className="v-vk__groot">{d.toestemmingPct}%</p>
@@ -262,7 +262,7 @@ function LandingTrechter({ t }: { t: Trechter }) {
   );
   return (
     <section className="v-dash__panel v-vk__trechter">
-      <h2 className="v-sub">Landingspagina-funnel</h2>
+      <h2 className="v-sub">Landing page funnel</h2>
       <p className="v-muted">Counted once per visit, without cookies and without chat content. Paid subscriptions are under Admin and in Stripe.</p>
       {blok("All visitors", rijen(t.sessies, t.demoKlik, t.demoBericht, t.aboKlik))}
       {t.meta ? blok("Via Facebook / Instagram", rijen(t.meta.bezoekers, t.meta.demoKlik, t.meta.demoBericht, t.meta.aboKlik)) : null}

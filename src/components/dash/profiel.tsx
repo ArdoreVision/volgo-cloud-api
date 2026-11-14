@@ -100,7 +100,7 @@ export function ProfielKnop({
             </span>
           </button>
           <button onClick={() => ga("account")} role="menuitem" type="button">
-            Profiel &amp; account
+            Profile &amp; account
           </button>
           <button onClick={() => ga("abonnement")} role="menuitem" type="button">
             Abonnement <em>{planNaam}</em>

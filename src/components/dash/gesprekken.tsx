@@ -144,7 +144,7 @@ export function Gesprekken({ data }: { data: DashData }) {
   const kanChatten = Boolean(g?.kan_chatten);
   // Not a live website chat: there is no Volgo to take over from, your reply goes out via the channel itself.
   const perMail = ["Contactformulier", "E-mail", "WhatsApp", "SMS", "Telefoon"].includes(g?.kanaal ?? "");
-  const viaTekst = g?.kanaal === "WhatsApp" ? "via WhatsApp" : g?.kanaal === "SMS" || g?.kanaal === "Telefoon" ? "per sms" : g?.contact?.includes("@") ? "per mail" : "per sms";
+  const viaTekst = g?.kanaal === "WhatsApp" ? "via WhatsApp" : g?.kanaal === "SMS" || g?.kanaal === "Telefoon" ? "by text" : g?.contact?.includes("@") ? "by email" : "by text";
   const berichten = detail?.berichten ?? [];
 
   return (
@@ -305,7 +305,7 @@ export function Gesprekken({ data }: { data: DashData }) {
                     aria-label="Your message"
                     onChange={(e) => setTekst(e.target.value)}
                     onKeyDown={onKey}
-                    placeholder={perMail ? `Antwoord ${g.bezoeker} (${viaTekst})…` : ikChat ? `Message to ${g.bezoeker}…` : "Volgo is answering. Type here to take over…"}
+                    placeholder={perMail ? `Reply to ${g.bezoeker} (${viaTekst})…` : ikChat ? `Message to ${g.bezoeker}…` : "Volgo is answering. Type here to take over…"}
                     rows={1}
                     value={tekst}
                   />

@@ -75,7 +75,7 @@ async function registreer(DB: NonNullable<ReturnType<typeof bindings>["DB"]>, in
   const res = await berichtBinnen(DB, inst.team_id, {
     kanaal: "Telefoon",
     van,
-    tekst: gemist ? `Gemiste oproep van ${van} (${tijd}). Bel terug.` : `Oproep van ${van} beantwoord (${tijd}, ${Math.max(1, Math.round(duur / 60))} min).`,
+    tekst: gemist ? `Missed call from ${van} (${tijd}). Call back.` : `Call from ${van} answered (${tijd}, ${Math.max(1, Math.round(duur / 60))} min).`,
     rol: "log",
   });
   await DB.prepare("UPDATE telefoon_oproepen SET gesprek_id = ? WHERE call_sid = ?").bind(res.id, sid).run();
@@ -84,6 +84,6 @@ async function registreer(DB: NonNullable<ReturnType<typeof bindings>["DB"]>, in
     const link = inst.site_url ? `${inst.site_url.replace(/#.*$/, "")}#volgo-boek` : "";
     const s = await k.stuurSmsVan(inst.twilio_nummer, van, `Hoi! Je belde ${inst.bedrijf}, maar we konden even niet opnemen. We bellen je zo snel mogelijk terug.${link ? ` Liever zelf een moment kiezen? ${link}` : ""}`);
     const { notitie } = await import("@/lib/automatisch.server");
-    await notitie(DB, res.id, s.ok ? `Volgo stuurde ${van} een sms dat je terugbelt.` : `Sms naar ${van} lukte niet: ${s.fout}`);
+    await notitie(DB, res.id, s.ok ? `Volgo sent ${van} a text that you will call back.` : `Text to ${van} did not work: ${s.fout}`);
   }
 }

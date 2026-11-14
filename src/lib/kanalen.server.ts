@@ -118,7 +118,7 @@ export async function twilioHandtekeningKlopt(url: string, velden: Record<string
 /** Sends a WhatsApp text from the business's linked number. Free-form text only works within 24 hours of the customer's last message. */
 export async function stuurWhatsApp(phoneId: string, naar: string, tekst: string) {
   const { WHATSAPP_TOKEN } = bindings();
-  if (!WHATSAPP_TOKEN || !phoneId) return { ok: false, fout: "WhatsApp is nog niet gekoppeld." };
+  if (!WHATSAPP_TOKEN || !phoneId) return { ok: false, fout: "WhatsApp is not connected yet." };
   try {
     const r = await fetch(`https://graph.facebook.com/v21.0/${encodeURIComponent(phoneId)}/messages`, {
       method: "POST",
@@ -130,9 +130,9 @@ export async function stuurWhatsApp(phoneId: string, naar: string, tekst: string
     const j = (await r.json().catch(() => ({}))) as { error?: { code?: number; message?: string } };
     if (j.error?.code === 131047)
       return { ok: false, fout: "Meer dan 24 uur sinds het laatste bericht van de klant: WhatsApp staat dan alleen goedgekeurde sjablonen toe. Bel de klant of stuur een sms." };
-    return { ok: false, fout: `WhatsApp weigerde het bericht${j.error?.message ? `: ${j.error.message}` : ""}.` };
+    return { ok: false, fout: `WhatsApp refused the message${j.error?.message ? `: ${j.error.message}` : ""}.` };
   } catch {
-    return { ok: false, fout: "WhatsApp was niet bereikbaar. Probeer het opnieuw." };
+    return { ok: false, fout: "WhatsApp could not be reached. Please try again." };
   }
 }
 
@@ -140,7 +140,7 @@ export async function stuurWhatsApp(phoneId: string, naar: string, tekst: string
 export async function stuurSmsVan(van: string, naar: string, tekst: string) {
   const { TWILIO_SID, TWILIO_TOKEN, TWILIO_FROM } = bindings();
   const from = van || TWILIO_FROM;
-  if (!TWILIO_SID || !TWILIO_TOKEN || !from) return { ok: false, fout: "Sms is nog niet gekoppeld." };
+  if (!TWILIO_SID || !TWILIO_TOKEN || !from) return { ok: false, fout: "Text messages are not connected yet." };
   try {
     const r = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
       method: "POST",
@@ -148,9 +148,9 @@ export async function stuurSmsVan(van: string, naar: string, tekst: string) {
       body: new URLSearchParams({ To: naar, From: from, Body: tekst.slice(0, 1200) }),
       signal: AbortSignal.timeout(10000),
     });
-    return r.ok ? { ok: true, fout: "" } : { ok: false, fout: "De sms kon niet verstuurd worden." };
+    return r.ok ? { ok: true, fout: "" } : { ok: false, fout: "The text could not be sent." };
   } catch {
-    return { ok: false, fout: "Sms was niet bereikbaar. Probeer het opnieuw." };
+    return { ok: false, fout: "Text messages could not be reached. Please try again." };
   }
 }
 

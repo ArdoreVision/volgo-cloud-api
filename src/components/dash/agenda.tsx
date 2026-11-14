@@ -161,7 +161,7 @@ export function Agenda({ data }: { data: DashData }) {
         </section>
       ) : (
         <>
-          <section className="v-month" aria-label="Maandoverzicht">
+          <section className="v-month" aria-label="Month overview">
             {DAGEN_KORT.map((d) => (
               <div className="v-month__wd" key={d}>
                 {d}
@@ -225,12 +225,12 @@ export function Agenda({ data }: { data: DashData }) {
               </select>
             </div>
             <div className="v-fld">
-              <label htmlFor="a-titel">Titel</label>
+              <label htmlFor="a-titel">Title</label>
               <input id="a-titel" maxLength={120} name="titel" placeholder="E.g. Introduction" />
             </div>
             <div className="v-row v-row--3">
               <div className="v-fld">
-                <label htmlFor="a-datum">Datum</label>
+                <label htmlFor="a-datum">Date</label>
                 <input defaultValue={gekozen} id="a-datum" name="datum" type="date" />
               </div>
               <div className="v-fld">
@@ -243,11 +243,11 @@ export function Agenda({ data }: { data: DashData }) {
               </div>
             </div>
             <div className="v-fld">
-              <label htmlFor="a-loc">Locatie</label>
+              <label htmlFor="a-loc">Location</label>
               <input id="a-loc" maxLength={120} name="locatie" placeholder="At the customer's home" />
             </div>
             <div className="v-fld">
-              <label htmlFor="a-not">Notitie</label>
+              <label htmlFor="a-not">Note</label>
               <textarea id="a-not" maxLength={1000} name="notitie" rows={2} />
             </div>
             {fout ? <p className="v-err">{fout}</p> : null}

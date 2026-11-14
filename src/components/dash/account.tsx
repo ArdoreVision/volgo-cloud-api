@@ -147,7 +147,7 @@ export function Account({ g, loguit, leden = [], planNaam, openTab }: { g: G; lo
           </div>
           <div>
             <dt>Role</dt>
-            <dd>{eigenaar ? "Owner" : "Teamlid"}</dd>
+            <dd>{eigenaar ? "Owner" : "Team member"}</dd>
           </div>
           {planNaam ? (
             <div>

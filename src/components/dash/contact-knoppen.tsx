@@ -72,6 +72,6 @@ export function KanaalLabel({ kanaal }: { kanaal: string | null | undefined }) {
             ? ["mail", "Mail"]
             : k.includes("insta")
               ? ["insta", "Instagram"]
-              : ["website", "Website-chat"];
+              : ["website", "Website chat"];
   return <span className={`v-kanaal v-kanaal--${klasse}`}>{tekst}</span>;
 }

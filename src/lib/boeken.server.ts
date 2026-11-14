@@ -116,7 +116,7 @@ export async function boekAfspraak(DB: D1Database, inst: Inst, b: Boeking, leadI
   if (t < minuten(inst.open_van) || t + inst.afspraak_duur > minuten(inst.open_tot)) return { ok: false as const, reden: weg };
   if ((await bezet(DB, inst.team_id, start, eind)).length) return { ok: false as const, reden: weg };
   const titel = `${SOORTEN_NL[soort]} · ${b.naam.trim()}`.slice(0, 120);
-  const notitie = [`Geboekt door de bezoeker in de Volgo-chat. Contact: ${b.contact.trim()}`, soort !== "langs" && b.adres?.trim() ? `Adres: ${b.adres.trim()}` : "", b.notitie?.trim()].filter(Boolean).join("\n").slice(0, 600);
+  const notitie = [`Booked by the visitor in the Volgo chat. Contact: ${b.contact.trim()}`, soort !== "langs" && b.adres?.trim() ? `Address: ${b.adres.trim()}` : "", b.notitie?.trim()].filter(Boolean).join("\n").slice(0, 600);
   const locatie = soort === "langs" ? (b.adres ?? "").trim() : soort === "kantoor" ? "Op kantoor" : soort === "chat" ? `Chat: ${b.contact.trim()}` : `Telefoon: ${b.contact.trim()}`;
   // One statement: the slot is checked and taken in the same step, so two visitors can never get the same time.
   const r = await DB.prepare(
