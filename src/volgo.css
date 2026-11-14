@@ -2732,6 +2732,11 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #050505;
 .v-wiz__klaar { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 16px; }
 .v-wiz__klaar > div:first-of-type { flex: 1 1 260px; }
 .v-wiz__klaar h2 { margin: 0; }
+.v-wiz__reset { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-bottom: 16px; }
+.v-wiz__reset > div:first-child { flex: 1 1 260px; min-width: 0; display: grid; gap: 3px; font-size: 14px; line-height: 1.5; }
+.v-wiz__reset > div:first-child span { color: var(--muted); overflow-wrap: anywhere; }
+.v-wiz__reset > p { margin: 0; }
+
 .v-wiz__klaar p { margin: 4px 0 0; }
 .v-wiz__vink { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #e8f7ee; color: #067647; font-size: 22px; font-weight: 700; }
 .v-wiz .v-inst:first-of-type { border-top: 0; padding-top: 4px; }

@@ -145,6 +145,7 @@ export const Route = createFileRoute("/api/ava")({
             team: inst.team_id,
             bezoeker: await v.bezoekerId(ip, ua, inst.team_id, (ANTHROPIC_API_KEY ?? "volgo").slice(-24)),
             sessie: body.sessie,
+            host: body.host ?? "",
             pad: body.pad || "/",
             titel: body.titel ?? "",
             bron: v.bronVan(body.ref, body.utm, body.host ?? ""),

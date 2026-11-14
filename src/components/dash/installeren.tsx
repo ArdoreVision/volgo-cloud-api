@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { bewaarMijnWebsite, controleerInstallatie, haalMijnWebsite } from "@/lib/api/groei.functions";
+import { bewaarMijnWebsite, controleerInstallatie, haalMijnWebsite, resetInstallatie } from "@/lib/api/groei.functions";
 import { INSTALL_MINUTEN, PLATFORMS, installRegel } from "@/lib/installatie";
 
 import { InstelLijst } from "./instel-lijst";
@@ -16,7 +16,7 @@ const PLATFORM_KEUZE = "volgo-platform";
  * every step says what to click, the line has a copy button, and the last step checks by itself that it works.
  * Three ways: do it yourself, send it to whoever manages your website, or let Volgo do it.
  */
-export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: string) => void; wijDoenHet: boolean; klaar?: () => void }) {
+export function Installeren({ openTab, wijDoenHet, klaar, opnieuw }: { openTab: (t: string) => void; wijDoenHet: boolean; klaar?: () => void; opnieuw?: () => void }) {
   const [d, setD] = useState<Data | null>(null);
   const [wie, setWie] = useState<Wie>("zelf");
   const [site, setSite] = useState("");
@@ -25,6 +25,9 @@ export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: strin
   const [gekopieerd, setGekopieerd] = useState("");
   const [geplakt, setGeplakt] = useState(false);
   const [check, setCheck] = useState<Check>("");
+  // "Connect another website": first ask, then do it.
+  const [reset, setReset] = useState<"" | "vraag" | "bezig" | "klaar">("");
+  const [resetFout, setResetFout] = useState("");
 
   useEffect(() => {
     try {
@@ -85,6 +88,32 @@ export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: strin
     const r = await controleerInstallatie().catch(() => ({ status: "onbereikbaar" as const }));
     setCheck(r.status);
     if (r.status === "ok") klaar?.();
+  }
+
+  /** Start over: forget this website, so another one can be connected. The line stays the same. */
+  async function beginOpnieuw() {
+    setReset("bezig");
+    setResetFout("");
+    const r = await resetInstallatie().catch(() => ({ ok: false as const, message: "That did not work. Please try again." }));
+    if (!r.ok) {
+      setReset("vraag");
+      return setResetFout(r.message);
+    }
+    try {
+      localStorage.removeItem(PLATFORM_KEUZE);
+    } catch {
+      /* private mode */
+    }
+    setD({ ...d!, siteUrl: "" });
+    setSite("");
+    setPlatform("");
+    setGeplakt(false);
+    setCheck("");
+    setOpgeslagen("");
+    setGekopieerd("");
+    setWie("zelf");
+    setReset("klaar");
+    opnieuw?.();
   }
 
   // What is done, in order. A step opens when the one before it is done.
@@ -151,6 +180,43 @@ export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: strin
           </div>
         </div>
       )}
+
+      {d.siteUrl || reset === "klaar" ? (
+        <section className="v-g__kaart v-wiz__reset">
+          {reset === "klaar" ? (
+            <p className="v-g__ok">Done. Fill in the address of your other website in step 1 and follow the steps again. Your line is still the same.</p>
+          ) : reset === "" ? (
+            <>
+              <div>
+                <strong>Connected website</strong>
+                <span>{d.siteUrl}</span>
+              </div>
+              <button className="v-g__knop2" onClick={() => setReset("vraag")} type="button">
+                Connect another website
+              </button>
+            </>
+          ) : (
+            <>
+              <div>
+                <strong>Connect another website?</strong>
+                <span>
+                  Volgo forgets {d.siteUrl} and you start again at step 1 with your other website. Your line stays the same, and your conversations, requests and appointments stay. Volgo keeps showing on the old website until you
+                  remove the line there.
+                </span>
+                {resetFout ? <span className="v-g__fout">{resetFout}</span> : null}
+              </div>
+              <div className="v-g__knoppen">
+                <button className="v-g__knop" disabled={reset === "bezig"} onClick={() => void beginOpnieuw()} type="button">
+                  {reset === "bezig" ? "Resetting…" : "Yes, reset"}
+                </button>
+                <button className="v-g__knop2" disabled={reset === "bezig"} onClick={() => setReset("")} type="button">
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
+        </section>
+      ) : null}
 
       <div aria-label="Who installs it" className="v-wiz__wie" role="tablist">
         <button aria-selected={wie === "zelf"} onClick={() => setWie("zelf")} role="tab" type="button">
