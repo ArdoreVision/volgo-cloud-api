@@ -16,16 +16,21 @@ export const Route = createFileRoute("/welcome")({
 });
 
 const VRAGEN = { t: "Answer five quick questions", d: "So Volgo knows what kind of business you are and how to talk to your customers. Under a minute." };
+/** Earlier plans without a website: Volgo goes into the website they already have. */
 const STAPPEN = [
   VRAGEN,
   { t: "Put Volgo on your website", d: "Your dashboard walks you through it step by step, in about 10 minutes. Does someone else manage your website? One button sends them the line." },
   { t: "Watch the first appointments come in", d: "Volgo answers every visitor, asks your questions and lets them pick a time. You get a notification for every appointment." },
 ];
-/** Complete: we build the website, so there is nothing to install. */
+/** Every plan that is sold: Volgo builds the website, so there is nothing to install. */
 const STAPPEN_WEBSITE = [
   VRAGEN,
-  { t: "Tell us what you want on your website", d: "Open Website in your dashboard and describe your business, your style and the domain name you want. A few sentences are enough." },
-  { t: "We build it, you approve", d: "We build your website with Volgo inside and arrange your domain. Nothing goes live before you say yes." },
+  { t: "Tell Volgo about your business and your domain", d: "What you do, your services, how customers reach you, and the domain name you own. A few minutes." },
+  { t: "Volgo builds your website", d: "In one to two minutes, with the appointment setter inside. You look at it, change what you want by chat and press Publish. Nothing goes live before you say so." },
+];
+const STAPPEN_3D = [
+  ...STAPPEN_WEBSITE.slice(0, 2),
+  { t: "Volgo builds a first version, then we finish it together", d: "Your 3D website gets a first version straight away. Plan your 1-on-1 call in your dashboard; after the call we finish it to measure. Nothing goes live before you say so." },
 ];
 
 function Welcome() {
@@ -51,9 +56,9 @@ function Welcome() {
         ✓
       </p>
       <h1 className="v-auth__title">Welcome to {p ? planTitel(p) : "Volgo"}.</h1>
-      <p className="v-auth__sub">Your payment went through and your dashboard is ready. Here’s what happens next.</p>
+      <p className="v-auth__sub">Your payment went through. Here’s what happens next.</p>
       <ol className="v-welkom__stappen">
-        {(p?.limieten.website ? STAPPEN_WEBSITE : STAPPEN).map((s, i) => (
+        {(p?.limieten.drieD ? STAPPEN_3D : p?.limieten.website ? STAPPEN_WEBSITE : STAPPEN).map((s, i) => (
           <li key={s.t}>
             <span aria-hidden="true">{i + 1}</span>
             <div>
@@ -64,7 +69,7 @@ function Welcome() {
         ))}
       </ol>
       <a className="v-auth__btn" href="/dashboard">
-        Open my dashboard →
+        Continue →
       </a>
       <p className="v-hint v-welkom__hint">Invoices are under Settings → Subscription in your dashboard. Questions? Write to volgo.app@outlook.com — a real person answers.</p>
     </AuthShell>

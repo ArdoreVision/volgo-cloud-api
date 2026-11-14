@@ -7,7 +7,6 @@ import { PostVogel, VogelLader } from "./post-vogel";
 import { type RouteTaal } from "./route-teksten";
 import { Vertaler, opgeslagenTaal, toonTaal } from "./taal";
 import { InstallUitleg, type Kijker, Kop, Prijzen, useOnthul } from "./wit";
-import { INSTALL_MINUTEN, WEBSITE_SOORTEN } from "@/lib/installatie";
 import { PLANS } from "@/lib/plans";
 
 /** The page is written in English and shown in English. Another language only when the visitor picks one at the top. */
@@ -16,7 +15,7 @@ const VANAF = `€${PLANS.starter.prijsTekst}`;
 
 /** One visitor, from opening the chat to the appointment. Every line is something the app really does. */
 const REIS: { tijd: string; titel: string; tekst: string; ok?: boolean }[] = [
-  { tijd: "Tue 9:14 pm", titel: "A visitor opens the chat", tekst: "On your own website. You finished work hours ago." },
+  { tijd: "Tue 9:14 pm", titel: "A visitor opens the chat", tekst: "On your website. You finished work hours ago." },
   { tijd: "Tue 9:15 pm", titel: "Volgo asks your questions", tekst: "What you want to know before the appointment." },
   { tijd: "Tue 9:17 pm", titel: "The visitor picks Thursday 3:00 pm", tekst: "Only times that are free in Volgo and in your own calendar." },
   { tijd: "Tue 9:17 pm", titel: "Appointment in your inbox and calendar", tekst: "With name, number and every answer. The confirmation is sent.", ok: true },
@@ -28,17 +27,17 @@ const ZONDER = ["Requests in your mail, your apps and your head", "Answering whe
 const MET = ["Every chat and request in one inbox", "Every visitor gets an answer right away", "Visitors book an appointment themselves", "Follow-up after 1 and 3 days, by itself", "You see at a glance who is still waiting"];
 
 const FAQ: [string, string][] = [
-  ["What is Volgo?", "An appointment setter for your website. Visitors book an appointment themselves, everything lands in one inbox, and Volgo follows up automatically. Also when someone does not book right away."],
+  ["What is Volgo?", "A complete website with an appointment setter inside. Volgo builds your website, visitors book an appointment themselves, everything lands in one inbox, and Volgo follows up automatically. Also when someone does not book right away."],
   ["Who is Volgo made for?", "For businesses that get customers through appointments on their website. Think of detailers, hairdressers, salons, gardeners, installers, coaches and practices."],
-  ["Do I need a new website?", "No. Volgo goes into the website you already have. No website, or ready for a new one? Then there is Complete: we build your website, with Volgo inside and your domain included."],
-  ["Which websites does it work on?", `Any website where you can paste one line of code: ${WEBSITE_SOORTEN.join(", ")}. Your dashboard shows where to paste the line, per kind of website.`],
-  ["How fast is it on my website?", `About ${INSTALL_MINUTEN} minutes if you do it yourself: five questions, your hours, paste one line and check. Your dashboard walks you through it step by step.`],
-  ["I know nothing about code. Can I do this?", "Yes. It is copy and paste. Does someone else manage your website? Then one button sends them the line. On Growth and Pro we put it in for you."],
+  ["Do I get a new website?", "Yes, with every plan. You tell Volgo about your business and Volgo builds a complete professional website with the appointment setter inside. Complete is a 3D website made to measure, with a 1-on-1 call."],
+  ["Can I use my own domain name?", "Yes. You fill in the domain you own and get the two lines to pass on to whoever manages it. Until it is connected, your website is online on a Volgo address. Buying a domain name is only included with Complete."],
+  ["How fast is my website ready?", "You fill in your business details in a few minutes. Volgo then builds your website in one to two minutes. You look at it, change what you want and press Publish."],
+  ["I know nothing about websites. Can I do this?", "Yes. You answer questions about your business in plain words. Want something changed? Type it in the chat in your dashboard and Volgo changes your website."],
   ["What is automatic follow-up?", "Someone leaves their details but does not book? Volgo sends a message after 1 day and after 3 days. Whoever does book gets a confirmation, a reminder and, after the appointment, a request for a review."],
   ["Does it work with my own calendar?", "Yes. Link Google Calendar, Outlook or Apple Calendar in your dashboard with its private calendar address. Volgo reads the busy times and never offers those to visitors. Volgo's own appointments can show up in your calendar too."],
   ["Do WhatsApp and phone calls land in Volgo too?", "Your website chat and contact form do right away, and your email when you forward it. WhatsApp messages and missed calls land in the inbox once we connect them with you; that takes a few days because Meta verifies your business first."],
   ["What counts as a conversation?", "One visitor chatting with Volgo on your website. Reached your number for the month? Volgo still catches requests, in a simple mode. So you never lose anyone."],
-  ["Can I cancel?", "Yes, any month. You do it yourself in your dashboard. Your own website stays exactly as it is."],
+  ["Can I cancel?", "Yes, any month. You do it yourself in your dashboard. The website Volgo built and the appointment setter then go offline; your domain name stays yours."],
   ["Does it work in my Instagram DMs?", "No. Volgo works on your website. Put your website in your bio and send people there: that is where Volgo takes over."],
 ];
 
@@ -62,7 +61,7 @@ function InboxBeeld() {
           <span>Requests</span>
           <span>Follow-up</span>
           <small>Setup</small>
-          <span>Install</span>
+          <span>Website</span>
           <span>My website</span>
           <span>Connections</span>
         </div>
@@ -207,15 +206,15 @@ const FUNCTIES: { oog: string; titel: string; tekst: string; punten: string[]; b
   {
     oog: "My website",
     titel: "See your website, with Volgo in it.",
-    tekst: "Your dashboard shows your own website with the chat on it, on desktop and phone. And whether Volgo is live.",
-    punten: ["Try the chat the way your visitor sees it", "Your own name, photo and colour", "One button checks that everything works"],
+    tekst: "Your dashboard shows your website with the chat on it, on desktop and phone. Change it by typing what you want.",
+    punten: ["Try the chat the way your visitor sees it", "Your own name, photo and colour", "Change your website by chat"],
     beeld: WebsiteBeeld,
   },
 ];
 
 /**
  * The landing page: Volgo is an appointment setter for websites. Visitors plan an appointment, everything lands in one
- * inbox, and Volgo follows up by itself. What it does, how you install it, what it costs.
+ * inbox, and Volgo follows up by itself. What it does, how your website gets built, what it costs.
  */
 export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTaal }) {
   useOnthul("volgo-home");
@@ -236,7 +235,7 @@ export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTa
             <br />
             <em>Volgo books them.</em>
           </h1>
-          <p className="vn-sub">Visitors book an appointment themselves, in your website. Every chat and request lands in one inbox. Volgo follows up automatically, and keeps following up.</p>
+          <p className="vn-sub">Volgo builds your complete website, with an appointment setter inside. Visitors book themselves, every chat and request lands in one inbox, and Volgo follows up automatically.</p>
           <div className="vn-hero__knoppen">
             <a className="vn-knop" href={doel}>
               {kijker.ingelogd ? "Go to your dashboard" : "Start with Volgo"}
@@ -246,20 +245,11 @@ export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTa
             </a>
           </div>
           <p className="vn-klein">
-            From {VANAF} per month · Installed by yourself in about {INSTALL_MINUTEN} minutes · Cancel any month
+            From {VANAF} per month · Your website built in minutes · Cancel any month
           </p>
           <div className="vn-hero__beeld" data-rv="">
             <InboxBeeld />
           </div>
-        </section>
-
-        <section aria-label="Which websites" className="vn-werkt" data-rv="">
-          <p>Built for websites with bookings. Works on:</p>
-          <ul className="vn-chips" data-notranslate="">
-            {WEBSITE_SOORTEN.map((s) => (
-              <li key={s}>{s}</li>
-            ))}
-          </ul>
         </section>
 
         <PijnScroll />
@@ -285,26 +275,26 @@ export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTa
           </p>
         </section>
 
-        <section aria-labelledby="vn-hou" className="vn-sectie vn-hou" data-vogel="I fly into the website you already have.">
+        <section aria-labelledby="vn-hou" className="vn-sectie vn-hou" data-vogel="Tell me about your business. I build your website.">
           <header className="vn-sectie__kop" data-rv="">
-            <p className="vn-oog">Your own website</p>
+            <p className="vn-oog">Your website</p>
             <h2 className="vn-h2" id="vn-hou">
-              Keep the website you already have.
+              A complete new website, with every plan.
             </h2>
           </header>
           <div className="vn-drie">
             <div className="vn-kaart" data-rv="">
-              <h3>No new website needed</h3>
-              <p>Volgo goes into the website you already have. Your website itself does not change.</p>
+              <h3>Built for you</h3>
+              <p>You tell Volgo about your business. Volgo builds your complete website in one to two minutes, on your own domain.</p>
             </div>
             <div className="vn-kaart" data-rv="">
-              <h3>Paste one line</h3>
-              <p>After that Volgo is on every page. Do it yourself, forward it, or let us do it.</p>
+              <h3>Volgo is already in it</h3>
+              <p>The appointment setter is on your website from the first minute. No code, nothing to install.</p>
             </div>
             <div className="vn-kaart" data-rv="">
-              <h3>No website yet?</h3>
+              <h3>Want to stand out?</h3>
               <p>
-                Then we build it, with Volgo inside and your domain included. <a href="#pricing">See Complete</a>
+                Complete is a 3D website made to measure, with a 1-on-1 call. <a href="#pricing">See Complete</a>
               </p>
             </div>
           </div>

@@ -5,12 +5,11 @@ import { stopVogelLader, toonVogelLader } from "./post-vogel";
 import { TaalKiezer, Vertaler } from "./taal";
 import { Tracking } from "./tracking";
 import { startBetaling } from "@/lib/api/account.functions";
-import { INSTALL_MINUTEN, INSTALL_SECONDEN, PLATFORMS, WEBSITE_SOORTEN, installRegel } from "@/lib/installatie";
 import { ABONNEMENTEN, COMPLEET, PLANS, type PlanId, planTitel } from "@/lib/plans";
 import "@/volgo-wit.css";
 
 /**
- * The white public pages (landing page and pricing): the shared header, the plan cards and the install explanation.
+ * The white public pages (landing page and pricing): the shared header, the plan cards and how it works.
  * Everything here is written in English; the translator shows it in the visitor's own language.
  */
 
@@ -36,7 +35,7 @@ export function Kop({ kijker, links = true, bron }: { kijker: Kijker; links?: bo
         </a>
         <nav aria-label="Page" className="vn-top__nav">
           <a href={`${basis}#features`}>Features</a>
-          <a href={`${basis}#install`}>Install</a>
+          <a href={`${basis}#install`}>How it works</a>
           <a href={links ? "#pricing" : "/pricing"}>Pricing</a>
           <a href={`${basis}#faq`}>FAQ</a>
         </nav>
@@ -117,7 +116,7 @@ const VOORBEELDEN: { naam: string; soort: string; tekst: string; beeld: string; 
   { naam: "Bouwhuis", soort: "3D and scroll animation", tekst: "A website that moves as you scroll, for a business that wants to stand out.", beeld: "/assets/volgo/voorbeeld-3d.jpg", b: 1344, h: 752 },
 ];
 
-/** The three plans for a website you already have, and under them the package where we build the website too. */
+/** The three monthly plans, each with a professional website, and under them the 3D website made to measure. */
 export function Prijzen({ kijker, kop = true }: { kijker: Kijker; kop?: boolean }) {
   const [fout, setFout] = useState("");
   const c = PLANS[COMPLEET];
@@ -129,7 +128,7 @@ export function Prijzen({ kijker, kop = true }: { kijker: Kijker; kop?: boolean 
           <h2 className="vn-h2" id="vn-prijs">
             Pick what fits your business.
           </h2>
-          <p className="vn-sub">Three plans for the website you already have. Or let us build your complete website, with Volgo inside.</p>
+          <p className="vn-sub">Every plan comes with a complete professional website, built for you, with Volgo inside. For serious businesses there is a 3D website made to measure.</p>
         </header>
       ) : (
         <h2 className="vn-sr" id="vn-prijs">
@@ -165,8 +164,8 @@ export function Prijzen({ kijker, kop = true }: { kijker: Kijker; kop?: boolean 
       </div>
       <article className="vn-compleet" data-rv="">
         <div className="vn-compleet__tekst">
-          <p className="vn-oog">No website yet? Or ready for a new one?</p>
-          <h3>{c.naam}: your website, Volgo and your domain</h3>
+          <p className="vn-oog">For serious businesses</p>
+          <h3>{c.naam}: an extremely beautiful 3D website, everything included</h3>
           <p>{c.tagline}</p>
           <ul>
             {c.features.map((f) => (
@@ -183,13 +182,13 @@ export function Prijzen({ kijker, kop = true }: { kijker: Kijker; kop?: boolean 
             + <b>€{c.prijsTekst}</b> per month
           </p>
           <KiesKnop id={COMPLEET} kijker={kijker} opFout={setFout} />
-          <p className="vn-klein">Today you pay for the website and the first month. After that €{c.prijsTekst} per month.</p>
+          <p className="vn-klein">Today you pay for the 3D website and the first month. After that €{c.prijsTekst} per month for hosting and maintenance.</p>
         </div>
       </article>
       <div className="vn-vb" data-rv="">
         <div className="vn-vb__kop">
           <h3>What your website can look like</h3>
-          <p>Four examples of the kinds of websites we build with Complete. These companies do not exist; yours is made to measure, with your own photos and texts.</p>
+          <p>Four examples of the kinds of websites Volgo builds. These companies do not exist; yours is built from what you tell us about your own business.</p>
         </div>
         <div className="vn-vb__grid">
           {VOORBEELDEN.map((v) => (
@@ -226,84 +225,50 @@ export function Prijzen({ kijker, kop = true }: { kijker: Kijker; kop?: boolean 
   );
 }
 
-/** What the customer pastes into their website. The real line, with their own code, is in the dashboard. */
-const VOORBEELD_REGEL = installRegel("https://thevolgo.app", "YOUR-CODE");
-
-/** Installing: how long it takes, the four steps, where the line goes per kind of website, and the two ways to not do it yourself. */
+/**
+ * How it starts: tell Volgo about the business, give your own domain, Volgo builds the website. Kept under the old name
+ * and anchor (#install), so existing links to this section keep working.
+ */
 export function InstallUitleg() {
-  const [platform, setPlatform] = useState(PLATFORMS[0].id);
-  const p = PLATFORMS.find((x) => x.id === platform) ?? PLATFORMS[0];
   return (
-    <section aria-labelledby="vn-install" className="vn-sectie vn-install" data-vogel="Paste one line, and I fly in." id="install">
+    <section aria-labelledby="vn-install" className="vn-sectie vn-install" data-vogel="Tell me about your business. I build the rest." id="install">
       <header className="vn-sectie__kop" data-rv="">
-        <p className="vn-oog">Install</p>
+        <p className="vn-oog">How it works</p>
         <h2 className="vn-h2" id="vn-install">
-          Installed by yourself in about {INSTALL_MINUTEN} minutes.
+          You tell us about your business. Volgo builds your website.
         </h2>
-        <p className="vn-sub">Even if you know nothing about code. Your dashboard walks you through it step by step, and checks by itself that it works.</p>
+        <p className="vn-sub">A complete new website with every plan, with the appointment setter already inside. No code, nothing to install.</p>
       </header>
       <ol className="vn-stappen" data-rv="">
         <li>
           <b>1</b>
           <strong>Answer 5 questions</strong>
-          <span>About your business, so Volgo knows what to ask.</span>
+          <span>What kind of business you are and how Volgo should sound.</span>
         </li>
         <li>
           <b>2</b>
-          <strong>Set your hours</strong>
-          <span>When you are open and how long an appointment takes.</span>
+          <strong>Tell us about your business</strong>
+          <span>What you do, your services, how customers reach you.</span>
         </li>
         <li>
           <b>3</b>
-          <strong>Paste one line</strong>
-          <span>Copy, paste, save. About {INSTALL_SECONDEN} seconds.</span>
+          <strong>Fill in your domain</strong>
+          <span>Your own domain name. You get the two lines to pass on to whoever manages it.</span>
         </li>
         <li>
           <b>4</b>
-          <strong>Press Check</strong>
-          <span>Volgo looks at your website and tells you it is live.</span>
+          <strong>Volgo builds it</strong>
+          <span>Your website is ready in one to two minutes. Change what you want by chat, then press Publish.</span>
         </li>
       </ol>
-      <div className="vn-install__grid">
-        <div className="vn-kaart" data-rv="">
-          <h3>Which websites?</h3>
-          <p>Any website where you can paste one line of code. That is almost all of them:</p>
-          <ul className="vn-chips" data-notranslate="">
-            {WEBSITE_SOORTEN.map((s) => (
-              <li key={s}>{s}</li>
-            ))}
-          </ul>
-          <p className="vn-kaart__kop">This is the line:</p>
-          <code className="vn-regel" data-notranslate="">
-            {VOORBEELD_REGEL}
-          </code>
-          <p className="vn-klein">Yours is ready in your dashboard, with a copy button.</p>
-        </div>
-        <div className="vn-kaart" data-rv="">
-          <h3>Where do you paste it?</h3>
-          <div className="vn-tabs" role="tablist">
-            {PLATFORMS.map((x) => (
-              <button aria-selected={platform === x.id} data-notranslate={x.id === "anders" ? undefined : ""} key={x.id} onClick={() => setPlatform(x.id)} role="tab" type="button">
-                {x.naam}
-              </button>
-            ))}
-          </div>
-          <ol className="vn-tabs__stappen">
-            {p.stappen.map((x) => (
-              <li key={x}>{x}</li>
-            ))}
-          </ol>
-          {p.noot ? <p className="vn-klein">{p.noot}</p> : null}
-        </div>
-      </div>
       <div className="vn-liever" data-rv="">
         <div>
-          <strong>Does someone else manage your website?</strong>
-          <span>One button in your dashboard sends the line, with instructions, to your web developer. It takes them two minutes.</span>
+          <strong>Want something changed?</strong>
+          <span>Type it in the chat in your dashboard: another text, an extra section, a different colour. Volgo changes your website while you watch.</span>
         </div>
         <div>
-          <strong>Rather do nothing at all?</strong>
-          <span>On Growth and Pro we put Volgo in your website for you. On Complete we build your whole website.</span>
+          <strong>Want a website people remember?</strong>
+          <span>Complete is a 3D website made to measure, with a 1-on-1 call with the founder or someone from the team.</span>
         </div>
       </div>
     </section>

@@ -20,7 +20,7 @@ export function InstelLijst({ openTab, kort = false, metWebsite = false }: { ope
   const autoAan = Object.values(d.opvolging).filter(Boolean).length;
   const punten: Punt[] = [
     metWebsite
-      ? { id: "web", titel: "Tell us what you want on your website", uitleg: "We build it with Volgo inside. Nothing to install.", klaar: d.geinstalleerd, status: d.geinstalleerd ? "Live" : "To do", knop: "Open Website", doel: "website", nodig: true }
+      ? { id: "web", titel: "Publish your website", uitleg: "Volgo built it, with the appointment setter inside. Look at it, change what you want and press Publish.", klaar: d.sitePubliek || d.geinstalleerd, status: d.sitePubliek || d.geinstalleerd ? "Online" : "Not online yet", knop: "Open Website", doel: "website", nodig: true }
       : { id: "web", titel: "Put Volgo on your website", uitleg: "One line, step by step. Volgo checks it by itself.", klaar: d.geinstalleerd, status: d.geinstalleerd ? "Live" : "To do", knop: "Install", doel: "installeren", nodig: true },
     { id: "uren", titel: "Opening hours and appointment length", uitleg: "When visitors can book, and what kinds of appointment.", klaar: d.boeken, status: d.boeken ? "On" : "Booking is off", knop: "Open settings", doel: "agenda-instellen", nodig: true },
     { id: "agenda", titel: "Link your own calendar", uitleg: "Google, Outlook or Apple. Busy times there are never offered to visitors.", klaar: d.agenda, status: d.agenda ? "Linked" : "Not linked", knop: "Link calendar", doel: "agenda-instellen", nodig: true },

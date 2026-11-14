@@ -11,6 +11,7 @@ import { InstelLijst } from "@/components/dash/instel-lijst";
 import { AgendaInstellen } from "@/components/dash/agenda-instellen";
 import { AvaInstellen } from "@/components/dash/ava-instellen";
 import { VraagVolgo } from "@/components/dash/vraag-volgo";
+import { WebsiteStart } from "@/components/dash/website-start";
 import { MijnWebsite } from "@/components/dash/mijn-website";
 import { Kanalen } from "@/components/dash/kanalen";
 import { Reviews } from "@/components/dash/reviews";
@@ -20,7 +21,6 @@ import { BillingButton } from "@/components/dash/billing-button";
 import { Upsell } from "@/components/dash/upsell";
 import { OntwerpEditor } from "@/components/dash/ontwerp";
 import { Website } from "@/components/dash/website";
-import { WebsiteAanvraag } from "@/components/dash/website-aanvraag";
 import { Gesprekken } from "@/components/dash/gesprekken";
 import { Vandaag } from "@/components/dash/vandaag";
 import { MijnChat } from "@/components/dash/mijn-chat";
@@ -454,6 +454,19 @@ function Open({ data }: { data: DashData }) {
       </div>
     );
 
+  // Then: tell Volgo about the business and give the domain. Volgo builds the website before the dashboard opens.
+  if (g.rol === "eigenaar" && data.profielKlaar && plan.limieten.website && !data.intakeKlaar)
+    return (
+      <div className="volgo v-dash v-dash--editor" data-thema={thema}>
+        <WebsiteStart
+          klaar={async () => {
+            setTab("website");
+            await router.invalidate();
+          }}
+        />
+      </div>
+    );
+
   // Right after the five questions: set the business number and see which channels really work.
   if (g.rol === "eigenaar" && data.profielKlaar && !data.kanalenGezien)
     return (
@@ -534,9 +547,9 @@ function Open({ data }: { data: DashData }) {
             </svg>
           </span>
         </button>
-        <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={plan.limieten.website} planNaam={plan.naam} />
+        <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={Boolean(plan.limieten.drieD)} planNaam={plan.naam} />
       </div>
-      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || (tab === "website" && plan.id !== "compleet") ? " v-dash__main--full" : ""}`}>
+      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || tab === "website" ? " v-dash__main--full" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
             {proefDagen > PROEF_DAGEN
@@ -565,7 +578,7 @@ function Open({ data }: { data: DashData }) {
             <AgendaInstellen />
           </>
         ) : null}
-        {tab === "website" && plan.limieten.website ? plan.id === "compleet" ? <WebsiteAanvraag openTab={(t) => setTab(t)} /> : <Website /> : null}
+        {tab === "website" && plan.limieten.website ? <Website /> : null}
         {tab === "ava" ? <MijnChat /> : null}
         {tab === "automatisch" ? <Automatisch openTab={(t) => setTab(t)} /> : null}
         {tab === "reviews" ? <Reviews openTab={(t) => setTab(t)} /> : null}
@@ -734,7 +747,7 @@ function Open({ data }: { data: DashData }) {
             {sub === "account" ? <Account g={g} leden={data.leden} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} /> : null}
             {sub === "abonnement" ? (
               <>
-            {plan.limieten.website ? (
+            {plan.limieten.drieD ? (
               <section className="v-dash__panel">
                 <PlanCall />
               </section>

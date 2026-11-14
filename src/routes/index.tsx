@@ -5,7 +5,7 @@ import { accountStatus } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
 
 const TITEL = "Volgo · The appointment setter for your website";
-const OMSCHRIJVING = "Volgo is the appointment setter for your website. Visitors book an appointment themselves, everything lands in one inbox and Volgo follows up automatically. Installed by yourself in about 10 minutes. From €149 per month.";
+const OMSCHRIJVING = "Volgo builds your website with an appointment setter inside. Visitors book an appointment themselves, everything lands in one inbox and Volgo follows up automatically. A complete professional website built for you with every plan. From €149 per month.";
 
 export const Route = createFileRoute("/")({
   loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "", plan: "", eigenaar: false })),

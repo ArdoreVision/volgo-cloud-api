@@ -6,7 +6,7 @@ type Data = Awaited<ReturnType<typeof haalMijnWebsite>>;
 
 /**
  * My website: your own website with the Volgo chat on it, on desktop and phone, and whether Volgo is live.
- * Nothing is built here. It is a look at the website you already have, the way your visitor sees it.
+ * Nothing is built here (that is the Website page). It is a look at your website the way your visitor sees it.
  */
 export function MijnWebsite({ openTab, gebouwd = false }: { openTab: (t: string) => void; gebouwd?: boolean }) {
   const [d, setD] = useState<Data | null>(null);
