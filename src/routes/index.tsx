@@ -4,8 +4,8 @@ import { LandingPagina } from "@/components/volgo/landing-pagina";
 import { isIngelogd } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
 
-const TITEL = "Volgo · Website laten maken, met Volgo erin";
-const OMSCHRIJVING = "Professionele website laten maken voor €997, of een 3D-website voor €1997. Volgo zit er altijd in: de assistent die elke bezoeker antwoordt en je afspraken plant, voor €49,99 per maand.";
+const TITEL = "Volgo · Afspraak-setter voor je eigen website";
+const OMSCHRIJVING = "Volgo is de afspraak-setter in je eigen website. Hij antwoordt elke bezoeker, stelt jouw vragen en plant de afspraak. Eén regel code plakken en hij werkt. €49,99 per maand, geen nieuwe website nodig.";
 
 export const Route = createFileRoute("/")({
   loader: async () => ({ ingelogd: await isIngelogd().catch(() => false) }),

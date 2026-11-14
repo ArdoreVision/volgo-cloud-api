@@ -34,7 +34,7 @@ import { LeadDetail } from "@/components/dash/lead-detail";
 import { haalAva } from "@/lib/api/ava.functions";
 import { leesProfiel, type Profiel } from "@/lib/profiel-vragen";
 import { checkNieuw } from "@/lib/api/ava.functions";
-import { PLANS, PROEF_DAGEN, PROEF_PRIJS, isPlan, type PlanId, ZICHTBAAR } from "@/lib/plans";
+import { PLANS, PROEF_DAGEN, PROEF_PRIJS, isPlan, type PlanId, ZICHTBAAR, planTitel } from "@/lib/plans";
 import "@/volgo.css";
 import "@/volgo-donker.css";
 
@@ -59,8 +59,12 @@ const isSub = (t: string): t is Sub => SUBS.some(([id]) => id === t);
 /** Old names other parts of the app may still use. */
 const ALIAS: Record<string, Tab> = { stijl: "ontwerp", installeren: "mijnsite" };
 
-/** The sidebar, kept to what a business needs every day: who is chatting, what is booked, who to call back. Then the setup. */
-const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
+/**
+ * The sidebar, kept to what a business needs every day: who is chatting, what is booked, who to call back. Then the setup.
+ * Volgo goes into the customer's own website, so "Installeren" (the one line of code) comes first in the setup group.
+ * "Website bouwen" only exists for customers who bought one of the earlier website packages.
+ */
+const ALLE_GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
   { items: [["home", "Vandaag"]] },
   {
     kop: "Klanten",
@@ -81,15 +85,16 @@ const GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
   },
   {
     items: [
-      ["website", "Website bouwen"],
-      ["mijnsite", "Je website"],
-      ["kanalen", "Kanalen"],
+      ["mijnsite", "Installeren"],
       ["ava", "Je chat"],
+      ["kanalen", "Kanalen"],
+      ["website", "Website bouwen"],
       ["instellingen", "Instellingen"],
     ],
   },
 ];
-const TABS: [Tab, string][] = GROEPEN.flatMap((g) => g.items);
+const groepenVoor = (metWebsite: boolean) => (metWebsite ? ALLE_GROEPEN : ALLE_GROEPEN.map((g) => ({ ...g, items: g.items.filter(([id]) => id !== "website") })));
+const TABS: [Tab, string][] = ALLE_GROEPEN.flatMap((g) => g.items);
 type Toast = { id: number; titel: string; tekst: string; tab: Tab; heet?: boolean };
 type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
 const STATUS_LABEL: Record<Status, string> = {
@@ -143,10 +148,11 @@ function Dashboard() {
 
 /**
  * No plan yet (or it ended): you see your dashboard, but everything is locked until you start a plan.
- * First plan = 7 days for €1, then the full monthly price. Installing Volgo on your website only unlocks after that.
+ * There is one plan: Volgo in your own website. Installing Volgo on your website unlocks right after paying.
  */
 function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; eigenaar: boolean }) {
-  const [kies, setKies] = useState<PlanId>("pro");
+  const [kies, setKies] = useState<PlanId>(ZICHTBAAR[0]);
+  const GROEPEN = groepenVoor(false);
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
   const navigate = useNavigate();
@@ -204,11 +210,11 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
         </div>
         <section aria-labelledby="lock-titel" className="v-lock__kaart">
           <p className="v-lock__hoi">Welcome{naam ? `, ${naam.split(" ")[0]}` : ""}</p>
-          <h1 id="lock-titel">{nieuw ? "Kies je pakket om te starten." : "Kies een pakket om verder te gaan."}</h1>
+          <h1 id="lock-titel">{nieuw ? "Start Volgo om verder te gaan." : "Start Volgo weer om verder te gaan."}</h1>
           <p className="v-lock__sub">
             {nieuw
-              ? "Je dashboard staat klaar, maar is nog op slot. Kies het pakket en betaal veilig via Stripe. Daarna opent je dashboard meteen en bouwen wij je nieuwe website met Volgo erin."
-              : "Je proefperiode of abonnement is afgelopen. Al je gegevens staan er nog. Kies een pakket om je dashboard weer te openen."}
+              ? "Je dashboard staat klaar, maar is nog op slot. Betaal veilig via Stripe. Daarna opent je dashboard meteen en staat je regel code klaar om in je eigen website te plakken."
+              : "Je abonnement is afgelopen. Al je gegevens staan er nog. Start Volgo weer om je dashboard te openen."}
           </p>
           {eigenaar ? (
             <>
@@ -239,13 +245,13 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
               <div className="v-lock__voet">
                 <p>
                   {nieuw && PLANS[kies].proefDagen
-                    ? `Vandaag ${euro1}. Vanaf dag 8: €${PLANS[kies].prijsTekst} per maand voor Volgo ${PLANS[kies].naam}. Veilig betalen via Stripe.`
+                    ? `Vandaag ${euro1}. Vanaf dag 8: €${PLANS[kies].prijsTekst} per maand voor ${planTitel(PLANS[kies])}. Veilig betalen via Stripe.`
                     : PLANS[kies].opstart
                       ? `Vandaag €${((PLANS[kies].prijs + PLANS[kies].opstart) / 100).toFixed(2).replace(".", ",")} (€${PLANS[kies].opstart / 100} voor je ${PLANS[kies].naam.toLowerCase()} + eerste maand Volgo), daarna €${PLANS[kies].prijsTekst} per maand voor Volgo. Veilig betalen via Stripe.`
-                      : `${nieuw && PLANS[kies].intro ? `€${PLANS[kies].intro.prijsTekst} per maand voor de eerste ${PLANS[kies].intro.maanden} maanden, daarna ` : ""}€${PLANS[kies].prijsTekst} per maand voor Volgo ${PLANS[kies].naam}. Veilig betalen via Stripe.`}
+                      : `${nieuw && PLANS[kies].intro ? `€${PLANS[kies].intro.prijsTekst} per maand voor de eerste ${PLANS[kies].intro.maanden} maanden, daarna ` : ""}€${PLANS[kies].prijsTekst} per maand voor ${planTitel(PLANS[kies])}, excl. btw. Maandelijks opzegbaar. Veilig betalen via Stripe.`}
                 </p>
                 <button className="v-lock__knop" disabled={bezig} onClick={() => void start()} type="button">
-                  {bezig ? "Een moment…" : nieuw && PLANS[kies].proefDagen ? `Start 7 dagen voor ${euro1} →` : `Verder met ${PLANS[kies].naam} →`}
+                  {bezig ? "Een moment…" : nieuw && PLANS[kies].proefDagen ? `Start 7 dagen voor ${euro1} →` : `Start ${planTitel(PLANS[kies])} →`}
                 </button>
               </div>
             </>
@@ -385,6 +391,7 @@ function Open({ data }: { data: DashData }) {
     return () => window.clearInterval(id);
   }, [router]);
   const plan = isPlan(g.plan) ? PLANS[g.plan] : PLANS.start;
+  const GROEPEN = groepenVoor(plan.limieten.website);
   const voornaam = g.naam.split(/\s+/)[0];
   const proefDagen = g.proef_tot ? Math.max(0, Math.ceil((new Date(g.proef_tot.replace(" ", "T") + "Z").getTime() - Date.now()) / 86400000)) : 0;
 
@@ -445,6 +452,8 @@ function Open({ data }: { data: DashData }) {
       <div className="volgo v-dash v-dash--editor" data-thema={thema}>
         <Kanalen
           klaar={async () => {
+            // A new account goes straight to the one thing left to do: paste the line into their own website.
+            setTab("mijnsite");
             await router.invalidate();
           }}
           onboarding
@@ -516,7 +525,7 @@ function Open({ data }: { data: DashData }) {
             </svg>
           </span>
         </button>
-        <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={plan.id !== "start"} planNaam={plan.naam} />
+        <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={plan.limieten.website} planNaam={plan.naam} />
       </div>
       <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || tab === "website" ? " v-dash__main--full" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
@@ -532,7 +541,7 @@ function Open({ data }: { data: DashData }) {
         {tab === "verkeer" ? <Verkeer openTab={(t) => setTab(t)} /> : null}
         {tab === "gesprekken" ? <Gesprekken data={data} /> : null}
         {tab === "agenda" ? <Agenda data={data} /> : null}
-        {tab === "website" ? <Website /> : null}
+        {tab === "website" && plan.limieten.website ? <Website /> : null}
         {tab === "ava" ? <MijnChat /> : null}
         {tab === "automatisch" ? <Automatisch openTab={(t) => setTab(t)} /> : null}
         {tab === "reviews" ? <Reviews openTab={(t) => setTab(t)} /> : null}
@@ -543,7 +552,7 @@ function Open({ data }: { data: DashData }) {
           <>
             <header className="v-dash__head">
               <h1>Installeren</h1>
-              <p>Zet Volgo in een paar minuten op je website, of laat het ons doen.</p>
+              <p>Zet Volgo in een paar minuten in je eigen website, of laat het ons doen.</p>
             </header>
             <AvaInstellen deel="installeren" />
           </>
@@ -704,13 +713,13 @@ function Open({ data }: { data: DashData }) {
             {sub === "account" ? <Account g={g} leden={data.leden} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} /> : null}
             {sub === "abonnement" ? (
               <>
-            {plan.id !== "start" ? (
+            {plan.limieten.website ? (
               <section className="v-dash__panel">
                 <PlanCall />
               </section>
             ) : null}
             <section className="v-dash__panel v-plan-card">
-              <p className="v-plan-card__name">Volgo {plan.naam}</p>
+              <p className="v-plan-card__name">{planTitel(plan)}</p>
               <p className="v-plan-card__price">€{plan.prijsTekst} <span>per maand, excl. btw</span></p>
               <p className="v-plan-card__state">
                 {g.status === "proef" ? `Proef, nog ${proefDagen} ${proefDagen === 1 ? "dag" : "dagen"}` : "Actief"}
@@ -765,7 +774,7 @@ function Open({ data }: { data: DashData }) {
             <span aria-hidden="true" className="v-sheet__greep" />
             {GROEPEN.filter((gr) => gr.items.some(([id]) => !mobiel.some(([m]) => m === id))).map((groep) => (
               <div className="v-sheet__groep" key={groep.kop ?? "jij"}>
-                <p className="v-sheet__kop">{groep.kop ?? "Je website & account"}</p>
+                <p className="v-sheet__kop">{groep.kop ?? "Installeren & account"}</p>
                 {groep.items.filter(([id]) => !mobiel.some(([m]) => m === id)).map(([id]) => (
                   <button key={id} onClick={() => setTab(id)} type="button">
                     <Icon name={id} />

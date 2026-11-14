@@ -201,10 +201,13 @@ export const controleerInstallatie = createServerFn({ method: "POST" }).handler(
   try {
     const r = await fetch(i.site_url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; VolgoCheck/1.0; +https://thevolgo.app)" }, redirect: "follow", signal: AbortSignal.timeout(8000) });
     const html = await r.text();
-    if (html.includes(i.sleutel) && html.includes("ava.js")) return { status: "ok" as const };
+    let staat = html.includes(i.sleutel) && html.includes("ava.js");
     // Some builders (Wix, Squarespace) load scripts later: then the chat itself reports a visit.
-    const gezien = await DB.prepare("SELECT 1 FROM site_views WHERE team_id = ? AND dag >= date('now', '-7 days') LIMIT 1").bind(g.team_id).first().catch(() => null);
-    return { status: gezien ? ("ok" as const) : ("niet" as const) };
+    if (!staat) staat = Boolean(await DB.prepare("SELECT 1 FROM site_views WHERE team_id = ? AND dag >= date('now', '-7 days') LIMIT 1").bind(g.team_id).first().catch(() => null));
+    if (!staat) return { status: "niet" as const };
+    // Found: tick "Add Volgo to your website" in Get started, so the customer never has to confirm it by hand.
+    await DB.prepare("INSERT INTO onboarding (team_id, geinstalleerd) VALUES (?, 1) ON CONFLICT(team_id) DO UPDATE SET geinstalleerd = 1").bind(g.team_id).run().catch(() => undefined);
+    return { status: "ok" as const };
   } catch {
     return { status: "onbereikbaar" as const };
   }

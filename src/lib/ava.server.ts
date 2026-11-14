@@ -262,9 +262,11 @@ export async function boekViaChat(
   const bezoekerTekst = (await DB.prepare("SELECT group_concat(tekst, ' ') AS t FROM (SELECT tekst FROM ava_berichten WHERE gesprek_id = ? AND rol = 'bezoeker' ORDER BY id LIMIT 6)").bind(gid).first<{ t: string | null }>())?.t ?? "";
   const nl = taalVan(`${bezoekerTekst} ${b.adres ?? ""}`, "nl") === "nl";
   const { SOORTEN_NL } = await import("./boeken.server");
+  // "We call you on …" only when they left a phone number, not an email address.
+  const belNummer = res.soort === "bellen" && contact.replace(/\D/g, "").length >= 8 && !contact.includes("@");
   const bevestiging = nl
-    ? `Je afspraak staat: ${SOORTEN_NL[res.soort].toLowerCase()} op ${wanneerTekst(res.start, "nl")} tot ${res.eind.slice(11, 16)}. ${inst.bedrijf} heeft je gegevens${res.soort === "bellen" ? ` en belt je op ${contact}` : ""}. Wil je iets veranderen? Zeg het gewoon hier.`
-    : `You're booked: ${soortNaam.toLowerCase()} on ${wanneer}. ${inst.bedrijf} has your details${res.soort === "bellen" ? ` and will call you on ${contact}` : ""}. Need to change it? Just tell me here.`;
+    ? `Je afspraak staat: ${SOORTEN_NL[res.soort].toLowerCase()} op ${wanneerTekst(res.start, "nl")} tot ${res.eind.slice(11, 16)}. ${inst.bedrijf} heeft je gegevens${belNummer ? ` en belt je op ${contact}` : ""}. Wil je iets veranderen? Zeg het gewoon hier.`
+    : `You're booked: ${soortNaam.toLowerCase()} on ${wanneer}. ${inst.bedrijf} has your details${belNummer ? ` and will call you on ${contact}` : ""}. Need to change it? Just tell me here.`;
   await DB.batch([
     DB.prepare("UPDATE ava_gesprek_meta SET naam = ?, contact = ?, lead_id = ? WHERE gesprek_id = ?").bind(naam, contact, leadId, gid),
     DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'bezoeker', ?)").bind(gid, `Booked: ${nl ? SOORTEN_NL[res.soort] : soortNaam} · ${wanneer}`),
@@ -275,9 +277,11 @@ export async function boekViaChat(
     const { pushNaarTeam } = await import("./webpush.server");
     await pushNaarTeam(DB, team, `Nieuwe afspraak: ${naam}`, `${SOORTEN_NL[res.soort]} · ${wanneerTekst(res.start, "nl")}`, "/dashboard#agenda");
   }
+  // The visitor gets the appointment in writing straight away: day, time and an "add to calendar" button.
   {
-    const { pushNaarTeam } = await import("./webpush.server");
-    await pushNaarTeam(DB, team, `Nieuwe afspraak: ${naam}`, `${SOORTEN_NL[res.soort]} · ${wanneerTekst(res.start, "nl")}`, "/dashboard#agenda");
+    const { stuurBevestiging } = await import("./automatisch.server");
+    const waar = res.soort === "langs" ? (b.adres ?? "").trim() : "";
+    await stuurBevestiging(DB, team, { start: res.start, eind: res.eind, soortNaam: nl ? SOORTEN_NL[res.soort] : soortNaam, locatie: waar, naam, contact, token, gesprekId: gid, taal: nl ? "nl" : "en" });
   }
   const isTeam = (await DB.prepare("SELECT onderwerp FROM ava_gesprekken WHERE id = ?").bind(gid).first<{ onderwerp: string | null }>())?.onderwerp?.startsWith("Team application") ?? false;
   const volgoZelf = await (await import("./push.server")).isVolgoZelf(DB, team);
@@ -577,10 +581,10 @@ ${inst.vragen
 ` : ""}ABOUT THE BUSINESS
 ${inst.bedrijfsinfo || "(No extra information yet. Answer general questions carefully and refer to the team for details.)"}
 ${inst.sleutel === "c2c0abaa339e5c0a8c9e4064" ? `
-CURRENT OFFER (overrides any price above): Volgo sells TWO packages. (1) Website: a professional website made to measure, €997 one-time. (2) 3D website: a website with 3D visuals and scroll animations, €1997 one-time. Volgo is always included in the website for €49,99 per month, excl. VAT, cancel monthly: the assistant that answers every visitor, asks the business's questions and plans the appointment, plus one app where every customer is together. At checkout the customer pays the one-time website price plus the first month of Volgo. The domain name is not included. Never quote other plans or prices.
+CURRENT OFFER (overrides any price or package above): ONE offer: Volgo, the appointment setter that goes into the business's OWN existing website, €49,99 per month excl. VAT, billed monthly, cancel any time, no setup costs. A website is NOT included and Volgo does not build websites: it works in the website the business already has (WordPress, Wix, Shopify, Squarespace, Webflow or custom). Installing is pasting one line of code; the dashboard shows where per platform and checks that it is live, and the Volgo team can do it for the customer on request. What it does: answers visitors 24/7, asks the business's own questions, lets the visitor pick a free day and time (phone call, visit, at the office or chat appointment), never double books, sends a confirmation right away and a reminder the day before, follows up after 1 and 3 days when someone did not book, notifies the business for every appointment, and keeps every customer together in one app with name, number and request. Never quote other plans, website packages or prices.
 ` : ""}
 ${intake ? `INTAKE MODE (this visitor clicked "Book a call" on the website)
-- Ask at most 3 short questions, ONE per message, 1-2 sentences each: (1) what kind of business they have, (2) whether they already have a website (and which), (3) what they want most (for example more appointments, fewer phone calls, a new website).
+- Ask at most 3 short questions, ONE per message, 1-2 sentences each: (1) what kind of business they have, (2) whether they already have a website (and which), (3) what they want most (for example more appointments, fewer phone calls, fewer no-shows).
 - Skip a question if the visitor already answered it. Do not open the calendar yourself and do not call the agenda tool.
 - When you have the answers (or after 3 questions), thank them in one sentence and say they can now choose below: chat directly with the owner via DM, or book a call. End that message with the exact marker [[KEUZE]].
 

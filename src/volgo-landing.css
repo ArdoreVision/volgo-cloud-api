@@ -418,3 +418,54 @@ html:has(#vd.vc) { scroll-behavior: smooth; }
   #vd .vc-pakket--om .vc-venster { order: 0; }
 }
 @media (prefers-reduced-motion: reduce) { html:has(#vd.vc) { scroll-behavior: auto; } }
+
+/* Appointment setter for your own website (14 Nov 2026): install block, flow, full feature list */
+#vd .vc-install, #vd .vc-alles { width: 100%; max-width: 1040px; padding: clamp(80px, 12vw, 150px) 24px; border-top: 1px solid rgba(255, 255, 255, 0.07); text-align: center; scroll-margin-top: 64px; }
+#vd .vc-aanbod { scroll-margin-top: 64px; }
+#vd .vc-install > .vc-oog { display: inline-block; }
+#vd .vc-install .vc-sub--midden { margin-bottom: clamp(26px, 4vw, 44px); }
+#vd .vc-regel { display: flex; align-items: stretch; gap: 0; max-width: 820px; margin: 0 auto; border-radius: 20px; overflow: hidden; background: #0c0c0c; box-shadow: inset 0 0 0 1px rgba(200, 255, 62, 0.45), 0 40px 120px rgba(200, 255, 62, 0.12); text-align: left; }
+#vd .vc-regel code { flex: 1; min-width: 0; padding: 22px 22px; color: var(--vc); font: 600 clamp(13px, 1.7vw, 16px)/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-all; }
+#vd .vc-regel button { flex: none; min-width: 120px; padding: 0 22px; border: 0; background: var(--vc); color: #050505; font: 800 15px/1 var(--vd-font); cursor: pointer; }
+#vd .vc-regel button:hover { filter: brightness(1.08); }
+#vd .vc-klein--midden { text-align: center; }
+#vd .vc-stap3 { list-style: none; margin: clamp(34px, 5vw, 56px) auto 0; padding: 0; max-width: 820px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+#vd .vc-stap3 li { padding: 24px 18px; border-radius: 22px; background: linear-gradient(180deg, #121212, #0a0a0a); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+#vd .vc-stap3 b, #vd .vc-flow b { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--vc); color: #000; font-size: 15px; font-weight: 800; }
+#vd .vc-stap3 strong { font-size: clamp(22px, 3vw, 30px); font-weight: 800; letter-spacing: -0.035em; color: #fff; }
+#vd .vc-stap3 span { font-size: 14.5px; line-height: 1.4; color: #9a9a9a; }
+#vd .vc-platform { max-width: 820px; margin: 16px auto 0; padding: clamp(20px, 3vw, 30px); border-radius: 22px; background: rgba(255, 255, 255, 0.03); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); text-align: left; }
+#vd .vc-platform__kop { margin: 0 0 14px; font-size: 16px; font-weight: 700; color: #fff; }
+#vd .vc-platform__tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+#vd .vc-platform__tabs button { padding: 9px 16px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.06); color: #d6d6d6; font: 600 14px/1 var(--vd-font); cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); }
+#vd .vc-platform__tabs button[aria-selected="true"] { background: var(--vc); color: #050505; box-shadow: none; }
+#vd .vc-platform__stappen { margin: 20px 0 0; padding: 0 0 0 22px; display: grid; gap: 10px; font-size: 16px; line-height: 1.5; color: #e6e6e6; }
+#vd .vc-platform__stappen li::marker { color: var(--vc); font-weight: 800; }
+#vd .vc-platform__noot { margin: 14px 0 0; font-size: 13.5px; color: #8a8a8a; }
+#vd .vc-platform__hulp { margin: 18px 0 0; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 15px; font-weight: 600; color: #fff; }
+#vd .vc-flow { list-style: none; margin: clamp(34px, 5vw, 60px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; text-align: left; }
+#vd .vc-flow li { padding: 24px; border-radius: 22px; background: linear-gradient(180deg, #121212, #0a0a0a); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09); }
+#vd .vc-flow h3 { margin: 16px 0 6px; font-size: clamp(18px, 2.2vw, 21px); font-weight: 800; letter-spacing: -0.025em; color: #fff; }
+#vd .vc-flow p { margin: 0; font-size: 15px; line-height: 1.5; color: #9a9a9a; }
+#vd .vc-alles__lijst { list-style: none; margin: 0 auto; padding: 0; max-width: 900px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; text-align: left; font-size: clamp(16px, 2vw, 19px); font-weight: 600; color: #fff; }
+#vd .vc-alles__lijst li { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.07); }
+#vd .vc-alles__lijst li::before { content: "✓"; flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--vc); color: #000; font-size: 13px; }
+#vd .vc-kaart .vc-cta { margin: 0 auto; }
+#vd .vc-prijs b { font-size: clamp(60px, 13vw, 112px); }
+@media (max-width: 900px) { #vd .vc-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) {
+  #vd .vc-regel { flex-direction: column; }
+  #vd .vc-regel button { min-height: 54px; }
+  #vd .vc-stap3 { grid-template-columns: 1fr; }
+  #vd .vc-stap3 li { flex-direction: row; flex-wrap: wrap; align-items: center; text-align: left; padding: 18px; }
+  #vd .vc-stap3 span { flex-basis: 100%; }
+  #vd .vc-alles__lijst { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  #vd .vc-flow { grid-template-columns: 1fr; gap: 10px; }
+  #vd .vc-flow li { display: grid; grid-template-columns: 34px 1fr; column-gap: 14px; align-items: center; padding: 16px 18px; }
+  #vd .vc-flow h3 { margin: 0; }
+  #vd .vc-flow p { grid-column: 2; margin-top: 2px; }
+}
+#vd .vc-kaart li { display: flex; align-items: flex-start; }
+#vd .vc-kaart li::before { flex: none; }

@@ -1,27 +1,14 @@
 import { useEffect, useState } from "react";
 
 import { bewaarMijnWebsite, controleerInstallatie, haalMijnWebsite } from "@/lib/api/groei.functions";
+import { PLATFORMS, installRegel } from "@/lib/installatie";
 
 type Data = Awaited<ReturnType<typeof haalMijnWebsite>>;
 
-const PLATFORMS: { id: string; naam: string; stappen: string[] }[] = [
-  {
-    id: "wordpress",
-    naam: "WordPress",
-    stappen: [
-      "Installeer de gratis plugin “WPCode” (Plugins → Nieuwe plugin).",
-      "Ga naar Code Snippets → Header & Footer.",
-      "Plak de code in het vak Footer en klik op Save.",
-    ],
-  },
-  { id: "wix", naam: "Wix", stappen: ["Open Instellingen → Aangepaste code (onder Geavanceerd).", "Klik op + Aangepaste code toevoegen en plak de code.", "Kies Alle pagina's, plaats het in Body - einde en klik op Toepassen."] },
-  { id: "squarespace", naam: "Squarespace", stappen: ["Open Settings → Advanced → Code injection.", "Plak de code in het vak Footer.", "Klik op Opslaan."] },
-  { id: "shopify", naam: "Shopify", stappen: ["Open Online Store → Thema's → … → Code bewerken.", "Open theme.liquid en plak de code net boven </body>.", "Klik op Opslaan."] },
-  { id: "webflow", naam: "Webflow", stappen: ["Open Site settings → Custom code.", "Plak de code bij Footer code.", "Opslaan en je site publiceren."] },
-  { id: "anders", naam: "Anders / HTML", stappen: ["Plak de code net boven </body> op elke pagina (of in de footer-template van je site).", "Opslaan en publiceren.", "Kun je het niet vinden? Stuur deze pagina naar wie je website maakte, dat kost hen twee minuten."] },
-];
-
-/** Your website: address, the code to install it yourself, and a live preview with your chat on it. */
+/**
+ * Installeren: put Volgo in your own website in three steps (address, paste one line, check),
+ * then a live preview with your chat on it and everything else you can connect.
+ */
 export function MijnWebsite({ openTab }: { openTab: (t: string) => void }) {
   const [d, setD] = useState<Data | null>(null);
   const [site, setSite] = useState("");
@@ -50,7 +37,7 @@ export function MijnWebsite({ openTab }: { openTab: (t: string) => void }) {
   if (!d) return <p className="v-g__leeg">Laden…</p>;
 
   const origin = typeof window === "undefined" ? "https://thevolgo.app" : window.location.origin;
-  const code = `<script src="${origin}/ava.js" data-key="${d.sleutel}" defer></script>`;
+  const code = installRegel(origin, d.sleutel);
   const formulier = `<form action="${origin}/api/formulier/${d.sleutel}" method="post">
   <input name="naam" placeholder="Name" required>
   <input name="email" type="email" placeholder="Email" required>
@@ -81,74 +68,128 @@ export function MijnWebsite({ openTab }: { openTab: (t: string) => void }) {
     const r = await controleerInstallatie().catch(() => ({ status: "onbereikbaar" as const }));
     setCheck(r.status);
   }
-  const p = PLATFORMS.find((x) => x.id === platform)!;
+  const p = PLATFORMS.find((x) => x.id === platform) ?? PLATFORMS[0];
   const naar = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   const staat = check === "ok";
-  // Three steps to go live, each with its own status, so it is always clear what is done and what is next.
-  const stappen: { titel: string; uitleg: string; klaar: boolean; knop: string; doe: () => void }[] = [
-    { titel: "Vul je websiteadres in", uitleg: "Dan weet Volgo op welke website je chat komt.", klaar: Boolean(d.siteUrl), knop: "Invullen", doe: () => naar("mw-gegevens") },
-    { titel: "Kopieer je code en plak hem in je website", uitleg: "Eén regel. Kies je websitebouwer en volg de stappen.", klaar: staat, knop: "Naar de code", doe: () => naar("mw-installeren") },
-    { titel: "Check of hij goed staat", uitleg: "Volgo kijkt zelf op je website of de chat er staat.", klaar: staat, knop: check === "bezig" ? "Controleren…" : "Nu checken", doe: () => void controleer() },
-  ];
-  const hulp = `mailto:volgo.app@outlook.com?subject=${encodeURIComponent("Zet Volgo op mijn website")}&body=${encodeURIComponent(`Hoi Volgo,\n\nWillen jullie de chat op mijn website zetten?\n\nWebsite: ${d.siteUrl || ""}\nMijn code: ${code}\n`)}`;
+  const hulp = `mailto:volgo.app@outlook.com?subject=${encodeURIComponent("Zet Volgo op mijn website")}&body=${encodeURIComponent(`Hoi Volgo,\n\nWillen jullie Volgo in mijn website zetten?\n\nWebsite: ${d.siteUrl || ""}\nMijn regel: ${code}\n`)}`;
+  // For a business that has someone else manage its website: a ready-made mail with the line and where it goes.
+  const bouwer = `mailto:?subject=${encodeURIComponent("Kun je deze regel in mijn website zetten?")}&body=${encodeURIComponent(`Hoi,\n\nKun je deze ene regel in mijn website zetten${d.siteUrl ? ` (${d.siteUrl})` : ""}? Hij moet net boven </body> staan, op elke pagina. Dat kost een paar minuten.\n\n${code}\n\nDit is Volgo: de chat waarmee bezoekers zelf een afspraak plannen.\n\nDank je!`)}`;
   // Everything that can be connected, in one list, with where to do it.
   const koppelingen: { naam: string; uitleg: string; status: string; aan: boolean; knop: string; doe: () => void }[] = [
-    { naam: "Chat op je website", uitleg: "Bezoekers chatten, Volgo stelt je vragen en plant de afspraak.", status: staat ? "Werkt" : "Nog niet geïnstalleerd", aan: staat, knop: "Installeren", doe: () => naar("mw-installeren") },
+    { naam: "Volgo op je website", uitleg: "Bezoekers chatten, Volgo stelt je vragen en plant de afspraak.", status: staat ? "Werkt" : "Nog niet geïnstalleerd", aan: staat, knop: "Installeren", doe: () => naar("mw-installeren") },
+    { naam: "Agenda en openingstijden", uitleg: "Wanneer klanten kunnen boeken, hoe lang een afspraak duurt en welke soorten.", status: "Bij Agenda", aan: false, knop: "Openen", doe: () => openTab("agenda") },
+    { naam: "Je vragen en je chat", uitleg: "De vragen die Volgo stelt vóór een afspraak, en naam, foto en kleur.", status: "Bij Je chat", aan: false, knop: "Openen", doe: () => openTab("ava") },
+    { naam: "Herinnering en opvolging", uitleg: "Herinnering de dag ervoor, opvolging na 1 en 3 dagen.", status: "Bij Automatisch", aan: false, knop: "Openen", doe: () => openTab("automatisch") },
     { naam: "Contactformulier", uitleg: "Berichten van je formulier komen in dezelfde Inbox.", status: "Optioneel", aan: false, knop: "Bekijken", doe: () => naar("mw-formulier") },
     ...(d.mailIn ? [{ naam: "Je mail", uitleg: "Stuur je zakelijke mail door, dan staat die ook in je Inbox.", status: "Optioneel", aan: false, knop: "Bekijken", doe: () => naar("mw-formulier") }] : []),
     { naam: "WhatsApp en telefoon", uitleg: "Knoppen om je te appen of te bellen, en je zakelijke nummer.", status: "Bij Kanalen", aan: false, knop: "Openen", doe: () => openTab("kanalen") },
-    { naam: "Google-reviews", uitleg: "Na een afspraak vraagt Volgo automatisch om een review.", status: d.reviewUrl ? "Werkt" : "Nog geen link", aan: Boolean(d.reviewUrl), knop: "Link invullen", doe: () => naar("mw-gegevens") },
-    { naam: "Agenda", uitleg: "Je tijden waarop klanten zelf een afspraak kunnen plannen.", status: "Bij Agenda", aan: false, knop: "Openen", doe: () => openTab("agenda") },
-    { naam: "Je chat", uitleg: "Naam, foto, kleur en de vragen die Volgo stelt.", status: "Bij Je chat", aan: false, knop: "Openen", doe: () => openTab("ava") },
+    { naam: "Google-reviews", uitleg: "Na een afspraak vraagt Volgo automatisch om een review.", status: d.reviewUrl ? "Werkt" : "Nog geen link", aan: Boolean(d.reviewUrl), knop: "Link invullen", doe: () => naar("mw-review") },
   ];
 
   return (
     <div className="v-g">
       <header className="v-g__kop">
-        <h1>Je website</h1>
-        <p>Zie je eigen website met je Volgo-chat erop, precies zoals bezoekers hem zien. Installeer het zelf in twee minuten, zonder technische kennis.</p>
+        <h1>Installeren</h1>
+        <p>Volgo komt in de website die je al hebt. Drie stappen, zonder technische kennis: adres invullen, één regel plakken, checken.</p>
       </header>
 
-      <section className="v-g__kaart">
-        <div className="v-g__knoppen" style={{ justifyContent: "space-between", marginBottom: 6 }}>
-          <h2 style={{ margin: 0 }}>Installeren in 3 stappen</h2>
+      <section className="v-g__kaart" id="mw-installeren">
+        <div className="v-g__knoppen" style={{ justifyContent: "space-between", marginBottom: 12 }}>
+          <h2 style={{ margin: 0 }}>Volgo in je website zetten</h2>
           <span className={`v-g__status${staat ? " is-aan" : " is-let"}`}>{staat ? "✓ Volgo staat op je website" : "Nog niet geïnstalleerd"}</span>
         </div>
-        <p>Dit is alles wat je moet doen om Volgo op je website te krijgen. Geen technische kennis nodig. Bouwen wij je website? Dan zetten wij Volgo er voor je in en hoef je hier niets te doen.</p>
-        <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 10 }}>
-          {stappen.map((x, i) => (
-            <li key={x.titel} style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "12px 14px", border: "1px solid var(--line)", borderRadius: 14 }}>
-              <span aria-hidden="true" className={`v-g__status${x.klaar ? " is-aan" : ""}`} style={{ alignSelf: "center" }}>
-                {x.klaar ? "✓" : i + 1}
-              </span>
-              <div style={{ flex: "1 1 200px", minWidth: 0 }}>
-                <strong style={{ display: "block", fontSize: 15 }}>{x.titel}</strong>
-                <small style={{ color: "var(--muted)" }}>{x.uitleg}</small>
-              </div>
-              {x.klaar ? (
-                <span className="v-g__ok">Klaar</span>
-              ) : (
-                <button className="v-g__knop2" disabled={check === "bezig"} onClick={x.doe} type="button">
-                  {x.knop}
+
+        <div className="v-inst" id="mw-gegevens">
+          <span aria-hidden="true" className={`v-inst__nr${d.siteUrl ? " is-klaar" : ""}`}>
+            {d.siteUrl ? "✓" : 1}
+          </span>
+          <div className="v-inst__body">
+            <strong>Vul je websiteadres in</strong>
+            <small>Dan weet Volgo op welke website je chat komt.</small>
+            <div className="v-inst__rij">
+              <label className="v-g__veld" style={{ flex: "1 1 220px" }}>
+                <span className="v-sr">Websiteadres</span>
+                <input inputMode="url" onChange={(e) => setSite(e.target.value)} placeholder="www.jouwbedrijf.nl" value={site} />
+              </label>
+              <button className="v-g__knop" onClick={() => void bewaar()} type="button">
+                Opslaan
+              </button>
+            </div>
+            {opgeslagen === "ok" ? <span className="v-g__ok">Opgeslagen.</span> : null}
+            {opgeslagen === "fout" ? <span className="v-g__fout">Controleer het adres. Je reviewlink (onderaan) begint met https://.</span> : null}
+          </div>
+        </div>
+
+        <div className="v-inst">
+          <span aria-hidden="true" className={`v-inst__nr${staat ? " is-klaar" : ""}`}>
+            {staat ? "✓" : 2}
+          </span>
+          <div className="v-inst__body">
+            <strong>Kopieer je regel en plak hem in je website</strong>
+            <small>Eén regel, één keer. Daarna staat Volgo op elke pagina.</small>
+            <pre className="v-g__code">{code}</pre>
+            <div className="v-g__knoppen" style={{ margin: "10px 0 14px" }}>
+              <button className="v-g__knop" onClick={() => kopieer(code, "code")} type="button">
+                {gekopieerd === "code" ? "Gekopieerd ✓" : "Regel kopiëren"}
+              </button>
+              <a className="v-g__knop2" href={bouwer} style={{ textDecoration: "none" }}>
+                Stuur naar mijn websitebouwer
+              </a>
+            </div>
+            <p className="v-inst__vraag">Waar plak je hem? Kies waarmee je website gemaakt is:</p>
+            <div className="v-g__tabs">
+              {PLATFORMS.map((x) => (
+                <button aria-pressed={platform === x.id} key={x.id} onClick={() => setPlatform(x.id)} type="button">
+                  {x.naam}
                 </button>
-              )}
-            </li>
-          ))}
-        </ol>
-        {check === "niet" ? <p className="v-g__fout" style={{ marginTop: 10 }}>Nog niet gevonden op je website. Heb je de code opgeslagen en je website gepubliceerd? Het kan een paar minuten duren.</p> : null}
-        {check === "geen" ? <p className="v-g__fout" style={{ marginTop: 10 }}>Vul eerst je websiteadres in (stap 1) en klik op Opslaan.</p> : null}
-        {check === "onbereikbaar" ? <p className="v-g__fout" style={{ marginTop: 10 }}>Je website was niet bereikbaar. Controleer het adres bij stap 1.</p> : null}
-        <div className="v-g__knoppen" style={{ marginTop: 14 }}>
+              ))}
+            </div>
+            <ol className="v-g__stappen">
+              {p.stappen.map((x) => (
+                <li key={x}>{x}</li>
+              ))}
+            </ol>
+            {p.noot ? (
+              <p className="v-g__leeg" style={{ marginTop: 8 }}>
+                {p.noot}
+              </p>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="v-inst">
+          <span aria-hidden="true" className={`v-inst__nr${staat ? " is-klaar" : ""}`}>
+            {staat ? "✓" : 3}
+          </span>
+          <div className="v-inst__body">
+            <strong>Check of hij goed staat</strong>
+            <small>Volgo kijkt zelf op je website of de chat er staat.</small>
+            <div className="v-g__knoppen" style={{ marginTop: 10 }}>
+              <button className="v-g__knop" disabled={check === "bezig"} onClick={() => void controleer()} type="button">
+                {check === "bezig" ? "Controleren…" : staat ? "Opnieuw checken" : "Nu checken"}
+              </button>
+              {check === "ok" ? <span className="v-g__ok">✓ Volgo staat op je website. Afspraken komen nu vanzelf binnen.</span> : null}
+              {check === "niet" ? <span className="v-g__fout">Nog niet gevonden. Heb je de regel opgeslagen en je website gepubliceerd? Het kan een paar minuten duren.</span> : null}
+              {check === "geen" ? <span className="v-g__fout">Vul eerst je websiteadres in (stap 1) en klik op Opslaan.</span> : null}
+              {check === "onbereikbaar" ? <span className="v-g__fout">Je website was niet bereikbaar. Controleer het adres bij stap 1.</span> : null}
+            </div>
+          </div>
+        </div>
+
+        <div className="v-g__knoppen" style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
           <a className="v-g__knop2" href={hulp} style={{ textDecoration: "none" }}>
             Liever dat wij het doen? Mail ons
           </a>
           <span style={{ color: "var(--muted)", fontSize: 13 }}>Wij zetten het dezelfde dag voor je aan.</span>
         </div>
+        <p className="v-g__leeg" style={{ marginTop: 12 }}>
+          Tip: geef een knop op je website het attribuut <code>data-ava-book</code> en hij opent meteen je agenda, bijvoorbeeld een knop “Plan een afspraak”.
+        </p>
       </section>
 
       <section className="v-g__kaart">
-        <h2>Alles wat je kunt koppelen</h2>
-        <p>Eén overzicht van alles wat bij Volgo hoort, en waar je het aanzet.</p>
+        <h2>Alles wat bij je setter hoort</h2>
+        <p>Eén overzicht van alles wat Volgo voor je doet, en waar je het instelt.</p>
         <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column" }}>
           {koppelingen.map((k) => (
             <li key={k.naam} style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "11px 0", borderTop: "1px solid var(--line)" }}>
@@ -165,30 +206,6 @@ export function MijnWebsite({ openTab }: { openTab: (t: string) => void }) {
             </li>
           ))}
         </ul>
-      </section>
-
-      <section className="v-g__kaart" id="mw-gegevens">
-        <h2>Je gegevens</h2>
-        <div className="v-g__form">
-          <label className="v-g__veld">
-            Websiteadres
-            <input inputMode="url" onChange={(e) => setSite(e.target.value)} placeholder="https://www.yourbusiness.com" value={site} />
-          </label>
-          <label className="v-g__veld">
-            Google-reviewlink
-            <input inputMode="url" onChange={(e) => setReview(e.target.value)} placeholder="https://g.page/r/…/review" value={review} />
-            <small>
-              Je vindt hem in je Google-bedrijfsprofiel → <em>Reviews vragen</em> → kopieer de link.
-            </small>
-          </label>
-          <div className="v-g__knoppen is-breed">
-            <button className="v-g__knop" onClick={() => void bewaar()} type="button">
-              Opslaan
-            </button>
-            {opgeslagen === "ok" ? <span className="v-g__ok">Opgeslagen.</span> : null}
-            {opgeslagen === "fout" ? <span className="v-g__fout">Controleer beide adressen (ze beginnen met https://).</span> : null}
-          </div>
-        </div>
       </section>
 
       <section className="v-g__kaart">
@@ -228,37 +245,25 @@ export function MijnWebsite({ openTab }: { openTab: (t: string) => void }) {
         </p>
       </section>
 
-      <section className="v-g__kaart" id="mw-installeren">
-        <h2>Zelf installeren</h2>
-        <p>Eén regel code zet de chat op je hele website. Kopieer hem en volg de stappen voor jouw websitebouwer.</p>
-        <pre className="v-g__code">{code}</pre>
-        <div className="v-g__knoppen" style={{ margin: "10px 0 16px" }}>
-          <button className="v-g__knop" onClick={() => kopieer(code, "code")} type="button">
-            {gekopieerd === "code" ? "Gekopieerd ✓" : "Code kopiëren"}
-          </button>
-          <button className="v-g__knop2" disabled={check === "bezig"} onClick={() => void controleer()} type="button">
-            {check === "bezig" ? "Controleren…" : "Check of hij goed staat"}
-          </button>
-          {check === "ok" ? <span className="v-g__ok">✓ Volgo staat op je website.</span> : null}
-          {check === "niet" ? <span className="v-g__fout">Nog niet gevonden. Opgeslagen en gepubliceerd? Het kan een paar minuten duren.</span> : null}
-          {check === "geen" ? <span className="v-g__fout">Sla eerst je websiteadres op.</span> : null}
-          {check === "onbereikbaar" ? <span className="v-g__fout">Je website was niet bereikbaar. Controleer het adres.</span> : null}
-        </div>
-        <div className="v-g__tabs">
-          {PLATFORMS.map((x) => (
-            <button aria-pressed={platform === x.id} key={x.id} onClick={() => setPlatform(x.id)} type="button">
-              {x.naam}
+      <section className="v-g__kaart" id="mw-review">
+        <h2>Google-reviewlink</h2>
+        <p>Na een afspraak vraagt Volgo automatisch om een review. Daarvoor is je reviewlink nodig.</p>
+        <div className="v-g__form">
+          <label className="v-g__veld is-breed">
+            Google-reviewlink
+            <input inputMode="url" onChange={(e) => setReview(e.target.value)} placeholder="https://g.page/r/…/review" value={review} />
+            <small>
+              Je vindt hem in je Google-bedrijfsprofiel → <em>Reviews vragen</em> → kopieer de link.
+            </small>
+          </label>
+          <div className="v-g__knoppen is-breed">
+            <button className="v-g__knop" onClick={() => void bewaar()} type="button">
+              Opslaan
             </button>
-          ))}
+            {opgeslagen === "ok" ? <span className="v-g__ok">Opgeslagen.</span> : null}
+            {opgeslagen === "fout" ? <span className="v-g__fout">De link moet beginnen met https://.</span> : null}
+          </div>
         </div>
-        <ol className="v-g__stappen">
-          {p.stappen.map((s) => (
-            <li key={s}>{s}</li>
-          ))}
-        </ol>
-        <p className="v-g__leeg" style={{ marginTop: 12 }}>
-          Tip: geef een knop op je website het attribuut <code>data-ava-book</code> en hij opent je agenda, bijvoorbeeld een knop “Plan een afspraak”.
-        </p>
       </section>
 
       <section className="v-g__kaart" id="mw-formulier">

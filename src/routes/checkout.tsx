@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { AuthShell, Steps } from "@/components/volgo/auth-shell";
 import { bekijkTestBetaling, rondTestBetalingAf } from "@/lib/api/account.functions";
-import { PLANS, isPlan } from "@/lib/plans";
+import { PLANS, isPlan, planTitel } from "@/lib/plans";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/checkout")({
@@ -42,11 +42,11 @@ function Betalen() {
     <AuthShell>
       <Steps actief={2} />
       <p className="v-testbadge">Test mode · you won’t be charged</p>
-      <h1 className="v-auth__title">Volgo {p.naam}</h1>
+      <h1 className="v-auth__title">{planTitel(p)}</h1>
       <div className="v-summary">
         <div>
           <span>Plan</span>
-          <strong>Volgo {p.naam}</strong>
+          <strong>{planTitel(p)}</strong>
         </div>
         <div>
           <span>Price</span>

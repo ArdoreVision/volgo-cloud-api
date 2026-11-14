@@ -38,7 +38,7 @@ export const stuurWebsiteAanvraag = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const { g, DB, plan } = await sessie();
-    if (!plan.limieten.website) return { ok: false as const, message: "A custom website is part of Complete." };
+    if (!plan.limieten.website) return { ok: false as const, message: "Volgo works in your own website. A website built by us is no longer part of Volgo." };
     await DB.prepare("INSERT INTO website_aanvragen (team_id, contact, telefoon, domein, huidige_site, wensen) VALUES (?, ?, ?, ?, ?, ?)")
       .bind(g.team_id, data.contact, data.telefoon, data.domein, data.huidige_site, data.wensen)
       .run();
@@ -77,7 +77,7 @@ export const bouwSite = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ tekst: z.string().trim().min(2).max(3000) }).parse(v))
   .handler(async ({ data }) => {
     const { g, DB, plan } = await sessie();
-    if (!plan.limieten.website) return { ok: false as const, message: "De websitebouwer zit in Website + Volgo." };
+    if (!plan.limieten.website) return { ok: false as const, message: "Volgo werkt in je eigen website. Een website laten bouwen hoort niet meer bij Volgo." };
     if (!(await binnenLimiet(DB, `bouw:${g.team_id}`, 60 * 24, 40))) return { ok: false as const, message: "Je hebt vandaag het maximum aantal aanpassingen bereikt. Morgen kun je weer verder." };
     return bouwBeurt(DB, g.team_id, data.tekst);
   });
