@@ -57,7 +57,10 @@ function Lijst({ titel, rijen, sleutel }: { titel: string; rijen: { naam: string
 }
 
 /** Website traffic measured by Volgo, in plain language. */
-export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
+type Rij = { created_at?: string; laatste?: string; start?: string; status?: string };
+const dagVan = (t?: string) => (t ?? "").slice(0, 10);
+
+export function Verkeer({ openTab, leads = [], gesprekken = [], afspraken = [] }: { openTab: (t: string) => void; leads?: Rij[]; gesprekken?: Rij[]; afspraken?: Rij[] }) {
   const [dagen, setDagen] = useState(30);
   const [d, setD] = useState<Data | null>(null);
   const [fout, setFout] = useState("");
@@ -76,6 +79,28 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
     };
   }, [dagen]);
 
+  // Your own results: these do not depend on website measuring, so they always show.
+  const grens = (terug: number) => new Date(Date.now() - terug * 86400000).toISOString().slice(0, 10);
+  const vanaf = grens(dagen - 1);
+  const vorigVanaf = grens(dagen * 2 - 1);
+  const tel = (rijen: Rij[], veld: (r: Rij) => string) => ({
+    nu: rijen.filter((r) => veld(r) >= vanaf).length,
+    toen: rijen.filter((r) => veld(r) >= vorigVanaf && veld(r) < vanaf).length,
+  });
+  const rGesprek = tel(gesprekken, (r) => dagVan(r.laatste ?? r.created_at));
+  const rLead = tel(leads, (r) => dagVan(r.created_at));
+  const rAfspraak = tel(afspraken, (r) => dagVan(r.start));
+  const rKlant = tel(
+    leads.filter((l) => l.status === "klant"),
+    (r) => dagVan(r.created_at),
+  );
+  const resultaten: [string, { nu: number; toen: number }, string][] = [
+    ["Conversations", rGesprek, "gesprekken"],
+    ["Requests", rLead, "aanvragen"],
+    ["Appointments", rAfspraak, "agenda"],
+    ["Became a customer", rKlant, "aanvragen"],
+  ];
+
   const maxDag = d ? Math.max(1, ...d.perDag.map((x) => x.bezoekers)) : 1;
   const trechter = d
     ? [
@@ -91,9 +116,9 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
     <>
       <header className="v-dash__head v-vk__kop">
         <div>
-          <h1>Visitors</h1>
+          <h1>Analytics</h1>
           <p>
-            Who visits your website, where they come from and how many become leads. Measured by Volgo, with your visitors’ permission.
+            Your results and your website visitors in one place.
             {d && d.live > 0 ? (
               <span className="v-vk__live">
                 <i /> {d.live} on your site now
@@ -109,11 +134,20 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
           ))}
         </div>
       </header>
+      <section aria-label="Your results" className="v-vk__tegels v-vk__resultaat">
+        {resultaten.map(([l, r, naar]) => (
+          <button key={l} onClick={() => openTab(naar)} type="button">
+            <span>{l}</span>
+            <strong>{getal(r.nu)}</strong>
+            <Verschil nu={r.nu} toen={r.toen} />
+          </button>
+        ))}
+      </section>
       {fout ? <p className="v-err">{fout}</p> : null}
       {!d ? <p className="v-feed__empty">Loading visitors…</p> : null}
       {d && d.views === 0 ? (
         <section className="v-dash__panel v-vk__leeg">
-          <h2 className="v-sub">No visits measured yet</h2>
+          <h2 className="v-sub">No website visits measured yet</h2>
           <p className="v-muted">As soon as Volgo is on your website, you see every visit here: pages, sources, devices, countries and how many visitors become a request.</p>
           <button className="v-btn-dark" onClick={() => openTab("installeren")} type="button">
             Put Volgo on your website

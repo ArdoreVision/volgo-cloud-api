@@ -245,3 +245,103 @@
 
 .v-bw__thema { display: inline-flex !important; align-items: center; gap: 7px; }
 .v-bw__thema i { width: 16px; height: 16px; border-radius: 50%; outline: 1px solid rgba(0, 0, 0, 0.15); }
+
+/* ═══════════════════════════════════════════════════════════
+   Black and white. Night mode: black, white and light grey.
+   Day mode: white. No other colour, except red for an error.
+   ═══════════════════════════════════════════════════════════ */
+.v-dash {
+  --surface: #f5f5f5;
+  --card: #ffffff;
+  --bg: #ffffff;
+  --ink: #0a0a0a;
+  --ink-2: #262626;
+  --muted: #6b6b6b;
+  --line: #e6e6e6;
+  --sky-1: #ececec;
+  --sky-2: #f5f5f5;
+  --accent: #0a0a0a;
+  --accent-soft: rgba(10, 10, 10, 0.06);
+  --on-accent: #ffffff;
+  --bol: 10, 10, 10;
+  --kaart-schaduw: 0 0 0 1px #e6e6e6;
+  background: #ffffff;
+}
+.v-dash[data-thema="donker"] {
+  --surface: #141414;
+  --card: #0a0a0a;
+  --bg: #000000;
+  --ink: #ffffff;
+  --ink-2: #d9d9d9;
+  --muted: #a6a6a6;
+  --line: #262626;
+  --sky-1: #1f1f1f;
+  --sky-2: #141414;
+  --accent: #ffffff;
+  --accent-soft: rgba(255, 255, 255, 0.1);
+  --on-accent: #000000;
+  --bol: 255, 255, 255;
+  --kaart-schaduw: 0 0 0 1px #262626;
+  background: #000000;
+}
+html[data-thema="donker"], html[data-thema="donker"] body { background: #000; }
+.v-dash .v-dash__main, .v-dash .v-dash__body { background: var(--bg); }
+@media (min-width: 901px) {
+  .v-dash .v-dash__side { background: #fafafa; box-shadow: inset -1px 0 0 var(--line); }
+  .v-dash[data-thema="donker"] .v-dash__side { background: #000; }
+  .v-dash .v-dash__nav button[aria-current="page"] { background: #ededed; box-shadow: none; }
+  .v-dash[data-thema="donker"] .v-dash__nav button[aria-current="page"] { background: #fff; color: #000; }
+  .v-dash[data-thema="donker"] .v-dash__nav button[aria-current="page"] .v-dash__icon { stroke: #000; }
+}
+.v-dash[data-thema="donker"] .v-top { background: #000; box-shadow: inset 0 -1px 0 #262626; }
+
+/* Status and notices without colour */
+.v-dash .v-g__status, .v-dash .v-bw__status { background: var(--surface); color: var(--muted); box-shadow: none; }
+.v-dash :is(.v-g__status.is-aan, .v-bw__status.is-online) { background: var(--ink); color: var(--bg); }
+.v-dash .v-g__status.is-let { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.v-dash .v-dash__doen, .v-dash[data-thema="donker"] .v-dash__doen { background: var(--card); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+.v-dash .v-dash__doen:hover { box-shadow: 0 0 0 1px var(--ink); }
+.v-dash .v-dash__doen strong, .v-dash[data-thema="donker"] .v-dash__doen strong { color: var(--ink); }
+.v-dash .v-dash__doen em, .v-dash[data-thema="donker"] .v-dash__doen em { background: var(--ink); color: var(--bg); }
+.v-dash .v-hub__ok, .v-dash[data-thema="donker"] .v-hub__ok { background: var(--surface); color: var(--ink); }
+.v-dash .v-hub__lijst li.is-klaar .v-hub__punt { background: var(--ink); }
+.v-dash[data-thema="donker"] .v-hub__lijst li.is-klaar .v-hub__punt svg { stroke: #000; }
+.v-dash .v-vk__live, .v-dash[data-thema="donker"] .v-vk__live { background: var(--surface); color: var(--ink); }
+.v-dash .v-vk__live i { background: var(--ink); }
+.v-dash .v-vk__delta.is-op { color: var(--ink); font-weight: 650; }
+.v-dash .v-vk__delta.is-neer { color: var(--muted); }
+.v-dash[data-thema="donker"] :is(.v-wiz__vink, .v-inst__nr.is-klaar) { background: #fff; color: #000; }
+.v-dash :is(.v-addbtn, .v-btn-dark, .v-btn-blauw, .v-chatapp__invite, .v-cta-primary, .v-book__knop, .v-submit, .v-bw__online) { background: var(--ink); color: var(--bg); box-shadow: none; }
+.v-dash .v-dash__main a:not([class]) { color: var(--ink); }
+.v-dash ::selection { background: var(--ink); color: var(--bg); }
+
+/* Analytics */
+.v-dash .v-vk__tegels > :is(div, button) { border: 0; border-radius: 12px; padding: 16px; background: var(--card); color: var(--ink); font: inherit; text-align: left; box-shadow: var(--kaart-schaduw); }
+.v-dash .v-vk__resultaat { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.v-dash .v-vk__resultaat button { cursor: pointer; transition: box-shadow 0.18s, transform 0.18s var(--zacht); }
+.v-dash .v-vk__resultaat button:hover { box-shadow: 0 0 0 1px var(--ink); transform: translateY(-1px); }
+.v-dash .v-vk__grafiek i, .v-dash .v-vk__trechter i, .v-dash .v-vk__lijst li > i { background: var(--ink); }
+.v-dash .v-vk__lijst li > i { opacity: 0.08; }
+@media (max-width: 900px) {
+  .v-dash .v-vk__resultaat { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.v-dash .v-toggle input:checked + i { background: var(--ink); }
+.v-dash[data-thema="donker"] .v-toggle input:checked + i::after { background: #000; }
+.v-dash [class*="v-kanaal--"], .v-dash[data-thema="donker"] [class*="v-kanaal--"] { background: var(--surface); color: var(--ink); }
+.v-dash .v-dash__main :is(.v-wa, [class*="whatsapp"]):not(svg):not(path) { color: var(--ink); }
+.v-dash .v-pb__status, .v-dash [class*="v-pb__status"] { background: var(--surface); color: var(--ink); }
+.v-dash :is(.v-g__status.is-aan, .v-bw__status.is-online, .v-g__badge.is-betaald, .v-inst__nr.is-klaar, .v-wiz__vink, .v-live-badge) { background: var(--ink) !important; color: var(--bg) !important; }
+.v-dash :is(.v-kn__schakel, input[type="checkbox"][role="switch"]):checked { background: var(--ink) !important; }
+.v-dash[data-thema="donker"] :is(.v-kn__schakel, input[type="checkbox"][role="switch"]):checked::after, .v-dash[data-thema="donker"] :is(.v-kn__schakel, input[type="checkbox"][role="switch"]):checked::before { background: #000 !important; }
+.v-dash :is(.v-live-dot, .v-vd__punt, .v-vk__nu h2 i, .v-dm__av i) { background: var(--ink) !important; box-shadow: none; }
+.v-dash .v-live-badge::before { background: var(--bg) !important; }
+.v-dash .v-g__ok, .v-dash .v-ck__wa, .v-dash a[href*="wa.me"] { color: var(--ink) !important; }
+.v-dash :is(.v-dm__banner, .v-dm__tag--jij, .v-dm__lead, .v-callcard, .v-ev--groen, .v-month__ev--groen, .v-badge--groen) { background: var(--surface) !important; color: var(--ink) !important; }
+.v-dash :is(.v-dm__banner button, .v-callcard a, .v-callcard__icon, .v-swipe__actie--groen) { background: var(--ink) !important; color: var(--bg) !important; }
+.v-dash .v-au__schakel input:checked + i { background: var(--ink); }
+.v-dash .v-au__schakel i { background: var(--sky-1); }
+.v-dash[data-thema="donker"] :is(.v-au__schakel, .v-toggle) input:checked + i::after { background: #000; }
+.v-dash .v-ck__knop--wa, .v-dash[data-thema="donker"] .v-ck__knop--wa { color: var(--ink); }
+.v-dash .v-hub__lijst li.is-klaar .v-hub__punt { color: var(--bg); }
+.v-dash .v-hub__punt { box-shadow: inset 0 0 0 1.5px var(--line); }
+.v-dash .v-g__status.is-let { background: transparent !important; color: var(--ink) !important; box-shadow: inset 0 0 0 1px var(--line); }

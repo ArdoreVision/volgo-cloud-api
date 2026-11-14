@@ -156,7 +156,7 @@ export function InstallHub({ openTab, metWebsite }: { openTab: (t: string) => vo
           {(
             [
               ["home", "Today", "Your day at a glance"],
-              ["verkeer", "Visitors", "Who visits your website"],
+              ["verkeer", "Analytics", "Results and visitors"],
               ["betalingen", "Payments", "Send a payment request"],
               ["kanalen", "Connections", "Form, WhatsApp and phone"],
               ["automatisch", "Follow-up", "Read and change the messages"],
