@@ -10,6 +10,7 @@ import { PLANS, PROEF_PRIJS, isPlan } from "../plans";
 import { leesProfiel, profielCompleet } from "../profiel-vragen";
 import { beoordeel } from "../wachtwoord";
 import { seedTeam, wisVoorbeelden, zorgVoorKanaal } from "../team.server";
+import { testPrijs } from "../testprijs.server";
 import { actieveGebruiker, heeftToegang } from "../toegang.server";
 
 function origin() {
@@ -70,6 +71,10 @@ export const startBetaling = createServerFn({ method: "POST" })
     // The €1 trial is for first-time customers only: new visitors, or an account that never had a plan (status "nieuw").
     const proefMag = !ik || (bestaand?.status === "nieuw" && !bestaand.stripe_abonnement);
     if (ik && ik.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can change the plan." };
+    // Temporary: a browser that opened the owner's private test link pays €0 (see testprijs.server.ts).
+    const test = await testPrijs();
+    const prijs = test ? 0 : plan.prijs;
+    const opstart = test ? 0 : plan.opstart;
 
     // Existing customer with a running Stripe subscription: change the plan in place (prorated, no double billing).
     if (ik && STRIPE_SECRET_KEY) {
@@ -89,12 +94,12 @@ export const startBetaling = createServerFn({ method: "POST" })
             u.set("items[0][id]", item);
             u.set("items[0][price_data][currency]", "eur");
             u.set("items[0][price_data][product]", product.id);
-            u.set("items[0][price_data][unit_amount]", String(plan.prijs));
+            u.set("items[0][price_data][unit_amount]", String(prijs));
             u.set("items[0][price_data][recurring][interval]", "month");
             u.set("proration_behavior", "create_prorations");
             // Moving up to a bigger website (for example Website -> 3D website): charge the difference in the one-time price once, on the next invoice.
             const alBetaald = PLANS[(isPlan(bestaand?.plan) ? bestaand.plan : "start") as keyof typeof PLANS].opstart;
-            if (plan.opstart > alBetaald) {
+            if (!test && plan.opstart > alBetaald) {
               u.set("add_invoice_items[0][price_data][currency]", "eur");
               u.set("add_invoice_items[0][price_data][product]", product.id);
               u.set("add_invoice_items[0][price_data][unit_amount]", String(plan.opstart - alBetaald));
@@ -126,10 +131,16 @@ export const startBetaling = createServerFn({ method: "POST" })
       b.set("locale", "auto"); // Stripe in the customer's browser language (Dutch for Dutch customers)
       b.set("line_items[0][quantity]", "1");
       b.set("line_items[0][price_data][currency]", "eur");
-      b.set("line_items[0][price_data][unit_amount]", String(plan.prijs));
+      b.set("line_items[0][price_data][unit_amount]", String(prijs));
       b.set("line_items[0][price_data][recurring][interval]", "month");
       b.set("line_items[0][price_data][product_data][name]", plan.opstart ? `Volgo ${plan.naam} · Volgo in your website (monthly)` : `Volgo ${plan.naam}`);
-      if (plan.proefDagen && proefMag) {
+      if (test) {
+        // €0 test checkout: no card needed, and clearly marked in Stripe.
+        b.set("payment_method_collection", "if_required");
+        b.set("metadata[test]", "1");
+        b.set("subscription_data[metadata][test]", "1");
+      }
+      if (!test && plan.proefDagen && proefMag) {
         b.set("subscription_data[trial_period_days]", String(plan.proefDagen));
         // The trial is not free: €1 is charged today (one-time, on the first invoice), the full monthly price after the trial.
         b.set("line_items[1][quantity]", "1");
@@ -138,16 +149,16 @@ export const startBetaling = createServerFn({ method: "POST" })
         b.set("line_items[1][price_data][product_data][name]", `Volgo ${plan.naam} · ${plan.proefDagen}-day trial`);
       }
       // One-time price of the website (Website / 3D website), on the first invoice next to the first month of Volgo.
-      if (plan.opstart) {
+      if (opstart) {
         const n = plan.proefDagen && proefMag ? 2 : 1;
         b.set(`line_items[${n}][quantity]`, "1");
         b.set(`line_items[${n}][price_data][currency]`, "eur");
-        b.set(`line_items[${n}][price_data][unit_amount]`, String(plan.opstart));
+        b.set(`line_items[${n}][price_data][unit_amount]`, String(opstart));
         b.set(`line_items[${n}][price_data][product_data][name]`, plan.id === "compleet" ? "Complete website with domain · built by Volgo (one-time)" : `${plan.naam} · built by Volgo (one-time)`);
       }
       // Introductory offer (first-time customers only): the lower price for the first months, then the full price automatically.
       // If the coupon can't be set up, the checkout fails (below) rather than charging more than the advertised price.
-      const metIntro = Boolean(plan.intro && proefMag);
+      const metIntro = Boolean(plan.intro && proefMag && !test);
       b.set("metadata[plan]", plan.id);
       // HCC is zelf de verkoper; Stripe "Managed Payments" (Stripe als verkoper) staat uit.
       b.set("managed_payments[enabled]", "false");
@@ -167,7 +178,7 @@ export const startBetaling = createServerFn({ method: "POST" })
         if (metIntro && plan.intro) b.set("discounts[0][coupon]", await introCoupon(plan.id, plan.intro, plan.prijs));
         const s = await stripe("checkout/sessions", { method: "POST", body: b });
         const { push } = await import("../push.server");
-        await push(`🛒 Checkout opened: ${plan.naam}`, `Someone is at the Stripe payment page for Volgo ${plan.naam} (${plan.opstart ? `€${plan.opstart / 100} one-time + ` : ""}€${plan.prijsTekst}/mo)${ik ? " — existing customer switching plans" : ""}.`, { tags: ["shopping_cart"], prioriteit: 3 });
+        await push(`🛒 Checkout opened: ${plan.naam}${test ? " (TEST, €0)" : ""}`, `Someone is at the Stripe payment page for Volgo ${plan.naam} (${plan.opstart ? `€${plan.opstart / 100} one-time + ` : ""}€${plan.prijsTekst}/mo)${ik ? " — existing customer switching plans" : ""}.`, { tags: ["shopping_cart"], prioriteit: 3 });
         return { ok: true as const, url: String(s.url) };
       } catch (err) {
         console.error("[betaling]", err);
