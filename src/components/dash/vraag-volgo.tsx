@@ -72,13 +72,13 @@ function Antwoord({ tekst, open }: { tekst: string; open: (t: string) => void })
 }
 
 /**
- * Ask Volgo: a button bottom right in the dashboard that opens an assistant which knows the whole account.
+ * Ask Volgo: its own page in the dashboard, with an assistant that knows the whole account.
  * It finds customers, conversations and appointments, reads the website analytics, reads a link you give it, and
- * changes settings when you ask. Every change it makes is listed under its answer. It cannot change the dashboard
- * itself; for anything outside the settings it sends you to the right page.
+ * changes settings when you ask, within what the plan allows. Every change it makes is listed under its answer.
+ * It cannot change the dashboard itself; for anything outside the settings it sends you to the right page.
+ * It stays mounted while you visit other pages, so the conversation is still there when you come back.
  */
-export function VraagVolgo({ openTab, voornaam }: { openTab: (t: string) => void; voornaam: string }) {
-  const [open, setOpen] = useState(false);
+export function VraagVolgo({ actief, openTab, voornaam }: { actief: boolean; openTab: (t: string) => void; voornaam: string }) {
   const [lijst, setLijst] = useState<Bericht[]>([]);
   const [tekst, setTekst] = useState("");
   const [bezig, setBezig] = useState(false);
@@ -86,32 +86,33 @@ export function VraagVolgo({ openTab, voornaam }: { openTab: (t: string) => void
   const veld = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
-    eind.current?.scrollIntoView({ block: "end" });
-  }, [lijst, bezig]);
+    if (actief) eind.current?.scrollIntoView({ block: "end" });
+  }, [lijst, bezig, actief]);
   useEffect(() => {
-    if (open) setTimeout(() => veld.current?.focus(), 60);
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    window.addEventListener("keydown", esc);
+    if (actief && window.innerWidth > 760) setTimeout(() => veld.current?.focus(), 60);
+  }, [actief]);
+  useEffect(() => {
+    // Ctrl/Cmd+K opens this page from anywhere in the dashboard.
     const kort = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setOpen((x) => !x);
+        openTab("vraag");
       }
     };
     window.addEventListener("keydown", kort);
+    // Other pages can send a question here ("Ask Volgo to help").
     const opVraag = (e: Event) => {
-      setOpen(true);
+      openTab("vraag");
       const v = (e as CustomEvent<string>).detail;
       if (v) void stuur(v);
     };
     window.addEventListener("vraag-volgo", opVraag);
     return () => {
-      window.removeEventListener("keydown", esc);
       window.removeEventListener("keydown", kort);
       window.removeEventListener("vraag-volgo", opVraag);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, lijst]);
+  }, [lijst, bezig]);
 
   async function stuur(vraag: string) {
     const v = vraag.trim();
@@ -123,7 +124,7 @@ export function VraagVolgo({ openTab, voornaam }: { openTab: (t: string) => void
     const r: { antwoord: string; gewijzigd?: string[] } = await vraagAssistent({ data: { vraag: v, historie } }).catch(() => ({ antwoord: "Volgo is temporarily unavailable. Please try again in a minute." }));
     const gewijzigd = r.gewijzigd ?? [];
     setLijst((l) => [...l, { rol: "ava", tekst: r.antwoord, gewijzigd }]);
-    // The page behind the chat may show a setting that just changed: let the dashboard load it again.
+    // Another page may show a setting that just changed: let the dashboard load it again.
     if (gewijzigd.length) window.dispatchEvent(new Event("volgo-instellingen-gewijzigd"));
     setBezig(false);
   }
@@ -131,92 +132,80 @@ export function VraagVolgo({ openTab, voornaam }: { openTab: (t: string) => void
     e.preventDefault();
     void stuur(tekst);
   };
-  const ga = (id: string) => {
-    openTab(id);
-    if (window.innerWidth < 760) setOpen(false);
-  };
 
   return (
-    <>
-      <button aria-expanded={open} aria-label="Ask Volgo" className={`v-vv__knop${open ? " is-open" : ""}`} onClick={() => setOpen(!open)} type="button">
-        <svg aria-hidden="true" fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="18">
-          <path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z" />
-          <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z" />
-        </svg>
-        <span>Ask Volgo</span>
-      </button>
-      {open ? (
-        <aside aria-label="Ask Volgo" className="v-vv">
-          <header className="v-vv__kop">
-            <div>
-              <strong>Ask Volgo</strong>
-              <small>Knows your account, changes settings and reads links</small>
+    <section aria-label="Ask Volgo" className="v-vp" hidden={!actief}>
+      <header className="v-vp__kop">
+        <div>
+          <h1>Ask Volgo</h1>
+          <p>Ask a question, or tell Volgo what to change. It searches your account, reads a link you paste and changes your settings, within your plan.</p>
+        </div>
+        {lijst.length ? (
+          <button className="v-vp__nieuw" disabled={bezig} onClick={() => setLijst([])} type="button">
+            New conversation
+          </button>
+        ) : null}
+      </header>
+      <div className="v-vp__vlak">
+        <div className="v-vv__lijst">
+          {lijst.length === 0 ? (
+            <div className="v-vv__leeg">
+              <p>Hi {voornaam}. What can I do for you? A few things you can ask:</p>
+              <div className="v-vv__chips">
+                {VOORBEELDEN.map((v) => (
+                  <button key={v} onClick={() => void stuur(v)} type="button">
+                    {v}
+                  </button>
+                ))}
+              </div>
             </div>
-            <button aria-label="Close" onClick={() => setOpen(false)} type="button">
-              ×
-            </button>
-          </header>
-          <div className="v-vv__lijst">
-            {lijst.length === 0 ? (
-              <div className="v-vv__leeg">
-                <p>
-                  Hi {voornaam}. Ask me anything about your business: a customer, an appointment, your visitors. I can also switch settings on and off for you and read a link you paste.
-                </p>
-                <div className="v-vv__chips">
-                  {VOORBEELDEN.map((v) => (
-                    <button key={v} onClick={() => void stuur(v)} type="button">
-                      {v}
-                    </button>
-                  ))}
+          ) : null}
+          {lijst.map((b, i) => (
+            <div className={`v-vv__b v-vv__b--${b.rol}`} key={i}>
+              {b.rol === "ava" ? <Antwoord open={openTab} tekst={b.tekst} /> : <p>{b.tekst}</p>}
+              {b.gewijzigd?.length ? (
+                <div className="v-vv__gewijzigd">
+                  <strong>Changed in your settings</strong>
+                  <ul>
+                    {b.gewijzigd.map((x) => (
+                      <li key={x}>{x}</li>
+                    ))}
+                  </ul>
                 </div>
-              </div>
-            ) : null}
-            {lijst.map((b, i) => (
-              <div className={`v-vv__b v-vv__b--${b.rol}`} key={i}>
-                {b.rol === "ava" ? <Antwoord open={ga} tekst={b.tekst} /> : <p>{b.tekst}</p>}
-                {b.gewijzigd?.length ? (
-                  <div className="v-vv__gewijzigd">
-                    <strong>Changed in your settings</strong>
-                    <ul>
-                      {b.gewijzigd.map((x) => (
-                        <li key={x}>{x}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-              </div>
-            ))}
-            {bezig ? (
-              <div className="v-vv__b v-vv__b--ava v-vv__denkt" aria-live="polite">
-                <i />
-                <i />
-                <i />
-              </div>
-            ) : null}
-            <div ref={eind} />
-          </div>
-          <form className="v-vv__vorm" onSubmit={verstuur}>
-            <textarea
-              aria-label="Your question"
-              onChange={(e) => setTekst(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  void stuur(tekst);
-                }
-              }}
-              placeholder="Ask, or tell me what to switch on…"
-              ref={veld}
-              rows={1}
-              value={tekst}
-            />
-            <button disabled={bezig || !tekst.trim()} type="submit">
-              Ask
-            </button>
-          </form>
-        </aside>
-      ) : null}
-    </>
+              ) : null}
+            </div>
+          ))}
+          {bezig ? (
+            <div className="v-vv__b v-vv__b--ava v-vv__denkt" aria-live="polite">
+              <i />
+              <i />
+              <i />
+            </div>
+          ) : null}
+          <div ref={eind} />
+        </div>
+        <form className="v-vv__vorm" onSubmit={verstuur}>
+          <textarea
+            aria-label="Your question"
+            onChange={(e) => setTekst(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                void stuur(tekst);
+              }
+            }}
+            placeholder="Ask, or tell me what to change…"
+            ref={veld}
+            rows={1}
+            value={tekst}
+          />
+          <button disabled={bezig || !tekst.trim()} type="submit">
+            Ask
+          </button>
+        </form>
+      </div>
+      <p className="v-vp__noot">Volgo cannot change your plan, payments, password or team. For those it sends you to the right page.</p>
+    </section>
   );
 }
 

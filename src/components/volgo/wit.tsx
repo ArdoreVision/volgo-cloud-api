@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 import { VolgoMark } from "./logo";
 import { stopVogelLader, toonVogelLader } from "./post-vogel";
-import { TaalKiezer, Vertaler } from "./taal";
 import { Tracking } from "./tracking";
 import { startBetaling } from "@/lib/api/account.functions";
 import { INSTALL_MINUTEN, INSTALL_SECONDEN, PLATFORMS, WEBSITE_SOORTEN, installRegel } from "@/lib/installatie";
@@ -18,7 +17,7 @@ import "@/volgo-wit.css";
 export type Kijker = { ingelogd: boolean; toegang?: boolean; plan?: string; eigenaar?: boolean };
 
 /** The bar on top: logo, the sections of the page, language, log in and one Start button. */
-export function Kop({ kijker, links = true, bron }: { kijker: Kijker; links?: boolean; bron?: string }) {
+export function Kop({ kijker, links = true }: { kijker: Kijker; links?: boolean }) {
   const [vast, setVast] = useState(false);
   useEffect(() => {
     const op = () => setVast(window.scrollY > 8);
@@ -41,7 +40,6 @@ export function Kop({ kijker, links = true, bron }: { kijker: Kijker; links?: bo
           <a href={`${basis}#faq`}>FAQ</a>
         </nav>
         <div className="vn-top__rechts">
-          <TaalKiezer bron={bron} compact />
           {kijker.ingelogd ? null : (
             <a className="vn-top__login" href="/login">
               Log in
@@ -56,12 +54,11 @@ export function Kop({ kijker, links = true, bron }: { kijker: Kijker; links?: bo
   );
 }
 
-/** The bar for pages that stand apart from the landing page (legal pages): with the translator and tracking the old bar carried. */
+/** The bar for pages that stand apart from the landing page (legal pages): with the tracking the old bar carried. */
 export function KopLos() {
   return (
     <>
       <Kop kijker={{ ingelogd: false }} links={false} />
-      <Vertaler />
       <Tracking />
     </>
   );
@@ -112,9 +109,6 @@ function KiesKnop({ id, kijker, licht = false, opFout }: { id: PlanId; kijker: K
  */
 const VOORBEELDEN: { naam: string; soort: string; tekst: string; beeld: string; b: number; h: number; link?: string }[] = [
   { naam: "Bluebonnet Build Co.", soort: "Service business", tekst: "Dark and bold, with a clear button to book. A working sample: try the Volgo chat on it.", beeld: "/voorbeeld/contractor.jpg", b: 1440, h: 900, link: "/voorbeeld/contractor" },
-  { naam: "Badkamerstudio Noordzee", soort: "Showroom or studio", tekst: "Light and calm, built around trust and a price indication. A working sample, in Dutch.", beeld: "/voorbeeld/badkamer.jpg", b: 1440, h: 900, link: "/voorbeeld/badkamer" },
-  { naam: "Groenhof", soort: "Photo-led website", tekst: "Large photos of your work, your services in three blocks and one button to book.", beeld: "/assets/volgo/voorbeeld-website.jpg", b: 1344, h: 752 },
-  { naam: "Bouwhuis", soort: "3D and scroll animation", tekst: "A website that moves as you scroll, for a business that wants to stand out.", beeld: "/assets/volgo/voorbeeld-3d.jpg", b: 1344, h: 752 },
 ];
 
 /** The three plans for a website you already have, and under them the package where we build the website too. */
@@ -189,7 +183,7 @@ export function Prijzen({ kijker, kop = true }: { kijker: Kijker; kop?: boolean 
       <div className="vn-vb" data-rv="">
         <div className="vn-vb__kop">
           <h3>What your website can look like</h3>
-          <p>Four examples of the kinds of websites we build with Complete. These companies do not exist; yours is made to measure, with your own photos and texts.</p>
+          <p>An example of the kind of website we build with Complete. This company does not exist; yours is made to measure, with your own photos and texts.</p>
         </div>
         <div className="vn-vb__grid">
           {VOORBEELDEN.map((v) => (

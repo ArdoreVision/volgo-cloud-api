@@ -257,7 +257,7 @@ ${context}`;
     const gewijzigd: string[] = [];
     let links = 0;
     const vraagClaude = async (model: string) => {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch(`${(bindings() as { CLAUDE_API_URL?: string }).CLAUDE_API_URL || "https://api.anthropic.com"}/v1/messages`, {
         method: "POST",
         headers: { "x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
         body: JSON.stringify({ model, max_tokens: 1500, thinking: { type: "disabled" }, system, tools: TOOLS, messages: gesprek }),
