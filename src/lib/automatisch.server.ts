@@ -5,6 +5,7 @@ import { SITE_URL, esc } from "./mail.server";
 
 /**
  * Volgo's automatic messages to a business's visitors and customers:
+ * - confirmation right after a visitor books (sent from the booking itself, not from the cron)
  * - reminder the day before an appointment
  * - review request after an appointment (Google review link)
  * - follow-up after 1 and 3 days for people who chatted but did not book
@@ -211,6 +212,63 @@ function herinneringTekst(inst: Inst, naam: string, start: string, locatie: stri
     tekst: `A quick reminder of your appointment with ${inst.bedrijf}: ${w}.${locatie ? `\n\n${locatie}` : ""}\n\nCan't make it after all? Just reply to this message and we'll find another time.`,
     sms: `Reminder: your appointment with ${inst.bedrijf} is ${w}. Can't make it? Let us know.`,
   };
+}
+
+/** "Add to calendar" link for the visitor. Start and end are the business's local time ("YYYY-MM-DDTHH:MM"). */
+function agendaLink(inst: Inst, start: string, eind: string, titel: string, locatie: string) {
+  const d = (t: string) => `${t.replace(/[-:]/g, "")}00`;
+  const q = new URLSearchParams({ action: "TEMPLATE", text: titel, dates: `${d(start)}/${d(eind)}`, ctz: inst.tijdzone || "Europe/Amsterdam" });
+  if (locatie) q.set("location", locatie);
+  return `https://calendar.google.com/calendar/render?${q.toString()}`;
+}
+
+function bevestigingTekst(inst: Inst, naam: string, soort: string, start: string, eind: string, locatie: string, taal: Taal): Bericht {
+  const w = wanneerTekst(start, taal);
+  const vn = voornaam(naam);
+  const tot = eind.slice(11, 16);
+  const knopUrl = agendaLink(inst, start, eind, taal === "nl" ? `Afspraak met ${inst.bedrijf}` : `Appointment with ${inst.bedrijf}`, locatie);
+  if (taal === "nl")
+    return {
+      onderwerp: `Je afspraak met ${inst.bedrijf} staat: ${w}`,
+      kop: `Je afspraak staat${vn ? `, ${vn}` : ""}`,
+      tekst: `${soort}: ${w} tot ${tot}.${locatie ? `\n\n${locatie}` : ""}\n\nDe dag ervoor krijg je een herinnering. Wil je de afspraak verzetten of afzeggen? Antwoord dan op dit bericht.`,
+      knop: { tekst: "Zet in je agenda", url: knopUrl },
+      sms: `Je afspraak met ${inst.bedrijf} staat: ${w}. Verzetten of afzeggen? Laat het ons even weten.`,
+    };
+  return {
+    onderwerp: `Your appointment with ${inst.bedrijf} is booked: ${w}`,
+    kop: `You're booked${vn ? `, ${vn}` : ""}`,
+    tekst: `${soort}: ${w} to ${tot}.${locatie ? `\n\n${locatie}` : ""}\n\nYou'll get a reminder the day before. Need to move or cancel it? Just reply to this message.`,
+    knop: { tekst: "Add to your calendar", url: knopUrl },
+    sms: `Your appointment with ${inst.bedrijf} is booked: ${w}. Need to move or cancel? Let us know.`,
+  };
+}
+
+/**
+ * Right after a visitor books: a confirmation by mail (or SMS when they left a phone number and SMS is set up),
+ * with the day, time and an "add to calendar" button. Sent once per appointment. Never blocks the booking itself.
+ */
+export async function stuurBevestiging(
+  DB: D1Database,
+  team: number,
+  a: { start: string; eind: string; soortNaam: string; locatie: string; naam: string; contact: string; token?: string | null; gesprekId?: number | null; taal: Taal },
+) {
+  try {
+    const inst = await instVoorAuto(DB, team);
+    if (!inst || !contactVan(a.contact)) return null;
+    // The public sample websites are for trying the chat: no messages go out from those.
+    if ((await import("./push.server")).isDemoSleutel(inst.sleutel)) return null;
+    const ref = `${a.start}-${contactVan(a.contact)!.waarde}`;
+    if (!(await claim(DB, team, "bevestiging", ref, a.contact))) return null;
+    const b = bevestigingTekst(inst, a.naam, a.soortNaam, a.start, a.eind, a.locatie, a.taal);
+    const k = await stuurBezoeker(inst, a.contact, b, a.token, a.taal);
+    await klaar(DB, team, "bevestiging", ref, k, b.onderwerp);
+    if (k) await notitie(DB, a.gesprekId, `Volgo stuurde een bevestiging per ${k === "mail" ? "mail" : "sms"} naar ${a.contact}`);
+    return k;
+  } catch (err) {
+    console.error("[bevestiging]", team, err);
+    return null;
+  }
 }
 
 function reviewTekst(inst: Inst, naam: string, taal: Taal): Bericht {

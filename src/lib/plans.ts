@@ -1,4 +1,5 @@
 // Plans. Amounts in cents, per month, excl. VAT. Limits are enforced in the app.
+// Volgo is one product: an appointment setter that goes into the customer's own website. No website is built or included.
 export type PlanId = "start" | "pro" | "premium";
 
 /** Every plan starts with a short trial: you pay PROEF_PRIJS (cents) today, the full monthly price after PROEF_DAGEN days. */
@@ -37,30 +38,32 @@ export type Plan = {
   };
 };
 
-/** Both website packages come with the same Volgo: the price and the limits are identical, only the website differs. */
+/** Old website packages (sold 13 Nov 2026): the website was built by Volgo, with Volgo inside. No longer sold; existing customers keep them. */
 const WEBSITE_LIMIETEN: Plan["limieten"] = { leden: 5, teamChat: true, eigenStijl: true, website: true, gesprekken: 3000, analyticsDagen: 90 };
 
 export const PLANS: Record<PlanId, Plan> = {
   start: {
     id: "start",
     naam: "Volgo",
-    prijs: 9900,
-    prijsTekst: "99",
-    proefDagen: PROEF_DAGEN,
+    prijs: 4999,
+    prijsTekst: "49,99",
+    proefDagen: 0,
     opstart: 0,
-    verborgen: true,
-    tagline: "A chat assistant on your own website, 24/7. Every warm customer lands in one app, instead of scattered across your mail and apps.",
-    kern: ["Chat assistant on your website, 24/7", "All warm customers in one app", "We set it up for you"],
+    tagline: "The appointment setter inside your own website. It answers every visitor, asks your questions and books the appointment. Paste one line of code and it works.",
+    kern: ["Appointment setter in your own website", "Paste one line of code, done", "Every appointment in one calendar"],
     features: [
-      "Answers every visitor, day and night, 7 days a week",
-      "Asks the questions you need before an appointment",
-      "Visitors book a phone call, a visit at their address or a chat appointment",
-      "Name, address and all answers saved with the appointment",
-      "A notification the moment someone starts chatting",
+      "Answers every visitor, day and night",
+      "Asks your questions before the appointment",
+      "Shows only your free times, never double booked",
+      "Phone call, visit, at your office or chat appointment",
+      "Confirmation right away, reminder the day before",
+      "Follow-up after 1 and 3 days when someone did not book",
+      "A notification on your phone for every appointment",
       "Read every chat live and take over yourself",
-      "Call or chat back from the appointment in one tap",
+      "Your own chat name, photo and colour",
     ],
-    limieten: { leden: 1, teamChat: false, eigenStijl: false, website: false, gesprekken: 1000, analyticsDagen: 30 },
+    // Same Volgo as before, only without a website built by us.
+    limieten: { leden: 5, teamChat: true, eigenStijl: true, website: false, gesprekken: 3000, analyticsDagen: 90 },
   },
   pro: {
     id: "pro",
@@ -69,6 +72,7 @@ export const PLANS: Record<PlanId, Plan> = {
     prijsTekst: "49,99",
     proefDagen: 0,
     opstart: 99700,
+    verborgen: true,
     tagline: "A professional website built for you, with Volgo inside: the assistant that answers every visitor and plans your appointments.",
     kern: ["Professional website, made to measure", "Volgo inside, 24/7", "All your customers in one app"],
     features: [
@@ -87,6 +91,7 @@ export const PLANS: Record<PlanId, Plan> = {
     prijsTekst: "49,99",
     proefDagen: 0,
     opstart: 199700,
+    verborgen: true,
     tagline: "A 3D website that people remember: 3D visuals and scroll animations, with Volgo inside to plan your appointments.",
     kern: ["3D website with scroll animations", "Volgo inside, 24/7", "All your customers in one app"],
     features: [
@@ -100,40 +105,45 @@ export const PLANS: Record<PlanId, Plan> = {
   },
 };
 
-/** The plans that are sold now, in order: Website (one-time €997) and 3D website (one-time €1997), each with Volgo at €49,99 a month. */
-export const ZICHTBAAR: PlanId[] = ["pro", "premium"];
+/** The one plan that is sold now: Volgo, the appointment setter you put in your own website, €49,99 a month. No website included. */
+export const ZICHTBAAR: PlanId[] = ["start"];
+
+/** "Volgo" for the plan that is simply called Volgo, "Volgo Website" for the old packages. */
+export const planTitel = (p: Plan) => (p.naam === "Volgo" ? "Volgo" : `Volgo ${p.naam}`);
 
 export const isPlan = (v: unknown): v is PlanId => v === "start" || v === "pro" || v === "premium";
 export const planVan = (v: unknown): Plan => (isPlan(v) ? PLANS[v] : PLANS.start);
 
-/** For the comparison table on the pricing page. */
+/** Everything in the plan, as a table on the pricing page. */
 export const VERGELIJKING: { label: string; start: string | boolean; pro: string | boolean; premium: string | boolean }[] = [
-  { label: "Professional website, made to measure", start: false, pro: true, premium: true },
-  { label: "Photos and video on your website", start: false, pro: true, premium: true },
-  { label: "3D visuals that move as you scroll", start: false, pro: false, premium: true },
-  { label: "Scroll animations across the whole site", start: false, pro: false, premium: true },
-  { label: "Volgo on your website, 24/7", start: true, pro: true, premium: true },
+  { label: "Works on your own website (WordPress, Wix, Shopify, Squarespace, Webflow, custom)", start: true, pro: true, premium: true },
+  { label: "Install with one line of code, or we do it for you", start: true, pro: true, premium: true },
+  { label: "Answers every visitor, 24/7", start: true, pro: true, premium: true },
   { label: "Asks your questions before an appointment", start: true, pro: true, premium: true },
-  { label: "Phone, visit and chat appointments in your calendar", start: true, pro: true, premium: true },
+  { label: "Visitors pick a free day and time themselves", start: true, pro: true, premium: true },
+  { label: "Phone, visit, office and chat appointments", start: true, pro: true, premium: true },
+  { label: "Your opening hours and appointment length", start: true, pro: true, premium: true },
+  { label: "Confirmation after booking", start: true, pro: true, premium: true },
+  { label: "Reminder the day before", start: true, pro: true, premium: true },
+  { label: "Follow-up after 1 and 3 days", start: true, pro: true, premium: true },
+  { label: "Notification for every chat and appointment", start: true, pro: true, premium: true },
   { label: "All your customers together in one app", start: true, pro: true, premium: true },
-  { label: "Notification when someone starts chatting", start: true, pro: true, premium: true },
-  { label: "Own chat photo and style, no Volgo branding", start: false, pro: true, premium: true },
-  { label: "Users", start: "1", pro: "5", premium: "5" },
-  { label: "Website, one-time", start: "—", pro: "€997", premium: "€1997" },
-  { label: "Volgo, per month", start: "€99", pro: "€49,99", premium: "€49,99" },
-  { label: "Domain name", start: "—", pro: "Not included", premium: "Not included" },
-  { label: "Volgo subscription", start: "Monthly, cancel any time", pro: "Monthly, cancel any time", premium: "Monthly, cancel any time" },
+  { label: "Own chat name, photo and colour", start: true, pro: true, premium: true },
+  { label: "Users", start: "5", pro: "5", premium: "5" },
+  { label: "A website built by us", start: "Not included", pro: "€997", premium: "€1997" },
+  { label: "Volgo, per month", start: "€49,99", pro: "€49,99", premium: "€49,99" },
+  { label: "Subscription", start: "Monthly, cancel any time", pro: "Monthly, cancel any time", premium: "Monthly, cancel any time" },
 ];
 
 /** What happens after you subscribe, per plan. Shown on the pricing page. */
 export const START_STAPPEN: Record<PlanId, { titel: string; stappen: string[] }> = {
   start: {
-    titel: "We put the assistant on your website",
+    titel: "Live on your website in a few minutes",
     stappen: [
-      "Create your account and start your 7 days for €1.",
-      "Answer 5 short questions about your business.",
-      "We add the assistant to your website (or you paste one line of code yourself).",
-      "Chats and appointments appear in your dashboard straight away.",
+      "Pay securely, then create your account. Your dashboard opens right away.",
+      "Answer 5 short questions about your business and set your opening hours.",
+      "Copy your one line of code and paste it into your website. Your dashboard shows where, per platform.",
+      "Press Check. Volgo looks at your website and tells you it is live. From then on appointments come in by themselves.",
     ],
   },
   pro: {

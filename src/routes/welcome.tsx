@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 import { AuthShell } from "@/components/volgo/auth-shell";
 import { conversie } from "@/components/volgo/tracking";
-import { PLANS, isPlan } from "@/lib/plans";
+import { PLANS, isPlan, planTitel } from "@/lib/plans";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/welcome")({
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/welcome")({
 const STAPPEN = [
   { t: "Answer five quick questions", d: "So Volgo knows what kind of business you are and how to talk to your customers. Under a minute." },
   { t: "Put Volgo on your website", d: "One line of code, with a guide for every platform. Prefer we do it? Email us from your dashboard and we add it the same day." },
-  { t: "Watch the first leads come in", d: "Volgo answers every visitor, collects their details and scores each lead. You get an email for every hot one." },
+  { t: "Watch the first appointments come in", d: "Volgo answers every visitor, asks your questions and lets them pick a time. You get a notification for every appointment." },
 ];
 
 function Welcome() {
@@ -43,7 +43,7 @@ function Welcome() {
       <p className="v-welkom__vink" aria-hidden="true">
         ✓
       </p>
-      <h1 className="v-auth__title">Welcome to Volgo{p ? ` ${p.naam}` : ""}.</h1>
+      <h1 className="v-auth__title">Welcome to {p ? planTitel(p) : "Volgo"}.</h1>
       <p className="v-auth__sub">Your payment went through and your dashboard is ready. Here’s what happens next.</p>
       <ol className="v-welkom__stappen">
         {STAPPEN.map((s, i) => (

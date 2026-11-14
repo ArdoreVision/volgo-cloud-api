@@ -8,7 +8,7 @@ import { WachtwoordVeld } from "@/components/volgo/wachtwoord-veld";
 import { beoordeel } from "@/lib/wachtwoord";
 import { activeerAbonnement, controleerBetaling, maakAccount, maakAccountZonderPlan } from "@/lib/api/account.functions";
 import { isIngelogd } from "@/lib/api/assistent.functions";
-import { PLANS, isPlan, type PlanId } from "@/lib/plans";
+import { PLANS, isPlan, type PlanId, planTitel } from "@/lib/plans";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/signup")({
@@ -65,7 +65,7 @@ function Aanmelden() {
     return (
       <AuthShell>
         <AutoStart actie={activeer} />
-        <p className="v-auth__ok">Payment successful · Volgo {p.naam}</p>
+        <p className="v-auth__ok">Payment successful · {planTitel(p)}</p>
         <h1 className="v-auth__title">Activate your plan</h1>
         <p className="v-auth__sub">You’re already logged in. We’ll add Volgo {p.naam} to your existing account, with all your data.</p>
         {fout ? <p className="v-err" role="alert">{fout}</p> : null}
@@ -155,7 +155,7 @@ function AutoStart({ actie }: { actie: () => Promise<void> }) {
   return null;
 }
 
-/** Step 1 of the new flow: create an account for free, land in your dashboard (locked), then start 7 days for €1. */
+/** Create an account first, land in your dashboard (locked), then start Volgo there. */
 function AccountZonderPlan() {
   const navigate = useNavigate();
   const [fout, setFout] = useState("");
@@ -187,7 +187,7 @@ function AccountZonderPlan() {
   return (
     <AuthShell>
       <h1 className="v-auth__title">Create your account.</h1>
-      <p className="v-auth__sub">Then you land in your dashboard. Start your plan there: the first 7 days for €1.</p>
+      <p className="v-auth__sub">Then you land in your dashboard. Start Volgo there and your line of code is ready to paste into your website.</p>
       <form className="v-auth__form" noValidate onSubmit={onSubmit}>
         <div className="v-fld">
           <label htmlFor="naam">Your name</label>

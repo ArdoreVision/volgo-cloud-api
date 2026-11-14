@@ -1,6 +1,6 @@
 # Volgo
 
-Volgo: de AI-assistent op je website die bezoekers te woord staat en elke lead opvolgt.
+Volgo: de afspraak-setter voor in je eigen website. Eén regel code plakken; Volgo antwoordt bezoekers, stelt je vragen en plant de afspraak.
 Een dienst van Hanssens Cornerstone Capital.
 
 ## Hoe het online komt

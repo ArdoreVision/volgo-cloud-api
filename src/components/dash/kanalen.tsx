@@ -68,7 +68,7 @@ export function Kanalen({ onboarding, klaar, openTab }: { onboarding?: boolean; 
   return (
     <div className={`v-g${onboarding ? " v-kn--onboarding" : ""}`}>
       <header className="v-g__kop">
-        {onboarding ? <p className="v-kn__stap">Laatste stap</p> : null}
+        {onboarding ? <p className="v-kn__stap">Bijna klaar · daarna zet je Volgo in je website</p> : null}
         <h1>Kanalen</h1>
         <p>Waar klanten je bereiken: website, WhatsApp en telefoon. Hier zie je per kanaal precies wat Volgo ermee doet.</p>
       </header>
@@ -128,7 +128,7 @@ export function Kanalen({ onboarding, klaar, openTab }: { onboarding?: boolean; 
         {d.eigenaar ? (
           <div className="v-g__knoppen" style={{ marginTop: 14 }}>
             <button className="v-g__knop" disabled={bezig} onClick={() => void bewaar(Boolean(onboarding))} type="button">
-              {bezig ? "Opslaan…" : onboarding ? "Opslaan en naar mijn dashboard" : "Opslaan"}
+              {bezig ? "Opslaan…" : onboarding ? "Opslaan en Volgo installeren" : "Opslaan"}
             </button>
             {melding ? <span className={melding.ok ? "v-g__ok" : "v-g__fout"}>{melding.tekst}</span> : null}
           </div>
@@ -182,7 +182,7 @@ export function Kanalen({ onboarding, klaar, openTab }: { onboarding?: boolean; 
 
       {onboarding ? (
         <button className="v-kn__later" onClick={() => void slaKanalenOver().then(() => klaar?.())} type="button">
-          Later instellen
+          Later instellen, eerst Volgo installeren
         </button>
       ) : null}
     </div>

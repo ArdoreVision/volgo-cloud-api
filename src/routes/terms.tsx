@@ -20,17 +20,17 @@ export const Route = createFileRoute("/terms")({
 
       <h2>2. The service</h2>
       <p>
-        Volgo is an AI assistant that the customer adds to their own website with one line of code. Volgo chats with visitors, answers
-        questions, captures contact details and ranks leads by how warm they are. The customer gets access to an online
-        dashboard with conversations, leads, calendar, team chat and analytics. On the Pro and Premium plans, Volgo also builds a
-        custom website for the customer with Volgo built in, planned together by chat or call, and hosts it for as long as the
-        subscription runs. Domain name costs are not included and are paid by the customer. What each plan includes is listed on the{" "}
+        Volgo is an appointment setter that the customer adds to their own website with one line of code. Volgo chats with visitors, answers
+        questions, asks the customer's own questions, lets visitors book an appointment, captures contact details and ranks leads by how warm they are. The customer gets access to an online
+        dashboard with conversations, leads, calendar, team chat and analytics. A website is not part of the service: Volgo works inside the website the customer already has. Customers who bought one of the
+        earlier website packages (Website or 3D website) keep the website Volgo built for them, hosted for as long as their
+        subscription runs; domain name costs are not included and are paid by the customer. What each plan includes is listed on the{" "}
         <a href="/pricing">pricing page</a>.
       </p>
 
       <h2>3. Prices and payment</h2>
       <ul>
-        <li>The website packages (Website and 3D website) have a one-time price for the website. It is charged at checkout, together with the first month of Volgo. After that, Volgo is billed every month.</li>
+        <li>Volgo has one monthly price, listed on the pricing page. There are no setup costs. The first month is charged at checkout.</li>
         <li>The Volgo subscription renews automatically every month at the current monthly price. Prices exclude VAT.</li>
         <li>Payment is made monthly in advance through our payment partner. If a payment fails, we may suspend the service after a reminder.</li>
         <li>We may adjust prices once a year. We’ll let you know at least 30 days in advance; you may then cancel before the change takes effect.</li>
@@ -40,7 +40,7 @@ export const Route = createFileRoute("/terms")({
       <p>
         A subscription runs month to month and can be canceled monthly, effective from the next billing period. You can cancel
         in your dashboard or by emailing volgo.app@outlook.com. When the subscription ends, Volgo stops working on your website
-        and, on Complete, the website built by Volgo goes offline. The domain name stays yours. We delete the data as described in
+        and, for customers with an earlier website package, the website built by Volgo goes offline. The domain name stays yours. We delete the data as described in
         the Data Processing Agreement.
       </p>
 

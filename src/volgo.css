@@ -2705,3 +2705,13 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #050505;
   .v-bw__balk .v-seg { display: none; }
 }
 .v-dash .v-bw__invoer textarea { background: transparent !important; }
+
+/* Installeren: three numbered steps, each with its own action */
+.v-inst { display: flex; gap: 14px; padding: 16px 0; border-top: 1px solid var(--line); }
+.v-inst__nr { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 700; }
+.v-inst__nr.is-klaar { background: #e8f7ee; color: #067647; }
+.v-inst__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.v-inst__body > strong { font-size: 16px; }
+.v-inst__body > small { color: var(--muted); font-size: 13.5px; margin-bottom: 8px; }
+.v-inst__rij { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.v-inst__vraag { margin: 0 0 8px; font-size: 14px; font-weight: 600; }

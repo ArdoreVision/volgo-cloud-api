@@ -92,7 +92,7 @@ export const maakUitnodiging = createServerFn({ method: "POST" })
         fout:
           plan.limieten.leden === 1
             ? "The Volgo plan is for one person. Upgrade to Website + Volgo to add your team."
-            : `Your ${plan.naam} plan includes up to ${plan.limieten.leden} users. Upgrade to Premium for unlimited users.`,
+            : `Your ${plan.naam} plan includes up to ${plan.limieten.leden} users. Email volgo.app@outlook.com if you need more.`,
       };
     }
     const token = randomToken(20);

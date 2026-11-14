@@ -6,7 +6,7 @@ import { datumAms, sqlDate } from "./util";
 
 type Data = Awaited<ReturnType<typeof haalAutomatisch>>;
 
-const SOORT: Record<string, string> = { herinnering: "Herinnering", review: "Reviewverzoek", opvolging: "Opvolging", seizoen: "Seizoensbericht" };
+const SOORT: Record<string, string> = { bevestiging: "Bevestiging", herinnering: "Herinnering", review: "Reviewverzoek", opvolging: "Opvolging", seizoen: "Seizoensbericht" };
 
 /** What Volgo does by itself after a chat or appointment. The customer sees it; Volgo (the owner) switches it. */
 export function Automatisch({ openTab }: { openTab: (t: string) => void }) {
@@ -23,7 +23,7 @@ export function Automatisch({ openTab }: { openTab: (t: string) => void }) {
       id: "review",
       titel: "Reviewverzoek na de afspraak",
       tekst: "Een uur na de afspraak vraagt Volgo om een Google-review, één keer per klant.",
-      let: d.reviewUrl ? undefined : "Zet je Google-reviewlink onder Je website",
+      let: d.reviewUrl ? undefined : "Zet je Google-reviewlink onder Installeren",
     },
     { id: "opvolging", titel: "Opvolging voor wie niet boekte", tekst: "Gegevens achtergelaten maar geen afspraak? Volgo volgt op na 1 en na 3 dagen, geschreven op wat ze vroegen. Het stopt zodra ze antwoorden of boeken." },
     { id: "seizoen", titel: "Seizoensbericht aan eerdere klanten", tekst: "Vier keer per jaar een kort, nuttig bericht aan eerdere klanten (voor een hovenier: \"tijd om de heg te snoeien?\") met een knop om een moment te plannen." },
@@ -33,7 +33,7 @@ export function Automatisch({ openTab }: { openTab: (t: string) => void }) {
     <div className="v-g">
       <header className="v-g__kop">
         <h1>Automatisch</h1>
-        <p>Wat Volgo zelf doet, zodat er geen klant tussendoor glipt. Opvolg- en seizoensberichten hebben altijd een afmeldlink.</p>
+        <p>Wat Volgo zelf doet, zodat er geen klant tussendoor glipt. Wie boekt, krijgt altijd meteen een bevestiging met dag, tijd en een knop om de afspraak in de eigen agenda te zetten. Opvolg- en seizoensberichten hebben altijd een afmeldlink.</p>
       </header>
 
       <div className="v-g__raster">
