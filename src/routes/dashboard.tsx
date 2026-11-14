@@ -53,7 +53,7 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-type Tab = "home" | "aanvragen" | "gesprekken" | "agenda" | "overzicht" | "verkeer" | "ava" | "ontwerp" | "installeren" | "website" | "team" | "instellingen" | "automatisch" | "reviews" | "betalingen" | "mijnsite" | "kanalen";
+type Tab = "home" | "aanvragen" | "gesprekken" | "agenda" | "overzicht" | "verkeer" | "ava" | "ontwerp" | "installeren" | "website" | "team" | "instellingen" | "automatisch" | "reviews" | "betalingen" | "mijnsite" | "kanalen" | "vraag";
 type Sub = "meldingen" | "account" | "abonnement";
 const SUBS: [Sub, string][] = [
   ["meldingen", "Notifications"],
@@ -76,6 +76,7 @@ const ALLE_GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
       ["agenda", "Calendar"],
       ["aanvragen", "Requests"],
       ["home", "Today"],
+      ["vraag", "Ask Volgo"],
     ],
   },
   {
@@ -122,6 +123,7 @@ const datum = (iso: string) =>
 function Icon({ name }: { name: Tab | "uit" | "meer" | "abonnement" | "account" }) {
   const d: Record<string, string> = {
     home: "M10 3.5l1.6 4.1 4.4.3-3.4 2.8 1.1 4.3L10 12.6 6.3 15l1.1-4.3L4 7.9l4.4-.3z",
+    vraag: "M9 3l1.5 4 4 1.5-4 1.5L9 14l-1.5-4-4-1.5 4-1.5zM15.5 12.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z",
     website: "M3 4.5h14v11H3zM3 7.5h14M6 6h.01M8 6h.01",
     ontwerp: "M4 16l3.5-1 8.3-8.3a1.6 1.6 0 0 0-2.3-2.3L5.2 12.7zM12.5 5.5l2.3 2.3",
     instellingen: "M10 7.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6zM10 2.5l1.3 2 2.3-.6.6 2.3 2.2 1-1 2.2 1 2.2-2.2 1-.6 2.3-2.3-.6-1.3 2-1.3-2-2.3.6-.6-2.3-2.2-1 1-2.2-1-2.2 2.2-1 .6-2.3 2.3.6z",
@@ -357,11 +359,23 @@ function Open({ data }: { data: DashData }) {
       else window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     }
   };
+  // Ask Volgo changed a setting: load the open page again if it is one that shows settings. The inbox and the
+  // requests are left alone, so nothing you are typing or reading there is lost.
+  const [versie, setVersie] = useState(0);
+  const tabNu = useRef<Tab>(begin);
+  tabNu.current = tab;
+  useEffect(() => {
+    const ververs = () => {
+      if (["agenda", "automatisch", "reviews", "installeren", "mijnsite", "kanalen", "ava", "instellingen"].includes(tabNu.current)) setVersie((v) => v + 1);
+    };
+    window.addEventListener("volgo-instellingen-gewijzigd", ververs);
+    return () => window.removeEventListener("volgo-instellingen-gewijzigd", ververs);
+  }, []);
   // A push notification opens /dashboard#agenda etc.: go straight to that tab.
   useEffect(() => {
     const ga = () => {
       const h = window.location.hash.slice(1);
-      if (["home", "gesprekken", "agenda", "aanvragen", "betalingen", "automatisch", "reviews", "verkeer", "installeren", "mijnsite", "website", "kanalen", "ava", "instellingen", "meldingen", "account", "abonnement"].includes(h)) setTab(h);
+      if (["vraag", "home", "gesprekken", "agenda", "aanvragen", "betalingen", "automatisch", "reviews", "verkeer", "installeren", "mijnsite", "website", "kanalen", "ava", "instellingen", "meldingen", "account", "abonnement"].includes(h)) setTab(h);
     };
     ga();
     window.addEventListener("hashchange", ga);
@@ -536,7 +550,7 @@ function Open({ data }: { data: DashData }) {
         </button>
         <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={plan.limieten.website} planNaam={plan.naam} />
       </div>
-      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || (tab === "website" && plan.id !== "compleet") ? " v-dash__main--full" : ""}`}>
+      <main hidden={tab === "vraag"} key={`${tab === "instellingen" ? `${tab}-${sub}` : tab}-${versie}`} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || (tab === "website" && plan.id !== "compleet") ? " v-dash__main--full" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
             {proefDagen > PROEF_DAGEN
@@ -788,6 +802,10 @@ function Open({ data }: { data: DashData }) {
           </>
         ) : null}
       </main>
+      {/* Ask Volgo stays mounted next to the page, so its conversation survives a visit to another page. */}
+      <div className="v-dash__main" hidden={tab !== "vraag"}>
+        <VraagVolgo actief={tab === "vraag"} openTab={(t) => setTab(t)} voornaam={voornaam} />
+      </div>
       <nav aria-label="Main menu" className="v-mnav">
         {mobiel.map(([id, label]) => (
           <button aria-current={tab === id ? "page" : undefined} key={id} onClick={() => setTab(id)} type="button">
@@ -853,7 +871,6 @@ function Open({ data }: { data: DashData }) {
           zetStatus={zetStatus}
         />
       ) : null}
-      <VraagVolgo openTab={(t) => setTab(t)} voornaam={voornaam} />
       <div aria-live="polite" className="v-toasts">
         {toasts.map((t) => (
           <button

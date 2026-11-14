@@ -47,3 +47,12 @@ export async function actieveStijl(DB: D1Database, teamId: number): Promise<Stij
   }
   return (await haalStijl(DB, teamId)) ?? { ...STANDAARD_STIJL, branding: false };
 }
+
+/** Save a team's style (the whole row at once). */
+export async function slaStijlOp(DB: D1Database, team: number, d: Stijl) {
+  await DB.prepare(
+    "INSERT OR REPLACE INTO ava_stijl (team_id, avatar, positie, thema, vorm, lettertype, knoptekst, branding, knop, grootte, afstand, zij, uitnodiging) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  )
+    .bind(team, d.avatar, d.positie, d.thema, d.vorm, d.lettertype, d.knoptekst, d.branding ? 1 : 0, d.knop, d.grootte, d.afstand, d.zij, d.uitnodiging)
+    .run();
+}

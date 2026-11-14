@@ -4,14 +4,11 @@ import { AvaChat } from "./ava-chat";
 import { Footer } from "./footer";
 import { PijnScroll } from "./pijn-scroll";
 import { PostVogel, VogelLader } from "./post-vogel";
-import { type RouteTaal } from "./route-teksten";
-import { Vertaler, opgeslagenTaal, toonTaal } from "./taal";
 import { InstallUitleg, type Kijker, Kop, Prijzen, useOnthul } from "./wit";
 import { INSTALL_MINUTEN, WEBSITE_SOORTEN } from "@/lib/installatie";
 import { PLANS } from "@/lib/plans";
 
 /** The page is written in English and shown in English. Another language only when the visitor picks one at the top. */
-const BRON = "en";
 const VANAF = `€${PLANS.starter.prijsTekst}`;
 
 /** One visitor, from opening the chat to the appointment. Every line is something the app really does. */
@@ -217,16 +214,12 @@ const FUNCTIES: { oog: string; titel: string; tekst: string; punten: string[]; b
  * The landing page: Volgo is an appointment setter for websites. Visitors plan an appointment, everything lands in one
  * inbox, and Volgo follows up by itself. What it does, how you install it, what it costs.
  */
-export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTaal }) {
+export function LandingPagina({ kijker }: { kijker: Kijker }) {
   useOnthul("volgo-home");
-  // thevolgo.app/nl (for Dutch ads): the same page, shown in Dutch unless the visitor already chose a language.
-  useEffect(() => {
-    if (vast === "nl" && !opgeslagenTaal()) toonTaal("nl");
-  }, [vast]);
   const doel = kijker.ingelogd ? "/dashboard" : "#pricing";
   return (
     <div className="volgo vn" id="volgo-home">
-      <Kop bron={BRON} kijker={kijker} />
+      <Kop kijker={kijker} />
 
       <main>
         <section aria-labelledby="vn-titel" className="vn-hero" data-vogel="Hi! I'm Volgo, your post bird. I deliver every message.">
@@ -422,7 +415,6 @@ export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTa
         </section>
       </main>
       <Footer />
-      <Vertaler bron={BRON} />
       <PostVogel />
       <VogelLader />
       <AvaChat />

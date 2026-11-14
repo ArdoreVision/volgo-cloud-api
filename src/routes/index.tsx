@@ -20,7 +20,6 @@ export const Route = createFileRoute("/")({
     links: [
       { rel: "canonical", href: "https://thevolgo.app/" },
       { rel: "alternate", hrefLang: "en", href: "https://thevolgo.app/" },
-      { rel: "alternate", hrefLang: "nl", href: "https://thevolgo.app/nl" },
       { rel: "alternate", hrefLang: "x-default", href: "https://thevolgo.app/" },
     ],
   }),

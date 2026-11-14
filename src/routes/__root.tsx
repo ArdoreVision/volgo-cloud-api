@@ -112,7 +112,7 @@ function RootShell({ children }: { children: ReactNode }) {
   // The Dutch landing page (/nl) is Dutch from the first byte, so browsers and the Volgo chat start in Dutch.
   const pad = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <html lang={pad === "/nl" || pad.startsWith("/nl/") ? "nl" : "en"} style={{ colorScheme: "light" }}>
+    <html lang="en" style={{ colorScheme: "light" }}>
       <head>
         <HeadContent />
       </head>
