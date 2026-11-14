@@ -30,7 +30,7 @@ export function AanDeSlag({ openTab }: { openTab: (t: string) => void }) {
       key: "geinstalleerd",
       klaar: d.stappen.geinstalleerd,
       titel: "Add Volgo to your website",
-      uitleg: "Copy one line of code to your site, or let us do it for you.",
+      uitleg: "Follow the steps under Install. It takes about 10 minutes.",
       knop: "Get the code",
       doe: () => openTab("installeren"),
     },

@@ -13,7 +13,7 @@ export function BillingButton() {
         onClick={async () => {
           setBezig(true);
           setFout("");
-          const r = await openBillingPortal().catch(() => ({ ok: false as const, message: "Er ging iets mis. Probeer het opnieuw." }));
+          const r = await openBillingPortal().catch(() => ({ ok: false as const, message: "Something went wrong. Please try again." }));
           if (r.ok) window.location.href = r.url;
           else {
             setFout(r.message);
@@ -22,9 +22,9 @@ export function BillingButton() {
         }}
         type="button"
       >
-        {bezig ? "Openen…" : "Abonnement beheren"}
+        {bezig ? "Opening…" : "Manage subscription"}
       </button>
-      <p className="v-muted v-small">Wijzig je kaart, download facturen, wissel of stop je pakket. Veilig via Stripe.</p>
+      <p className="v-muted v-small">Change your card, download invoices, switch or stop your plan. Secure via Stripe.</p>
       {fout ? <p className="v-err">{fout}</p> : null}
     </div>
   );

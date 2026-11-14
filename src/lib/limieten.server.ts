@@ -30,5 +30,6 @@ export async function gesprekkenDezeMaand(DB: D1Database, teamId: number) {
 /** Over the monthly AI limit? Then Volgo keeps capturing leads in basic mode (no AI). */
 export async function boveLimiet(DB: D1Database, teamId: number) {
   const plan = await planVoorTeam(DB, teamId);
+  if (plan.limieten.gesprekken === null) return false;
   return (await gesprekkenDezeMaand(DB, teamId)) > plan.limieten.gesprekken;
 }

@@ -1,173 +1,44 @@
-import { useEffect, useState } from "react";
+import { type JSX, useEffect, useState } from "react";
 
 import { AvaChat, VOLGO_AVA_SLEUTEL } from "./ava-chat";
 import { Footer } from "./footer";
-import { VolgoMark } from "./logo";
 import { type RouteTaal } from "./route-teksten";
-import { TaalKiezer, Vertaler, kiesTaal, opgeslagenTaal, toonTaal } from "./taal";
-import { startBetaling } from "@/lib/api/account.functions";
+import { Vertaler, kiesTaal, opgeslagenTaal, toonTaal } from "./taal";
+import { InstallUitleg, type Kijker, Kop, Prijzen, useOnthul } from "./wit";
 import { regioTaal } from "@/lib/api/vertaal.functions";
-import { INSTALL_SECONDEN, PLATFORMS, installRegel } from "@/lib/installatie";
-import { PLANS, type PlanId } from "@/lib/plans";
+import { INSTALL_MINUTEN, WEBSITE_SOORTEN } from "@/lib/installatie";
+import { PLANS } from "@/lib/plans";
 import { TALEN, isTaal } from "@/lib/talen";
-import "@/volgo-dialed.css";
-import "@/volgo-landing.css";
 
-/** The one plan that is sold: Volgo in your own website. No website is built or included. */
-const PLAN: PlanId = "start";
-const PRIJS = `€${PLANS[PLAN].prijsTekst}`;
-/** What the customer pastes into their website. The real line, with their own code, is in the dashboard. */
-const VOORBEELD_REGEL = installRegel("https://thevolgo.app", "JOUW-CODE");
+/** The page is written in English; the translator shows it in the visitor's own language. */
+const BRON = "en";
+const VANAF = `€${PLANS.starter.prijsTekst}`;
 
-/** What Volgo does, in the order a visitor goes through it. Every line is something the app really does. */
-const STAPPEN: [string, string][] = [
-  ["Bezoeker opent de chat", "Op je eigen website. Dag en nacht."],
-  ["Volgo stelt jouw vragen", "Wat je wilt weten vóór de afspraak. Jij kiest de vragen."],
-  ["Bezoeker kiest dag en tijd", "Alleen jouw vrije tijden. Nooit dubbel geboekt."],
-  ["Afspraak staat in je agenda", "Met naam, nummer en alle antwoorden erbij."],
-  ["Bevestiging en herinnering", "Direct een bevestiging. De dag ervoor een herinnering."],
-  ["Niet geboekt? Volgo volgt op", "Na 1 en na 3 dagen. Vanzelf."],
+/** One visitor, from opening the chat to the appointment. Every line is something the app really does. */
+const REIS: { tijd: string; titel: string; tekst: string; ok?: boolean }[] = [
+  { tijd: "Tue 9:14 pm", titel: "A visitor opens the chat", tekst: "On your own website. You finished work hours ago." },
+  { tijd: "Tue 9:15 pm", titel: "Volgo asks your questions", tekst: "What you want to know before the appointment." },
+  { tijd: "Tue 9:17 pm", titel: "The visitor picks Thursday 3:00 pm", tekst: "Only your free times. Never double booked." },
+  { tijd: "Tue 9:17 pm", titel: "Appointment in your inbox and calendar", tekst: "With name, number and every answer. The confirmation is sent.", ok: true },
+  { tijd: "Wed 3:00 pm", titel: "Reminder", tekst: "The day before, by itself." },
+  { tijd: "Thu 4:00 pm", titel: "After the appointment", tekst: "Volgo asks for a Google review." },
 ];
 
-const ALLES = [
-  "Antwoordt elke bezoeker, 24/7",
-  "Jouw eigen vragen vóór de afspraak",
-  "Jouw openingstijden en afspraakduur",
-  "Bellen, langskomen, op kantoor of chat",
-  "Nooit dubbel geboekt",
-  "Bevestiging direct na het boeken",
-  "Herinnering de dag ervoor",
-  "Opvolging na 1 en 3 dagen",
-  "Melding op je telefoon bij elke afspraak",
-  "Alle klanten en afspraken in één app",
-  "Chat live meelezen en zelf overnemen",
-  "Eigen naam, foto en kleur van je chat",
-];
-
-const ZONDER = ["Aanvragen die verdwijnen", "Heen en weer mailen over een tijd", "Zoeken wie wat vroeg", "No-shows", "Vergeten op te volgen"];
-const MET = ["Elke bezoeker direct geholpen", "Afspraken staan vanzelf in je agenda", "Alles in één app", "Herinnering de dag ervoor", "Opvolging na 1 en 3 dagen"];
+const ZONDER = ["Requests in your mail, your apps and your head", "Answering when you are done working", "Texting back and forth about a time", "Forgetting to follow up", "No idea who is still waiting"];
+const MET = ["Everything in one inbox", "Every visitor gets an answer right away", "Visitors book an appointment themselves", "Follow-up after 1 and 3 days, by itself", "You see at a glance who is still waiting"];
 
 const FAQ: [string, string][] = [
-  ["Wat is Volgo?", "Een afspraak-setter voor in je eigen website. Volgo antwoordt elke bezoeker, stelt jouw vragen en laat de bezoeker zelf een dag en tijd kiezen. De afspraak staat daarna in je agenda."],
-  ["Heb ik een nieuwe website nodig?", "Nee. Volgo komt in de website die je al hebt. Je plakt één regel code en hij staat op elke pagina."],
-  ["Hoe zet ik het in mijn website?", `Dat is ongeveer ${INSTALL_SECONDEN} seconden werk. Je kopieert één regel uit je dashboard en plakt hem in je website. In je dashboard staat per platform waar: WordPress, Wix, Shopify, Squarespace, Webflow of eigen HTML. Daarna checkt Volgo zelf of hij goed staat.`],
-  ["Ik ben niet technisch. Lukt dat?", "Ja. Het is kopiëren en plakken, in drie stappen. Lukt het niet? Mail ons je regel, dan zetten wij hem er voor je in."],
-  ["Wat kost het?", `${PRIJS} per maand, excl. btw. Maandelijks opzegbaar. Er zit geen website bij en er zijn geen opstartkosten.`],
-  ["Voor wie is dit?", "Voor elk bedrijf dat klanten krijgt via afspraken. Van coaches en salons tot hoveniers, verbouwers en praktijken."],
-  ["Werkt het in mijn Instagram-DM's?", "Nee. Volgo werkt op je website. Zet je website in je bio en stuur mensen daarheen: daar neemt Volgo het over."],
-  ["Wat gebeurt er na betalen?", "Je maakt je account, beantwoordt vijf korte vragen en je dashboard is open. Daar staat je regel code klaar om te plakken."],
+  ["What is Volgo?", "An appointment setter for your website. Visitors book an appointment themselves, everything lands in one inbox, and Volgo follows up automatically. Also when someone does not book right away."],
+  ["Who is Volgo made for?", "For businesses that get customers through appointments on their website. Think of detailers, hairdressers, salons, gardeners, installers, coaches and practices."],
+  ["Do I need a new website?", "No. Volgo goes into the website you already have. No website, or ready for a new one? Then there is Complete: we build your website, with Volgo inside and your domain included."],
+  ["Which websites does it work on?", `Any website where you can paste one line of code: ${WEBSITE_SOORTEN.join(", ")}. Your dashboard shows where to paste the line, per kind of website.`],
+  ["How fast is it on my website?", `About ${INSTALL_MINUTEN} minutes if you do it yourself: five questions, your hours, paste one line and check. Your dashboard walks you through it step by step.`],
+  ["I know nothing about code. Can I do this?", "Yes. It is copy and paste. Does someone else manage your website? Then one button sends them the line. On Growth and Pro we put it in for you."],
+  ["What is automatic follow-up?", "Someone leaves their details but does not book? Volgo sends a message after 1 day and after 3 days. Whoever does book gets a confirmation, a reminder and, after the appointment, a request for a review."],
+  ["What counts as a conversation?", "One visitor chatting with Volgo on your website. Reached your number for the month? Volgo still catches requests, in a simple mode. So you never lose anyone."],
+  ["Can I cancel?", "Yes, any month. You do it yourself in your dashboard. Your own website stays exactly as it is."],
+  ["Does it work in my Instagram DMs?", "No. Volgo works on your website. Put your website in your bio and send people there: that is where Volgo takes over."],
 ];
-
-/** The Start button: takes the visitor down to the price. Logged-in customers go to their dashboard instead. */
-function StartKnop({ ingelogd }: { ingelogd: boolean }) {
-  return (
-    <a className="vc-cta" href={ingelogd ? "/dashboard" : "#prijzen"}>
-      <span>{ingelogd ? "Naar je dashboard" : "Start"}</span>
-      <i aria-hidden="true">{ingelogd ? "→" : "↓"}</i>
-    </a>
-  );
-}
-
-/**
- * The button on the price card: straight to the secure Stripe payment page.
- * If Stripe can't be opened, the visitor lands on the pricing page instead, so the button never dead-ends.
- */
-function KiesKnop({ ingelogd, tekst }: { ingelogd: boolean; tekst: string }) {
-  const [bezig, setBezig] = useState(false);
-  if (ingelogd)
-    return (
-      <a className="vc-cta" href="/dashboard">
-        <span>Naar je dashboard</span>
-        <i aria-hidden="true">→</i>
-      </a>
-    );
-  async function start() {
-    setBezig(true);
-    try {
-      const r = await startBetaling({ data: { plan: PLAN } });
-      window.location.href = r.ok ? r.url : "/pricing";
-    } catch {
-      window.location.href = "/pricing";
-    }
-  }
-  return (
-    <button className="vc-cta" disabled={bezig} onClick={() => void start()} type="button">
-      <span>{bezig ? "Een moment…" : tekst}</span>
-      <i aria-hidden="true">→</i>
-    </button>
-  );
-}
-
-/** The install block: what the one line looks like, the three steps, and where to paste it per platform. */
-function Installeren() {
-  const [platform, setPlatform] = useState(PLATFORMS[0].id);
-  const p = PLATFORMS.find((x) => x.id === platform) ?? PLATFORMS[0];
-  return (
-    <section aria-labelledby="vc-install" className="vc-install" id="installeren">
-      <p className="vc-oog" data-rv="">
-        Installeren
-      </p>
-      <h2 className="vc-h2" data-rv="" id="vc-install">
-        Eén regel plakken.
-        <br />
-        <em>Klaar.</em>
-      </h2>
-      <p className="vc-sub vc-sub--midden" data-rv="">
-        Volgo komt in de website die je al hebt. Geen nieuwe website. Geen programmeur.
-      </p>
-      <p className="vc-tijd" data-rv="">
-        <b>± {INSTALL_SECONDEN}</b>
-        <span>
-          seconden werk
-          <small>kopiëren, plakken, opslaan</small>
-        </span>
-      </p>
-      <div className="vc-regel" data-rv="">
-        <code data-notranslate="">{VOORBEELD_REGEL}</code>
-      </div>
-      <p className="vc-klein vc-klein--midden" data-rv="">
-        Zo ziet je regel eruit. Die van jou staat klaar in je dashboard, met een kopieerknop.
-      </p>
-      <ol className="vc-stap3" data-rv="">
-        <li>
-          <b>1</b>
-          <strong>Kopieer</strong>
-          <span>Je regel staat in je dashboard.</span>
-        </li>
-        <li>
-          <b>2</b>
-          <strong>Plak</strong>
-          <span>Eén keer, in je website.</span>
-        </li>
-        <li>
-          <b>3</b>
-          <strong>Check</strong>
-          <span>Volgo kijkt zelf of hij goed staat.</span>
-        </li>
-      </ol>
-      <div className="vc-platform" data-rv="">
-        <p className="vc-platform__kop">Waar plak je hem? Kies je website:</p>
-        <div className="vc-platform__tabs" role="tablist">
-          {PLATFORMS.map((x) => (
-            <button aria-selected={platform === x.id} data-notranslate={x.id === "anders" ? undefined : ""} key={x.id} onClick={() => setPlatform(x.id)} role="tab" type="button">
-              {x.naam}
-            </button>
-          ))}
-        </div>
-        <ol className="vc-platform__stappen">
-          {p.stappen.map((x) => (
-            <li key={x}>{x}</li>
-          ))}
-        </ol>
-        {p.noot ? <p className="vc-platform__noot">{p.noot}</p> : null}
-        <p className="vc-platform__hulp">Lukt het niet? Mail ons je regel. Dan zetten wij hem er voor je in.</p>
-      </div>
-    </section>
-  );
-}
-
-/** The page is written in Dutch; this is its source language for the translator. */
-const BRON = "nl";
 
 /**
  * First visit: show the page in the visitor's regional language. The Volgo consent popup (Accept) carries the
@@ -207,19 +78,12 @@ function TaalPopup() {
 
   if (!open) return null;
   return (
-    <div aria-labelledby="vw-taal-kop" className="vw-taalpop" role="dialog">
-      <div className="vw-taalpop__kop">
-        <svg aria-hidden="true" fill="none" height="20" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24" width="20">
-          <circle cx="12" cy="12" r="9" />
-          <path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18" />
-        </svg>
-        <b id="vw-taal-kop">Kies je taal</b>
-      </div>
-      <p>We tonen deze website in de taal van jouw regio. Je kunt het hier of bovenaan het scherm altijd aanpassen.</p>
-      <div className="vw-taalpop__rij">
+    <div aria-labelledby="vn-taal-kop" className="vn-taalpop" role="dialog">
+      <b id="vn-taal-kop">Choose your language</b>
+      <p>We show this website in the language of your region. You can change it here or at the top at any time.</p>
+      <div className="vn-taalpop__rij">
         <select
           aria-label="Language"
-          className="vw-taalpop__select"
           data-notranslate=""
           onChange={(e) => {
             setKeuze(e.target.value);
@@ -234,162 +98,357 @@ function TaalPopup() {
           ))}
         </select>
         <button
-          className="vl-knop vw-taalpop__ok"
+          className="vn-knop vn-knop--klein"
           onClick={() => {
             kiesTaal(keuze);
             setOpen(false);
           }}
           type="button"
         >
-          Accepteren
+          Accept
         </button>
       </div>
     </div>
   );
 }
 
-
-/** Elements with data-rv fade and slide in when they scroll into view. Without JavaScript everything is simply visible. */
-function useOnthul() {
-  useEffect(() => {
-    const root = document.getElementById("vd");
-    if (!root || !("IntersectionObserver" in window)) return;
-    root.classList.add("vc-js");
-    const io = new IntersectionObserver(
-      (es) => {
-        for (const e of es) if (e.isIntersecting) e.target.classList.add("is-in");
-      },
-      { threshold: 0.25 },
-    );
-    root.querySelectorAll("[data-rv]").forEach((el) => io.observe(el));
-    return () => {
-      io.disconnect();
-      root.classList.remove("vc-js");
-    };
-  }, []);
+/** The dashboard as a picture: the inbox with one conversation open. Drawn in HTML, so it is sharp on every screen. */
+function InboxBeeld() {
+  return (
+    <div aria-hidden="true" className="vn-app">
+      <div className="vn-app__balk">
+        <i />
+        <i />
+        <i />
+        <span>thevolgo.app/dashboard</span>
+      </div>
+      <div className="vn-app__in">
+        <div className="vn-app__zij">
+          <b>Volgo</b>
+          <span className="is-aan">
+            Inbox <em>3</em>
+          </span>
+          <span>Calendar</span>
+          <span>Requests</span>
+          <span>Follow-up</span>
+          <small>Setup</small>
+          <span>Install</span>
+          <span>My website</span>
+          <span>Connections</span>
+        </div>
+        <div className="vn-app__lijst">
+          <p className="vn-app__kop">Inbox</p>
+          <div className="vn-app__rij is-open">
+            <b>Anna de Vries</b>
+            <span>Appointment booked · Wed 2:00 pm</span>
+            <em className="is-ok">Booked</em>
+          </div>
+          <div className="vn-app__rij">
+            <b>Mark Jansen</b>
+            <span>Wants a price for the interior</span>
+            <em>Volgo follows up</em>
+          </div>
+          <div className="vn-app__rij">
+            <b>Sara El Amrani</b>
+            <span>Asks if Saturday works</span>
+            <em className="is-nieuw">New</em>
+          </div>
+          <div className="vn-app__rij">
+            <b>Tom Bakker</b>
+            <span>Contact form · quote</span>
+            <em>Volgo follows up</em>
+          </div>
+        </div>
+        <div className="vn-app__chat">
+          <p className="vn-app__kop">Anna de Vries · website chat</p>
+          <p className="vn-bel is-zij">Hi, can I book an appointment for next week?</p>
+          <p className="vn-bel">Sure. What is it for, and what is your phone number?</p>
+          <p className="vn-bel is-zij">A full treatment. 555 0142.</p>
+          <p className="vn-bel">Great. Pick a time that suits you.</p>
+          <p className="vn-bel is-ok">✓ Appointment booked: Wednesday 2:00 pm</p>
+          <p className="vn-app__auto">Confirmation sent · reminder scheduled</p>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-/** The landing page, for any business: Volgo is an appointment setter you paste into your own website. What it does, how you install it, what it costs. */
-export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: RouteTaal }) {
-  void vast;
-  useOnthul();
+/** A piece of a website with the Volgo chat open on it: the visitor picks a time. */
+function BoekBeeld() {
   return (
-    <div className="volgo volgo--simpel volgo--dialed vl vw vc" id="vd">
-      <header className="vl-top">
-        <a className="vl-merk" href="/">
-          <VolgoMark size={22} />
-          <span>Volgo</span>
-        </a>
-        <nav className="vl-top__rechts vw-top__rechts">
-          <TaalKiezer bron={BRON} compact />
-          <a className="vl-top__link" href={ingelogd ? "/dashboard" : "/login"}>
-            {ingelogd ? "Dashboard" : "Inloggen"}
-          </a>
-        </nav>
-      </header>
+    <div aria-hidden="true" className="vn-site">
+      <div className="vn-app__balk">
+        <i />
+        <i />
+        <i />
+        <span>yourwebsite.com</span>
+      </div>
+      <div className="vn-site__in">
+        <div className="vn-site__blok is-kop" />
+        <div className="vn-site__blok" />
+        <div className="vn-site__blok is-kort" />
+        <div className="vn-site__chat">
+          <p className="vn-site__chatkop">Book your appointment</p>
+          <p className="vn-bel">Which day suits you?</p>
+          <div className="vn-site__tijden">
+            <span>Wed 10:00</span>
+            <span className="is-aan">Wed 2:00</span>
+            <span>Thu 9:30</span>
+            <span>Fri 4:00</span>
+          </div>
+          <p className="vn-bel is-ok">✓ Wednesday 2:00 pm is booked</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** What Volgo sends by itself, before and after the appointment. */
+function OpvolgBeeld() {
+  const rijen: [string, string, string][] = [
+    ["Right away", "Confirmation", "With day, time and a button to add it to their calendar."],
+    ["Day before", "Reminder", "Fewer people who forget to show up."],
+    ["After 1 day", "Follow-up", "For whoever left their details but did not book."],
+    ["After 3 days", "Once more", "It stops as soon as someone answers or books."],
+    ["After the appointment", "Review request", "Volgo asks for a Google review."],
+  ];
+  return (
+    <div aria-hidden="true" className="vn-auto">
+      {rijen.map(([wanneer, wat, uitleg]) => (
+        <div className="vn-auto__rij" key={wat}>
+          <em>{wanneer}</em>
+          <div>
+            <b>{wat}</b>
+            <span>{uitleg}</span>
+          </div>
+          <i>On</i>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** The dashboard page "Mijn website": your own site with Volgo on it, and whether it is live. */
+function WebsiteBeeld() {
+  return (
+    <div aria-hidden="true" className="vn-site vn-site--mijn">
+      <div className="vn-site__status">
+        <b>My website</b>
+        <em className="is-ok">✓ Volgo is live</em>
+      </div>
+      <div className="vn-app__balk">
+        <i />
+        <i />
+        <i />
+        <span>yourwebsite.com</span>
+      </div>
+      <div className="vn-site__in">
+        <div className="vn-site__blok is-kop" />
+        <div className="vn-site__blok" />
+        <div className="vn-site__blok is-kort" />
+        <div className="vn-site__bol">Book an appointment</div>
+      </div>
+    </div>
+  );
+}
+
+const FUNCTIES: { oog: string; titel: string; tekst: string; punten: string[]; beeld: () => JSX.Element }[] = [
+  {
+    oog: "Inbox",
+    titel: "Everything in one place.",
+    tekst: "Chat, contact form and appointments land in one inbox. You see who is waiting, who has booked and who Volgo is still following up.",
+    punten: ["Read along with every conversation, or take over yourself", "Name, number and every answer included", "A notification on your phone for every appointment"],
+    beeld: InboxBeeld,
+  },
+  {
+    oog: "Appointments",
+    titel: "Visitors book themselves.",
+    tekst: "Volgo asks your questions and lets the visitor pick a time. Only the times that work for you.",
+    punten: ["Your opening hours and appointment length", "A call, a visit or at your office", "Never double booked"],
+    beeld: BoekBeeld,
+  },
+  {
+    oog: "Follow-up",
+    titel: "Volgo follows up. And keeps following up.",
+    tekst: "Nobody slips through. Before the appointment, after the appointment, and also when someone has not booked yet.",
+    punten: ["Follow-up after 1 and 3 days", "Confirmation and reminder", "Review request after the appointment"],
+    beeld: OpvolgBeeld,
+  },
+  {
+    oog: "My website",
+    titel: "See your website, with Volgo in it.",
+    tekst: "Your dashboard shows your own website with the chat on it, on desktop and phone. And whether Volgo is live.",
+    punten: ["Try the chat the way your visitor sees it", "Your own name, photo and colour", "One button checks that everything works"],
+    beeld: WebsiteBeeld,
+  },
+];
+
+/**
+ * The landing page: Volgo is an appointment setter for websites. Visitors plan an appointment, everything lands in one
+ * inbox, and Volgo follows up by itself. What it does, how you install it, what it costs.
+ */
+export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTaal }) {
+  useOnthul("volgo-home");
+  // thevolgo.app/nl (for Dutch ads): the same page, shown in Dutch unless the visitor already chose a language.
+  useEffect(() => {
+    if (vast === "nl" && !opgeslagenTaal()) toonTaal("nl");
+  }, [vast]);
+  const doel = kijker.ingelogd ? "/dashboard" : "#pricing";
+  return (
+    <div className="volgo vn" id="volgo-home">
+      <Kop bron={BRON} kijker={kijker} />
 
       <main>
-        <section aria-labelledby="vc-titel" className="vc-hero">
-          <p className="vc-oog">Afspraak-setter voor je website</p>
-          <h1 className="vc-titel" id="vc-titel">
-            Afspraken.
+        <section aria-labelledby="vn-titel" className="vn-hero">
+          <p className="vn-oog">Appointment setter for your website</p>
+          <h1 className="vn-h1" id="vn-titel">
+            Your website is missing appointments.
             <br />
-            <em>Vanzelf geboekt.</em>
+            <em>Volgo books them.</em>
           </h1>
-          <p className="vc-sub">Volgo is de afspraak-setter in je website. Eén regel code plakken. Klaar.</p>
-          <StartKnop ingelogd={ingelogd} />
-          <p className="vc-klein">{PRIJS} per maand · Zelf installeren: ± {INSTALL_SECONDEN} seconden · Geen nieuwe website nodig</p>
-          <p aria-hidden="true" className="vc-scroll">
-            ↓
-          </p>
-        </section>
-
-        <section aria-labelledby="vc-bouw" className="vc-bouw">
-          <h2 className="vc-h2" data-rv="" id="vc-bouw">
-            Bezoeker erin.
-            <br />
-            <em>Afspraak eruit.</em>
-          </h2>
-          <p className="vc-sub vc-sub--midden" data-rv="">
-            Volgo zit rechtsonder op je website. Hij stelt jouw vragen en plant de afspraak.
-          </p>
-          <div aria-hidden="true" className="vc-anim" data-rv="">
-            <div className="vc-site">
-              <div className="vc-site__balk">
-                <i />
-                <i />
-                <i />
-                <span>jouwwebsite.nl</span>
-              </div>
-              <div className="vc-site__blok vc-site__blok--kop" />
-              <div className="vc-site__blok" />
-              <div className="vc-site__blok vc-site__blok--kort" />
-              <div className="vc-site__chat">
-                <p className="is-lead">Kunnen jullie mij helpen?</p>
-                <p>Zeker. Wat heb je nodig? Kies daarna een tijd.</p>
-                <p className="is-ok">✓ Afspraak: woensdag 14:00</p>
-              </div>
-            </div>
-            <div className="vc-lijn">
-              <i />
-              <i />
-              <i />
-            </div>
-            <div className="vc-app">
-              <div className="vc-app__kop">Volgo · je agenda</div>
-              <div className="vc-lead">
-                <b>Anna</b>
-                <span>Telefoongesprek · wo 14:00</span>
-              </div>
-              <div className="vc-lead">
-                <b>Mark</b>
-                <span>Langskomen · do 09:30</span>
-              </div>
-              <div className="vc-lead">
-                <b>Sara</b>
-                <span>Nog niet geboekt · opvolging morgen</span>
-              </div>
-            </div>
+          <p className="vn-sub">Visitors book an appointment themselves, in your website. Everything lands in one inbox. Volgo follows up automatically, and keeps following up.</p>
+          <div className="vn-hero__knoppen">
+            <a className="vn-knop" href={doel}>
+              {kijker.ingelogd ? "Go to your dashboard" : "Start with Volgo"}
+            </a>
+            <a className="vn-knop vn-knop--licht" href="#features">
+              See how it works
+            </a>
           </div>
-          <ol className="vc-flow">
-            {STAPPEN.map(([titel, tekst], i) => (
-              <li data-rv="" key={titel}>
-                <b>{i + 1}</b>
-                <h3>{titel}</h3>
-                <p>{tekst}</p>
-              </li>
-            ))}
-          </ol>
+          <p className="vn-klein">
+            From {VANAF} per month · Installed by yourself in about {INSTALL_MINUTEN} minutes · Cancel any month
+          </p>
+          <div className="vn-hero__beeld" data-rv="">
+            <InboxBeeld />
+          </div>
         </section>
 
-        <Installeren />
-
-        <section aria-labelledby="vc-alles" className="vc-alles">
-          <h2 className="vc-h2" data-rv="" id="vc-alles">
-            Alles wat een
-            <br />
-            <em>setter moet kunnen.</em>
-          </h2>
-          <ul className="vc-alles__lijst" data-rv="">
-            {ALLES.map((x) => (
-              <li key={x}>{x}</li>
+        <section aria-label="Which websites" className="vn-werkt" data-rv="">
+          <p>Built for websites with bookings. Works on:</p>
+          <ul className="vn-chips" data-notranslate="">
+            {WEBSITE_SOORTEN.map((s) => (
+              <li key={s}>{s}</li>
             ))}
           </ul>
         </section>
 
-        <section aria-labelledby="vc-zm" className="vc-zm">
-          <h2 className="vc-h2" data-rv="" id="vc-zm">
-            Zonder. <em>Met.</em>
-          </h2>
-          <div className="vc-zm__grid">
-            <ul className="vc-zm__zonder" data-rv="">
-              <li className="vc-zm__kop">Zonder Volgo</li>
+        <section aria-labelledby="vn-reis" className="vn-sectie vn-reis">
+          <header className="vn-sectie__kop" data-rv="">
+            <p className="vn-oog">How it goes</p>
+            <h2 className="vn-h2" id="vn-reis">
+              From visitor to appointment. Without you doing a thing.
+            </h2>
+          </header>
+          <ol className="vn-reis__lijn">
+            {REIS.map((r) => (
+              <li className={r.ok ? "is-ok" : ""} data-rv="" key={r.titel}>
+                <em>{r.tijd}</em>
+                <b>{r.titel}</b>
+                <span>{r.tekst}</span>
+              </li>
+            ))}
+          </ol>
+          <p className="vn-reis__niet" data-rv="">
+            <b>Not booked?</b> Then Volgo follows up after 1 day and after 3 days. By itself.
+          </p>
+        </section>
+
+        <section aria-labelledby="vn-hou" className="vn-sectie vn-hou">
+          <header className="vn-sectie__kop" data-rv="">
+            <p className="vn-oog">Your own website</p>
+            <h2 className="vn-h2" id="vn-hou">
+              Keep the website you already have.
+            </h2>
+          </header>
+          <div className="vn-drie">
+            <div className="vn-kaart" data-rv="">
+              <h3>No new website needed</h3>
+              <p>Volgo goes into the website you already have. Your website itself does not change.</p>
+            </div>
+            <div className="vn-kaart" data-rv="">
+              <h3>Paste one line</h3>
+              <p>After that Volgo is on every page. Do it yourself, forward it, or let us do it.</p>
+            </div>
+            <div className="vn-kaart" data-rv="">
+              <h3>No website yet?</h3>
+              <p>
+                Then we build it, with Volgo inside and your domain included. <a href="#pricing">See Complete</a>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section aria-label="Features" className="vn-sectie vn-functies" id="features">
+          {FUNCTIES.map((f, i) => (
+            <article className={`vn-functie${i % 2 ? " is-om" : ""}`} key={f.oog}>
+              <div className="vn-functie__tekst" data-rv="">
+                <p className="vn-oog">{f.oog}</p>
+                <h2 className="vn-h2">{f.titel}</h2>
+                <p className="vn-sub">{f.tekst}</p>
+                <ul className="vn-vink">
+                  {f.punten.map((x) => (
+                    <li key={x}>{x}</li>
+                  ))}
+                </ul>
+                <a className="vn-knop vn-knop--klein" href={doel}>
+                  {kijker.ingelogd ? "Go to your dashboard" : "Start with Volgo"}
+                </a>
+              </div>
+              <div className="vn-functie__beeld" data-rv="">
+                {i === 0 ? (
+                  <div className="vn-inboxkaart" aria-hidden="true">
+                    <div className="vn-app__rij is-open">
+                      <b>Anna de Vries</b>
+                      <span>Website chat · appointment Wed 2:00 pm</span>
+                      <em className="is-ok">Booked</em>
+                    </div>
+                    <div className="vn-app__rij">
+                      <b>Mark Jansen</b>
+                      <span>Website chat · wants a price</span>
+                      <em>Volgo follows up</em>
+                    </div>
+                    <div className="vn-app__rij">
+                      <b>Sara El Amrani</b>
+                      <span>Website chat · asks if Saturday works</span>
+                      <em className="is-nieuw">New</em>
+                    </div>
+                    <div className="vn-app__rij">
+                      <b>Tom Bakker</b>
+                      <span>Contact form · quote</span>
+                      <em>Volgo follows up</em>
+                    </div>
+                    <div className="vn-app__rij">
+                      <b>Lisa Peeters</b>
+                      <span>Website chat · appointment Fri 9:30 am</span>
+                      <em className="is-ok">Booked</em>
+                    </div>
+                  </div>
+                ) : (
+                  <f.beeld />
+                )}
+              </div>
+            </article>
+          ))}
+        </section>
+
+        <InstallUitleg />
+
+        <section aria-labelledby="vn-zm" className="vn-sectie vn-zm">
+          <header className="vn-sectie__kop" data-rv="">
+            <p className="vn-oog">The difference</p>
+            <h2 className="vn-h2" id="vn-zm">
+              Without Volgo. With Volgo.
+            </h2>
+          </header>
+          <div className="vn-zm__grid">
+            <ul className="vn-zm__zonder" data-rv="">
+              <li className="vn-zm__kop">Without Volgo</li>
               {ZONDER.map((x) => (
                 <li key={x}>{x}</li>
               ))}
             </ul>
-            <ul className="vc-zm__met" data-rv="">
-              <li className="vc-zm__kop">Met Volgo</li>
+            <ul className="vn-zm__met" data-rv="">
+              <li className="vn-zm__kop">With Volgo</li>
               {MET.map((x) => (
                 <li key={x}>{x}</li>
               ))}
@@ -397,45 +456,37 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
           </div>
         </section>
 
-        <section aria-labelledby="vc-prijs" className="vc-aanbod" id="prijzen">
-          <div className="vc-kaart" data-rv="">
-            <p className="vc-oog">Eén prijs · alles erin</p>
-            <h2 id="vc-prijs">Volgo in je website</h2>
-            <p className="vc-prijs">
-              <b>{PRIJS}</b> per maand
-            </p>
-            <ul>
-              <li>Afspraak-setter in je eigen website</li>
-              <li>Eén regel code, of wij zetten hem erin</li>
-              <li>Bevestiging, herinnering en opvolging</li>
-              <li>Alle afspraken en klanten in één app</li>
-              <li>Maandelijks opzegbaar</li>
-            </ul>
-            <KiesKnop ingelogd={ingelogd} tekst="Start met Volgo" />
-            <p className="vc-klein">Excl. btw. Geen opstartkosten, geen website erbij. Veilig betalen via Stripe.</p>
+        <Prijzen kijker={kijker} />
+
+        <section aria-labelledby="vn-faq" className="vn-sectie vn-faq" id="faq">
+          <header className="vn-sectie__kop" data-rv="">
+            <p className="vn-oog">FAQ</p>
+            <h2 className="vn-h2" id="vn-faq">
+              Frequently asked questions
+            </h2>
+          </header>
+          <div className="vn-faq__lijst">
+            {FAQ.map(([v, a]) => (
+              <details key={v}>
+                <summary>{v}</summary>
+                <p>{a}</p>
+              </details>
+            ))}
           </div>
         </section>
 
-        <section aria-labelledby="vl-faq" className="vl-sectie vl-faq">
-          <h2 className="vl-h2" id="vl-faq">
-            Vragen
-          </h2>
-          {FAQ.map(([v, a]) => (
-            <details key={v}>
-              <summary>{v}</summary>
-              <p>{a}</p>
-            </details>
-          ))}
-        </section>
-
-        <section aria-labelledby="vc-slot" className="vc-slot">
-          <h2 className="vc-titel" data-rv="" id="vc-slot">
-            Jij werkt.
+        <section aria-labelledby="vn-slot" className="vn-slot">
+          <h2 className="vn-h1" data-rv="" id="vn-slot">
+            You work.
             <br />
-            <em>Volgo plant.</em>
+            <em>Volgo books.</em>
           </h2>
-          <StartKnop ingelogd={ingelogd} />
-          <p className="vc-klein">Eerst zien? Open de chat rechtsonder. Dat is Volgo, zo komt hij op jouw website.</p>
+          <div className="vn-hero__knoppen" data-rv="">
+            <a className="vn-knop" href={doel}>
+              {kijker.ingelogd ? "Go to your dashboard" : "Start with Volgo"}
+            </a>
+          </div>
+          <p className="vn-klein">Want to see it first? Open the chat in the corner. That is Volgo, exactly how it appears on your website.</p>
         </section>
       </main>
       <Footer />

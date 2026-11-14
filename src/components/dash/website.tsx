@@ -8,7 +8,7 @@ import { Upsell } from "./upsell";
 type Data = Awaited<ReturnType<typeof haalBouwer>>;
 type Bericht = { rol: "ik" | "volgo"; tekst: string };
 
-const IDEEEN = ["Bouw een website voor mijn bedrijf", "Maak hem donker en strak", "Voeg een pagina-onderdeel met veelgestelde vragen toe", "Maak de knop bovenaan opvallender"];
+const IDEEEN = ["Build a website for my business", "Maak hem donker en strak", "Add a section with frequently asked questions", "Maak de knop bovenaan opvallender"];
 
 /** Website builder: tell Volgo in the chat what you want, see the result next to it, put it online with one button. */
 export function Website() {
@@ -29,27 +29,27 @@ export function Website() {
       setChat(x.chat);
     });
   useEffect(() => {
-    void laad().catch(() => setFout("Laden lukte niet. Vernieuw de pagina."));
+    void laad().catch(() => setFout("Loading did not work. Refresh the page."));
   }, []);
   useEffect(() => {
     eind.current?.scrollIntoView({ block: "end" });
   }, [chat, bezig]);
 
-  if (!d) return <p className="v-muted">{fout || "Laden…"}</p>;
+  if (!d) return <p className="v-muted">{fout || "Loading…"}</p>;
 
   if (!d.mag)
     return (
       <>
         <header className="v-dash__head">
-          <h1>Website bouwen</h1>
-          <p>Bouw je website door te chatten. Dit zit in Website + Volgo.</p>
+          <h1>Build website</h1>
+          <p>Build your website by chatting. This is part of Complete.</p>
         </header>
         <Upsell
-          knop="Naar Website + Volgo"
-          punten={["Vertel in de chat wat je wilt", "Direct een voorbeeld ernaast", "Met één knop online", "Volgo-chat staat er al op"]}
+          knop="See Complete"
+          punten={["Tell the chat what you want", "A preview right next to it", "Met één knop online", "The Volgo chat is already on it"]}
           tag="Website + Volgo"
-          tekst="Je bouwt je website door gewoon te typen wat je wilt. Volgo maakt hem, jij kijkt mee en past aan."
-          titel="Bouw je website in een chat"
+          tekst="You build your website by simply typing what you want. Volgo makes it, you watch along and adjust."
+          titel="Build your website in a chat"
         />
       </>
     );
@@ -61,7 +61,7 @@ export function Website() {
     setTekst("");
     setChat((c) => [...c, { rol: "ik", tekst: v }]);
     setBezig(true);
-    const r = await bouwSite({ data: { tekst: v } }).catch(() => ({ ok: false as const, message: "Er ging iets mis. Probeer het opnieuw." }));
+    const r = await bouwSite({ data: { tekst: v } }).catch(() => ({ ok: false as const, message: "Something went wrong. Please try again." }));
     setBezig(false);
     if (!r.ok) {
       setFout(r.message);
@@ -98,15 +98,15 @@ export function Website() {
     <div className="v-bw">
       <header className="v-bw__kop">
         <div>
-          <h1>Website bouwen</h1>
-          <p>Typ wat je wilt. Volgo bouwt het, jij kijkt mee.</p>
+          <h1>Build website</h1>
+          <p>Type what you want. Volgo builds it, you watch along.</p>
         </div>
         {d.heeftSite ? (
           <div className="v-bw__acties">
             <span className={`v-bw__status${d.gepubliceerd ? " is-online" : ""}`}>{d.gepubliceerd ? "Online" : "Concept"}</span>
             {d.heeftVorige ? (
               <button className="v-bw__stil" disabled={bezig} onClick={() => void ongedaan()} type="button">
-                Ongedaan maken
+                Undo
               </button>
             ) : null}
             {d.eigenaar ? (
@@ -116,7 +116,7 @@ export function Website() {
                 </button>
               ) : (
                 <button className="v-bw__online" onClick={() => void zetOnline(true)} type="button">
-                  Online zetten
+                  Publish
                 </button>
               )
             ) : null}
@@ -126,7 +126,7 @@ export function Website() {
 
       {d.gepubliceerd && adres ? (
         <p className="v-bw__adres">
-          <span>Je website staat online op</span>
+          <span>Your website is online at</span>
           <a href={adres} rel="noopener noreferrer" target="_blank">
             {adres.replace(/^https?:\/\//, "")}
           </a>
@@ -139,7 +139,7 @@ export function Website() {
             }}
             type="button"
           >
-            {gekopieerd ? "Gekopieerd" : "Kopieer link"}
+            {gekopieerd ? "Copied" : "Kopieer link"}
           </button>
         </p>
       ) : null}
@@ -149,17 +149,17 @@ export function Website() {
           Chat
         </button>
         <button aria-selected={toon === "voorbeeld"} onClick={() => setToon("voorbeeld")} role="tab" type="button">
-          Voorbeeld
+          Preview
         </button>
       </div>
 
       <div className="v-bw__vlak" data-toon={toon}>
-        <section aria-label="Chat met Volgo" className="v-bw__chat">
+        <section aria-label="Chat with Volgo" className="v-bw__chat">
           <div className="v-bw__berichten">
             {chat.length === 0 ? (
               <div className="v-bw__start">
-                <strong>Wat voor website wil je?</strong>
-                <p>Vertel het in je eigen woorden. Bijvoorbeeld wat je doet, voor wie, en welke stijl je mooi vindt. Volgo kent je bedrijf al uit je instellingen.</p>
+                <strong>What kind of website do you want?</strong>
+                <p>Tell it in your own words. For example what you do, for whom, and which style you like. Volgo already knows your business from your settings.</p>
               </div>
             ) : null}
             {chat.map((b, i) => (
@@ -172,7 +172,7 @@ export function Website() {
                 <i />
                 <i />
                 <i />
-                <span>Volgo bouwt. Dit duurt ongeveer een minuut.</span>
+                <span>Volgo is building. This takes about a minute.</span>
               </p>
             ) : null}
             <div ref={eind} />
@@ -189,7 +189,7 @@ export function Website() {
           {fout ? <p className="v-err v-bw__fout">{fout}</p> : null}
           <form className="v-bw__invoer" onSubmit={verstuur}>
             <textarea
-              aria-label="Je bericht"
+              aria-label="Your message"
               disabled={bezig}
               maxLength={3000}
               onChange={(e) => setTekst(e.target.value)}
@@ -199,19 +199,19 @@ export function Website() {
                   void stuur(tekst);
                 }
               }}
-              placeholder={d.heeftSite ? "Wat wil je aanpassen?" : "Beschrijf je website…"}
+              placeholder={d.heeftSite ? "What do you want to change?" : "Describe your website…"}
               rows={1}
               value={tekst}
             />
-            <button aria-label="Versturen" disabled={bezig || tekst.trim().length < 2} type="submit">
+            <button aria-label="Send" disabled={bezig || tekst.trim().length < 2} type="submit">
               ↑
             </button>
           </form>
         </section>
 
-        <section aria-label="Voorbeeld van je website" className="v-bw__voorbeeld">
+        <section aria-label="Preview of your website" className="v-bw__voorbeeld">
           <div className="v-bw__balk">
-            <div className="v-seg" role="radiogroup" aria-label="Schermgrootte">
+            <div className="v-seg" role="radiogroup" aria-label="Screen size">
               <button aria-checked={!mobiel} aria-selected={!mobiel} onClick={() => setMobiel(false)} role="radio" type="button">
                 Computer
               </button>
@@ -221,12 +221,12 @@ export function Website() {
             </div>
             {d.heeftSite ? (
               <a href="/api/site-concept" rel="noopener noreferrer" target="_blank">
-                Open groot
+                Open large
               </a>
             ) : null}
           </div>
           <div className={`v-bw__scherm${mobiel ? " is-mobiel" : ""}`}>
-            <iframe key={versie} src="/api/site-concept" title="Voorbeeld van je website" />
+            <iframe key={versie} src="/api/site-concept" title="Preview of your website" />
           </div>
         </section>
       </div>

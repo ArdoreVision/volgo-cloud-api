@@ -1994,7 +1994,7 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000000;
    Josefin Sans, monochrome, square edges, uppercase tracked labels,
    light headlines, lots of air. Dashboard and admin keep their own look.
    ══════════════════════════════════════════════════════════ */
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) {
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) {
   --ink: #202020;
   --ink-2: #383838;
   --muted: #6f6f6f;
@@ -2010,26 +2010,26 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000000;
   color: var(--ink-2);
   background: #fff;
 }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) :is(h1, h2, h3, .v-h2, .vs-hero__title, .v-auth__title) {
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) :is(h1, h2, h3, .v-h2, .vs-hero__title, .v-auth__title) {
   font-family: "Josefin Sans", sans-serif;
   font-weight: 400;
   letter-spacing: 0.005em;
   color: var(--ink);
 }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vs-hero__title { font-weight: 300; font-size: clamp(2.6rem, 6.6vw, 4.8rem); line-height: 1.08; letter-spacing: 0.01em; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-h2 { font-weight: 300; line-height: 1.12; letter-spacing: 0.01em; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vs-hero__sub,
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-lede { font-weight: 300; color: var(--ink-2); line-height: 1.7; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vs-hero__title { font-weight: 300; font-size: clamp(2.6rem, 6.6vw, 4.8rem); line-height: 1.08; letter-spacing: 0.01em; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-h2 { font-weight: 300; line-height: 1.12; letter-spacing: 0.01em; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vs-hero__sub,
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-lede { font-weight: 300; color: var(--ink-2); line-height: 1.7; }
 
 /* Labels: small, uppercase, tracked — no pills */
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) :is(.vx-label, .v-pill-label) {
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) :is(.vx-label, .v-pill-label) {
   padding: 0; border-radius: 0; background: none; box-shadow: none;
   color: var(--ink); font-size: 12px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
 }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-pill-label__dot { display: none; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-pill-label__dot { display: none; }
 
 /* Buttons: square, black, uppercase tracked */
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) :is(.vs-start, .v-cta-primary, .v-plan__cta, .v-auth__btn, .v-nav__cta, .v-btn-blauw) {
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) :is(.vs-start, .v-cta-primary, .v-plan__cta, .v-auth__btn, .v-nav__cta, .v-btn-blauw) {
   border-radius: 0 !important;
   background: #202020 !important;
   color: #fff !important;
@@ -2042,78 +2042,78 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000000;
   filter: none !important;
   transition: background 0.25s, color 0.25s, transform 0.25s;
 }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) :is(.vs-start, .v-cta-primary, .v-plan__cta, .v-auth__btn, .v-nav__cta):hover:not(:disabled) {
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) :is(.vs-start, .v-cta-primary, .v-plan__cta, .v-auth__btn, .v-nav__cta):hover:not(:disabled) {
   background: #000 !important; transform: none;
 }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vs-start--groot { padding: 20px 46px; font-size: 13.5px; min-width: 240px; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-plan__cta--premium { background: #fff !important; color: #202020 !important; box-shadow: inset 0 0 0 1px #202020 !important; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-plan__cta--premium:hover:not(:disabled) { background: #202020 !important; color: #fff !important; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vs-start--groot { padding: 20px 46px; font-size: 13.5px; min-width: 240px; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-plan__cta--premium { background: #fff !important; color: #202020 !important; box-shadow: inset 0 0 0 1px #202020 !important; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-plan__cta--premium:hover:not(:disabled) { background: #202020 !important; color: #fff !important; }
 /* Ghost CTAs become underlined text links, like "Discover the collection" */
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-cta-ghost {
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-cta-ghost {
   padding: 6px 0; border-radius: 0; background: none; color: var(--ink);
   font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
   text-decoration: underline; text-underline-offset: 7px; text-decoration-thickness: 1px;
 }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-cta-ghost:hover { background: none; text-decoration-thickness: 2px; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-cta-ghost:hover { background: none; text-decoration-thickness: 2px; }
 
 /* Navigation: flat white bar with a hairline, centred wordmark feel */
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-nav { padding: 0; background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-nav__inner { border-radius: 0; box-shadow: none; background: transparent; height: 64px; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-nav__brand { font-family: "Josefin Sans", sans-serif; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 15px; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-nav__links a,
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-nav__login { border-radius: 0; font-size: 12.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-2); }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-nav__links a:hover { background: none; color: #000; text-decoration: underline; text-underline-offset: 6px; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-nav__cta { padding: 12px 20px; font-size: 12px; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-taal { border-radius: 0; background: none; box-shadow: inset 0 0 0 1px var(--line); }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-nav { padding: 0; background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-nav__inner { border-radius: 0; box-shadow: none; background: transparent; height: 64px; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-nav__brand { font-family: "Josefin Sans", sans-serif; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 15px; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-nav__links a,
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-nav__login { border-radius: 0; font-size: 12.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-2); }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-nav__links a:hover { background: none; color: #000; text-decoration: underline; text-underline-offset: 6px; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-nav__cta { padding: 12px 20px; font-size: 12px; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-taal { border-radius: 0; background: none; box-shadow: inset 0 0 0 1px var(--line); }
 
 /* Cards and panels: square, hairline borders, no glow */
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) :is(.v-plan, .vx-voordelen article, .vx-waarom__grid article, .vx-trust__lijst > div, .vx-rev__grid article, .vx-voorna__kol, .vx-founder__kaart, .v-auth__card, .vx-video__kader, .vx-live__toestel--desktop, .vx-feiten div, .vx-reken__kaart, .vx-zweef, .v-hero__card) {
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) :is(.v-plan, .vx-voordelen article, .vx-waarom__grid article, .vx-trust__lijst > div, .vx-rev__grid article, .vx-voorna__kol, .vx-founder__kaart, .v-auth__card, .vx-video__kader, .vx-live__toestel--desktop, .vx-feiten div, .vx-reken__kaart, .vx-zweef, .v-hero__card) {
   border-radius: 0 !important;
 }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) :is(.v-plan, .vx-voordelen article, .vx-trust__lijst > div, .vx-rev__grid article) { box-shadow: inset 0 0 0 1px var(--line); }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-plan:hover { transform: none; box-shadow: inset 0 0 0 1px var(--ink); }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-plan--pro { box-shadow: inset 0 0 0 1px var(--ink); }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-plan__badge { border-radius: 0; background: #202020; color: #fff; font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-plan__price span { font-family: "Josefin Sans", sans-serif; font-weight: 300; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vx-voorna__kol--met { background: #f5f3ef; box-shadow: none; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vx-voorna__kol--met time { background: #202020; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vx-voorna__kol time { border-radius: 0; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vx-voordelen__ico { border-radius: 0; background: none; box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vx-zweef { box-shadow: 0 1px 0 var(--line), 0 18px 40px rgba(0, 0, 0, 0.08); }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vx-zweef__score { border-radius: 0; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vx-rev__resultaat { border-radius: 0; background: #f5f3ef; color: var(--ink); letter-spacing: 0.04em; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vx-rev__sterren { color: #202020; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vx-founder__kaart { background: #f5f3ef; box-shadow: none; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vx-founder__links a { border-radius: 0; box-shadow: inset 0 0 0 1px var(--line); font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) :is(.v-plan, .vx-voordelen article, .vx-trust__lijst > div, .vx-rev__grid article) { box-shadow: inset 0 0 0 1px var(--line); }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-plan:hover { transform: none; box-shadow: inset 0 0 0 1px var(--ink); }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-plan--pro { box-shadow: inset 0 0 0 1px var(--ink); }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-plan__badge { border-radius: 0; background: #202020; color: #fff; font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-plan__price span { font-family: "Josefin Sans", sans-serif; font-weight: 300; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vx-voorna__kol--met { background: #f5f3ef; box-shadow: none; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vx-voorna__kol--met time { background: #202020; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vx-voorna__kol time { border-radius: 0; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vx-voordelen__ico { border-radius: 0; background: none; box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vx-zweef { box-shadow: 0 1px 0 var(--line), 0 18px 40px rgba(0, 0, 0, 0.08); }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vx-zweef__score { border-radius: 0; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vx-rev__resultaat { border-radius: 0; background: #f5f3ef; color: var(--ink); letter-spacing: 0.04em; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vx-rev__sterren { color: #202020; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vx-founder__kaart { background: #f5f3ef; box-shadow: none; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vx-founder__links a { border-radius: 0; box-shadow: inset 0 0 0 1px var(--line); font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
 
 /* Hero: proof list as small caps with hairline separators */
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vs-hero__proof { gap: 6px 22px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-2); }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vs-hero__proof li::before { border-radius: 0; width: 5px; height: 5px; background: #202020; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vs-stappen p { font-family: "Josefin Sans", sans-serif; font-weight: 300; letter-spacing: 0.005em; line-height: 1.3; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vs-stappen__ico { border-radius: 0; background: #f5f3ef; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vs-stappen__ico svg { stroke: #202020; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vs-hero__proof { gap: 6px 22px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-2); }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vs-hero__proof li::before { border-radius: 0; width: 5px; height: 5px; background: #202020; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vs-stappen p { font-family: "Josefin Sans", sans-serif; font-weight: 300; letter-spacing: 0.005em; line-height: 1.3; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vs-stappen__ico { border-radius: 0; background: #f5f3ef; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vs-stappen__ico svg { stroke: #202020; }
 
 /* FAQ: editorial list */
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-faq__item summary { font-size: 1.05rem; font-weight: 400; letter-spacing: 0.01em; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-faq__item summary { font-size: 1.05rem; font-weight: 400; letter-spacing: 0.01em; }
 
 /* Footer: small caps, quiet */
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-footer { border-top: 1px solid var(--line); max-width: none; padding: 34px clamp(20px, 5vw, 64px) 48px; font-size: 12px; letter-spacing: 0.06em; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-footer a { text-transform: uppercase; letter-spacing: 0.14em; font-weight: 600; font-size: 11.5px; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-footer { border-top: 1px solid var(--line); max-width: none; padding: 34px clamp(20px, 5vw, 64px) 48px; font-size: 12px; letter-spacing: 0.06em; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-footer a { text-transform: uppercase; letter-spacing: 0.14em; font-weight: 600; font-size: 11.5px; }
 
 /* Auth pages (checkout, sign-up, log in, welcome) */
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker).v-auth { background: #f5f3ef; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-auth__card { box-shadow: 0 0 0 1px var(--line); }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) :is(.v-fld input, .v-fld select, .v-pw input) { border-radius: 0 !important; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-stepper span { border-radius: 0; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-welkom__vink, .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-welkom__stappen li > span { border-radius: 0; background: #202020; color: #fff; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-welkom__stappen li { border-radius: 0; background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn).v-auth { background: #f5f3ef; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-auth__card { box-shadow: 0 0 0 1px var(--line); }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) :is(.v-fld input, .v-fld select, .v-pw input) { border-radius: 0 !important; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-stepper span { border-radius: 0; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-welkom__vink, .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-welkom__stappen li > span { border-radius: 0; background: #202020; color: #fff; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-welkom__stappen li { border-radius: 0; background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
 
 /* ══════════════════════════════════════════════════════════
    Ad route: hero with "Try Volgo live" + plans, live demo intro,
    example questions, phone-sized demo and the next step.
    ══════════════════════════════════════════════════════════ */
 .vs-hero__voor { margin: 0 0 18px; max-width: 58ch; color: var(--ink-2); font-size: 12px; font-weight: 600; letter-spacing: 0.16em; line-height: 1.7; text-transform: uppercase; animation: v-rise 0.9s var(--ease) both; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vs-hero__title { max-width: 17ch; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vs-hero__title { max-width: 17ch; }
 .vs-hero__acties { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px 28px; margin-top: 30px; animation: v-rise 0.9s var(--ease) 0.16s both; }
 .vs-hero__copy .vs-hero__acties .vs-start--groot { margin-top: 0; animation: none; }
 .vs-hero__tweede { padding: 8px 0; color: var(--ink); font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 7px; text-decoration-thickness: 1px; }
@@ -2127,7 +2127,7 @@ html:has(.volgo--simpel) { scroll-padding-top: 76px; }
 .vx-live__vragen button:hover { box-shadow: inset 0 0 0 1px var(--ink); }
 .vx-live__vragen button::before { content: "“"; margin-right: 2px; }
 .vx-live__vragen button::after { content: "”"; margin-left: 2px; }
-.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vx-live__knoppen button { border-radius: 0; }
+.volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vx-live__knoppen button { border-radius: 0; }
 
 /* Phones: the sample website at its real size, scrollable on its own. */
 .vx-live__toestel--native { width: 100%; background: #fff; box-shadow: 0 0 0 1px var(--line), 0 30px 60px -36px rgba(17, 19, 24, 0.4); }
@@ -2149,7 +2149,7 @@ html:has(.volgo--simpel) { scroll-padding-top: 76px; }
 
 @media (max-width: 759px) {
   .vs-hero__voor { font-size: 11px; letter-spacing: 0.12em; }
-  .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .vs-hero__title { font-size: clamp(2.1rem, 9vw, 2.8rem); }
+  .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .vs-hero__title { font-size: clamp(2.1rem, 9vw, 2.8rem); }
   .vs-hero__acties { flex-direction: column; gap: 10px; width: 100%; }
   .vs-hero__copy .vs-hero__acties .vs-start--groot { width: 100%; max-width: 360px; min-width: 0; }
   .vx-live__vragen div { flex-direction: column; align-items: stretch; }
@@ -2169,8 +2169,8 @@ html:has(.volgo--simpel) { scroll-padding-top: 76px; }
 @media (max-width: 520px) {
   .v-nav__probeer .v-nav__lang { display: none; }
   .v-nav__probeer .v-nav__kort { display: inline; }
-  .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-nav--simpel .v-nav__probeer { padding: 10px 12px; letter-spacing: 0.1em; font-size: 11.5px; }
-  .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker) .v-nav--simpel .v-nav__login { padding: 9px 10px; letter-spacing: 0.1em; font-size: 11.5px; }
+  .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-nav--simpel .v-nav__probeer { padding: 10px 12px; letter-spacing: 0.1em; font-size: 11.5px; }
+  .volgo:not(.v-dash):not(.v-admin):not(.v-demo-site):not(.volgo--donker):not(.vn) .v-nav--simpel .v-nav__login { padding: 9px 10px; letter-spacing: 0.1em; font-size: 11.5px; }
 }
 .vx-live__toestel--native.is-vol .vx-live__volbalk small { display: none; }
 
@@ -2715,3 +2715,64 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #050505;
 .v-inst__body > small { color: var(--muted); font-size: 13.5px; margin-bottom: 8px; }
 .v-inst__rij { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .v-inst__vraag { margin: 0 0 8px; font-size: 14px; font-weight: 600; }
+
+/* ══════════════════════════════════════════════════════════
+   Install (step by step), My website, Connections
+   ══════════════════════════════════════════════════════════ */
+.v-wiz__voortgang { display: flex; align-items: center; gap: 14px; margin: 0 0 16px; font-size: 14px; }
+.v-wiz__voortgang strong { flex: none; }
+.v-wiz__balk { flex: 1; height: 6px; border-radius: 999px; background: var(--surface); overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+.v-wiz__balk i { display: block; height: 100%; border-radius: 999px; background: var(--ink); transition: width 0.5s var(--ease); }
+.v-wiz__wie { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+.v-wiz__wie button { display: flex; flex-direction: column; gap: 3px; padding: 14px 16px; border: 0; border-radius: 16px; background: var(--card); color: var(--ink); text-align: left; cursor: pointer; box-shadow: inset 0 0 0 1px var(--line); transition: box-shadow 0.2s; }
+.v-wiz__wie button:hover { box-shadow: inset 0 0 0 1px var(--muted); }
+.v-wiz__wie button[aria-selected="true"] { box-shadow: inset 0 0 0 2px var(--ink); }
+.v-wiz__wie strong { font-size: 15px; }
+.v-wiz__wie small { color: var(--muted); font-size: 13px; }
+.v-wiz__klaar { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 16px; }
+.v-wiz__klaar > div:first-of-type { flex: 1 1 260px; }
+.v-wiz__klaar h2 { margin: 0; }
+.v-wiz__klaar p { margin: 4px 0 0; }
+.v-wiz__vink { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #e8f7ee; color: #067647; font-size: 22px; font-weight: 700; }
+.v-wiz .v-inst:first-of-type { border-top: 0; padding-top: 4px; }
+.v-wiz .v-inst.is-dicht { opacity: 0.45; }
+.v-wiz .v-inst.is-dicht .v-g__tabs { pointer-events: none; }
+.v-wiz .v-inst.is-nu .v-inst__nr:not(.is-klaar) { box-shadow: 0 0 0 4px var(--accent-soft); }
+.v-wiz__bericht { white-space: pre-wrap; word-break: break-word; max-height: 220px; overflow: auto; }
+.v-wiz__lijst { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.v-wiz__lijst li { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.v-wiz__lijst li:first-child { border-top: 0; }
+.v-wiz__lijst li > div { flex: 1 1 220px; min-width: 0; }
+.v-wiz__lijst strong { display: block; font-size: 15px; }
+.v-wiz__lijst small { color: var(--muted); font-size: 13.5px; }
+.v-mw__kop { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.v-mw__kop > div:first-child { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-width: 0; }
+.v-mw__kop .v-g__status { align-self: center; }
+.v-kn__rij--blok { flex-wrap: wrap; }
+.v-kn__rij--blok > div:first-child { flex: 1 1 260px; }
+.v-kn__rij--blok > pre, .v-kn__meer { flex: 1 1 100%; margin: 0; }
+.v-kn__meer summary { cursor: pointer; font-size: 14px; font-weight: 600; }
+.v-kn__meer pre { margin: 10px 0; }
+.v-dash__badge--doen { background: #fff4e5 !important; color: #9a5b00 !important; }
+.v-dash__doen { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 18px; width: 100%; max-width: 980px; margin: 0 auto 18px; padding: 13px 18px; border: 0; border-radius: 16px; background: #fff4e5; color: #7a4700; font-size: 14.5px; text-align: left; cursor: pointer; }
+.v-dash__doen strong { color: #5c3500; }
+.v-dash__doen em { font-style: normal; font-weight: 700; white-space: nowrap; }
+.v-dash[data-thema="donker"] .v-dash__doen { background: rgba(245, 159, 0, 0.14); color: #ffc46b; }
+.v-dash[data-thema="donker"] .v-dash__doen strong { color: #ffd899; }
+.v-dash[data-thema="donker"] .v-dash__badge--doen { background: rgba(245, 159, 0, 0.18) !important; color: #ffc46b !important; }
+.v-dash[data-thema="donker"] :is(.v-wiz__vink, .v-inst__nr.is-klaar, .v-g__status.is-aan) { background: rgba(34, 197, 94, 0.16); color: #6ee7a0; }
+.v-dash[data-thema="donker"] .v-g__status.is-let { background: rgba(245, 159, 0, 0.16); color: #ffc46b; }
+.v-plan-card__wissel { display: inline-block; margin: 14px 0 0 14px; color: var(--ink); font-size: 14px; font-weight: 600; text-underline-offset: 3px; }
+@media (max-width: 760px) { .v-wiz__wie { grid-template-columns: 1fr; } }
+.v-wa__stappen { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 24px; }
+.v-wa__stappen li { display: flex; gap: 12px; }
+.v-wa__stappen strong { display: block; font-size: 15px; }
+.v-wa__stappen small { color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+.v-wa__lijst { margin: 14px 0 0; display: grid; gap: 12px; }
+.v-wa__lijst dt { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.v-wa__lijst dd { margin: 2px 0 0; }
+.v-g__veld select { width: 100%; }
+@media (max-width: 760px) { .v-wa__stappen { grid-template-columns: 1fr; } }
+.v-wa__form { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+@media (max-width: 760px) { .v-wa__form { grid-template-columns: 1fr; } }
+.v-dash .v-dash__nav button[aria-current="page"] .v-dash__badge--doen { background: #fff4e5 !important; color: #7a4700 !important; }

@@ -253,7 +253,7 @@ function Admin() {
                   </span>
                   <span>
                     {k.gesprekken}
-                    {isPlan(k.plan) ? ` / ${PLANS[k.plan].limieten.gesprekken}` : ""}
+                    {isPlan(k.plan) ? ` / ${PLANS[k.plan].limieten.gesprekken ?? "∞"}` : ""}
                   </span>
                   <span>{k.leads}</span>
                   <span>{k.leden + 1}</span>

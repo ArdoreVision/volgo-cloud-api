@@ -51,7 +51,7 @@ jobs:
             p.on('response', (r) => r.status() >= 400 && log('http ' + r.status() + ' ' + r.url().slice(0, 120)));
             const mail = `test${Date.now()}@volgo.test`;
             await p.goto(U + '/pricing'); await p.waitForLoadState('networkidle');
-            await p.locator('.v-plan__cta--start').click();
+            await p.locator('.v-plan__cta--starter').click();
             await p.waitForURL((u) => u.hostname.includes('stripe.com') || u.pathname.startsWith('/checkout'), { timeout: 30000 }).catch(async (e) => { log('na kiezen: ' + p.url() + ' | ' + (await p.locator('.v-err').textContent().catch(() => 'geen fout'))); throw e; });
             if (p.url().includes('stripe.com')) {
               log('stripe checkout geopend');
@@ -98,7 +98,7 @@ jobs:
             await shot(p, 'portal');
             await p.goBack().catch(() => {});
             await p.goto(U + '/pricing', { waitUntil: 'networkidle' });
-            await p.locator('.v-plan__cta--pro').click();
+            await p.locator('.v-plan__cta--groei').click();
             await p.waitForURL('**/dashboard', { timeout: 30000 }).then(() => log('wissel naar pro: ok, ' + p.url())).catch(async () => log('wissel fout: ' + p.url() + ' ' + (await p.locator('.v-err').textContent().catch(() => '?'))));
             await p.waitForTimeout(1500);
             log('pakket na wissel: ' + (await p.locator('.v-dash__me small').textContent().catch(() => '?')));

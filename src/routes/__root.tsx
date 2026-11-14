@@ -9,7 +9,7 @@ import appMetaJson from "../app-meta.json";
 type AppMeta = { og_title?: string | null; og_description?: string | null; og_image_url?: string | null; favicon_url?: string | null };
 const meta = appMetaJson as AppMeta;
 const title = meta.og_title ?? "Volgo";
-const description = meta.og_description ?? "Volgo answers every website visitor 24/7 and turns them into leads and quotes.";
+const description = meta.og_description ?? "Volgo is the appointment setter for your website. Visitors book an appointment themselves, everything lands in one inbox and Volgo follows up automatically.";
 const SITE = "https://thevolgo.app";
 
 /** Structured data for search engines: who we are and what the product is. */
@@ -43,11 +43,14 @@ const LD_ORGANISATIE = {
         "Appointment booking inside the chat",
         "Hot-lead emails and daily morning summary",
         "Lead pipeline from new to quote to won",
-        "Installs on your own website with one line of code",
+        "Installs on your own website with one line of code, step by step in about 10 minutes",
+        "Every chat, form and appointment in one inbox",
         "Confirmation, reminder and follow-up sent automatically",
       ],
       offers: [
-        { "@type": "Offer", name: "Volgo, the appointment setter in your own website", price: "49.99", priceCurrency: "EUR", url: `${SITE}/pricing`, category: "subscription" },
+        { "@type": "Offer", name: "Volgo Starter, the appointment setter in your own website", price: "149", priceCurrency: "EUR", url: `${SITE}/pricing`, category: "subscription" },
+        { "@type": "Offer", name: "Volgo Growth", price: "249", priceCurrency: "EUR", url: `${SITE}/pricing`, category: "subscription" },
+        { "@type": "Offer", name: "Volgo Pro", price: "449", priceCurrency: "EUR", url: `${SITE}/pricing`, category: "subscription" },
       ],
     },
     { "@type": "WebSite", "@id": `${SITE}/#website`, url: SITE, name: "Volgo", publisher: { "@id": `${SITE}/#organization` }, inLanguage: "en" },

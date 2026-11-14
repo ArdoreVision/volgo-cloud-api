@@ -2,9 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { AvaChat } from "@/components/volgo/ava-chat";
 import { Footer } from "@/components/volgo/footer";
-import { Nav } from "@/components/volgo/nav";
+import { KopLos } from "@/components/volgo/wit";
 import "@/volgo.css";
-import "@/volgo-donker.css";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
@@ -18,8 +17,8 @@ export const Route = createFileRoute("/privacy")({
 
 function Privacy() {
   return (
-    <div className="volgo volgo--donker">
-      <Nav />
+    <div className="volgo vn">
+      <KopLos />
       <main className="v-legal">
         <h1 className="v-h2">Privacy Policy</h1>
         <p className="v-legal__meta">Last updated: October 31, 2026</p>

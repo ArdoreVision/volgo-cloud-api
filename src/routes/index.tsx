@@ -1,21 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { LandingPagina } from "@/components/volgo/landing-pagina";
-import { isIngelogd } from "@/lib/api/assistent.functions";
+import { accountStatus } from "@/lib/api/assistent.functions";
 import "@/volgo.css";
 
-const TITEL = "Volgo · Afspraak-setter voor je eigen website";
-const OMSCHRIJVING = "Volgo is de afspraak-setter in je eigen website. Hij antwoordt elke bezoeker, stelt jouw vragen en plant de afspraak. Eén regel code plakken en hij werkt. €49,99 per maand, geen nieuwe website nodig.";
+const TITEL = "Volgo · The appointment setter for your website";
+const OMSCHRIJVING = "Volgo is the appointment setter for your website. Visitors book an appointment themselves, everything lands in one inbox and Volgo follows up automatically. Installed by yourself in about 10 minutes. From €149 per month.";
 
 export const Route = createFileRoute("/")({
-  loader: async () => ({ ingelogd: await isIngelogd().catch(() => false) }),
+  loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "", plan: "", eigenaar: false })),
   head: () => ({
     meta: [
       { title: TITEL },
       { name: "description", content: OMSCHRIJVING },
       { property: "og:title", content: TITEL },
       { property: "og:description", content: OMSCHRIJVING },
-      { property: "og:locale", content: "nl_NL" },
+      { property: "og:locale", content: "en_US" },
     ],
     links: [
       { rel: "canonical", href: "https://thevolgo.app/" },
@@ -28,5 +28,5 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  return <LandingPagina ingelogd={Route.useLoaderData().ingelogd} />;
+  return <LandingPagina kijker={Route.useLoaderData()} />;
 }

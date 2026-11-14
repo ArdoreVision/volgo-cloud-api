@@ -23,7 +23,7 @@ export function ProfielFoto({ naam, foto, maat = 36 }: { naam: string; foto?: st
 /** Resize a chosen image to a 256×256 square JPEG, so it stays small and loads fast. */
 export function verkleinFoto(bestand: File): Promise<string> {
   return new Promise((ok, fout) => {
-    if (!bestand.type.startsWith("image/")) return fout(new Error("Kies een afbeelding (JPG of PNG)."));
+    if (!bestand.type.startsWith("image/")) return fout(new Error("Choose an image (JPG or PNG)."));
     const url = URL.createObjectURL(bestand);
     const img = new Image();
     img.onload = () => {
@@ -32,7 +32,7 @@ export function verkleinFoto(bestand: File): Promise<string> {
       c.width = z;
       c.height = z;
       const ctx = c.getContext("2d");
-      if (!ctx) return fout(new Error("Je browser kan deze afbeelding niet verwerken."));
+      if (!ctx) return fout(new Error("Your browser cannot process this image."));
       const kant = Math.min(img.width, img.height);
       ctx.drawImage(img, (img.width - kant) / 2, (img.height - kant) / 2, kant, kant, 0, 0, z, z);
       URL.revokeObjectURL(url);
@@ -40,7 +40,7 @@ export function verkleinFoto(bestand: File): Promise<string> {
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      fout(new Error("Deze afbeelding kon niet geopend worden. Probeer een JPG of PNG."));
+      fout(new Error("This image could not be opened. Try a JPG or PNG."));
     };
     img.src = url;
   });
@@ -86,7 +86,7 @@ export function ProfielKnop({
 
   return (
     <div className="v-profiel" ref={ref}>
-      <button aria-expanded={open} aria-haspopup="menu" aria-label="Je profiel" className="v-profiel__knop" onClick={() => setOpen(!open)} type="button">
+      <button aria-expanded={open} aria-haspopup="menu" aria-label="Your profile" className="v-profiel__knop" onClick={() => setOpen(!open)} type="button">
         <ProfielFoto foto={g.foto} maat={38} naam={g.naam} />
       </button>
       {open ? (
@@ -114,7 +114,7 @@ export function ProfielKnop({
               role="menuitem"
               type="button"
             >
-              Plan een gesprek met Volgo <em>PLAN</em>
+              Plan a call with Volgo <em>PLAN</em>
             </button>
           ) : null}
           {admin ? (
@@ -123,7 +123,7 @@ export function ProfielKnop({
             </a>
           ) : null}
           <button className="v-profiel__uit" onClick={loguit} role="menuitem" type="button">
-            Uitloggen
+            Log out
           </button>
         </div>
       ) : null}

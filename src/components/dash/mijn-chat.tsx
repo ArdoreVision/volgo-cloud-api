@@ -6,7 +6,7 @@ import { bewaarMijnChat, haalMijnChat } from "@/lib/api/ava.functions";
 type Data = Awaited<ReturnType<typeof haalMijnChat>>;
 
 const KLEUREN = ["#111111", "#1f6feb", "#0f9d58", "#2f855a", "#b7791f", "#c53030", "#6b46c1", "#0b7285"];
-const VOORBEELD_VRAGEN = ["Waar kan ik je mee helpen?", "Wat is je adres?", "Wanneer moet het klaar zijn?", "Heb je een budget in gedachten?", "Kun je een foto sturen?"];
+const VOORBEELD_VRAGEN = ["What can I help you with?", "What is your address?", "When does it need to be done?", "Do you have a budget in mind?", "Can you send a photo?"];
 
 /** Shrinks a photo to a small square so it loads fast in the chat. */
 function verklein(bestand: File): Promise<string> {
@@ -30,7 +30,7 @@ function verklein(bestand: File): Promise<string> {
   });
 }
 
-/** "Je chat": the only settings a customer changes. Name, photo, colour, light or dark, greeting and the questions. */
+/** "Your chat": the only settings a customer changes. Name, photo, colour, light or dark, greeting and the questions. */
 export function MijnChat({ klaar }: { klaar?: (wat: string) => void }) {
   const [d, setD] = useState<Data | null>(null);
   const [status, setStatus] = useState<"" | "bezig" | "ok" | "fout">("");
@@ -39,7 +39,7 @@ export function MijnChat({ klaar }: { klaar?: (wat: string) => void }) {
   useEffect(() => {
     void haalMijnChat().then(setD);
   }, []);
-  if (!d) return <p className="v-mc__laden">Je chat laden…</p>;
+  if (!d) return <p className="v-mc__laden">Loading your chat…</p>;
 
   const zet = <K extends keyof Data>(k: K, v: Data[K]) => {
     setD({ ...d, [k]: v });
@@ -71,24 +71,24 @@ export function MijnChat({ klaar }: { klaar?: (wat: string) => void }) {
   return (
     <div className="v-mc">
       <header className="v-mc__kop">
-        <h1>Je chat</h1>
-        <p>Zo ziet je assistent eruit op je website. Pas het aan wanneer je wilt.</p>
+        <h1>Your chat</h1>
+        <p>This is how your assistant looks on your website. Change it whenever you like.</p>
       </header>
 
       <div className="v-mc__raster">
         <div className="v-mc__velden">
           <div className="v-mc__veld">
-            <span className="v-mc__label">Foto</span>
+            <span className="v-mc__label">Photo</span>
             <div className="v-mc__foto">
               <span className="v-mc__av" style={{ background: d.kleur }}>
                 {d.avatar ? <img alt="" src={d.avatar} /> : d.naam.slice(0, 1).toUpperCase()}
               </span>
               <button className="v-mc__knop2" onClick={() => bestand.current?.click()} type="button">
-                {d.avatar ? "Foto wijzigen" : "Foto toevoegen"}
+                {d.avatar ? "Change photo" : "Add photo"}
               </button>
               {d.avatar ? (
                 <button className="v-mc__link" onClick={() => zet("avatar", null)} type="button">
-                  Verwijderen
+                  Delete
                 </button>
               ) : null}
               <input accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => void foto(e)} ref={bestand} type="file" />
@@ -96,17 +96,17 @@ export function MijnChat({ klaar }: { klaar?: (wat: string) => void }) {
           </div>
 
           <label className="v-mc__veld">
-            <span className="v-mc__label">Naam</span>
+            <span className="v-mc__label">Name</span>
             <input maxLength={30} onChange={(e) => zet("naam", e.target.value)} value={d.naam} />
           </label>
 
           <label className="v-mc__veld">
-            <span className="v-mc__label">Eerste bericht</span>
+            <span className="v-mc__label">First message</span>
             <textarea maxLength={300} onChange={(e) => zet("begroeting", e.target.value)} rows={2} value={d.begroeting} />
           </label>
 
           <div className="v-mc__veld">
-            <span className="v-mc__label">Kleur</span>
+            <span className="v-mc__label">Colour</span>
             <div className="v-mc__kleuren">
               {KLEUREN.map((k) => (
                 <button aria-label={k} aria-pressed={d.kleur.toLowerCase() === k} className="v-mc__kleur" key={k} onClick={() => zet("kleur", k)} style={{ background: k }} type="button" />
@@ -118,13 +118,13 @@ export function MijnChat({ klaar }: { klaar?: (wat: string) => void }) {
           </div>
 
           <div className="v-mc__veld">
-            <span className="v-mc__label">Stijl</span>
+            <span className="v-mc__label">Style</span>
             <div className="v-mc__seg" role="radiogroup">
               {(
                 [
-                  ["licht", "Licht"],
-                  ["donker", "Donker"],
-                  ["auto", "Automatisch"],
+                  ["licht", "Light"],
+                  ["donker", "Dark"],
+                  ["auto", "Follow-up"],
                 ] as const
               ).map(([id, t]) => (
                 <button aria-checked={d.thema === id} key={id} onClick={() => zet("thema", id)} role="radio" type="button">
@@ -135,8 +135,8 @@ export function MijnChat({ klaar }: { klaar?: (wat: string) => void }) {
           </div>
 
           <label className="v-mc__veld">
-            <span className="v-mc__label">Wat wil je van elke klant weten?</span>
-            <small className="v-mc__hulp">Eén vraag per regel. Je assistent stelt ze voor de afspraak.</small>
+            <span className="v-mc__label">What do you want to know from every customer?</span>
+            <small className="v-mc__hulp">One question per line. Your assistant asks them before the appointment.</small>
             <textarea onChange={(e) => zet("vragen", e.target.value)} placeholder={VOORBEELD_VRAGEN.slice(0, 3).join("\n")} rows={5} value={d.vragen} />
           </label>
           <div className="v-mc__chips">
@@ -149,28 +149,28 @@ export function MijnChat({ klaar }: { klaar?: (wat: string) => void }) {
 
           <div className="v-mc__opslaan">
             <button className="v-mc__knop" disabled={status === "bezig"} onClick={() => void opslaan()} type="button">
-              {status === "bezig" ? "Opslaan…" : "Opslaan"}
+              {status === "bezig" ? "Saving…" : "Save"}
             </button>
-            {status === "ok" ? <span className="v-mc__ok">Opgeslagen. Staat live op je website.</span> : null}
-            {status === "fout" ? <span className="v-mc__fout">Dat lukte niet. Controleer de velden en probeer het opnieuw.</span> : null}
+            {status === "ok" ? <span className="v-mc__ok">Saved. It is live on your website.</span> : null}
+            {status === "fout" ? <span className="v-mc__fout">That did not work. Check the fields and try again.</span> : null}
           </div>
         </div>
 
-        <aside aria-label="Voorbeeld" className={`v-mc__voorbeeld${donker ? " is-donker" : ""}`}>
+        <aside aria-label="Preview" className={`v-mc__voorbeeld${donker ? " is-donker" : ""}`}>
           <div className="v-mc__venster">
             <div className="v-mc__balk" style={{ background: d.kleur }}>
               <span className="v-mc__av v-mc__av--klein">{d.avatar ? <img alt="" src={d.avatar} /> : d.naam.slice(0, 1).toUpperCase()}</span>
               <span>
                 <b>{d.naam || "Assistent"}</b>
-                <small>Online · antwoordt direct</small>
+                <small>Online · answers right away</small>
               </span>
             </div>
             <div className="v-mc__berichten">
               <p className="v-mc__bel v-mc__bel--ava">{d.begroeting}</p>
               <p className="v-mc__bel v-mc__bel--klant" style={{ background: d.kleur }}>
-                Hoi, ik wil graag een offerte.
+                Hi, I would like a quote.
               </p>
-              <p className="v-mc__bel v-mc__bel--ava">{vragen[0] ?? "Zeker! Waar kan ik je mee helpen?"}</p>
+              <p className="v-mc__bel v-mc__bel--ava">{vragen[0] ?? "Sure! What can I help you with?"}</p>
             </div>
           </div>
           <span className="v-mc__bol" style={{ background: d.kleur }}>

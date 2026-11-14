@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/voorbeeld/$sleutel")({
         const r = await DB.prepare("SELECT sleutel, site_url FROM ava_instellingen WHERE sleutel = ?").bind(params.sleutel.slice(0, 64)).first<{ sleutel: string; site_url: string }>();
         if (!r) return leeg("Not found.");
         const pad = new URL(request.url).searchParams.get("pad") ?? "";
-        if (!/^https?:\/\//.test(r.site_url)) return leeg("Add your website address above to see your website with the chat on it.");
+        if (!/^https?:\/\//.test(r.site_url)) return leeg("Add your website address under Install to see your website with the chat on it.");
         let doel: URL;
         try {
           doel = new URL(pad && pad.startsWith("/") ? pad : "/", r.site_url);

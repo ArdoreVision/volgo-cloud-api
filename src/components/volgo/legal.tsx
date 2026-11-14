@@ -1,13 +1,12 @@
 import type { ReactNode } from "react";
 
 import { Footer } from "./footer";
-import { Nav } from "./nav";
-import "@/volgo-donker.css";
+import { KopLos } from "./wit";
 
 export function LegalPage({ titel, bijgewerkt, intro, children }: { titel: string; bijgewerkt: string; intro?: ReactNode; children: ReactNode }) {
   return (
-    <div className="volgo volgo--donker">
-      <Nav />
+    <div className="volgo vn">
+      <KopLos />
       <main className="v-legal">
         <h1 className="v-h2">{titel}</h1>
         <p className="v-legal__meta">Last updated: {bijgewerkt}</p>

@@ -6,6 +6,7 @@ import { Meldingen } from "@/components/dash/meldingen";
 import { ContactKnoppen, KanaalLabel } from "@/components/dash/contact-knoppen";
 import { Automatisch } from "@/components/dash/automatisch";
 import { Betalingen } from "@/components/dash/betalingen";
+import { Installeren } from "@/components/dash/installeren";
 import { MijnWebsite } from "@/components/dash/mijn-website";
 import { Kanalen } from "@/components/dash/kanalen";
 import { Reviews } from "@/components/dash/reviews";
@@ -15,7 +16,7 @@ import { BillingButton } from "@/components/dash/billing-button";
 import { Upsell } from "@/components/dash/upsell";
 import { OntwerpEditor } from "@/components/dash/ontwerp";
 import { Website } from "@/components/dash/website";
-import { AvaInstellen } from "@/components/dash/ava-instellen";
+import { WebsiteAanvraag } from "@/components/dash/website-aanvraag";
 import { Gesprekken } from "@/components/dash/gesprekken";
 import { Vandaag } from "@/components/dash/vandaag";
 import { MijnChat } from "@/components/dash/mijn-chat";
@@ -34,9 +35,9 @@ import { LeadDetail } from "@/components/dash/lead-detail";
 import { haalAva } from "@/lib/api/ava.functions";
 import { leesProfiel, type Profiel } from "@/lib/profiel-vragen";
 import { checkNieuw } from "@/lib/api/ava.functions";
-import { PLANS, PROEF_DAGEN, PROEF_PRIJS, isPlan, type PlanId, ZICHTBAAR, planTitel } from "@/lib/plans";
+import { PLANS, PROEF_DAGEN, isPlan, type PlanId, ZICHTBAAR, aantalTekst, planTitel, vandaagTekst } from "@/lib/plans";
 import "@/volgo.css";
-import "@/volgo-donker.css";
+import "@/volgo-wit.css";
 
 export const Route = createFileRoute("/dashboard")({
   loader: async () => {
@@ -51,63 +52,68 @@ export const Route = createFileRoute("/dashboard")({
 type Tab = "home" | "aanvragen" | "gesprekken" | "agenda" | "overzicht" | "verkeer" | "ava" | "ontwerp" | "installeren" | "website" | "team" | "instellingen" | "automatisch" | "reviews" | "betalingen" | "mijnsite" | "kanalen";
 type Sub = "meldingen" | "account" | "abonnement";
 const SUBS: [Sub, string][] = [
-  ["meldingen", "Meldingen"],
+  ["meldingen", "Notifications"],
   ["account", "Account"],
-  ["abonnement", "Abonnement"],
+  ["abonnement", "Subscription"],
 ];
 const isSub = (t: string): t is Sub => SUBS.some(([id]) => id === t);
 /** Old names other parts of the app may still use. */
-const ALIAS: Record<string, Tab> = { stijl: "ontwerp", installeren: "mijnsite" };
+const ALIAS: Record<string, Tab> = { stijl: "ontwerp" };
 
 /**
- * The sidebar, kept to what a business needs every day: who is chatting, what is booked, who to call back. Then the setup.
- * Volgo goes into the customer's own website, so "Installeren" (the one line of code) comes first in the setup group.
- * "Website bouwen" only exists for customers who bought one of the earlier website packages.
+ * The sidebar. First what a business looks at every day: the inbox, the calendar, the requests. Then what Volgo does by
+ * itself. Then the setup: installing Volgo in your own website, a look at that website, and the connections.
+ * "Install" is hidden for customers whose website we build (Volgo is already in it); "Website" only exists for them.
  */
 const ALLE_GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
-  { items: [["home", "Vandaag"]] },
   {
-    kop: "Klanten",
     items: [
       ["gesprekken", "Inbox"],
-      ["agenda", "Agenda"],
-      ["aanvragen", "Aanvragen"],
-      ["betalingen", "Betalingen"],
+      ["agenda", "Calendar"],
+      ["aanvragen", "Requests"],
+      ["home", "Today"],
     ],
   },
   {
-    kop: "Groei",
+    kop: "Automatic",
     items: [
-      ["automatisch", "Automatisch"],
+      ["automatisch", "Follow-up"],
       ["reviews", "Reviews"],
-      ["verkeer", "Bezoekers"],
+      ["betalingen", "Payments"],
+    ],
+  },
+  {
+    kop: "Setup",
+    items: [
+      ["installeren", "Install"],
+      ["website", "Website"],
+      ["mijnsite", "My website"],
+      ["kanalen", "Connections"],
+      ["ava", "Your chat"],
     ],
   },
   {
     items: [
-      ["mijnsite", "Installeren"],
-      ["ava", "Je chat"],
-      ["kanalen", "Kanalen"],
-      ["website", "Website bouwen"],
-      ["instellingen", "Instellingen"],
+      ["verkeer", "Visitors"],
+      ["instellingen", "Settings"],
     ],
   },
 ];
-const groepenVoor = (metWebsite: boolean) => (metWebsite ? ALLE_GROEPEN : ALLE_GROEPEN.map((g) => ({ ...g, items: g.items.filter(([id]) => id !== "website") })));
+const groepenVoor = (metWebsite: boolean) => ALLE_GROEPEN.map((g) => ({ ...g, items: g.items.filter(([id]) => id !== (metWebsite ? "installeren" : "website")) }));
 const TABS: [Tab, string][] = ALLE_GROEPEN.flatMap((g) => g.items);
 type Toast = { id: number; titel: string; tekst: string; tab: Tab; heet?: boolean };
 type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
 const STATUS_LABEL: Record<Status, string> = {
-  nieuw: "Nieuw",
-  opvolging: "Volgo volgt op",
-  offerte: "Offerte",
-  afspraak: "Afspraak",
-  klant: "Klant",
-  verloren: "Verloren",
+  nieuw: "New",
+  opvolging: "Volgo follows up",
+  offerte: "Quote",
+  afspraak: "Appointment",
+  klant: "Customer",
+  verloren: "Lost",
 };
 
 const datum = (iso: string) =>
-  new Date(iso.replace(" ", "T") + "Z").toLocaleString("nl-NL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
+  new Date(iso.replace(" ", "T") + "Z").toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
 
 function Icon({ name }: { name: Tab | "uit" | "meer" | "abonnement" | "account" }) {
   const d: Record<string, string> = {
@@ -148,19 +154,18 @@ function Dashboard() {
 
 /**
  * No plan yet (or it ended): you see your dashboard, but everything is locked until you start a plan.
- * There is one plan: Volgo in your own website. Installing Volgo on your website unlocks right after paying.
+ * The four things that are sold are listed here; the button goes straight to the secure payment page.
  */
 function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; eigenaar: boolean }) {
-  const [kies, setKies] = useState<PlanId>(ZICHTBAAR[0]);
+  const [kies, setKies] = useState<PlanId>("groei");
   const GROEPEN = groepenVoor(false);
   const [bezig, setBezig] = useState(false);
   const [fout, setFout] = useState("");
   const navigate = useNavigate();
-  const euro1 = `€${PROEF_PRIJS / 100}`;
   const start = async () => {
     setBezig(true);
     setFout("");
-    const r = await startBetaling({ data: { plan: kies } }).catch(() => ({ ok: false as const, message: "Er ging iets mis. Probeer het opnieuw." }));
+    const r = await startBetaling({ data: { plan: kies } }).catch(() => ({ ok: false as const, message: "Something went wrong. Please try again." }));
     if (r.ok) {
       window.location.href = r.url;
       return;
@@ -172,8 +177,9 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
     await uitloggen();
     void navigate({ to: "/" });
   };
+  const gekozen = PLANS[kies];
   return (
-    <div className="volgo volgo--donker v-lock">
+    <div className="volgo vn v-lock">
       <aside className="v-lock__side">
         <a className="v-lock__logo" href="/">
           <VolgoMark />
@@ -194,27 +200,17 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
           </div>
         ))}
         <button className="v-lock__uit" onClick={() => void uit()} type="button">
-          Uitloggen
+          Log out
         </button>
       </aside>
       <main className="v-lock__main">
-        <div aria-hidden="true" className="v-lock__waas">
-          <div className="v-lock__rij">
-            <i />
-            <i />
-            <i />
-            <i />
-          </div>
-          <div className="v-lock__vlak" />
-          <div className="v-lock__vlak v-lock__vlak--laag" />
-        </div>
         <section aria-labelledby="lock-titel" className="v-lock__kaart">
           <p className="v-lock__hoi">Welcome{naam ? `, ${naam.split(" ")[0]}` : ""}</p>
-          <h1 id="lock-titel">{nieuw ? "Start Volgo om verder te gaan." : "Start Volgo weer om verder te gaan."}</h1>
+          <h1 id="lock-titel">{nieuw ? "Choose a plan to open your dashboard." : "Choose a plan to continue."}</h1>
           <p className="v-lock__sub">
             {nieuw
-              ? "Je dashboard staat klaar, maar is nog op slot. Betaal veilig via Stripe. Daarna opent je dashboard meteen en staat je regel code klaar om in je eigen website te plakken."
-              : "Je abonnement is afgelopen. Al je gegevens staan er nog. Start Volgo weer om je dashboard te openen."}
+              ? "Your dashboard is ready, but still locked. Pay securely via Stripe. Your dashboard opens right after, and takes you step by step through putting Volgo on your website."
+              : "Your subscription has ended. All your data is still here. Start a plan to open your dashboard again."}
           </p>
           {eigenaar ? (
             <>
@@ -227,11 +223,8 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
                         {p.naam}
                         {p.badge ? <em>{p.badge}</em> : null}
                       </span>
-                      <b>€{p.opstart ? p.opstart / 100 : nieuw && p.intro ? p.intro.prijsTekst : p.prijsTekst}</b>
-                      <span className="v-lock__per">{p.opstart ? "eenmalig" : "per maand"}</span>
-                      {nieuw && p.intro ? <span className="v-lock__proef">Eerste {p.intro.maanden} maanden, daarna €{p.prijsTekst} per maand</span> : null}
-                      {nieuw && p.proefDagen ? <span className="v-lock__proef">First 7 days {euro1}</span> : null}
-                      {p.opstart ? <span className="v-lock__proef">Volgo inbegrepen · €{p.prijsTekst} per maand</span> : null}
+                      <b>€{p.opstart ? p.opstart / 100 : p.prijsTekst}</b>
+                      <span className="v-lock__per">{p.opstart ? `one-time + €${p.prijsTekst} per month` : "per month"}</span>
                       <ul>
                         {p.kern.map((k) => (
                           <li key={k}>{k}</li>
@@ -241,22 +234,25 @@ function Vergrendeld({ naam, nieuw, eigenaar }: { naam: string; nieuw: boolean; 
                   );
                 })}
               </div>
-              {fout ? <p className="v-err" role="alert">{fout}</p> : null}
+              {fout ? (
+                <p className="v-err" role="alert">
+                  {fout}
+                </p>
+              ) : null}
               <div className="v-lock__voet">
                 <p>
-                  {nieuw && PLANS[kies].proefDagen
-                    ? `Vandaag ${euro1}. Vanaf dag 8: €${PLANS[kies].prijsTekst} per maand voor ${planTitel(PLANS[kies])}. Veilig betalen via Stripe.`
-                    : PLANS[kies].opstart
-                      ? `Vandaag €${((PLANS[kies].prijs + PLANS[kies].opstart) / 100).toFixed(2).replace(".", ",")} (€${PLANS[kies].opstart / 100} voor je ${PLANS[kies].naam.toLowerCase()} + eerste maand Volgo), daarna €${PLANS[kies].prijsTekst} per maand voor Volgo. Veilig betalen via Stripe.`
-                      : `${nieuw && PLANS[kies].intro ? `€${PLANS[kies].intro.prijsTekst} per maand voor de eerste ${PLANS[kies].intro.maanden} maanden, daarna ` : ""}€${PLANS[kies].prijsTekst} per maand voor ${planTitel(PLANS[kies])}, excl. btw. Maandelijks opzegbaar. Veilig betalen via Stripe.`}
+                  {gekozen.opstart
+                    ? `Today ${vandaagTekst(gekozen)}: your website and the first month. After that €${gekozen.prijsTekst} per month. Excl. VAT, cancel any month.`
+                    : `€${gekozen.prijsTekst} per month for ${planTitel(gekozen)}, excl. VAT. Cancel any month. Secure payment via Stripe.`}{" "}
+                  <a href="/pricing">Compare the plans</a>
                 </p>
                 <button className="v-lock__knop" disabled={bezig} onClick={() => void start()} type="button">
-                  {bezig ? "Een moment…" : nieuw && PLANS[kies].proefDagen ? `Start 7 dagen voor ${euro1} →` : `Start ${planTitel(PLANS[kies])} →`}
+                  {bezig ? "One moment…" : `Start ${planTitel(gekozen)} →`}
                 </button>
               </div>
             </>
           ) : (
-            <p className="v-lock__sub">Alleen de eigenaar van het account kan een pakket starten. Vraag diegene in te loggen en er een te kiezen.</p>
+            <p className="v-lock__sub">Only the account owner can start a plan. Ask them to log in and choose one.</p>
           )}
         </section>
       </main>
@@ -274,9 +270,13 @@ function Open({ data }: { data: DashData }) {
   });
   const router = useRouter();
   const navigate = useNavigate();
-  const [tab, setTabRaw] = useState<Tab>("home");
+  const metWebsite = (isPlan(g.plan) ? PLANS[g.plan] : PLANS.start).limieten.website;
+  const [geinstalleerd, setGeinstalleerd] = useState(data.geinstalleerd || metWebsite);
+  // You open on your inbox. Until Volgo is on your website, you open on the steps to put it there.
+  const begin: Tab = geinstalleerd ? "gesprekken" : "installeren";
+  const [tab, setTabRaw] = useState<Tab>(begin);
   const [sub, setSub] = useState<Sub>("account");
-  const vorige = useRef<Tab>("home");
+  const vorige = useRef<Tab>(begin);
   const [meer, setMeer] = useState(false);
   const [admin, setAdmin] = useState(false);
   // The five profile questions: once for the owner before the dashboard, later changeable on the Train Volgo page.
@@ -292,8 +292,8 @@ function Open({ data }: { data: DashData }) {
       .then((a) => setProfiel(leesProfiel(a.inst.profiel)))
       .catch(() => setProfiel({}));
   }, [tab, vragenOpen]);
-  // Day or night mode: remembered per device. Night (the landing page look) is the default.
-  const [thema, setThema] = useState<"licht" | "donker">("donker");
+  // Light or dark: remembered per device. Light (white, like the public pages) is the default.
+  const [thema, setThema] = useState<"licht" | "donker">("licht");
   useEffect(() => {
     let t: string | null = null;
     try {
@@ -301,7 +301,7 @@ function Open({ data }: { data: DashData }) {
     } catch {
       /* private mode */
     }
-    setThema(t === "licht" ? "licht" : "donker");
+    setThema(t === "donker" ? "donker" : "licht");
   }, []);
   useEffect(() => {
     document.documentElement.style.colorScheme = thema === "donker" ? "dark" : "light";
@@ -354,7 +354,7 @@ function Open({ data }: { data: DashData }) {
   useEffect(() => {
     const ga = () => {
       const h = window.location.hash.slice(1);
-      if (["home", "gesprekken", "agenda", "aanvragen", "betalingen", "automatisch", "reviews", "verkeer", "mijnsite", "website", "kanalen", "ava", "instellingen", "meldingen", "account", "abonnement"].includes(h)) setTab(h);
+      if (["home", "gesprekken", "agenda", "aanvragen", "betalingen", "automatisch", "reviews", "verkeer", "installeren", "mijnsite", "website", "kanalen", "ava", "instellingen", "meldingen", "account", "abonnement"].includes(h)) setTab(h);
     };
     ga();
     window.addEventListener("hashchange", ga);
@@ -371,8 +371,8 @@ function Open({ data }: { data: DashData }) {
       if (!r) return;
       sinds.current = r.nu;
       const nieuw: Toast[] = [];
-      if (r.meldChat) for (const c of r.chats) nieuw.push({ id: Math.random(), titel: "Nieuw gesprek met Volgo", tekst: c.onderwerp, tab: "gesprekken" });
-      if (r.meldLead) for (const l of r.leads) nieuw.push({ id: Math.random(), titel: `Nieuwe aanvraag: ${l.naam}`, tekst: `Warmte ${l.warmte} · ${l.onderwerp}`, tab: "aanvragen", heet: l.warmte >= 75 });
+      if (r.meldChat) for (const c of r.chats) nieuw.push({ id: Math.random(), titel: "New conversation with Volgo", tekst: c.onderwerp, tab: "gesprekken" });
+      if (r.meldLead) for (const l of r.leads) nieuw.push({ id: Math.random(), titel: `New request: ${l.naam}`, tekst: `Warmth ${l.warmte} · ${l.onderwerp}`, tab: "aanvragen", heet: l.warmte >= 75 });
       if (!r.chats.length && !r.leads.length) return;
       void router.invalidate();
       if (!nieuw.length) return;
@@ -392,6 +392,7 @@ function Open({ data }: { data: DashData }) {
   }, [router]);
   const plan = isPlan(g.plan) ? PLANS[g.plan] : PLANS.start;
   const GROEPEN = groepenVoor(plan.limieten.website);
+  const vol = plan.limieten.gesprekken !== null && data.gebruik.gesprekken >= plan.limieten.gesprekken;
   const voornaam = g.naam.split(/\s+/)[0];
   const proefDagen = g.proef_tot ? Math.max(0, Math.ceil((new Date(g.proef_tot.replace(" ", "T") + "Z").getTime() - Date.now()) / 86400000)) : 0;
 
@@ -401,7 +402,7 @@ function Open({ data }: { data: DashData }) {
     await router.invalidate();
   }
   async function wis(id: number, naam: string) {
-    if (!window.confirm(`Aanvraag van ${naam} definitief verwijderen? Het gesprek blijft in je Inbox staan.`)) return;
+    if (!window.confirm(`Delete the request from ${naam} for good? The conversation stays in your inbox.`)) return;
     await verwijderLead({ data: { id } });
     if (leadOpen === id) setLeadOpen(null);
     await router.invalidate();
@@ -422,12 +423,12 @@ function Open({ data }: { data: DashData }) {
   }
 
   const nieuweLeads = leads.filter((l) => l.status === "nieuw").length;
-  // Mobile: four main tabs at the bottom, the rest grouped under "Meer".
+  // Mobile: four main tabs at the bottom, the rest grouped under "More".
   const mobiel: [Tab, string][] = [
-    ["home", "Vandaag"],
     ["gesprekken", "Inbox"],
-    ["agenda", "Agenda"],
-    ["aanvragen", "Aanvragen"],
+    ["agenda", "Calendar"],
+    ["aanvragen", "Requests"],
+    ["home", "Today"],
   ];
 
   // First login of the owner: answer the five questions before anything else.
@@ -452,8 +453,8 @@ function Open({ data }: { data: DashData }) {
       <div className="volgo v-dash v-dash--editor" data-thema={thema}>
         <Kanalen
           klaar={async () => {
-            // A new account goes straight to the one thing left to do: paste the line into their own website.
-            setTab("mijnsite");
+            // A new account goes straight to the one thing left to do: put Volgo on their own website.
+            setTab(metWebsite ? "website" : "installeren");
             await router.invalidate();
           }}
           onboarding
@@ -472,7 +473,7 @@ function Open({ data }: { data: DashData }) {
   return (
     <div className="volgo v-dash" data-thema={thema} onPointerDown={rimpel}>
       <aside className="v-dash__side">
-        <button aria-label="Volgo, naar start" className="v-nav__brand v-dash__brand" onClick={() => setTab("home")} type="button">
+        <button aria-label="Volgo, to your inbox" className="v-nav__brand v-dash__brand" onClick={() => setTab("gesprekken")} type="button">
           <VolgoMark />
           <span>Volgo</span>
         </button>
@@ -485,13 +486,14 @@ function Open({ data }: { data: DashData }) {
                   <Icon name={id} />
                   {label}
                   {id === "aanvragen" && nieuweLeads > 0 ? <span className="v-dash__badge">{nieuweLeads}</span> : null}
+                  {id === "installeren" && !geinstalleerd ? <span className="v-dash__badge v-dash__badge--doen">To do</span> : null}
                 </button>
               ))}
             </div>
           ))}
         </nav>
         <div className="v-dash__me">
-          <button aria-label="Je profiel en account" className="v-dash__me-knop" onClick={() => setTab("account")} type="button">
+          <button aria-label="Your profile and account" className="v-dash__me-knop" onClick={() => setTab("account")} type="button">
             <ProfielFoto foto={g.foto} maat={34} naam={g.naam} />
             <div>
               <strong>{g.naam}</strong>
@@ -505,14 +507,14 @@ function Open({ data }: { data: DashData }) {
               Admin
             </a>
           ) : null}
-          <button aria-label="Uitloggen" className="v-dash__out" onClick={() => void loguit()} type="button">
+          <button aria-label="Log out" className="v-dash__out" onClick={() => void loguit()} type="button">
             <Icon name="uit" />
           </button>
         </div>
       </aside>
 
       <div className="v-dash__profiel">
-        <button aria-label={thema === "donker" ? "Naar dagmodus" : "Naar nachtmodus"} className="v-thema v-rimpel-uit" onClick={wisselThema} title={thema === "donker" ? "Dagmodus" : "Nachtmodus"} type="button">
+        <button aria-label={thema === "donker" ? "Switch to light" : "Switch to dark"} className="v-thema v-rimpel-uit" onClick={wisselThema} title={thema === "donker" ? "Light" : "Dark"} type="button">
           <span className="v-thema__zon" aria-hidden="true">
             <svg fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeWidth="2" viewBox="0 0 24 24" width="18">
               <circle cx="12" cy="12" r="4.5" />
@@ -527,7 +529,7 @@ function Open({ data }: { data: DashData }) {
         </button>
         <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={plan.limieten.website} planNaam={plan.naam} />
       </div>
-      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || tab === "website" ? " v-dash__main--full" : ""}`}>
+      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || (tab === "website" && plan.id !== "compleet") ? " v-dash__main--full" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
             {proefDagen > PROEF_DAGEN
@@ -536,37 +538,38 @@ function Open({ data }: { data: DashData }) {
           </p>
         ) : null}
 
+        {!geinstalleerd && tab !== "installeren" && g.rol === "eigenaar" ? (
+          <button className="v-dash__doen" onClick={() => setTab("installeren")} type="button">
+            <span>
+              <strong>Volgo is not on your website yet.</strong> It takes about 10 minutes, step by step.
+            </span>
+            <em>Install now →</em>
+          </button>
+        ) : null}
+
         {tab === "home" ? <Vandaag data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "overzicht" ? <Overview data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "verkeer" ? <Verkeer openTab={(t) => setTab(t)} /> : null}
         {tab === "gesprekken" ? <Gesprekken data={data} /> : null}
         {tab === "agenda" ? <Agenda data={data} /> : null}
-        {tab === "website" && plan.limieten.website ? <Website /> : null}
+        {tab === "website" && plan.limieten.website ? plan.id === "compleet" ? <WebsiteAanvraag openTab={(t) => setTab(t)} /> : <Website /> : null}
         {tab === "ava" ? <MijnChat /> : null}
         {tab === "automatisch" ? <Automatisch openTab={(t) => setTab(t)} /> : null}
         {tab === "reviews" ? <Reviews openTab={(t) => setTab(t)} /> : null}
         {tab === "betalingen" ? <Betalingen /> : null}
-        {tab === "mijnsite" ? <MijnWebsite openTab={(t) => setTab(t)} /> : null}
+        {tab === "installeren" ? <Installeren klaar={() => setGeinstalleerd(true)} openTab={(t) => setTab(t)} wijDoenHet={plan.id !== "starter"} /> : null}
+        {tab === "mijnsite" ? <MijnWebsite gebouwd={plan.limieten.website} openTab={(t) => setTab(t)} /> : null}
         {tab === "kanalen" ? <Kanalen openTab={(t) => setTab(t)} /> : null}
-        {tab === "installeren" ? (
-          <>
-            <header className="v-dash__head">
-              <h1>Installeren</h1>
-              <p>Zet Volgo in een paar minuten in je eigen website, of laat het ons doen.</p>
-            </header>
-            <AvaInstellen deel="installeren" />
-          </>
-        ) : null}
         {tab === "team" ? (
           plan.limieten.teamChat ? (
             <TeamChat data={data} />
           ) : (
             <Upsell
-              knop="Upgrade naar Complete"
-              punten={["Kanalen en privéberichten", "Videogesprekken met één klik", "Tot 5 gebruikers (onbeperkt bij Premium)"]}
-              tag="Complete"
-              tekst="Haal je team in Volgo. Praat over aanvragen, deel updates en start een videogesprek zonder je dashboard te verlaten."
-              titel="Teamchat en videogesprekken"
+              knop="See the plans"
+              punten={["Channels and private messages", "Video calls with one click", "Up to 5 team members on Growth, unlimited on Pro"]}
+              tag="Growth"
+              tekst="Bring your team into Volgo. Talk about requests, share updates and start a video call without leaving your dashboard."
+              titel="Team chat and video calls"
             />
           )
         ) : null}
@@ -574,8 +577,8 @@ function Open({ data }: { data: DashData }) {
         {tab === "aanvragen" ? (
           <>
             <header className="v-dash__head">
-              <h1>Aanvragen</h1>
-              <p>Warmste eerst. Pas de status aan zodra je contact hebt gehad, zodat je team ziet waar elke aanvraag staat.</p>
+              <h1>Requests</h1>
+              <p>Warmest first. Change the status once you have been in touch, so your team sees where every request stands.</p>
             </header>
             {(() => {
               const open = (l: (typeof leads)[number]) => l.status !== "klant" && l.status !== "verloren";
@@ -597,52 +600,52 @@ function Open({ data }: { data: DashData }) {
                 return true;
               });
               const FILTERS: [typeof leadFilter, string][] = [
-                ["alle", "Alles"],
-                ["nieuw", "Nieuw"],
-                ["heet", "Heet"],
-                ["open", "Bezig"],
-                ["klaar", "Gewonnen / verloren"],
-                ["archief", "Archief"],
+                ["alle", "All"],
+                ["nieuw", "New"],
+                ["heet", "Hot"],
+                ["open", "In progress"],
+                ["klaar", "Won / lost"],
+                ["archief", "Archive"],
               ];
               return (
                 <>
                   <div className="v-leadbalk">
-                    <div className="v-instel__nav v-leadbalk__filters" role="tablist" aria-label="Aanvragen filteren">
+                    <div className="v-instel__nav v-leadbalk__filters" role="tablist" aria-label="Filter requests">
                       {FILTERS.map(([id, label]) => (
                         <button aria-current={leadFilter === id ? "page" : undefined} key={id} onClick={() => setLeadFilter(id)} type="button">
                           {label} <span className="v-leadbalk__n">{tellingen[id]}</span>
                         </button>
                       ))}
                     </div>
-                    <input aria-label="Aanvragen zoeken" className="v-leadbalk__zoek" onChange={(e) => setLeadZoek(e.target.value)} placeholder="Zoek op naam, onderwerp of plaats" type="search" value={leadZoek} />
+                    <input aria-label="Search requests" className="v-leadbalk__zoek" onChange={(e) => setLeadZoek(e.target.value)} placeholder="Search by name, subject or place" type="search" value={leadZoek} />
                   </div>
                   <section className="v-dash__panel v-dash__panel--flush">
                     <div className="v-table" role="table">
                       <div className="v-table__row v-table__row--head" role="row">
                         <span role="columnheader">Warmte</span>
-                        <span role="columnheader">Klant</span>
+                        <span role="columnheader">Customer</span>
                         <span role="columnheader">Via</span>
-                        <span role="columnheader">Ontvangen</span>
+                        <span role="columnheader">Received</span>
                         <span role="columnheader">Status</span>
                       </div>
                       {leadFilter === "archief" && data.archief.length === 0 ? (
-                        <p className="v-feed__empty v-pad">Nog niets gearchiveerd. Veeg een aanvraag naar links (of klik op het archiefknopje) om hem hier te zetten.</p>
+                        <p className="v-feed__empty v-pad">Nothing archived yet. Swipe a request to the left (or click the archive button) to put it here.</p>
                       ) : leadFilter !== "archief" && leads.length === 0 ? (
-                        <p className="v-feed__empty v-pad">Nog geen aanvragen. Zodra een bezoeker zijn gegevens bij Volgo achterlaat, staat hij hier, warmste eerst.</p>
+                        <p className="v-feed__empty v-pad">No requests yet. As soon as a visitor leaves their details with Volgo, they show up here, warmest first.</p>
                       ) : lijst.length === 0 ? (
-                        <p className="v-feed__empty v-pad">Niets gevonden met dit filter.</p>
+                        <p className="v-feed__empty v-pad">Nothing found with this filter.</p>
                       ) : null}
                       {lijst.map((l) => (
                         <SwipeRij
                           acties={
                             leadFilter === "archief"
                               ? [
-                                  { label: "Terugzetten", icoon: "terug", kleur: "groen", doe: () => void archiveer(l.id, l.naam, false) },
-                                  { label: "Verwijderen", icoon: "wis", kleur: "rood", doe: () => void wis(l.id, l.naam) },
+                                  { label: "Restore", icoon: "terug", kleur: "groen", doe: () => void archiveer(l.id, l.naam, false) },
+                                  { label: "Delete", icoon: "wis", kleur: "rood", doe: () => void wis(l.id, l.naam) },
                                 ]
                               : [
-                                  { label: "Archiveren", icoon: "archief", kleur: "grijs", doe: () => void archiveer(l.id, l.naam, true) },
-                                  { label: "Verwijderen", icoon: "wis", kleur: "rood", doe: () => void wis(l.id, l.naam) },
+                                  { label: "Archive", icoon: "archief", kleur: "grijs", doe: () => void archiveer(l.id, l.naam, true) },
+                                  { label: "Delete", icoon: "wis", kleur: "rood", doe: () => void wis(l.id, l.naam) },
                                 ]
                           }
                           key={l.id}
@@ -676,7 +679,7 @@ function Open({ data }: { data: DashData }) {
                           </span>
                           <span role="cell">{datum(l.created_at)}</span>
                           <span role="cell">
-                            <select aria-label={`Status van ${l.naam}`} className={`v-select v-pill--${l.status}`} onChange={(e) => void zetStatus(l.id, e.target.value as Status)} value={l.status}>
+                            <select aria-label={`Status of ${l.naam}`} className={`v-select v-pill--${l.status}`} onChange={(e) => void zetStatus(l.id, e.target.value as Status)} value={l.status}>
                               {(Object.keys(STATUS_LABEL) as Status[]).map((st) => (
                                 <option key={st} value={st}>
                                   {STATUS_LABEL[st]}
@@ -698,10 +701,10 @@ function Open({ data }: { data: DashData }) {
         {tab === "instellingen" ? (
           <>
             <header className="v-dash__head">
-              <h1>Instellingen</h1>
-              <p>Meldingen, je account en je abonnement.</p>
+              <h1>Settings</h1>
+              <p>Notifications, your account and your subscription.</p>
             </header>
-            <nav aria-label="Instellingen" className="v-instel__nav">
+            <nav aria-label="Settings" className="v-instel__nav">
               {SUBS.map(([id, label]) => (
                 <button aria-current={sub === id ? "page" : undefined} key={id} onClick={() => setSub(id)} type="button">
                   {label}
@@ -720,27 +723,27 @@ function Open({ data }: { data: DashData }) {
             ) : null}
             <section className="v-dash__panel v-plan-card">
               <p className="v-plan-card__name">{planTitel(plan)}</p>
-              <p className="v-plan-card__price">€{plan.prijsTekst} <span>per maand, excl. btw</span></p>
+              <p className="v-plan-card__price">€{plan.prijsTekst} <span>per month, excl. VAT</span></p>
               <p className="v-plan-card__state">
-                {g.status === "proef" ? `Proef, nog ${proefDagen} ${proefDagen === 1 ? "dag" : "dagen"}` : "Actief"}
-                {g.testmodus ? " · testaccount" : ""}
+                {g.status === "proef" ? `Trial, ${proefDagen} ${proefDagen === 1 ? "day" : "days"} left` : "Active"}
+                {g.testmodus ? " · test account" : ""}
               </p>
               <div className="v-meter">
                 <div className="v-meter__kop">
-                  <span>Volgo-gesprekken deze maand</span>
+                  <span>Conversations this month</span>
                   <strong>
-                    {data.gebruik.gesprekken.toLocaleString("nl-NL")} / {plan.limieten.gesprekken.toLocaleString("nl-NL")}
+                    {aantalTekst(data.gebruik.gesprekken)} / {aantalTekst(plan.limieten.gesprekken)}
                   </strong>
                 </div>
                 <div aria-hidden="true" className="v-meter__balk">
                   <i
-                    className={data.gebruik.gesprekken >= plan.limieten.gesprekken ? "is-vol" : ""}
-                    style={{ width: `${Math.min(100, (data.gebruik.gesprekken / plan.limieten.gesprekken) * 100)}%` }}
+                    className={vol ? "is-vol" : ""}
+                    style={{ width: `${plan.limieten.gesprekken === null ? 0 : Math.min(100, (data.gebruik.gesprekken / plan.limieten.gesprekken) * 100)}%` }}
                   />
                 </div>
-                {data.gebruik.gesprekken >= plan.limieten.gesprekken ? (
+                {vol ? (
                   <p className="v-small">
-                    Je hebt de limiet van deze maand bereikt. Volgo blijft aanvragen opvangen in basisstand. <a href="/pricing">Upgraden</a> voor slimme antwoorden.
+                    You reached this month's number. Volgo keeps catching requests in a simple mode. <a href="/pricing">Upgrade</a> for full answers again.
                   </p>
                 ) : null}
               </div>
@@ -749,7 +752,18 @@ function Open({ data }: { data: DashData }) {
                   <li key={f}>{f}</li>
                 ))}
               </ul>
-              {g.rol === "eigenaar" ? <BillingButton /> : <p className="v-plan-card__help">Alleen de eigenaar van het account kan het abonnement beheren.</p>}
+              {g.rol === "eigenaar" ? (
+                <>
+                  <BillingButton />
+                  {plan.verborgen ? null : (
+                    <a className="v-plan-card__wissel" href="/pricing">
+                      Compare plans or switch
+                    </a>
+                  )}
+                </>
+              ) : (
+                <p className="v-plan-card__help">Only the account owner can manage the subscription.</p>
+              )}
             </section>
               </>
             ) : null}
@@ -765,16 +779,16 @@ function Open({ data }: { data: DashData }) {
         ))}
         <button aria-current={meer || !mobiel.some(([id]) => id === tab) ? "page" : undefined} aria-expanded={meer} onClick={() => setMeer(!meer)} type="button">
           <Icon name="meer" />
-          <span>Meer</span>
+          <span>More</span>
         </button>
       </nav>
       {meer ? (
         <div className="v-sheet" onClick={() => setMeer(false)} role="presentation">
-          <div aria-label="Meer" className="v-sheet__paneel" onClick={(e) => e.stopPropagation()} role="dialog">
+          <div aria-label="More" className="v-sheet__paneel" onClick={(e) => e.stopPropagation()} role="dialog">
             <span aria-hidden="true" className="v-sheet__greep" />
             {GROEPEN.filter((gr) => gr.items.some(([id]) => !mobiel.some(([m]) => m === id))).map((groep) => (
               <div className="v-sheet__groep" key={groep.kop ?? "jij"}>
-                <p className="v-sheet__kop">{groep.kop ?? "Installeren & account"}</p>
+                <p className="v-sheet__kop">{groep.kop ?? "More"}</p>
                 {groep.items.filter(([id]) => !mobiel.some(([m]) => m === id)).map(([id]) => (
                   <button key={id} onClick={() => setTab(id)} type="button">
                     <Icon name={id} />
@@ -784,7 +798,7 @@ function Open({ data }: { data: DashData }) {
                 {groep.kop === "Werkplek" ? (
                   <button onClick={() => setTab("abonnement")} type="button">
                     <Icon name="abonnement" />
-                    Abonnement
+                    Subscription
                   </button>
                 ) : null}
               </div>
@@ -797,16 +811,16 @@ function Open({ data }: { data: DashData }) {
             ) : null}
             <button className="v-sheet__uit" onClick={() => void loguit()} type="button">
               <Icon name="uit" />
-              Uitloggen
+              Log out
             </button>
           </div>
         </div>
       ) : null}
       {ongedaan ? (
         <div className="v-ongedaan" role="status">
-          <span>Aanvraag van {ongedaan.naam} gearchiveerd</span>
+          <span>Request from {ongedaan.naam} archived</span>
           <button onClick={() => void archiveer(ongedaan.id, ongedaan.naam, false)} type="button">
-            Ongedaan maken
+            Undo
           </button>
         </div>
       ) : null}

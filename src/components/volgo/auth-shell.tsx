@@ -2,12 +2,12 @@ import type { ReactNode } from "react";
 
 import { VolgoMark } from "./logo";
 import { Tracking } from "./tracking";
-import "@/volgo-donker.css";
+import "@/volgo-wit.css";
 
 /** Rustige, gecentreerde pagina voor betalen, aanmelden en inloggen. */
 export function AuthShell({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
   return (
-    <div className="volgo volgo--donker v-auth">
+    <div className="volgo vn v-auth">
       <header className="v-auth__top">
         <a className="v-nav__brand" href="/">
           <VolgoMark />

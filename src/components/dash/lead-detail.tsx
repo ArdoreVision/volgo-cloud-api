@@ -8,10 +8,10 @@ import { warmteLabel } from "./util";
 type Data = NonNullable<Awaited<ReturnType<typeof haalLead>>>;
 type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
 
-const STATUS_LABEL: Record<Status, string> = { nieuw: "Nieuw", opvolging: "Volgo volgt op", offerte: "Offerte", afspraak: "Afspraak", klant: "Klant", verloren: "Verloren" };
+const STATUS_LABEL: Record<Status, string> = { nieuw: "New", opvolging: "Volgo follows up", offerte: "Quote", afspraak: "Appointment", klant: "Customer", verloren: "Lost" };
 
 const wanneer = (iso: string) =>
-  new Date(iso.replace(" ", "T") + "Z").toLocaleString("nl-NL", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
+  new Date(iso.replace(" ", "T") + "Z").toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
 
 export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sluit: () => void; zetStatus: (id: number, s: Status) => Promise<void>; openChats: () => void }) {
   const [d, setD] = useState<Data | null | undefined>(undefined);
@@ -54,12 +54,12 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
 
   return (
     <div className="v-lp" onClick={sluit} role="presentation">
-      <aside aria-label="Details aanvraag" className="v-lp__paneel" onClick={(e) => e.stopPropagation()} role="dialog">
-        <button aria-label="Sluiten" className="v-lp__sluit v-rimpel-uit" onClick={sluit} type="button">
+      <aside aria-label="Request details" className="v-lp__paneel" onClick={(e) => e.stopPropagation()} role="dialog">
+        <button aria-label="Close" className="v-lp__sluit v-rimpel-uit" onClick={sluit} type="button">
           ×
         </button>
-        {d === undefined ? <p className="v-feed__empty v-pad">Laden…</p> : null}
-        {d === null ? <p className="v-feed__empty v-pad">Deze aanvraag bestaat niet meer.</p> : null}
+        {d === undefined ? <p className="v-feed__empty v-pad">Loading…</p> : null}
+        {d === null ? <p className="v-feed__empty v-pad">This request no longer exists.</p> : null}
         {l ? (
           <>
             <header className="v-lp__kop">
@@ -73,17 +73,17 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
                 </p>
               </div>
             </header>
-            {l.reden ? <p className="v-lp__reden">Waarom deze score: {l.reden}</p> : null}
+            {l.reden ? <p className="v-lp__reden">Why this score: {l.reden}</p> : null}
 
             <div className="v-lp__acties">
               <KanaalLabel kanaal={l.kanaal} />
               <ContactKnoppen contact={l.contact} kanaal={l.kanaal} naam={l.naam} onderwerp={l.onderwerp} />
               {l.contact ? (
                 <button className="v-btn-wit" onClick={() => void kopieer(l.contact!)} type="button">
-                  {gekopieerd ? "Gekopieerd" : "Contact kopiëren"}
+                  {gekopieerd ? "Copied" : "Contact kopiëren"}
                 </button>
               ) : (
-                <p className="v-muted v-small">Volgo heeft nog geen contactgegevens.</p>
+                <p className="v-muted v-small">Volgo has no contact details yet.</p>
               )}
             </div>
 
@@ -101,7 +101,7 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
                 </dd>
               </div>
               <div>
-                <dt>Ontvangen</dt>
+                <dt>Received</dt>
                 <dd>
                   {wanneer(l.created_at)} · via {l.kanaal}
                 </dd>
@@ -120,7 +120,7 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
               ) : null}
               {d.afspraken.length ? (
                 <div>
-                  <dt>Afspraken</dt>
+                  <dt>Appointments</dt>
                   <dd>
                     {d.afspraken.map((a) => (
                       <span className="v-lp__afspraak" key={a.id}>
@@ -134,33 +134,33 @@ export function LeadDetail({ id, sluit, zetStatus, openChats }: { id: number; sl
             </dl>
 
             <section className="v-lp__blok">
-              <h3>Je notities</h3>
+              <h3>Your notes</h3>
               <textarea
                 aria-label="Notities"
                 className="v-lp__notitie"
                 onBlur={() => void bewaar()}
                 onChange={(e) => setNotitie(e.target.value)}
-                placeholder="Dinsdag gebeld, wil volgende week een bezoek…"
+                placeholder="Called on Tuesday, wants a visit next week…"
                 rows={3}
                 value={notitie}
               />
-              <p className="v-hint">{bewaard ? "Opgeslagen." : "Wordt automatisch opgeslagen als je wegklikt."}</p>
+              <p className="v-hint">{bewaard ? "Opgeslagen." : "Saved automatically when you click away."}</p>
             </section>
 
             <section className="v-lp__blok">
               <div className="v-lp__blokkop">
-                <h3>Gesprek met Volgo</h3>
+                <h3>Conversation with Volgo</h3>
                 {l.gesprek_id ? (
                   <button className="v-linkbtn" onClick={openChats} type="button">
-                    Openen in Inbox
+                    Open in inbox
                   </button>
                 ) : null}
               </div>
-              {d.berichten.length === 0 ? <p className="v-muted v-small">Geen gesprek opgeslagen bij deze aanvraag.</p> : null}
+              {d.berichten.length === 0 ? <p className="v-muted v-small">No conversation saved with this request.</p> : null}
               <ul className="v-lp__chat">
                 {d.berichten.map((b) => (
                   <li className={`v-lp__msg v-lp__msg--${b.rol}`} key={b.id}>
-                    <span>{b.rol === "bezoeker" ? l.naam : b.rol === "mens" ? "Jij" : b.rol === "systeem" ? "Systeem" : "Volgo"}</span>
+                    <span>{b.rol === "bezoeker" ? l.naam : b.rol === "mens" ? "You" : b.rol === "systeem" ? "System" : "Volgo"}</span>
                     <p>{b.tekst}</p>
                   </li>
                 ))}

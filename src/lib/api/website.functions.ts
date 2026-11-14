@@ -38,7 +38,7 @@ export const stuurWebsiteAanvraag = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const { g, DB, plan } = await sessie();
-    if (!plan.limieten.website) return { ok: false as const, message: "Volgo works in your own website. A website built by us is no longer part of Volgo." };
+    if (!plan.limieten.website) return { ok: false as const, message: "A website built by us is part of the Complete package." };
     await DB.prepare("INSERT INTO website_aanvragen (team_id, contact, telefoon, domein, huidige_site, wensen) VALUES (?, ?, ?, ?, ?, ?)")
       .bind(g.team_id, data.contact, data.telefoon, data.domein, data.huidige_site, data.wensen)
       .run();
@@ -49,7 +49,7 @@ export const stuurWebsiteAanvraag = createServerFn({ method: "POST" })
       mailOpmaak(
         `Website request from ${esc(g.bedrijf)}`,
         `<p><strong>${esc(g.naam)}</strong> · ${esc(g.email)}${data.telefoon ? ` · ${esc(data.telefoon)}` : ""}</p>
-         <p>Prefers: <strong>${data.contact === "call" ? "a call (will DM PLAN on Instagram)" : "chat / email"}</strong> · Plan: ${plan.naam}</p>
+         <p>Prefers: <strong>${data.contact === "call" ? "a call" : "email"}</strong> · Plan: ${plan.naam}</p>
          <p>Domain: ${esc(data.domein || "none yet")} · Current site: ${esc(data.huidige_site || "none")}</p>
          <p style="white-space:pre-wrap;background:#f5f7fa;padding:12px;border-radius:10px">${esc(data.wensen)}</p>`,
       ),
@@ -77,8 +77,8 @@ export const bouwSite = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ tekst: z.string().trim().min(2).max(3000) }).parse(v))
   .handler(async ({ data }) => {
     const { g, DB, plan } = await sessie();
-    if (!plan.limieten.website) return { ok: false as const, message: "Volgo werkt in je eigen website. Een website laten bouwen hoort niet meer bij Volgo." };
-    if (!(await binnenLimiet(DB, `bouw:${g.team_id}`, 60 * 24, 40))) return { ok: false as const, message: "Je hebt vandaag het maximum aantal aanpassingen bereikt. Morgen kun je weer verder." };
+    if (!plan.limieten.website) return { ok: false as const, message: "A website built by us is part of the Complete package." };
+    if (!(await binnenLimiet(DB, `bouw:${g.team_id}`, 60 * 24, 40))) return { ok: false as const, message: "You reached the maximum number of changes for today. You can continue tomorrow." };
     return bouwBeurt(DB, g.team_id, data.tekst);
   });
 

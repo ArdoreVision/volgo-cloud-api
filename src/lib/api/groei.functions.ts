@@ -70,7 +70,7 @@ Reply in the language of the review (${taal === "nl" ? "Dutch, informal 'je' unl
       `Reviewer: ${data.naam || "unknown"}\nStars: ${data.sterren}/5\nReview: ${data.review}`,
       350,
     );
-    if (!antwoord) return { ok: false as const, antwoord: "", message: "Er kon nu geen antwoord geschreven worden. Probeer het opnieuw." };
+    if (!antwoord) return { ok: false as const, antwoord: "", message: "No reply could be written right now. Please try again." };
     await DB.prepare("INSERT INTO review_antwoorden (team_id, naam, sterren, review, antwoord) VALUES (?, ?, ?, ?, ?)")
       .bind(g.team_id, data.naam ?? "", data.sterren, data.review, antwoord)
       .run();
@@ -119,9 +119,9 @@ export const maakBetaalverzoek = createServerFn({ method: "POST" })
     const { g, DB } = await sessie();
     const i = await instVan(DB, g.team_id);
     const extra = await DB.prepare("SELECT iban, stripe_sleutel FROM ava_instellingen WHERE team_id = ?").bind(g.team_id).first<{ iban: string; stripe_sleutel: string }>();
-    if (!extra?.iban && !extra?.stripe_sleutel) return { ok: false as const, message: "Betalingen staan nog niet aan voor je account. Vraag Volgo om ze aan te zetten." };
+    if (!extra?.iban && !extra?.stripe_sleutel) return { ok: false as const, message: "Payments are not switched on for your account yet. Ask Volgo to switch them on." };
     const { contactVan, stuurBezoeker, taalVan } = await import("../automatisch.server");
-    if (!contactVan(data.contact)) return { ok: false as const, message: "Vul een mailadres of mobiel nummer in." };
+    if (!contactVan(data.contact)) return { ok: false as const, message: "Fill in an email address or mobile number." };
     let gesprek: { gesprek_id: number; token: string } | null = null;
     if (data.gesprek_id)
       gesprek = await DB.prepare("SELECT m.gesprek_id, m.token FROM ava_gesprek_meta m JOIN ava_gesprekken g ON g.id = m.gesprek_id WHERE m.gesprek_id = ? AND g.team_id = ?")
