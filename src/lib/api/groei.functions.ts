@@ -262,16 +262,17 @@ export const controleerInstallatie = createServerFn({ method: "POST" }).handler(
 });
 
 /**
- * Start over with another website: forget the address and the "installed" tick, and remember the moment, so the
- * live check does not count visits on the earlier website. The line (the code) stays the same, and so do all
- * conversations, requests and appointments. Volgo stays visible on the earlier website until the line is removed there.
+ * Start over with another website: forget the address, the "installed" tick and the "tried it yourself" tick, and
+ * remember the moment, so the live check does not count visits on the earlier website. The line (the code) stays the
+ * same, and so does all customer data: conversations, requests, appointments and visitor numbers. Volgo stays visible on the earlier website until the line is removed there.
  */
 export const resetInstallatie = createServerFn({ method: "POST" }).handler(async () => {
   const { g, DB } = await sessie();
   if (g.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can connect another website." };
   await instVan(DB, g.team_id);
   await DB.prepare("UPDATE ava_instellingen SET site_url = '', installatie_reset = datetime('now') WHERE team_id = ?").bind(g.team_id).run();
-  await DB.prepare("UPDATE onboarding SET geinstalleerd = 0 WHERE team_id = ?").bind(g.team_id).run().catch(() => undefined);
+  // The install tick and the "tried it yourself" tick both belong to the website that is being disconnected.
+  await DB.prepare("UPDATE onboarding SET geinstalleerd = 0, ava_getest = 0 WHERE team_id = ?").bind(g.team_id).run().catch(() => undefined);
   return { ok: true as const, message: "" };
 });
 

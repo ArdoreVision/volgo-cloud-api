@@ -2732,7 +2732,7 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #050505;
 .v-wiz__klaar { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 16px; }
 .v-wiz__klaar > div:first-of-type { flex: 1 1 260px; }
 .v-wiz__klaar h2 { margin: 0; }
-.v-wiz__reset { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-bottom: 16px; }
+.v-wiz__reset { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-top: 16px; }
 .v-wiz__reset > div:first-child { flex: 1 1 260px; min-width: 0; display: grid; gap: 3px; font-size: 14px; line-height: 1.5; }
 .v-wiz__reset > div:first-child span { color: var(--muted); overflow-wrap: anywhere; }
 .v-wiz__reset > p { margin: 0; }
