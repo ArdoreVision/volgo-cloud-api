@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { bewaarMijnWebsite, controleerInstallatie, haalMijnWebsite } from "@/lib/api/groei.functions";
-import { PLATFORMS, installRegel } from "@/lib/installatie";
+import { INSTALL_SECONDEN, PLATFORMS, installRegel } from "@/lib/installatie";
 
 type Data = Awaited<ReturnType<typeof haalMijnWebsite>>;
 
@@ -90,7 +90,7 @@ export function MijnWebsite({ openTab }: { openTab: (t: string) => void }) {
     <div className="v-g">
       <header className="v-g__kop">
         <h1>Installeren</h1>
-        <p>Volgo komt in de website die je al hebt. Drie stappen, zonder technische kennis: adres invullen, één regel plakken, checken.</p>
+        <p>Volgo komt in de website die je al hebt. Ongeveer {INSTALL_SECONDEN} seconden werk, zonder technische kennis: adres invullen, één regel plakken, checken.</p>
       </header>
 
       <section className="v-g__kaart" id="mw-installeren">
