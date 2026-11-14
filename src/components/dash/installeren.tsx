@@ -181,43 +181,6 @@ export function Installeren({ openTab, wijDoenHet, klaar, opnieuw }: { openTab: 
         </div>
       )}
 
-      {d.siteUrl || reset === "klaar" ? (
-        <section className="v-g__kaart v-wiz__reset">
-          {reset === "klaar" ? (
-            <p className="v-g__ok">Done. Fill in the address of your other website in step 1 and follow the steps again. Your line is still the same.</p>
-          ) : reset === "" ? (
-            <>
-              <div>
-                <strong>Connected website</strong>
-                <span>{d.siteUrl}</span>
-              </div>
-              <button className="v-g__knop2" onClick={() => setReset("vraag")} type="button">
-                Connect another website
-              </button>
-            </>
-          ) : (
-            <>
-              <div>
-                <strong>Connect another website?</strong>
-                <span>
-                  Volgo forgets {d.siteUrl} and you start again at step 1 with your other website. Your line stays the same, and your conversations, requests and appointments stay. Volgo keeps showing on the old website until you
-                  remove the line there.
-                </span>
-                {resetFout ? <span className="v-g__fout">{resetFout}</span> : null}
-              </div>
-              <div className="v-g__knoppen">
-                <button className="v-g__knop" disabled={reset === "bezig"} onClick={() => void beginOpnieuw()} type="button">
-                  {reset === "bezig" ? "Resetting…" : "Yes, reset"}
-                </button>
-                <button className="v-g__knop2" disabled={reset === "bezig"} onClick={() => setReset("")} type="button">
-                  Cancel
-                </button>
-              </div>
-            </>
-          )}
-        </section>
-      ) : null}
-
       <div aria-label="Who installs it" className="v-wiz__wie" role="tablist">
         <button aria-selected={wie === "zelf"} onClick={() => setWie("zelf")} role="tab" type="button">
           <strong>I do it myself</strong>
@@ -401,7 +364,44 @@ export function Installeren({ openTab, wijDoenHet, klaar, opnieuw }: { openTab: 
         </section>
       ) : null}
 
-      <InstelLijst openTab={openTab} />
+      <InstelLijst key={reset === "klaar" ? "na-reset" : "lijst"} openTab={openTab} />
+
+      {d.siteUrl || reset === "klaar" ? (
+        <section className="v-g__kaart v-wiz__reset">
+          {reset === "klaar" ? (
+            <p className="v-g__ok">Done. Scroll up, fill in the address of your other website in step 1 and follow the steps again. Your line is still the same.</p>
+          ) : reset === "" ? (
+            <>
+              <div>
+                <strong>Connected website</strong>
+                <span>{d.siteUrl}</span>
+              </div>
+              <button className="v-g__knop2" onClick={() => setReset("vraag")} type="button">
+                Connect another website
+              </button>
+            </>
+          ) : (
+            <>
+              <div>
+                <strong>Connect another website?</strong>
+                <span>
+                  Volgo forgets {d.siteUrl} and the whole setup on this page: the address, what your website is made with, the check and the test. You start again at step 1 with your other website. Your line stays the same. All
+                  customer data stays: conversations, requests, appointments and visitor numbers. Volgo keeps showing on the old website until you remove the line there.
+                </span>
+                {resetFout ? <span className="v-g__fout">{resetFout}</span> : null}
+              </div>
+              <div className="v-g__knoppen">
+                <button className="v-g__knop" disabled={reset === "bezig"} onClick={() => void beginOpnieuw()} type="button">
+                  {reset === "bezig" ? "Resetting…" : "Yes, reset"}
+                </button>
+                <button className="v-g__knop2" disabled={reset === "bezig"} onClick={() => setReset("")} type="button">
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
+        </section>
+      ) : null}
     </div>
   );
 }
