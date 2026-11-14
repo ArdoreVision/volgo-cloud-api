@@ -366,3 +366,16 @@ export const haalInstelStatus = createServerFn({ method: "GET" }).handler(async 
     nummer: Boolean(extra?.zakelijk_nummer),
   };
 });
+
+/** Install page: switch simple on/off settings with one tap. Same checks as the settings pages (owner-only where needed). */
+const SNEL = ["booking_on", "reminder_on", "follow_up_on", "review_request_on", "email_every_request", "email_hot_requests", "email_morning_summary", "email_every_conversation", "notify_new_conversations", "notify_new_requests"] as const;
+export const zetSnel = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ changes: z.record(z.string(), z.boolean()) }).parse(v))
+  .handler(async ({ data }) => {
+    const { g, DB } = await sessie();
+    const { wijzigInstellingen } = await import("../assistent-acties.server");
+    // Only the plain switches in the list above; anything else is dropped.
+    const changes = Object.fromEntries(Object.entries(data.changes).filter(([k]) => (SNEL as readonly string[]).includes(k)));
+    const r = await wijzigInstellingen(DB, { id: g.id, team_id: g.team_id, rol: g.rol }, changes);
+    return { ok: r.geweigerd.length === 0, geweigerd: r.geweigerd };
+  });

@@ -98,9 +98,9 @@ export const PLANS: Record<PlanId, Plan> = {
     opstart: 0,
     voor: "For busy businesses with many visitors and a bigger team.",
     tagline: "Your professional website for many visitors and a bigger team. We help you set everything up.",
-    kern: ["Professional website, built for you", "5,000 conversations per month", "Unlimited team members"],
-    features: ["Everything in Growth", "We set up your questions and hours with you", "Personal help with your setup", "90 days of visitor analytics"],
-    limieten: { leden: null, teamChat: true, eigenStijl: true, website: true, gesprekken: 5000, analyticsDagen: 90 },
+    kern: ["A 3D website, built for you", "5,000 conversations per month", "Unlimited team members"],
+    features: ["Everything in Growth", "A 3D website: 3D visuals and scroll animation", "We set up your questions and hours with you", "Personal help with your setup", "90 days of visitor analytics"],
+    limieten: { leden: null, teamChat: true, eigenStijl: true, website: true, drieD: true, gesprekken: 5000, analyticsDagen: 90 },
   },
   compleet: {
     id: "compleet",

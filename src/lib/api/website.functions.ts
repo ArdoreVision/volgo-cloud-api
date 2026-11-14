@@ -95,18 +95,9 @@ export const publiceerSite = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { g, DB, plan } = await sessie();
     if (!plan.limieten.website || g.rol !== "eigenaar") return { ok: false as const };
-    const site = await haalSite(DB, g.team_id);
-    if (!site?.html) return { ok: false as const };
-    await DB.prepare("UPDATE sites SET gepubliceerd = ? WHERE team_id = ?").bind(data.aan ? 1 : 0, g.team_id).run();
-    if (data.aan) {
-      // The website is online: remember its address (their own domain once it is connected, otherwise the Volgo address),
-      // so "My website" and the live check work without the owner filling anything in. An address they set themselves stays.
-      const { haalIntake } = await import("../intake.server");
-      const i = await haalIntake(DB, g.team_id);
-      const adres = i?.domein && i.domeinStatus === "actief" ? `https://www.${i.domein}` : `https://thevolgo.app/s/${site.slug}`;
-      await DB.prepare("UPDATE ava_instellingen SET site_url = ? WHERE team_id = ? AND (site_url = '' OR site_url LIKE 'https://thevolgo.app/s/%')").bind(adres, g.team_id).run();
-      await DB.prepare("INSERT INTO onboarding (team_id, geinstalleerd) VALUES (?, 1) ON CONFLICT(team_id) DO UPDATE SET geinstalleerd = 1").bind(g.team_id).run().catch(() => undefined);
-    }
+    const { publiceerWebsite } = await import("../intake.server");
+    const r = await publiceerWebsite(DB, g.team_id, data.aan);
+    if (!r.ok) return { ok: false as const };
     return { ok: true as const };
   });
 
@@ -176,7 +167,7 @@ export const bouwEersteWebsite = createServerFn({ method: "POST" }).handler(asyn
   const i = await haalIntake(DB, g.team_id);
   if (!i?.gegevens) return { ok: false as const, message: "Fill in your business details first." };
   if (!(await binnenLimiet(DB, `bouw:${g.team_id}`, 60 * 24, 40))) return { ok: false as const, message: "You reached the maximum number of builds for today. You can continue tomorrow." };
-  const r = await bouwBeurt(DB, g.team_id, bouwOpdracht(i.gegevens, i.domein), { chatTekst: "Build my website from my business details.", drieD: Boolean(plan.limieten.drieD) });
+  const r = await bouwBeurt(DB, g.team_id, bouwOpdracht(i.gegevens, i.domein), { chatTekst: "Build my website from my business details.", drieD: Boolean(plan.limieten.drieD) && i.gegevens.drieD !== false });
   if (!r.ok) return { ok: false as const, message: r.message };
   if (!r.gewijzigd) return { ok: false as const, message: "Volgo could not build the page from these details. Open Website and tell the chat what you want." };
   return { ok: true as const, message: "", alGebouwd: false };

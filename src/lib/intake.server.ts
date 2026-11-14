@@ -2,7 +2,7 @@
 // Volgo builds the website from it. Also: serving a published website on the owner's own domain.
 import type { D1Database } from "@cloudflare/workers-types";
 import { bindings } from "./bindings.server";
-import { type Intake, intakeSchema } from "./intake";
+import { type Intake, THEMAS, intakeSchema } from "./intake";
 import { VOLGO_INBOX, esc, mailOpmaak, verstuurMail } from "./mail.server";
 
 /** Where a customer's domain has to point. A record in Volgo's own zone that Cloudflare forwards to this app. */
@@ -57,7 +57,7 @@ export function bouwOpdracht(i: Intake, domein: string) {
     regel("Address", i.adres),
     regel("Opening hours", i.openingstijden),
     regel("Website address", domein ? `https://www.${domein}` : ""),
-    regel("Look", i.stijl === "donker" ? "dark background, light text" : "light background, dark text"),
+    regel("Theme", THEMAS.find((t) => t.id === i.thema)?.opdracht ?? (i.stijl === "donker" ? "dark background, light text" : "light background, dark text")),
     regel("Accent colour", i.kleur),
     i.extra ? `Also good to know:\n${i.extra}` : "",
   ]
@@ -160,4 +160,24 @@ export async function siteVoorHost(DB: D1Database, host: string) {
   if (!r) return null;
   if (r.domein_status !== "actief") await DB.prepare("UPDATE website_intake SET domein_status = 'actief', updated_at = datetime('now') WHERE team_id = ?").bind(r.team_id).run().catch(() => undefined);
   return { data: r.data, gepubliceerd: Boolean(r.gepubliceerd) };
+}
+
+/** Put the website online or take it offline. Online also records its address, so "My website" and the live check work. */
+export async function publiceerWebsite(DB: D1Database, team: number, aan: boolean): Promise<{ ok: boolean; adres: string }> {
+  const site = await DB.prepare("SELECT slug, data FROM sites WHERE team_id = ?").bind(team).first<{ slug: string; data: string }>();
+  let html = "";
+  try {
+    html = String((JSON.parse(site?.data || "{}") as { html?: string }).html ?? "");
+  } catch {
+    html = "";
+  }
+  if (!site || !html) return { ok: false, adres: "" };
+  await DB.prepare("UPDATE sites SET gepubliceerd = ? WHERE team_id = ?").bind(aan ? 1 : 0, team).run();
+  const i = await haalIntake(DB, team);
+  const adres = i?.domein && i.domeinStatus === "actief" ? `https://www.${i.domein}` : `https://thevolgo.app/s/${site.slug}`;
+  if (aan) {
+    await DB.prepare("UPDATE ava_instellingen SET site_url = ? WHERE team_id = ? AND (site_url = '' OR site_url LIKE 'https://thevolgo.app/s/%')").bind(adres, team).run();
+    await DB.prepare("INSERT INTO onboarding (team_id, geinstalleerd) VALUES (?, 1) ON CONFLICT(team_id) DO UPDATE SET geinstalleerd = 1").bind(team).run().catch(() => undefined);
+  }
+  return { ok: true, adres };
 }

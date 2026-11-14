@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { VolgoMark } from "@/components/volgo/logo";
 import { bewaarIntake, bouwEersteWebsite, haalIntakeGegevens } from "@/lib/api/website.functions";
+import { THEMAS } from "@/lib/intake";
 
 type Gegevens = {
   bedrijf: string;
@@ -13,10 +14,12 @@ type Gegevens = {
   adres: string;
   openingstijden: string;
   stijl: "licht" | "donker";
+  thema: "strak" | "warm" | "stoer" | "luxe" | "fris";
+  drieD: boolean;
   kleur: string;
   extra: string;
 };
-const LEEG: Gegevens = { bedrijf: "", watDoetHet: "", diensten: "", gebied: "", telefoon: "", email: "", adres: "", openingstijden: "", stijl: "licht", kleur: "", extra: "" };
+const LEEG: Gegevens = { bedrijf: "", watDoetHet: "", diensten: "", gebied: "", telefoon: "", email: "", adres: "", openingstijden: "", stijl: "licht", thema: "strak", drieD: true, kleur: "", extra: "" };
 
 const BOUWT = ["Reading what you told us…", "Writing your texts…", "Designing your pages…", "Putting the appointment setter in…", "Checking it on a phone…"];
 
@@ -148,18 +151,49 @@ export function WebsiteStart({ klaar }: { klaar: () => void | Promise<void> }) {
                 Address <small>Leave empty if customers do not come to you.</small>
                 <input autoComplete="street-address" maxLength={200} onChange={(e) => zet("adres", e.target.value)} value={g.adres} />
               </label>
-              <div className="v-ws__twee">
-                <div className="v-g__veld">
-                  Look
-                  <div className="v-ws__keuze" role="radiogroup" aria-label="Look">
-                    <button aria-checked={g.stijl === "licht"} onClick={() => zet("stijl", "licht")} role="radio" type="button">
-                      Light
+              <div className="v-g__veld">
+                Choose your theme
+                <div aria-label="Theme" className="v-ws__themas" role="radiogroup">
+                  {THEMAS.map((t) => (
+                    <button
+                      aria-checked={g.thema === t.id}
+                      key={t.id}
+                      onClick={() => setG((x) => ({ ...x, thema: t.id, stijl: t.stijl }))}
+                      role="radio"
+                      type="button"
+                    >
+                      <span aria-hidden="true" className="v-ws__staal" style={{ background: t.kleuren[0], color: t.kleuren[1] }}>
+                        <i style={{ background: t.kleuren[1] }} />
+                        <i style={{ background: t.kleuren[1], opacity: 0.35 }} />
+                        <b style={{ background: t.kleuren[2] }} />
+                      </span>
+                      <strong>{t.naam}</strong>
+                      <small>{t.uitleg}</small>
                     </button>
-                    <button aria-checked={g.stijl === "donker"} onClick={() => zet("stijl", "donker")} role="radio" type="button">
-                      Dark
-                    </button>
-                  </div>
+                  ))}
                 </div>
+              </div>
+              <div className="v-ws__twee">
+                {drieD ? (
+                  <div className="v-g__veld">
+                    Kind of website
+                    <div className="v-ws__keuze" role="radiogroup" aria-label="Kind of website">
+                      <button aria-checked={g.drieD} onClick={() => zet("drieD", true)} role="radio" type="button">
+                        3D website
+                      </button>
+                      <button aria-checked={!g.drieD} onClick={() => zet("drieD", false)} role="radio" type="button">
+                        Professional
+                      </button>
+                    </div>
+                    <small>{g.drieD ? "3D visuals and scroll animation. Included in your plan." : "A calm, fast website without 3D."}</small>
+                  </div>
+                ) : (
+                  <div className="v-g__veld">
+                    Kind of website
+                    <span className="v-ws__vast">Professional website</span>
+                    <small>A 3D website comes with Pro and Complete.</small>
+                  </div>
+                )}
                 <label className="v-g__veld">
                   Your colour <small>Optional.</small>
                   <span className="v-ws__kleur">

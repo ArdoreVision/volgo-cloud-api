@@ -3,6 +3,8 @@ import type { FormEvent } from "react";
 
 import { bewaarDomein, bouwEersteWebsite, bouwSite, haalBouwer, herstelSite, publiceerSite } from "@/lib/api/website.functions";
 
+import { THEMAS } from "@/lib/intake";
+
 import { PlanCall } from "./plan-call";
 
 import { Upsell } from "./upsell";
@@ -262,6 +264,14 @@ export function Website() {
                   Build my website from my business details
                 </button>
               ) : null}
+              {d.heeftSite
+                ? THEMAS.map((t) => (
+                    <button className="v-bw__thema" key={t.id} onClick={() => void stuur(`Give my whole website the theme "${t.naam}": ${t.opdracht}. Keep all my texts, facts and sections.`)} title={t.uitleg} type="button">
+                      <i aria-hidden="true" style={{ background: t.kleuren[0], boxShadow: `inset 0 0 0 4px ${t.kleuren[2]}` }} />
+                      {t.naam}
+                    </button>
+                  ))
+                : null}
               {(d.heeftSite ? IDEEEN.slice(1) : IDEEEN.slice(0, 1)).map((x) => (
                 <button key={x} onClick={() => void stuur(x)} type="button">
                   {x}

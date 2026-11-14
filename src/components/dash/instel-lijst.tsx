@@ -48,7 +48,7 @@ export function InstelLijst({ openTab, kort = false, metWebsite = false }: { ope
           <div aria-hidden="true" className="v-wiz__balk">
             <i style={{ width: `${(klaar / punten.length) * 100}%` }} />
           </div>
-          <button className="v-il__toon" onClick={() => setOpen(true)} type="button">
+          <button className="v-il__toon" onClick={() => openTab("installeren")} type="button">
             Continue setup
           </button>
         </div>
