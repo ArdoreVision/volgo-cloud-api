@@ -16,18 +16,18 @@ export function VogelSvg({ envelop = true }: { envelop?: boolean }) {
         <circle cx="82" cy="40" fill="#ffffff" r="6.5" />
         <circle cx="84" cy="40" fill="#0a0b0d" r="3.2" />
         <circle cx="85.2" cy="38.8" fill="#ffffff" r="1.1" />
-        <path d="M94 44 L110 48 L94 52 Z" fill="#f59e0b" />
+        <path d="M94 44 L110 48 L94 52 Z" fill="#ffffff" stroke="#0a0b0d" strokeLinejoin="round" strokeWidth="2" />
         {/* Postal cap */}
-        <path d="M60 30 Q76 16 92 28 L92 31 L60 33 Z" fill="#0c7a43" />
-        <rect fill="#0c7a43" height="4" rx="2" width="22" x="86" y="29" />
-        <path className="pv-vleugel" d="M40 54 Q58 30 78 52 Q60 64 40 54 Z" fill="#26292f" />
-        <path d="M48 86 L46 98 M58 86 L60 98" stroke="#f59e0b" strokeLinecap="round" strokeWidth="3" />
+        <path d="M60 30 Q76 16 92 28 L92 31 L60 33 Z" fill="#0a0b0d" stroke="#ffffff" strokeWidth="1.6" />
+        <rect fill="#ffffff" height="4" rx="2" stroke="#0a0b0d" strokeWidth="1.4" width="22" x="86" y="29" />
+        <path className="pv-vleugel" d="M40 54 Q58 30 78 52 Q60 64 40 54 Z" fill="#ffffff" stroke="#0a0b0d" strokeWidth="2" />
+        <path d="M48 86 L46 98 M58 86 L60 98" stroke="#0a0b0d" strokeLinecap="round" strokeWidth="3" />
       </g>
       {envelop ? (
         <g className="pv-envelop">
           <rect fill="#ffffff" height="22" rx="3" stroke="#0a0b0d" strokeWidth="2.4" width="32" x="70" y="76" />
           <path d="M71 78 L86 89 L101 78" fill="none" stroke="#0a0b0d" strokeLinejoin="round" strokeWidth="2.4" />
-          <circle cx="98" cy="80" fill="#0c7a43" r="4" />
+          <circle cx="98" cy="80" fill="#0a0b0d" r="4" />
         </g>
       ) : null}
     </svg>
@@ -59,6 +59,7 @@ export function PostVogel() {
       vorige = window.scrollY;
       kanteling += (Math.max(-14, Math.min(14, snel * 0.6)) - kanteling) * 0.12;
       el.style.setProperty("--pv-y", String(nu));
+      el.classList.toggle("is-rechts", nu > 0.55);
       el.style.setProperty("--pv-kantel", `${kanteling.toFixed(2)}deg`);
       raf = requestAnimationFrame(stap);
     };
