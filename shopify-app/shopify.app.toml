@@ -1,0 +1,19 @@
+# Volgo for Shopify: an app with only one part, the "Volgo chat" switch in the theme editor.
+# It has no server of its own: the chat runs from thevolgo.app, like on every other website.
+#
+# client_id stays empty here. Run `shopify app config link` once; it fills in the id of the
+# app you made in your Shopify Partner account.
+name = "Volgo"
+client_id = ""
+application_url = "https://thevolgo.app/dashboard"
+embedded = false
+
+[access_scopes]
+# Volgo reads and changes nothing in the shop. It only adds its chat to the storefront.
+scopes = ""
+
+[auth]
+redirect_urls = ["https://thevolgo.app/dashboard"]
+
+[webhooks]
+api_version = "2025-10"
