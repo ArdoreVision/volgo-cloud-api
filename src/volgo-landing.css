@@ -469,3 +469,10 @@ html:has(#vd.vc) { scroll-behavior: smooth; }
 }
 #vd .vc-kaart li { display: flex; align-items: flex-start; }
 #vd .vc-kaart li::before { flex: none; }
+
+/* How long installing takes: one big number */
+#vd .vc-tijd { display: inline-flex; align-items: center; gap: 14px; margin: 0 auto clamp(22px, 4vw, 36px); padding: 12px 26px 12px 20px; border-radius: 999px; background: rgba(200, 255, 62, 0.08); box-shadow: inset 0 0 0 1px rgba(200, 255, 62, 0.4); text-align: left; }
+#vd .vc-tijd b { font-size: clamp(40px, 8vw, 64px); line-height: 1; font-weight: 800; letter-spacing: -0.05em; color: var(--vc); white-space: nowrap; }
+#vd .vc-tijd span { display: flex; flex-direction: column; font-size: clamp(17px, 2.2vw, 21px); font-weight: 800; letter-spacing: -0.02em; color: #fff; }
+#vd .vc-tijd small { font-size: 13.5px; font-weight: 500; letter-spacing: 0; color: #9a9a9a; }
+#vd .vc-install .vc-sub--midden { margin-bottom: clamp(18px, 3vw, 28px); }

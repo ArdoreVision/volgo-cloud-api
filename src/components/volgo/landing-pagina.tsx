@@ -7,7 +7,7 @@ import { type RouteTaal } from "./route-teksten";
 import { TaalKiezer, Vertaler, kiesTaal, opgeslagenTaal, toonTaal } from "./taal";
 import { startBetaling } from "@/lib/api/account.functions";
 import { regioTaal } from "@/lib/api/vertaal.functions";
-import { PLATFORMS, installRegel } from "@/lib/installatie";
+import { INSTALL_SECONDEN, PLATFORMS, installRegel } from "@/lib/installatie";
 import { PLANS, type PlanId } from "@/lib/plans";
 import { TALEN, isTaal } from "@/lib/talen";
 import "@/volgo-dialed.css";
@@ -50,7 +50,7 @@ const MET = ["Elke bezoeker direct geholpen", "Afspraken staan vanzelf in je age
 const FAQ: [string, string][] = [
   ["Wat is Volgo?", "Een afspraak-setter voor in je eigen website. Volgo antwoordt elke bezoeker, stelt jouw vragen en laat de bezoeker zelf een dag en tijd kiezen. De afspraak staat daarna in je agenda."],
   ["Heb ik een nieuwe website nodig?", "Nee. Volgo komt in de website die je al hebt. Je plakt één regel code en hij staat op elke pagina."],
-  ["Hoe zet ik het in mijn website?", "Je kopieert één regel uit je dashboard en plakt hem in je website. In je dashboard staat per platform waar: WordPress, Wix, Shopify, Squarespace, Webflow of eigen HTML. Daarna checkt Volgo zelf of hij goed staat."],
+  ["Hoe zet ik het in mijn website?", `Dat is ongeveer ${INSTALL_SECONDEN} seconden werk. Je kopieert één regel uit je dashboard en plakt hem in je website. In je dashboard staat per platform waar: WordPress, Wix, Shopify, Squarespace, Webflow of eigen HTML. Daarna checkt Volgo zelf of hij goed staat.`],
   ["Ik ben niet technisch. Lukt dat?", "Ja. Het is kopiëren en plakken, in drie stappen. Lukt het niet? Mail ons je regel, dan zetten wij hem er voor je in."],
   ["Wat kost het?", `${PRIJS} per maand, excl. btw. Maandelijks opzegbaar. Er zit geen website bij en er zijn geen opstartkosten.`],
   ["Voor wie is dit?", "Voor elk bedrijf dat klanten krijgt via afspraken. Van coaches en salons tot hoveniers, verbouwers en praktijken."],
@@ -114,6 +114,13 @@ function Installeren() {
       </h2>
       <p className="vc-sub vc-sub--midden" data-rv="">
         Volgo komt in de website die je al hebt. Geen nieuwe website. Geen programmeur.
+      </p>
+      <p className="vc-tijd" data-rv="">
+        <b>± {INSTALL_SECONDEN}</b>
+        <span>
+          seconden werk
+          <small>kopiëren, plakken, opslaan</small>
+        </span>
       </p>
       <div className="vc-regel" data-rv="">
         <code data-notranslate="">{VOORBEELD_REGEL}</code>
@@ -291,7 +298,7 @@ export function LandingPagina({ ingelogd, vast }: { ingelogd: boolean; vast?: Ro
           </h1>
           <p className="vc-sub">Volgo is de afspraak-setter in je website. Eén regel code plakken. Klaar.</p>
           <StartKnop ingelogd={ingelogd} />
-          <p className="vc-klein">{PRIJS} per maand · Werkt op elke website · Geen nieuwe website nodig</p>
+          <p className="vc-klein">{PRIJS} per maand · Zelf installeren: ± {INSTALL_SECONDEN} seconden · Geen nieuwe website nodig</p>
           <p aria-hidden="true" className="vc-scroll">
             ↓
           </p>

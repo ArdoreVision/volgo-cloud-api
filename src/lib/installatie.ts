@@ -7,6 +7,7 @@ export const PLATFORMS: { id: string; naam: string; stappen: string[]; noot?: st
     id: "wordpress",
     naam: "WordPress",
     stappen: ["Installeer de gratis plugin “WPCode” (Plugins → Nieuwe plugin).", "Ga naar Code Snippets → Header & Footer.", "Plak de regel in het vak Footer en klik op Save."],
+    noot: "De eerste keer met WordPress duurt het iets langer, ongeveer 2 minuten: je installeert eerst de gratis plugin.",
   },
   {
     id: "wix",
@@ -41,6 +42,9 @@ export const PLATFORMS: { id: string; naam: string; stappen: string[]; noot?: st
     ],
   },
 ];
+
+/** How long installing it yourself takes, as shown on the landing page and in the dashboard. An estimate: copy, paste, save. */
+export const INSTALL_SECONDEN = 60;
 
 /** The one line a business pastes into its website. */
 export const installRegel = (origin: string, sleutel: string) => `<script src="${origin}/ava.js" data-key="${sleutel}" defer></script>`;
