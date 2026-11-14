@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 
-import { bouwSite, haalBouwer, herstelSite, publiceerSite } from "@/lib/api/website.functions";
+import { bewaarDomein, bouwEersteWebsite, bouwSite, haalBouwer, herstelSite, publiceerSite } from "@/lib/api/website.functions";
+
+import { PlanCall } from "./plan-call";
 
 import { Upsell } from "./upsell";
 
@@ -21,6 +23,9 @@ export function Website() {
   const [mobiel, setMobiel] = useState(false);
   const [toon, setToon] = useState<"chat" | "voorbeeld">("chat");
   const [gekopieerd, setGekopieerd] = useState(false);
+  const [domein, setDomein] = useState("");
+  const [domeinFout, setDomeinFout] = useState("");
+  const [domeinOpen, setDomeinOpen] = useState(false);
   const eind = useRef<HTMLDivElement | null>(null);
 
   const laad = () =>
@@ -41,13 +46,13 @@ export function Website() {
     return (
       <>
         <header className="v-dash__head">
-          <h1>Build website</h1>
-          <p>Build your website by chatting. This is part of Complete.</p>
+          <h1>Website</h1>
+          <p>Your website comes with a Volgo plan.</p>
         </header>
         <Upsell
-          knop="See Complete"
+          knop="See the plans"
           punten={["Tell the chat what you want", "A preview right next to it", "Online with one button", "The Volgo chat is already on it"]}
-          tag="Complete"
+          tag="Website"
           tekst="You build your website by simply typing what you want. Volgo makes it, you watch along and adjust."
           titel="Build your website in a chat"
         />
@@ -91,6 +96,26 @@ export function Website() {
     }
   }
 
+  async function eersteBouw() {
+    if (bezig) return;
+    setFout("");
+    setBezig(true);
+    const r = await bouwEersteWebsite().catch(() => ({ ok: false as const, message: "Something went wrong. Please try again." }));
+    setBezig(false);
+    if (!r.ok) return setFout(r.message);
+    await laad();
+    setVersie((n) => n + 1);
+    setToon("voorbeeld");
+  }
+  async function zetDomein(nieuw: string) {
+    setDomeinFout("");
+    const r = await bewaarDomein({ data: { domein: nieuw } }).catch(() => ({ ok: false as const, message: "Saving did not work. Please try again." }));
+    if (!r.ok) return setDomeinFout(r.message);
+    setDomein("");
+    setDomeinOpen(false);
+    await laad();
+  }
+
   const origin = typeof window === "undefined" ? "https://thevolgo.app" : window.location.origin;
   const adres = d.slug ? `${origin}/s/${d.slug}` : "";
 
@@ -98,8 +123,8 @@ export function Website() {
     <div className="v-bw">
       <header className="v-bw__kop">
         <div>
-          <h1>Build website</h1>
-          <p>Type what you want. Volgo builds it, you watch along.</p>
+          <h1>Website</h1>
+          <p>{d.heeftSite ? "Volgo built your website. Type what you want to change, and publish when you are happy." : "Type what you want. Volgo builds it, you watch along."}</p>
         </div>
         {d.heeftSite ? (
           <div className="v-bw__acties">
@@ -144,6 +169,59 @@ export function Website() {
         </p>
       ) : null}
 
+      {d.drieD ? <PlanCall compact /> : null}
+
+      <section className="v-bw__domein" aria-label="Your domain">
+        {d.domein ? (
+          <>
+            <div className="v-bw__domein-kop">
+              <strong>www.{d.domein}</strong>
+              <span className={`v-bw__status${d.domeinStatus === "actief" ? " is-online" : ""}`}>{d.domeinStatus === "actief" ? "Connected" : "Waiting for your domain"}</span>
+              {d.eigenaar ? (
+                <button className="v-bw__stil" onClick={() => setDomeinOpen(!domeinOpen)} type="button">
+                  Change
+                </button>
+              ) : null}
+            </div>
+            {d.domeinStatus !== "actief" ? (
+              <p>
+                Give this to whoever manages your domain: a <b>CNAME</b> record with name <b>www</b> that points to <b>{d.domeinDoel}</b>, and forward {d.domein} to www.{d.domein}. We connect it on our side and it
+                switches to Connected by itself. Until then your website is on the Volgo address{d.gepubliceerd ? " above" : " you get when you publish"}.
+              </p>
+            ) : null}
+          </>
+        ) : (
+          <div className="v-bw__domein-kop">
+            <span>No domain yet. Your website goes online on a Volgo address.</span>
+            {d.eigenaar ? (
+              <button className="v-bw__stil" onClick={() => setDomeinOpen(!domeinOpen)} type="button">
+                Add my domain
+              </button>
+            ) : null}
+          </div>
+        )}
+        {domeinOpen ? (
+          <form
+            className="v-bw__domein-vorm"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void zetDomein(domein);
+            }}
+          >
+            <input aria-label="Domain name" autoCapitalize="none" autoCorrect="off" inputMode="url" maxLength={260} onChange={(e) => setDomein(e.target.value)} placeholder="yourbusiness.com" value={domein} />
+            <button className="v-bw__online" disabled={!domein.trim()} type="submit">
+              Save
+            </button>
+            {d.domein ? (
+              <button className="v-bw__stil" onClick={() => void zetDomein("")} type="button">
+                Remove domain
+              </button>
+            ) : null}
+          </form>
+        ) : null}
+        {domeinFout ? <p className="v-err">{domeinFout}</p> : null}
+      </section>
+
       <div className="v-bw__wissel" role="tablist">
         <button aria-selected={toon === "chat"} onClick={() => setToon("chat")} role="tab" type="button">
           Chat
@@ -179,6 +257,11 @@ export function Website() {
           </div>
           {!bezig ? (
             <div className="v-bw__ideeen">
+              {!d.heeftSite && d.heeftGegevens && d.eigenaar ? (
+                <button onClick={() => void eersteBouw()} type="button">
+                  Build my website from my business details
+                </button>
+              ) : null}
               {(d.heeftSite ? IDEEEN.slice(1) : IDEEEN.slice(0, 1)).map((x) => (
                 <button key={x} onClick={() => void stuur(x)} type="button">
                   {x}
@@ -216,7 +299,7 @@ export function Website() {
                 Computer
               </button>
               <button aria-checked={mobiel} aria-selected={mobiel} onClick={() => setMobiel(true)} role="radio" type="button">
-                Telefoon
+                Phone
               </button>
             </div>
             {d.heeftSite ? (

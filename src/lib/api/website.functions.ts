@@ -4,6 +4,7 @@ import { z } from "zod";
 import { huidigeGebruiker } from "../auth.server";
 import { bindings } from "../bindings.server";
 import { bouwBeurt, haalSite, vorigeSite } from "../bouwer.server";
+import { intakeSchema } from "../intake";
 import { binnenLimiet } from "../limiet.server";
 import { actieveGebruiker } from "../toegang.server";
 import { planVoorTeam } from "../limieten.server";
@@ -61,7 +62,14 @@ export const stuurWebsiteAanvraag = createServerFn({ method: "POST" })
 export const haalBouwer = createServerFn({ method: "GET" }).handler(async () => {
   const { g, DB, plan } = await sessie();
   const site = plan.limieten.website ? await haalSite(DB, g.team_id) : null;
+  const { haalIntake, DOMEIN_DOEL } = await import("../intake.server");
+  const intake = await haalIntake(DB, g.team_id);
   return {
+    domein: intake?.domein ?? "",
+    domeinStatus: intake?.domeinStatus ?? "",
+    domeinDoel: DOMEIN_DOEL,
+    heeftGegevens: Boolean(intake?.gegevens),
+    drieD: Boolean(plan.limieten.drieD),
     mag: plan.limieten.website,
     eigenaar: g.rol === "eigenaar",
     bedrijf: g.bedrijf,
@@ -77,9 +85,9 @@ export const bouwSite = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ tekst: z.string().trim().min(2).max(3000) }).parse(v))
   .handler(async ({ data }) => {
     const { g, DB, plan } = await sessie();
-    if (!plan.limieten.website) return { ok: false as const, message: "A website built by us is part of the Complete package." };
+    if (!plan.limieten.website) return { ok: false as const, message: "Your plan has no website. Choose a plan first." };
     if (!(await binnenLimiet(DB, `bouw:${g.team_id}`, 60 * 24, 40))) return { ok: false as const, message: "You reached the maximum number of changes for today. You can continue tomorrow." };
-    return bouwBeurt(DB, g.team_id, data.tekst);
+    return bouwBeurt(DB, g.team_id, data.tekst, { drieD: Boolean(plan.limieten.drieD) });
   });
 
 export const publiceerSite = createServerFn({ method: "POST" })
@@ -90,6 +98,15 @@ export const publiceerSite = createServerFn({ method: "POST" })
     const site = await haalSite(DB, g.team_id);
     if (!site?.html) return { ok: false as const };
     await DB.prepare("UPDATE sites SET gepubliceerd = ? WHERE team_id = ?").bind(data.aan ? 1 : 0, g.team_id).run();
+    if (data.aan) {
+      // The website is online: remember its address (their own domain once it is connected, otherwise the Volgo address),
+      // so "My website" and the live check work without the owner filling anything in. An address they set themselves stays.
+      const { haalIntake } = await import("../intake.server");
+      const i = await haalIntake(DB, g.team_id);
+      const adres = i?.domein && i.domeinStatus === "actief" ? `https://www.${i.domein}` : `https://thevolgo.app/s/${site.slug}`;
+      await DB.prepare("UPDATE ava_instellingen SET site_url = ? WHERE team_id = ? AND (site_url = '' OR site_url LIKE 'https://thevolgo.app/s/%')").bind(adres, g.team_id).run();
+      await DB.prepare("INSERT INTO onboarding (team_id, geinstalleerd) VALUES (?, 1) ON CONFLICT(team_id) DO UPDATE SET geinstalleerd = 1").bind(g.team_id).run().catch(() => undefined);
+    }
     return { ok: true as const };
   });
 
@@ -97,4 +114,70 @@ export const herstelSite = createServerFn({ method: "POST" }).handler(async () =
   const { g, DB, plan } = await sessie();
   if (!plan.limieten.website) return { ok: false as const };
   return { ok: await vorigeSite(DB, g.team_id) };
+});
+
+// ── Before the dashboard: the business and its domain, then Volgo builds the website ──
+
+/** Add, change or remove the domain later, from the Website page. */
+export const bewaarDomein = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ domein: z.string().trim().max(260) }).parse(v))
+  .handler(async ({ data }) => {
+    const { g, DB, plan } = await sessie();
+    if (g.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can change the domain." };
+    if (!plan.limieten.website) return { ok: false as const, message: "Your plan has no website. Choose a plan first." };
+    const { zetDomein } = await import("../intake.server");
+    return zetDomein(DB, g, plan.naam, data.domein, g.bedrijf);
+  });
+
+/** What the owner already filled in, to show the form again with their answers. */
+export const haalIntakeGegevens = createServerFn({ method: "GET" }).handler(async () => {
+  const { g, DB, plan } = await sessie();
+  const { haalIntake, DOMEIN_DOEL } = await import("../intake.server");
+  const i = await haalIntake(DB, g.team_id);
+  return { gegevens: i?.gegevens ?? null, domein: i?.domein ?? "", domeinStatus: i?.domeinStatus ?? "", domeinDoel: DOMEIN_DOEL, bedrijf: g.bedrijf, drieD: Boolean(plan.limieten.drieD), plan: plan.naam };
+});
+
+/**
+ * Save the business details and the domain. The details also become what the chat knows (when that is still empty)
+ * and the business number (when none is set), so the owner fills things in once.
+ */
+export const bewaarIntake = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ gegevens: intakeSchema, domein: z.string().trim().max(260).default("") }).parse(v))
+  .handler(async ({ data }) => {
+    const { g, DB, plan } = await sessie();
+    if (g.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can fill this in." };
+    if (!plan.limieten.website) return { ok: false as const, message: "Your plan has no website. Choose a plan first." };
+    const { infoVoorChat, zetDomein } = await import("../intake.server");
+    const d = await zetDomein(DB, g, plan.naam, data.domein, data.gegevens.bedrijf, JSON.stringify(data.gegevens));
+    if (!d.ok) return d;
+    const domein = d.domein;
+
+    const { instellingenVoorTeam } = await import("../ava.server");
+    const inst = await instellingenVoorTeam(DB, g.team_id);
+    if (data.gegevens.bedrijf !== g.bedrijf) await DB.prepare("UPDATE gebruikers SET bedrijf = ? WHERE id = ?").bind(data.gegevens.bedrijf, g.team_id).run();
+    if (!inst.bedrijfsinfo.trim()) await DB.prepare("UPDATE ava_instellingen SET bedrijfsinfo = ? WHERE team_id = ?").bind(infoVoorChat(data.gegevens), g.team_id).run();
+    if (data.gegevens.telefoon) {
+      const { normNummer } = await import("../kanalen.server");
+      const nummer = normNummer(data.gegevens.telefoon);
+      if (nummer) await DB.prepare("UPDATE ava_instellingen SET zakelijk_nummer = ?, kanalen_gezien = 1 WHERE team_id = ? AND zakelijk_nummer = ''").bind(nummer, g.team_id).run();
+    }
+
+    return { ok: true as const, message: "", domein };
+  });
+
+/** Build the first version of the website from the saved details. Does nothing when a website already exists. */
+export const bouwEersteWebsite = createServerFn({ method: "POST" }).handler(async () => {
+  const { g, DB, plan } = await sessie();
+  if (g.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can start this." };
+  if (!plan.limieten.website) return { ok: false as const, message: "Your plan has no website. Choose a plan first." };
+  const site = await haalSite(DB, g.team_id);
+  if (site?.html) return { ok: true as const, message: "", alGebouwd: true };
+  const { haalIntake, bouwOpdracht } = await import("../intake.server");
+  const i = await haalIntake(DB, g.team_id);
+  if (!i?.gegevens) return { ok: false as const, message: "Fill in your business details first." };
+  if (!(await binnenLimiet(DB, `bouw:${g.team_id}`, 60 * 24, 40))) return { ok: false as const, message: "You reached the maximum number of builds for today. You can continue tomorrow." };
+  const r = await bouwBeurt(DB, g.team_id, bouwOpdracht(i.gegevens, i.domein), { chatTekst: "Build my website from my business details.", drieD: Boolean(plan.limieten.drieD) });
+  if (!r.ok) return { ok: false as const, message: r.message };
+  if (!r.gewijzigd) return { ok: false as const, message: "Volgo could not build the page from these details. Open Website and tell the chat what you want." };
+  return { ok: true as const, message: "", alGebouwd: false };
 });

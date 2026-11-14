@@ -349,7 +349,10 @@ export const haalInstelStatus = createServerFn({ method: "GET" }).handler(async 
   // Email notifications are on unless the user switched them all off (no row = defaults: on).
   const mailAan = !m || Boolean(m.chat_mail || m.heet_mail || m.email || m.samenvatting);
   const push = await DB.prepare("SELECT 1 AS n FROM push_abonnementen WHERE gebruiker_id = ? LIMIT 1").bind(g.id).first().catch(() => null);
+  // The website Volgo built: is it published?
+  const site = await DB.prepare("SELECT gepubliceerd FROM sites WHERE team_id = ?").bind(g.team_id).first<{ gepubliceerd: number }>().catch(() => null);
   return {
+    sitePubliek: Boolean(site?.gepubliceerd),
     eigenaar: g.rol === "eigenaar",
     geinstalleerd: Boolean(ob?.geinstalleerd),
     getest: Boolean(ob?.ava_getest) || Boolean(test),
