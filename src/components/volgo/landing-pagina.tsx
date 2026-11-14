@@ -2,6 +2,7 @@ import { type JSX, useEffect } from "react";
 
 import { AvaChat } from "./ava-chat";
 import { Footer } from "./footer";
+import { PijnScroll } from "./pijn-scroll";
 import { type RouteTaal } from "./route-teksten";
 import { Vertaler, opgeslagenTaal, toonTaal } from "./taal";
 import { InstallUitleg, type Kijker, Kop, Prijzen, useOnthul } from "./wit";
@@ -257,6 +258,8 @@ export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTa
             ))}
           </ul>
         </section>
+
+        <PijnScroll />
 
         <section aria-labelledby="vn-reis" className="vn-sectie vn-reis">
           <header className="vn-sectie__kop" data-rv="">

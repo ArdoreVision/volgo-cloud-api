@@ -148,6 +148,59 @@ html:has(.vn), body:has(.vn) { background: #fff; }
 .vn-werkt p { margin: 0; font-size: 14px; font-weight: 600; color: var(--muted); }
 .vn-werkt .vn-chips { justify-content: center; }
 
+/* ---------- The pain, while scrolling: every inbox, then one ---------- */
+.vn-pijn { position: relative; height: 560vh; margin-top: clamp(48px, 7vw, 90px); background: linear-gradient(180deg, #fff 0%, var(--surface) 12%, var(--surface) 88%, #fff 100%); }
+.vn-pijn__plak { position: sticky; top: 0; height: 100vh; height: 100svh; max-width: 1160px; margin: 0 auto; padding: 84px 20px 32px; display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
+.vn-pijn__tekst .vn-h2 { min-height: 2.2em; }
+.vn-pijn__tekst .vn-sub { min-height: 4.8em; animation: vn-in 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes vn-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.vn-pijn__bolletjes { list-style: none; margin: 26px 0 0; padding: 0; display: flex; gap: 8px; }
+.vn-pijn__bolletjes li { width: 28px; height: 4px; border-radius: 999px; background: #dfe2e7; transition: background 0.3s; }
+.vn-pijn__bolletjes li.is-aan { background: var(--ink); }
+.is-samen .vn-pijn__bolletjes li:last-child { background: var(--ok); }
+.vn-pijn__podium { position: relative; height: min(520px, 62vh); }
+.vn-pijn__kaart, .vn-pijn__volgo { position: absolute; border-radius: 18px; background: #fff; box-shadow: 0 0 0 1px var(--line), 0 24px 50px -28px rgba(10, 11, 13, 0.35); font-size: 14px; }
+.vn-pijn__kaart { width: min(360px, 78%); padding: 15px 17px; opacity: 0; transform: translateY(40px) scale(0.96); transition: opacity 0.5s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s; }
+.vn-pijn__kaart.is-zicht { opacity: 1; transform: rotate(var(--rot, 0deg)); }
+.vn-pijn__kaart.is-nu { box-shadow: 0 0 0 2px #d92d20, 0 30px 60px -28px rgba(217, 45, 32, 0.45); z-index: 3; }
+.vn-pijn__kaart--mail { top: 0; left: 0; --rot: -2deg; }
+.vn-pijn__kaart--whatsapp { top: 14%; right: 0; --rot: 2.5deg; }
+.vn-pijn__kaart--instagram { top: 38%; left: 6%; --rot: -1.5deg; }
+.vn-pijn__kaart--bellen { top: 54%; right: 4%; --rot: 1.8deg; }
+.vn-pijn__kaart--formulier { bottom: 0; left: 14%; --rot: -1deg; }
+.is-samen .vn-pijn__kaart.is-zicht { opacity: 0; transform: translate(var(--tx, 0), var(--ty, 0)) scale(0.6); }
+.is-samen .vn-pijn__kaart--mail { --tx: 25%; --ty: 120px; }
+.is-samen .vn-pijn__kaart--whatsapp { --tx: -25%; --ty: 80px; }
+.is-samen .vn-pijn__kaart--bellen { --tx: -20%; --ty: -40px; }
+.is-samen .vn-pijn__kaart--formulier { --tx: 10%; --ty: -120px; }
+.vn-pijn__kop { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+.vn-pijn__kop b { color: var(--ink); font-size: 14.5px; }
+.vn-pijn__kop em { margin-left: auto; padding: 3px 9px; border-radius: 999px; background: #fdecea; color: #b42318; font-style: normal; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.vn-pijn__kop em.is-ok { background: var(--ok-bg); color: var(--ok); }
+.vn-pijn__ico { flex: none; width: 26px; height: 26px; border-radius: 8px; background: var(--ink); }
+.vn-pijn__ico--mail { background: #2563eb; }
+.vn-pijn__ico--whatsapp { background: #25a35a; }
+.vn-pijn__ico--instagram { background: linear-gradient(135deg, #f58529, #dd2a7b 55%, #8134af); }
+.vn-pijn__ico--bellen { background: #6b7280; }
+.vn-pijn__ico--formulier { background: #a16207; }
+.vn-pijn__rij, .vn-pijn__vrij { display: grid; gap: 2px; padding: 10px 12px; border-radius: 12px; background: var(--surface); }
+.vn-pijn__rij strong, .vn-pijn__vrij strong { color: var(--ink); font-size: 14px; }
+.vn-pijn__rij span, .vn-pijn__vrij span { color: var(--ink-2); }
+.vn-pijn__rij small { color: #b42318; font-weight: 600; font-size: 12.5px; }
+.vn-pijn__volgo { inset: 0; margin: auto; width: min(420px, 100%); height: fit-content; padding: 16px; display: grid; gap: 6px; opacity: 0; transform: scale(0.92); transition: opacity 0.6s 0.15s, transform 0.8s 0.15s cubic-bezier(0.16, 1, 0.3, 1); z-index: 4; box-shadow: 0 0 0 1.5px var(--ink), 0 40px 80px -36px rgba(10, 11, 13, 0.45); }
+.vn-pijn__volgo.is-zicht { opacity: 1; transform: none; }
+.vn-pijn__volgo .vn-pijn__kop { margin-bottom: 4px; }
+.vn-pijn__vrij { opacity: 0; transform: translateY(10px); transition: opacity 0.4s, transform 0.5s; transition-delay: calc(0.35s + var(--i) * 0.08s); }
+.vn-pijn__volgo.is-zicht .vn-pijn__vrij { opacity: 1; transform: none; }
+.vn-pijn__vrij small { color: var(--ok); font-weight: 600; font-size: 12.5px; }
+.vn-pijn__vrij span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Reduced motion or no scrolling effect: show the cards in a plain grid, then the Volgo inbox. */
+.vn-pijn.is-statisch { height: auto; }
+.vn-pijn.is-statisch .vn-pijn__plak { position: static; height: auto; padding: 64px 20px; }
+.vn-pijn.is-statisch .vn-pijn__podium { height: auto; display: grid; gap: 10px; }
+.vn-pijn.is-statisch :is(.vn-pijn__kaart, .vn-pijn__volgo) { position: static; width: 100%; opacity: 1; transform: none; }
+.vn-pijn.is-statisch .vn-pijn__vrij { opacity: 1; transform: none; }
+
 /* ---------- The journey of one visitor ---------- */
 .vn-reis__lijn { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
 .vn-reis__lijn li { position: relative; padding: 46px 16px 18px; border-radius: 18px; background: var(--surface); display: flex; flex-direction: column; gap: 6px; }
@@ -316,6 +369,20 @@ html:has(.vn), body:has(.vn) { background: #fff; }
   .vn-app__zij { display: none; }
 }
 @media (max-width: 760px) {
+  .vn-pijn { height: 520vh; }
+  .vn-pijn__plak { grid-template-columns: minmax(0, 1fr); align-content: start; gap: 18px; padding: 76px 16px 16px; }
+  .vn-pijn__tekst .vn-h2 { font-size: 1.75rem; min-height: 2.3em; }
+  .vn-pijn__tekst .vn-sub { font-size: 1rem; min-height: 6.2em; margin-top: 10px; }
+  .vn-pijn__bolletjes { margin-top: 12px; }
+  .vn-pijn__podium { height: 46svh; }
+  .vn-pijn__kaart { width: 82%; padding: 11px 12px; font-size: 13px; }
+  .vn-pijn__kaart--whatsapp { top: 16%; }
+  .vn-pijn__kaart--instagram { top: 34%; left: 2%; }
+  .vn-pijn__kaart--bellen { top: 50%; right: 0; }
+  .vn-pijn__kaart--formulier { left: 8%; }
+  .vn-pijn__volgo { top: 0; bottom: auto; padding: 12px; gap: 4px; font-size: 13px; }
+  .vn-pijn__vrij:last-child { display: none; }
+  .vn-pijn__vrij { padding: 7px 10px; }
   .vn-top__in { height: 60px; padding: 0 14px; gap: 10px; }
   .vn-top__rechts { gap: 6px; }
   .vn-top__login { padding: 8px 6px; }
