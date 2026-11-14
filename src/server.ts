@@ -106,6 +106,21 @@ export default {
     if ((url.hostname === "www.thevolgo.app" || url.hostname.endsWith(".workers.dev")) && request.method === "GET" && !url.pathname.startsWith("/api/") && url.pathname !== "/ava.js") {
       return Response.redirect(`https://thevolgo.app${url.pathname}${url.search}`, 301);
     }
+    // A customer's own domain: show the website Volgo built for them. Nothing else of Volgo is reachable there.
+    if (!url.hostname.endsWith("thevolgo.app")) {
+      const intake = await import("./lib/intake.server");
+      if (intake.isKlantHost(url.hostname)) {
+        const [{ bindings }, bouwer] = await Promise.all([import("./lib/bindings.server"), import("./lib/bouwer.server")]);
+        if (request.method !== "GET" && request.method !== "HEAD") return applySecurityHeaders(bouwer.legePagina("Not available.", 405));
+        if (url.protocol === "http:") return Response.redirect(`https://${url.host}${url.pathname}${url.search}`, 301);
+        const { DB } = bindings();
+        const site = DB ? await intake.siteVoorHost(DB, url.hostname).catch(() => null) : null;
+        const html = site?.gepubliceerd ? bouwer.leesSite(site.data).html : "";
+        // The website is one page: a file that does not exist (favicon, old links to images) is a plain 404.
+        if (!html || (/\.[a-z0-9]{2,5}$/i.test(url.pathname) && !/\.html?$/i.test(url.pathname))) return applySecurityHeaders(bouwer.legePagina(site ? "This website is not online yet." : "This website is not online.", 404));
+        return applySecurityHeaders(bouwer.paginaAntwoord(html, "public, max-age=60"));
+      }
+    }
     // Oude Nederlandse adressen blijven werken.
     const oud: Record<string, string> = {
       "/abonnement": "/pricing", "/betalen": "/checkout", "/aanmelden": "/signup", "/inloggen": "/login",

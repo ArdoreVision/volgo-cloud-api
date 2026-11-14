@@ -187,7 +187,7 @@ function AccountZonderPlan() {
   return (
     <AuthShell>
       <h1 className="v-auth__title">Create your account.</h1>
-      <p className="v-auth__sub">Then you land in your dashboard. Start Volgo there and your line of code is ready to paste into your website.</p>
+      <p className="v-auth__sub">Then you tell Volgo about your business and fill in your domain. Volgo builds your website before your dashboard opens.</p>
       <form className="v-auth__form" noValidate onSubmit={onSubmit}>
         <div className="v-fld">
           <label htmlFor="naam">Your name</label>

@@ -52,7 +52,15 @@ export function splitsAntwoord(tekst: string) {
   return { bericht: schoon.slice(0, i).trim(), html: (eind > i ? schoon.slice(i, eind + 7) : schoon.slice(i)).trim() };
 }
 
-const SYSTEM = (bedrijf: string, info: string, profiel: string) => `You are the website builder inside Volgo. The owner of a business chats with you and you build their website.
+/** Extra instructions for the 3D package: a real 3D scene and scroll animation, still one fast, self-contained page. */
+const DRIE_D = `
+THIS IS A 3D WEBSITE
+- The hero is a real 3D scene drawn with WebGL: load three.js as an ES module from https://unpkg.com/three@0.160.0/build/three.module.js inside one <script type="module">. Build the scene from code (geometry, lights, materials, particles); never load 3D model files.
+- The scene reacts to scrolling and gently to the pointer. Further down the page, sections animate in as they scroll into view.
+- Keep it fast: one canvas, a capped pixel ratio, pause rendering when the canvas is off screen. Respect prefers-reduced-motion with a still frame. If WebGL is not available the page must still look finished.
+- The text stays readable on top of the 3D scene, on a phone as well.`;
+
+const SYSTEM = (bedrijf: string, info: string, profiel: string, drieD = false) => `You are the website builder inside Volgo. The owner of a business chats with you and you build their website.
 
 BUSINESS
 Name: ${bedrijf}
@@ -73,7 +81,7 @@ THE PAGE
 - Never invent facts: no made-up reviews, customer names, prices, phone numbers, addresses, opening hours, awards or numbers. If something is unknown, write neutral text or leave it out, and tell the owner what you still need.
 - Buttons that should lead to an appointment get the attribute data-ava-book. Buttons that should open the chat get data-ava-open. Both are plain <button type="button"> elements. The Volgo chat assistant is added to the page automatically: do not add any chat script or chat widget yourself.
 - Good <title> and meta description, lang attribute in the page's language, semantic headings, sufficient colour contrast.
-- Keep it compact: no filler text, no comments in the code.`;
+- Keep it compact: no filler text, no comments in the code.${drieD ? DRIE_D : ""}`;
 
 type Uit = { content: { type: string; text?: string }[]; stop_reason: string };
 
@@ -90,7 +98,7 @@ async function vraagClaude(key: string, model: string, system: string, messages:
 }
 
 /** One chat turn: returns Volgo's message and, when the page changed, saves the new page as the draft. */
-export async function bouwBeurt(DB: D1Database, team: number, vraag: string) {
+export async function bouwBeurt(DB: D1Database, team: number, vraag: string, opts: { /** Shown in the chat instead of `vraag` (for the long first request Volgo writes itself). */ chatTekst?: string; drieD?: boolean } = {}) {
   const { ANTHROPIC_API_KEY, CLAUDE_MODEL } = bindings();
   const bouwModel = (bindings() as { CLAUDE_BOUW_MODEL?: string }).CLAUDE_BOUW_MODEL;
   if (!ANTHROPIC_API_KEY) return { ok: false as const, message: "The website builder is unavailable right now. Please try again later." };
@@ -111,7 +119,7 @@ export async function bouwBeurt(DB: D1Database, team: number, vraag: string) {
   if (last && last.role === "user") last.content += `\n${nu}`;
   else messages.push({ role: "user", content: nu });
 
-  const system = SYSTEM(inst.bedrijf, (inst.bedrijfsinfo || "").slice(0, 6000), profielVoorAva(leesProfiel(inst.profiel)));
+  const system = SYSTEM(inst.bedrijf, (inst.bedrijfsinfo || "").slice(0, 6000), profielVoorAva(leesProfiel(inst.profiel)), opts.drieD);
   const modellen = [...new Set([bouwModel || "claude-sonnet-5-5", CLAUDE_MODEL || "claude-haiku-5-5"])];
   let uit: Uit | null = null;
   for (const m of modellen) {
@@ -122,16 +130,16 @@ export async function bouwBeurt(DB: D1Database, team: number, vraag: string) {
       uit = null;
     }
   }
-  if (!uit) return { ok: false as const, message: "Het bouwen lukte nu niet. Probeer het over een minuut opnieuw." };
+  if (!uit) return { ok: false as const, message: "Building did not work just now. Please try again in a minute." };
 
   const tekst = uit.content.filter((b) => b.type === "text").map((b) => b.text ?? "").join("\n");
   const { bericht, html } = splitsAntwoord(tekst);
   const afgekapt = uit.stop_reason === "max_tokens" || (html !== "" && !/<\/html>\s*$/i.test(html));
   if (html && (afgekapt || html.length > MAX_HTML))
-    return { ok: false as const, message: "De pagina werd te groot om in één keer te bouwen. Vraag om een kortere versie, of pas één onderdeel tegelijk aan." };
+    return { ok: false as const, message: "The page became too big to build in one go. Ask for a shorter version, or change one part at a time." };
 
-  const antwoord = bericht || (html ? "Je website is bijgewerkt. Bekijk het voorbeeld." : "Kun je iets meer vertellen over wat je wilt?");
-  const nieuweChat: BouwBericht[] = [...chat, { rol: "ik" as const, tekst: vraag }, { rol: "volgo" as const, tekst: antwoord }].slice(-40);
+  const antwoord = bericht || (html ? "Your website is updated. Have a look at the preview." : "Could you tell me a little more about what you want?");
+  const nieuweChat: BouwBericht[] = [...chat, { rol: "ik" as const, tekst: opts.chatTekst ?? vraag }, { rol: "volgo" as const, tekst: antwoord }].slice(-40);
   const nieuweHtml = html ? metChat(html, inst.sleutel) : (site?.html ?? "");
   const data = JSON.stringify({ html: nieuweHtml, chat: nieuweChat });
   if (site) {

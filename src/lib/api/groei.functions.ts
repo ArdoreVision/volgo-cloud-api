@@ -349,7 +349,10 @@ export const haalInstelStatus = createServerFn({ method: "GET" }).handler(async 
   // Email notifications are on unless the user switched them all off (no row = defaults: on).
   const mailAan = !m || Boolean(m.chat_mail || m.heet_mail || m.email || m.samenvatting);
   const push = await DB.prepare("SELECT 1 AS n FROM push_abonnementen WHERE gebruiker_id = ? LIMIT 1").bind(g.id).first().catch(() => null);
+  // The website Volgo built: is it published?
+  const site = await DB.prepare("SELECT gepubliceerd FROM sites WHERE team_id = ?").bind(g.team_id).first<{ gepubliceerd: number }>().catch(() => null);
   return {
+    sitePubliek: Boolean(site?.gepubliceerd),
     eigenaar: g.rol === "eigenaar",
     geinstalleerd: Boolean(ob?.geinstalleerd),
     getest: Boolean(ob?.ava_getest) || Boolean(test),
@@ -363,3 +366,16 @@ export const haalInstelStatus = createServerFn({ method: "GET" }).handler(async 
     nummer: Boolean(extra?.zakelijk_nummer),
   };
 });
+
+/** Install page: switch simple on/off settings with one tap. Same checks as the settings pages (owner-only where needed). */
+const SNEL = ["booking_on", "reminder_on", "follow_up_on", "review_request_on", "email_every_request", "email_hot_requests", "email_morning_summary", "email_every_conversation", "notify_new_conversations", "notify_new_requests"] as const;
+export const zetSnel = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ changes: z.record(z.string(), z.boolean()) }).parse(v))
+  .handler(async ({ data }) => {
+    const { g, DB } = await sessie();
+    const { wijzigInstellingen } = await import("../assistent-acties.server");
+    // Only the plain switches in the list above; anything else is dropped.
+    const changes = Object.fromEntries(Object.entries(data.changes).filter(([k]) => (SNEL as readonly string[]).includes(k)));
+    const r = await wijzigInstellingen(DB, { id: g.id, team_id: g.team_id, rol: g.rol }, changes);
+    return { ok: r.geweigerd.length === 0, geweigerd: r.geweigerd };
+  });

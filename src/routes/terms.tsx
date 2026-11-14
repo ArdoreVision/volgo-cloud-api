@@ -20,10 +20,10 @@ export const Route = createFileRoute("/terms")({
 
       <h2>2. The service</h2>
       <p>
-        Volgo is an appointment setter that the customer adds to their own website with one line of code. Volgo chats with visitors, answers
+        Volgo builds a website for the customer with an appointment setter inside. Volgo chats with visitors, answers
         questions, asks the customer's own questions, lets visitors book an appointment, captures contact details and ranks leads by how warm they are. The customer gets access to an online
-        dashboard with conversations, leads, calendar, team chat and analytics. A website is not part of the Starter, Growth and Pro plans: Volgo works inside the website the customer already has. With the
-        Complete package Volgo builds a website for the customer with Volgo inside, hosted for as long as the subscription runs, with one domain name included. Customers who bought one of the
+        dashboard with conversations, leads, calendar, team chat and analytics. Every plan includes a website built by Volgo from the details the customer provides, hosted for as long as the
+        subscription runs. The customer connects a domain name they own; with the Complete package one domain name is included. Customers who bought one of the
         earlier website packages (Website or 3D website) keep the website Volgo built for them, hosted for as long as their
         subscription runs; for those earlier packages domain name costs are not included and are paid by the customer. What each plan includes is listed on the{" "}
         <a href="/pricing">pricing page</a>.

@@ -154,7 +154,7 @@ export const startBetaling = createServerFn({ method: "POST" })
         b.set(`line_items[${n}][quantity]`, "1");
         b.set(`line_items[${n}][price_data][currency]`, "eur");
         b.set(`line_items[${n}][price_data][unit_amount]`, String(opstart));
-        b.set(`line_items[${n}][price_data][product_data][name]`, plan.id === "compleet" ? "Complete website with domain · built by Volgo (one-time)" : `${plan.naam} · built by Volgo (one-time)`);
+        b.set(`line_items[${n}][price_data][product_data][name]`, plan.id === "compleet" ? "3D website made to measure, with domain · built by Volgo (one-time)" : `${plan.naam} · built by Volgo (one-time)`);
       }
       // Introductory offer (first-time customers only): the lower price for the first months, then the full price automatically.
       // If the coupon can't be set up, the checkout fails (below) rather than charging more than the advertised price.
@@ -534,6 +534,20 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
   // The five profile questions: answered once by the owner before the dashboard opens.
   const avaProfiel = await DB.prepare("SELECT profiel, kanalen_gezien FROM ava_instellingen WHERE team_id = ?").bind(team).first<{ profiel: string | null; kanalen_gezien: number }>();
   const profielKlaar = profielCompleet(leesProfiel(avaProfiel?.profiel));
+  // New accounts tell Volgo about the business and give their domain before the dashboard opens; Volgo then builds
+  // the website. Accounts from before this existed are not sent back: they already have a website here, asked for
+  // one, or have Volgo running on a website of their own.
+  const intakeKlaar = Boolean(
+    await DB.prepare(
+      `SELECT 1 WHERE EXISTS (SELECT 1 FROM website_intake WHERE team_id = ?1) OR EXISTS (SELECT 1 FROM sites WHERE team_id = ?1)
+         OR EXISTS (SELECT 1 FROM website_aanvragen WHERE team_id = ?1) OR EXISTS (SELECT 1 FROM onboarding WHERE team_id = ?1 AND geinstalleerd = 1)
+         OR EXISTS (SELECT 1 FROM site_views WHERE team_id = ?1)`,
+    )
+      .bind(team)
+      .first()
+      // An older database without the table: never lock anyone out of their dashboard.
+      .catch(() => true),
+  );
   const [leads, afspraken, gesprekken, leden, kanalen] = await Promise.all([
     DB.prepare(
       `SELECT l.id, l.created_at, l.naam, l.onderwerp, l.kanaal, l.status, l.laatste_actie, l.voorbeeld, l.gearchiveerd,
@@ -576,6 +590,7 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
       functie: profiel?.functie ?? "",
     },
     profielKlaar,
+    intakeKlaar,
     kanalenGezien: Boolean(avaProfiel?.kanalen_gezien),
     leads: leads.results.filter((l) => !l.gearchiveerd),
     archief: leads.results.filter((l) => l.gearchiveerd),

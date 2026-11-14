@@ -16,11 +16,11 @@ export const Route = createFileRoute("/pricing")({
   loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "", plan: "", eigenaar: false })),
   head: () => ({
     meta: [
-      { title: "Pricing · Volgo · The appointment setter for your website" },
+      { title: "Pricing · Volgo · Your website with an appointment setter inside" },
       {
         name: "description",
         content:
-          "Volgo pricing: Starter €149, Growth €249 and Pro €449 per month for the appointment setter in the website you already have. Or Complete: we build your website with Volgo inside and your domain included, €2499 one-time plus €249.99 per month. Excl. VAT, cancel any month.",
+          "Volgo pricing: Starter €149, Growth €249 and Pro €449 per month, each with a complete professional website built for you and the appointment setter inside. Or Complete: a 3D website made to measure with a 1-on-1 call, €2499 one-time plus €249.99 per month. Excl. VAT, cancel any month.",
       },
       { property: "og:url", content: "https://thevolgo.app/pricing" },
     ],
@@ -68,7 +68,7 @@ function Abonnement() {
           {verlopen ? <p className="vn-melding">Your subscription has ended. Choose a plan to continue. All your data is still here.</p> : null}
           <p className="vn-oog">Pricing</p>
           <h1 className="vn-h1">{klant ? "Your plan." : "Pick what fits your business."}</h1>
-          <p className="vn-sub">Three plans for the website you already have. Or let us build your complete website, with Volgo inside and your domain included.</p>
+          <p className="vn-sub">Every plan comes with a complete professional website, built for you, with Volgo inside. For serious businesses: a 3D website made to measure.</p>
         </header>
 
         <div className="vn-prijzen--los">

@@ -1,7 +1,7 @@
 // Plans. Amounts in cents, per month, excl. VAT. Limits are enforced in the app.
-// Volgo is an appointment setter that goes into the customer's own website: visitors plan an appointment, everything lands in
-// one inbox and Volgo follows up by itself. Three plans for a website you already have (Starter, Growth, Pro) and one package
-// where we build the whole website with Volgo inside (Complete).
+// Every plan comes with a complete new website that Volgo builds automatically from what the owner tells it, with the Volgo
+// appointment setter inside, on the owner's own domain. Starter, Growth and Pro get a professional website. Complete is the
+// one-time package for serious businesses: a 3D website made to measure, with a 1-on-1 call and everything included.
 // "start", "pro" and "premium" are earlier plans: no longer sold, existing customers keep them unchanged.
 export type PlanId = "starter" | "groei" | "max" | "compleet" | "start" | "pro" | "premium";
 
@@ -34,8 +34,10 @@ export type Plan = {
     teamChat: boolean;
     /** Own photo and style for the chat, no "Volgo" mention. */
     eigenStijl: boolean;
-    /** Volgo builds a custom website with Volgo built in (domain not included). */
+    /** Volgo builds the website, with Volgo built in. True for every plan that is sold. */
     website: boolean;
+    /** The website is a 3D website (3D visuals, scroll animation). Only Complete, and the earlier "3D website" package. */
+    drieD?: boolean;
     /** AI conversations per calendar month. Above this, Volgo still captures leads in basic mode. null = unlimited. */
     gesprekken: number | null;
     /** Longest analytics range in days. */
@@ -49,6 +51,8 @@ const WEBSITE_LIMIETEN: Plan["limieten"] = { leden: 5, teamChat: true, eigenStij
 
 /** What every plan does. The plans differ in volume, users and how much we do for you. */
 const BASIS = [
+  "A complete professional website, built for you by Volgo",
+  "On your own domain name",
   "Volgo answers every visitor, day and night",
   "Visitors book an appointment themselves, in your website",
   "Every chat and request in one inbox",
@@ -66,10 +70,10 @@ export const PLANS: Record<PlanId, Plan> = {
     proefDagen: 0,
     opstart: 0,
     voor: "For owners who work alone and handle their own appointments.",
-    tagline: "Volgo in the website you already have. Visitors book an appointment themselves, you see everything in one inbox.",
-    kern: ["300 conversations per month", "2 team members", "Install it yourself in about 10 minutes"],
-    features: [...BASIS, "Your own questions, opening hours and appointment length", "Your own chat name, photo and colour", "30 days of visitor analytics", "Email support"],
-    limieten: { leden: 2, teamChat: false, eigenStijl: false, website: false, gesprekken: 300, analyticsDagen: 30 },
+    tagline: "A complete professional website, built for you, with Volgo inside. Visitors book an appointment themselves, you see everything in one inbox.",
+    kern: ["Professional website, built for you", "300 conversations per month", "2 team members"],
+    features: [...BASIS, "Your own questions, opening hours and appointment length", "Your own chat name, photo and colour", "Change your website by chat, whenever you want", "30 days of visitor analytics", "Email support"],
+    limieten: { leden: 2, teamChat: false, eigenStijl: false, website: true, gesprekken: 300, analyticsDagen: 30 },
   },
   groei: {
     id: "groei",
@@ -80,10 +84,10 @@ export const PLANS: Record<PlanId, Plan> = {
     opstart: 0,
     badge: "Most popular",
     voor: "For businesses with a small team and new requests every week.",
-    tagline: "More conversations, your team on board and the chat fully in your own style, without the Volgo name.",
-    kern: ["1,000 conversations per month", "5 team members", "We install it for you, if you like"],
+    tagline: "Your professional website with more conversations, your team on board and the chat fully in your own style, without the Volgo name.",
+    kern: ["Professional website, built for you", "1,000 conversations per month", "5 team members"],
     features: ["Everything in Starter", "Chat fully in your own style, without the Volgo name", "Team chat: discuss a request with colleagues", "90 days of visitor analytics", "Priority email support"],
-    limieten: { leden: 5, teamChat: true, eigenStijl: true, website: false, gesprekken: 1000, analyticsDagen: 90 },
+    limieten: { leden: 5, teamChat: true, eigenStijl: true, website: true, gesprekken: 1000, analyticsDagen: 90 },
   },
   max: {
     id: "max",
@@ -93,10 +97,10 @@ export const PLANS: Record<PlanId, Plan> = {
     proefDagen: 0,
     opstart: 0,
     voor: "For busy businesses with many visitors and a bigger team.",
-    tagline: "Everything in Growth, for many visitors and a bigger team. We set it all up for you.",
-    kern: ["5,000 conversations per month", "Unlimited team members", "We install it and set it up for you"],
-    features: ["Everything in Growth", "We put Volgo in your website and set up your questions and hours", "Personal help with your setup", "90 days of visitor analytics"],
-    limieten: { leden: null, teamChat: true, eigenStijl: true, website: false, gesprekken: 5000, analyticsDagen: 90 },
+    tagline: "Your professional website for many visitors and a bigger team. We help you set everything up.",
+    kern: ["A 3D website, built for you", "5,000 conversations per month", "Unlimited team members"],
+    features: ["Everything in Growth", "A 3D website: 3D visuals and scroll animation", "We set up your questions and hours with you", "Personal help with your setup", "90 days of visitor analytics"],
+    limieten: { leden: null, teamChat: true, eigenStijl: true, website: true, drieD: true, gesprekken: 5000, analyticsDagen: 90 },
   },
   compleet: {
     id: "compleet",
@@ -105,18 +109,20 @@ export const PLANS: Record<PlanId, Plan> = {
     prijsTekst: "249.99",
     proefDagen: 0,
     opstart: 249900,
-    voor: "For businesses without a website, or ready for a new one.",
-    tagline: "We build your complete website, with Volgo inside and your domain included. Everything unlimited.",
-    kern: ["Complete website, built for you", "Volgo inside, everything unlimited", "Your domain included"],
+    voor: "For serious businesses that want a website people remember.",
+    tagline: "An extremely beautiful 3D website, made to measure, with Volgo inside and everything included. You get a 1-on-1 call with the founder or someone from the team.",
+    kern: ["3D website, made to measure", "1-on-1 call with the founder or the team", "Everything included and unlimited"],
     features: [
-      "A website made to measure, with your own photos and texts",
+      "A 3D website: 3D visuals and scroll animation, made for your business",
+      "A 1-on-1 call with the founder or someone from the team",
       "Your domain name arranged and included",
-      "Volgo is in it from day one: nothing to install",
+      "Volgo is in it from day one",
       "Unlimited conversations and team members",
       "Everything in Pro",
+      "Hosting and maintenance included in the monthly price",
       "Changes to your website when you need them",
     ],
-    limieten: { leden: null, teamChat: true, eigenStijl: true, website: true, gesprekken: null, analyticsDagen: 90 },
+    limieten: { leden: null, teamChat: true, eigenStijl: true, website: true, drieD: true, gesprekken: null, analyticsDagen: 90 },
   },
   start: {
     id: "start",
@@ -181,13 +187,13 @@ export const PLANS: Record<PlanId, Plan> = {
       "Volgo answers every visitor and plans the appointment",
       "Changes to your website when you need them",
     ],
-    limieten: WEBSITE_LIMIETEN,
+    limieten: { ...WEBSITE_LIMIETEN, drieD: true },
   },
 };
 
-/** The plans for a website you already have, in the order of the price cards. */
+/** The three monthly plans, each with a professional website, in the order of the price cards. */
 export const ABONNEMENTEN: PlanId[] = ["starter", "groei", "max"];
-/** The package where we build the website too. Shown apart from the three plans. */
+/** The one-time package with a 3D website made to measure. Shown apart from the three plans. */
 export const COMPLEET: PlanId = "compleet";
 /** Everything that is sold now. */
 export const ZICHTBAAR: PlanId[] = [...ABONNEMENTEN, COMPLEET];
@@ -210,6 +216,10 @@ export const vandaagTekst = (p: Plan) => {
 type Cel = string | boolean;
 /** Everything in the plans, as a table on the pricing page. One column per plan that is sold. */
 export const VERGELIJKING: { label: string; starter: Cel; groei: Cel; max: Cel; compleet: Cel }[] = [
+  { label: "Website built by Volgo", starter: "Professional", groei: "Professional", max: "Professional", compleet: "3D, made to measure" },
+  { label: "Domain name", starter: "Your own, connected", groei: "Your own, connected", max: "Your own, connected", compleet: "Arranged and included" },
+  { label: "Change your website by chat", starter: true, groei: true, max: true, compleet: true },
+  { label: "1-on-1 call with the founder or the team", starter: false, groei: false, max: false, compleet: true },
   { label: "Conversations per month", starter: "300", groei: "1,000", max: "5,000", compleet: "Unlimited" },
   { label: "Team members", starter: "2", groei: "5", max: "Unlimited", compleet: "Unlimited" },
   { label: "Volgo answers every visitor, 24/7", starter: true, groei: true, max: true, compleet: true },
@@ -225,13 +235,18 @@ export const VERGELIJKING: { label: string; starter: Cel; groei: Cel; max: Cel; 
   { label: "Chat in your own style, without the Volgo name", starter: false, groei: true, max: true, compleet: true },
   { label: "Team chat", starter: false, groei: true, max: true, compleet: true },
   { label: "Visitor analytics", starter: "30 days", groei: "90 days", max: "90 days", compleet: "90 days" },
-  { label: "Installing", starter: "Yourself, step by step", groei: "Yourself, or we do it", max: "We do it", compleet: "Not needed" },
-  { label: "A website built by us", starter: false, groei: false, max: false, compleet: true },
-  { label: "Domain name", starter: false, groei: false, max: false, compleet: "Included" },
+  { label: "Hosting and maintenance", starter: "Included", groei: "Included", max: "Included", compleet: "Included" },
   { label: "Support", starter: "Email", groei: "Priority email", max: "Personal", compleet: "Personal" },
   { label: "Cancel", starter: "Any month", groei: "Any month", max: "Any month", compleet: "Any month" },
 ];
 
+/** After paying: tell Volgo about the business, give the domain, and Volgo builds the website. The same for the three plans. */
+const NIEUW = [
+  "Pay securely, then create your account.",
+  "Tell Volgo about your business: what you do, your services, how customers reach you. A few minutes.",
+  "Fill in your own domain name. You get the two lines to give to whoever manages it.",
+  "Volgo builds your complete website, with the appointment setter inside. You look at it, change what you want by chat and press Publish.",
+];
 const ZELF = [
   "Pay securely, then create your account. Your dashboard opens right away.",
   "Answer 5 short questions about your business and set your opening hours.",
@@ -247,19 +262,16 @@ const OUD_WEBSITE = [
 
 /** What happens after you subscribe, per plan. Shown on the pricing page. */
 export const START_STAPPEN: Record<PlanId, { titel: string; stappen: string[] }> = {
-  starter: { titel: "On your website in about 10 minutes", stappen: ZELF },
-  groei: { titel: "On your website in about 10 minutes", stappen: [...ZELF.slice(0, 3), "Rather not do it yourself? Press “Let Volgo do it” and we put it in your website for you."] },
-  max: {
-    titel: "We set it up for you",
-    stappen: ["Pay securely, then create your account. Your dashboard opens right away.", "Answer 5 short questions about your business.", "We put Volgo in your website and set up your questions and hours.", "You get a message as soon as it is on. From then on appointments come in by themselves."],
-  },
+  starter: { titel: "Your website, built in minutes", stappen: NIEUW },
+  groei: { titel: "Your website, built in minutes", stappen: NIEUW },
+  max: { titel: "Your website, built in minutes", stappen: [...NIEUW.slice(0, 3), "Volgo builds your complete website. We help you set up your questions and hours, then you press Publish."] },
   compleet: {
-    titel: "We build your website, with Volgo inside",
+    titel: "Your 3D website, made to measure",
     stappen: [
-      "Pay securely, then create your account. Your dashboard opens right away.",
-      "Open Website and tell us what you want: your business, your photos, your texts. By chat or in a call.",
-      "We build your website and arrange your domain name. You review it and approve.",
-      "Your website goes live with Volgo inside. Nothing to install.",
+      "Pay securely, then create your account.",
+      "Tell Volgo about your business and fill in your own domain name.",
+      "Volgo builds a first version of your 3D website straight away, and you plan your 1-on-1 call with the founder or the team.",
+      "After the call we finish it to measure. You approve, then it goes live with Volgo inside.",
     ],
   },
   start: { titel: "Live on your website in a few minutes", stappen: ZELF },

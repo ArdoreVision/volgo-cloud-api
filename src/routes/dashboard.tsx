@@ -11,6 +11,8 @@ import { InstelLijst } from "@/components/dash/instel-lijst";
 import { AgendaInstellen } from "@/components/dash/agenda-instellen";
 import { AvaInstellen } from "@/components/dash/ava-instellen";
 import { VraagVolgo } from "@/components/dash/vraag-volgo";
+import { InstallHub } from "@/components/dash/install-hub";
+import { WebsiteStart } from "@/components/dash/website-start";
 import { MijnWebsite } from "@/components/dash/mijn-website";
 import { Kanalen } from "@/components/dash/kanalen";
 import { Reviews } from "@/components/dash/reviews";
@@ -20,7 +22,6 @@ import { BillingButton } from "@/components/dash/billing-button";
 import { Upsell } from "@/components/dash/upsell";
 import { OntwerpEditor } from "@/components/dash/ontwerp";
 import { Website } from "@/components/dash/website";
-import { WebsiteAanvraag } from "@/components/dash/website-aanvraag";
 import { Gesprekken } from "@/components/dash/gesprekken";
 import { Vandaag } from "@/components/dash/vandaag";
 import { MijnChat } from "@/components/dash/mijn-chat";
@@ -54,7 +55,7 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-type Tab = "home" | "aanvragen" | "gesprekken" | "agenda" | "overzicht" | "verkeer" | "ava" | "ontwerp" | "installeren" | "website" | "team" | "instellingen" | "automatisch" | "reviews" | "betalingen" | "mijnsite" | "kanalen" | "vraag";
+type Tab = "home" | "aanvragen" | "gesprekken" | "agenda" | "overzicht" | "verkeer" | "ava" | "ontwerp" | "installeren" | "website" | "team" | "instellingen" | "automatisch" | "reviews" | "betalingen" | "mijnsite" | "kanalen" | "vraag" | "inbouwen";
 type Sub = "meldingen" | "account" | "abonnement";
 const SUBS: [Sub, string][] = [
   ["meldingen", "Notifications"],
@@ -76,37 +77,32 @@ const ALLE_GROEPEN: { kop?: string; items: [Tab, string][] }[] = [
       ["gesprekken", "Inbox"],
       ["agenda", "Calendar"],
       ["aanvragen", "Requests"],
-      ["home", "Today"],
       ["vraag", "Ask Volgo"],
     ],
   },
   {
-    kop: "Automatic",
     items: [
-      ["automatisch", "Follow-up"],
-      ["reviews", "Reviews"],
-      ["betalingen", "Payments"],
-    ],
-  },
-  {
-    kop: "Setup",
-    items: [
-      ["installeren", "Install"],
       ["website", "Website"],
-      ["mijnsite", "My website"],
-      ["kanalen", "Connections"],
-      ["ava", "Your chat"],
-    ],
-  },
-  {
-    items: [
-      ["verkeer", "Visitors"],
+      ["installeren", "Install"],
       ["instellingen", "Settings"],
     ],
   },
 ];
-const groepenVoor = (metWebsite: boolean) => ALLE_GROEPEN.map((g) => ({ ...g, items: g.items.filter(([id]) => id !== (metWebsite ? "installeren" : "website")) }));
-const TABS: [Tab, string][] = ALLE_GROEPEN.flatMap((g) => g.items);
+/** Pages that are not in the menu but open from Install, Ask Volgo or a link. */
+const OVERIG: [Tab, string][] = [
+  ["home", "Today"],
+  ["automatisch", "Follow-up"],
+  ["reviews", "Reviews"],
+  ["betalingen", "Payments"],
+  ["mijnsite", "My website"],
+  ["kanalen", "Connections"],
+  ["ava", "Your chat"],
+  ["verkeer", "Visitors"],
+  ["inbouwen", "Install in your own website"],
+];
+/** Plans without a website from Volgo have no Website page. */
+const groepenVoor = (metWebsite: boolean) => ALLE_GROEPEN.map((g) => ({ ...g, items: g.items.filter(([id]) => metWebsite || id !== "website") }));
+const TABS: [Tab, string][] = [...ALLE_GROEPEN.flatMap((g) => g.items), ...OVERIG];
 type Toast = { id: number; titel: string; tekst: string; tab: Tab; heet?: boolean };
 type Status = "nieuw" | "opvolging" | "offerte" | "afspraak" | "klant" | "verloren";
 const STATUS_LABEL: Record<Status, string> = {
@@ -376,7 +372,7 @@ function Open({ data }: { data: DashData }) {
   useEffect(() => {
     const ga = () => {
       const h = window.location.hash.slice(1);
-      if (["vraag", "home", "gesprekken", "agenda", "aanvragen", "betalingen", "automatisch", "reviews", "verkeer", "installeren", "mijnsite", "website", "kanalen", "ava", "instellingen", "meldingen", "account", "abonnement"].includes(h)) setTab(h);
+      if (["inbouwen", "vraag", "home", "gesprekken", "agenda", "aanvragen", "betalingen", "automatisch", "reviews", "verkeer", "installeren", "mijnsite", "website", "kanalen", "ava", "instellingen", "meldingen", "account", "abonnement"].includes(h)) setTab(h);
     };
     ga();
     window.addEventListener("hashchange", ga);
@@ -450,7 +446,7 @@ function Open({ data }: { data: DashData }) {
     ["gesprekken", "Inbox"],
     ["agenda", "Calendar"],
     ["aanvragen", "Requests"],
-    ["home", "Today"],
+    ["vraag", "Ask Volgo"],
   ];
 
   // First login of the owner: answer the five questions before anything else.
@@ -465,6 +461,19 @@ function Open({ data }: { data: DashData }) {
             await router.invalidate();
           }}
           start={vragenOpen ? (profiel ?? {}) : {}}
+        />
+      </div>
+    );
+
+  // Then: tell Volgo about the business and give the domain. Volgo builds the website before the dashboard opens.
+  if (g.rol === "eigenaar" && data.profielKlaar && plan.limieten.website && !data.intakeKlaar)
+    return (
+      <div className="volgo v-dash v-dash--editor" data-thema={thema}>
+        <WebsiteStart
+          klaar={async () => {
+            setTab("website");
+            await router.invalidate();
+          }}
         />
       </div>
     );
@@ -564,9 +573,9 @@ function Open({ data }: { data: DashData }) {
             </svg>
           </span>
         </button>
-        <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={plan.limieten.website} planNaam={plan.naam} />
+        <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={Boolean(plan.limieten.drieD)} planNaam={plan.naam} />
       </div>
-      <main hidden={tab === "vraag"} key={`${tab === "instellingen" ? `${tab}-${sub}` : tab}-${versie}`} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || (tab === "website" && plan.id !== "compleet") ? " v-dash__main--full" : ""}`}>
+      <main hidden={tab === "vraag"} key={`${tab === "instellingen" ? `${tab}-${sub}` : tab}-${versie}`} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || tab === "website" ? " v-dash__main--full" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
             {proefDagen > PROEF_DAGEN
@@ -575,12 +584,18 @@ function Open({ data }: { data: DashData }) {
           </p>
         ) : null}
 
-        {!geinstalleerd && tab !== "installeren" && g.rol === "eigenaar" ? (
+        {!geinstalleerd && tab !== "installeren" && tab !== "inbouwen" && tab !== "website" && g.rol === "eigenaar" ? (
           <button className="v-dash__doen" onClick={() => setTab("installeren")} type="button">
-            <span>
-              <strong>Volgo is not on your website yet.</strong> It takes about 10 minutes, step by step.
-            </span>
-            <em>Install now →</em>
+            {plan.limieten.website ? (
+              <span>
+                <strong>Your website is not online yet.</strong> Build it and put it online with a few taps.
+              </span>
+            ) : (
+              <span>
+                <strong>Volgo is not on your website yet.</strong> It takes about 10 minutes, step by step.
+              </span>
+            )}
+            <em>Open Install →</em>
           </button>
         ) : null}
 
@@ -595,12 +610,13 @@ function Open({ data }: { data: DashData }) {
             <AgendaInstellen />
           </>
         ) : null}
-        {tab === "website" && plan.limieten.website ? plan.id === "compleet" ? <WebsiteAanvraag openTab={(t) => setTab(t)} /> : <Website /> : null}
+        {tab === "website" && plan.limieten.website ? <Website /> : null}
         {tab === "ava" ? <MijnChat /> : null}
         {tab === "automatisch" ? <Automatisch openTab={(t) => setTab(t)} /> : null}
         {tab === "reviews" ? <Reviews openTab={(t) => setTab(t)} /> : null}
         {tab === "betalingen" ? <Betalingen /> : null}
-        {tab === "installeren" ? <Installeren klaar={() => setGeinstalleerd(true)} opnieuw={() => setGeinstalleerd(false)} openTab={(t) => setTab(t)} wijDoenHet={plan.id !== "starter"} /> : null}
+        {tab === "installeren" ? <InstallHub metWebsite={plan.limieten.website} openTab={(t) => setTab(t)} /> : null}
+        {tab === "inbouwen" ? <Installeren klaar={() => setGeinstalleerd(true)} opnieuw={() => setGeinstalleerd(false)} openTab={(t) => setTab(t)} wijDoenHet={plan.id !== "starter"} /> : null}
         {tab === "mijnsite" ? <MijnWebsite gebouwd={plan.limieten.website} openTab={(t) => setTab(t)} /> : null}
         {tab === "kanalen" ? <Kanalen openTab={(t) => setTab(t)} /> : null}
         {tab === "team" ? (
@@ -764,7 +780,7 @@ function Open({ data }: { data: DashData }) {
             {sub === "account" ? <Account g={g} leden={data.leden} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} /> : null}
             {sub === "abonnement" ? (
               <>
-            {plan.limieten.website ? (
+            {plan.limieten.drieD ? (
               <section className="v-dash__panel">
                 <PlanCall />
               </section>
