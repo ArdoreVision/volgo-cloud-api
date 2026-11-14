@@ -35,8 +35,13 @@ export function geleden(d: Date, nu = Date.now()) {
   return `${dg} ${dg === 1 ? "day" : "days"} ago`;
 }
 
+/** CSS class suffix for the warmth badge (v-heat--heet / --warm / --lauw). */
+export function warmteKlasse(w: number) {
+  return w >= 75 ? "heet" : w >= 55 ? "warm" : "lauw";
+}
+/** The warmth in a word, as shown to the business. */
 export function warmteLabel(w: number) {
-  return w >= 75 ? "Hot" : w >= 55 ? "Warm" : "Lauw";
+  return w >= 75 ? "Hot" : w >= 55 ? "Warm" : "Cool";
 }
 
 /** Lokale datumstring ("YYYY-MM-DD") verschuiven met n dagen. */

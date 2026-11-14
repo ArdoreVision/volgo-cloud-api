@@ -329,7 +329,7 @@ export const stuurMensBericht = createServerFn({ method: "POST" })
         m.token,
         taal,
       );
-      await a.notitie(DB, data.id, kanaal ? `Verstuurd per ${kanaal === "mail" ? "mail" : "sms"} naar ${m.contact}` : `Kon niet versturen naar ${m.contact}. Neem zelf contact op.`);
+      await a.notitie(DB, data.id, kanaal ? `Sent by ${kanaal === "mail" ? "email" : "text"} to ${m.contact}` : `Could not send to ${m.contact}. Get in touch yourself.`);
     }
     return { ok: true as const, message: "" };
   });

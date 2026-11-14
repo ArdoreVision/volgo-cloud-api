@@ -6,6 +6,7 @@ import { TALEN, isTaal } from "@/lib/talen";
 const SLEUTEL = "volgo-taal";
 const EVENT = "volgo-taal";
 
+/** The language to show: the visitor's own saved choice, otherwise English. The browser's language is not used. */
 export function huidigeTaal(): string {
   if (typeof window === "undefined") return "en";
   try {
@@ -14,8 +15,7 @@ export function huidigeTaal(): string {
   } catch {
     /* private mode */
   }
-  const b = (navigator.language || "en").slice(0, 2).toLowerCase();
-  return isTaal(b) ? b : "en";
+  return "en";
 }
 
 /** The visitor's own saved choice, or null when they never picked one. */

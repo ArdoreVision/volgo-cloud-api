@@ -31,7 +31,7 @@ export async function nieuwBinnen(DB: D1Database, team: number, b: { kanaal: Kan
     DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, ?, ?)").bind(id, b.rol ?? "bezoeker", b.tekst.slice(0, 4000)),
     DB.prepare("INSERT OR REPLACE INTO lead_scores (lead_id, warmte, reden) VALUES (?, 70, ?)").bind(leadId, `Nam contact op via ${KANAAL_TEKST[b.kanaal]}`),
   ]);
-  await meldTeam(DB, team, b.kanaal === "Telefoon" ? `Gemiste oproep: ${naam}` : `Nieuw bericht: ${naam}`, onderwerp, KANAAL_TEKST[b.kanaal]);
+  await meldTeam(DB, team, b.kanaal === "Telefoon" ? `Missed call: ${naam}` : `New message: ${naam}`, onderwerp, KANAAL_TEKST[b.kanaal]);
   return { id, token, leadId };
 }
 
@@ -52,7 +52,7 @@ export async function berichtBinnen(DB: D1Database, team: number, b: { kanaal: "
     DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), status = 'live', berichten = berichten + 1 WHERE id = ?").bind(bestaand.id),
   ]);
   if (b.naam) await DB.prepare("UPDATE ava_gesprek_meta SET naam = COALESCE(naam, ?) WHERE gesprek_id = ?").bind(b.naam.slice(0, 100), bestaand.id).run();
-  await meldTeam(DB, team, b.kanaal === "Telefoon" ? `Gemiste oproep: ${bestaand.bezoeker}` : `${bestaand.bezoeker} via ${KANAAL_TEKST[b.kanaal]}`, b.tekst.slice(0, 140), KANAAL_TEKST[b.kanaal]);
+  await meldTeam(DB, team, b.kanaal === "Telefoon" ? `Missed call: ${bestaand.bezoeker}` : `${bestaand.bezoeker} via ${KANAAL_TEKST[b.kanaal]}`, b.tekst.slice(0, 140), KANAAL_TEKST[b.kanaal]);
   return { id: bestaand.id, nieuw: false };
 }
 
@@ -65,7 +65,7 @@ export async function antwoordBinnen(DB: D1Database, token: string, tekst: strin
   await DB.batch([
     DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'bezoeker', ?)").bind(m.gesprek_id, tekst.slice(0, 4000)),
     DB.prepare("UPDATE ava_gesprekken SET laatste = datetime('now'), status = 'live', berichten = berichten + 1 WHERE id = ?").bind(m.gesprek_id),
-    DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'log', 'Antwoord ontvangen per mail')").bind(m.gesprek_id),
+    DB.prepare("INSERT INTO ava_berichten (gesprek_id, rol, tekst) VALUES (?, 'log', 'Reply received by email')").bind(m.gesprek_id),
   ]);
   await meldTeam(DB, m.team_id, `${m.bezoeker} antwoordde`, tekst.slice(0, 140), "mail");
   return true;

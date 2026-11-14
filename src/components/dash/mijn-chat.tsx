@@ -111,7 +111,7 @@ export function MijnChat({ klaar }: { klaar?: (wat: string) => void }) {
               {KLEUREN.map((k) => (
                 <button aria-label={k} aria-pressed={d.kleur.toLowerCase() === k} className="v-mc__kleur" key={k} onClick={() => zet("kleur", k)} style={{ background: k }} type="button" />
               ))}
-              <label className="v-mc__kleur v-mc__kleur--eigen" title="Eigen kleur">
+              <label className="v-mc__kleur v-mc__kleur--eigen" title="Own colour">
                 <input onChange={(e) => zet("kleur", e.target.value)} type="color" value={d.kleur} />
               </label>
             </div>
@@ -161,7 +161,7 @@ export function MijnChat({ klaar }: { klaar?: (wat: string) => void }) {
             <div className="v-mc__balk" style={{ background: d.kleur }}>
               <span className="v-mc__av v-mc__av--klein">{d.avatar ? <img alt="" src={d.avatar} /> : d.naam.slice(0, 1).toUpperCase()}</span>
               <span>
-                <b>{d.naam || "Assistent"}</b>
+                <b>{d.naam || "Assistant"}</b>
                 <small>Online · answers right away</small>
               </span>
             </div>

@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { planVan } from "@/lib/plans";
 
-import { type DashData, STATUS_LABEL, type Status, dagKey, geleden, plusDag, sqlDate, tijdAms, uurAms, warmteLabel } from "./util";
+import { type DashData, STATUS_LABEL, type Status, dagKey, geleden, plusDag, sqlDate, tijdAms, uurAms, warmteKlasse } from "./util";
 
 type Bereik = "dag" | "week" | "maand" | "60" | "90";
 const BEREIKEN: [Bereik, string, number][] = [
@@ -106,7 +106,7 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
                 key={id}
                 onClick={() => setBereik(id)}
                 role="tab"
-                title={op ? "Available on Complete" : undefined}
+                title={op ? "Available on Growth and higher" : undefined}
                 type="button"
               >
                 {label}
@@ -212,7 +212,7 @@ export function Overview({ data, voornaam, openTab }: { data: DashData; voornaam
           <ol className="v-hot">
             {warmste.map((l) => (
               <li key={l.id}>
-                <span className={`v-heat v-heat--${warmteLabel(l.warmte).toLowerCase()}`}>{l.warmte}</span>
+                <span className={`v-heat v-heat--${warmteKlasse(l.warmte)}`}>{l.warmte}</span>
                 <div>
                   <strong>{l.naam}</strong>
                   <p>{l.reden || l.onderwerp}</p>

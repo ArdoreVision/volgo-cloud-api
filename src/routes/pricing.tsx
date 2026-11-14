@@ -154,7 +154,7 @@ function Abonnement() {
         <section className="vn-slot">
           <h2 className="vn-h2">Questions first?</h2>
           <p className="vn-sub" style={{ marginInline: "auto" }}>
-            Open the chat in the corner. That is Volgo itself: ask anything, or book a call with us right there.
+            Email <a href="mailto:volgo.app@outlook.com">volgo.app@outlook.com</a> or send a DM to <a href="https://ig.me/m/thevolgo.app" rel="noopener noreferrer" target="_blank">@thevolgo.app</a> on Instagram.
           </p>
           <p className="vn-klein">
             Already have an account? <a href="/login">Log in</a>

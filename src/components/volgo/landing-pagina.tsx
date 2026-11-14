@@ -1,16 +1,14 @@
-import { type JSX, useEffect, useState } from "react";
+import { type JSX, useEffect } from "react";
 
-import { AvaChat, VOLGO_AVA_SLEUTEL } from "./ava-chat";
+import { AvaChat } from "./ava-chat";
 import { Footer } from "./footer";
 import { type RouteTaal } from "./route-teksten";
-import { Vertaler, kiesTaal, opgeslagenTaal, toonTaal } from "./taal";
+import { Vertaler, opgeslagenTaal, toonTaal } from "./taal";
 import { InstallUitleg, type Kijker, Kop, Prijzen, useOnthul } from "./wit";
-import { regioTaal } from "@/lib/api/vertaal.functions";
 import { INSTALL_MINUTEN, WEBSITE_SOORTEN } from "@/lib/installatie";
 import { PLANS } from "@/lib/plans";
-import { TALEN, isTaal } from "@/lib/talen";
 
-/** The page is written in English; the translator shows it in the visitor's own language. */
+/** The page is written in English and shown in English. Another language only when the visitor picks one at the top. */
 const BRON = "en";
 const VANAF = `€${PLANS.starter.prijsTekst}`;
 
@@ -39,78 +37,6 @@ const FAQ: [string, string][] = [
   ["Can I cancel?", "Yes, any month. You do it yourself in your dashboard. Your own website stays exactly as it is."],
   ["Does it work in my Instagram DMs?", "No. Volgo works on your website. Put your website in your bio and send people there: that is where Volgo takes over."],
 ];
-
-/**
- * First visit: show the page in the visitor's regional language. The Volgo consent popup (Accept) carries the
- * language picker; when that popup was already answered earlier, this small card asks instead.
- */
-function TaalPopup() {
-  const [open, setOpen] = useState(false);
-  const [keuze, setKeuze] = useState(BRON);
-
-  useEffect(() => {
-    if (opgeslagenTaal()) return;
-    let weg = false;
-    const browser = (navigator.language || "").slice(0, 2).toLowerCase();
-    regioTaal()
-      .catch(() => ({ taal: null as string | null }))
-      .then((r) => {
-        if (weg) return;
-        const taal = r.taal && isTaal(r.taal) ? r.taal : isTaal(browser) ? browser : BRON;
-        (window as unknown as { __volgoRegioTaal?: string }).__volgoRegioTaal = taal;
-        setKeuze(taal);
-        if (taal !== BRON) toonTaal(taal);
-        let consentAlGekozen = false;
-        try {
-          consentAlGekozen = Boolean(localStorage.getItem(`volgo-ok-${VOLGO_AVA_SLEUTEL}`));
-        } catch {
-          /* private mode */
-        }
-        if (consentAlGekozen) setOpen(true);
-      });
-    const op = (e: Event) => setKeuze((e as CustomEvent<string>).detail);
-    window.addEventListener("volgo-taal", op);
-    return () => {
-      weg = true;
-      window.removeEventListener("volgo-taal", op);
-    };
-  }, []);
-
-  if (!open) return null;
-  return (
-    <div aria-labelledby="vn-taal-kop" className="vn-taalpop" role="dialog">
-      <b id="vn-taal-kop">Choose your language</b>
-      <p>We show this website in the language of your region. You can change it here or at the top at any time.</p>
-      <div className="vn-taalpop__rij">
-        <select
-          aria-label="Language"
-          data-notranslate=""
-          onChange={(e) => {
-            setKeuze(e.target.value);
-            toonTaal(e.target.value);
-          }}
-          value={keuze}
-        >
-          {TALEN.map((t) => (
-            <option key={t.code} value={t.code}>
-              {t.naam}
-            </option>
-          ))}
-        </select>
-        <button
-          className="vn-knop vn-knop--klein"
-          onClick={() => {
-            kiesTaal(keuze);
-            setOpen(false);
-          }}
-          type="button"
-        >
-          Accept
-        </button>
-      </div>
-    </div>
-  );
-}
 
 /** The dashboard as a picture: the inbox with one conversation open. Drawn in HTML, so it is sharp on every screen. */
 function InboxBeeld() {
@@ -486,11 +412,10 @@ export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTa
               {kijker.ingelogd ? "Go to your dashboard" : "Start with Volgo"}
             </a>
           </div>
-          <p className="vn-klein">Want to see it first? Open the chat in the corner. That is Volgo, exactly how it appears on your website.</p>
+          <p className="vn-klein">Questions first? Email volgo.app@outlook.com or send a DM to @thevolgo.app on Instagram.</p>
         </section>
       </main>
       <Footer />
-      <TaalPopup />
       <Vertaler bron={BRON} />
       <AvaChat />
     </div>

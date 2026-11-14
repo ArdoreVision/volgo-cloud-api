@@ -22,7 +22,7 @@ import { Vandaag } from "@/components/dash/vandaag";
 import { MijnChat } from "@/components/dash/mijn-chat";
 import { Overview } from "@/components/dash/overview";
 import { TeamChat } from "@/components/dash/team-chat";
-import { warmteLabel } from "@/components/dash/util";
+import { warmteKlasse } from "@/components/dash/util";
 import { VolgoMark } from "@/components/volgo/logo";
 import { archiveerLead, haalDashboard, startBetaling, uitloggen, verwijderLead, zetLeadStatus } from "@/lib/api/account.functions";
 import { SwipeRij } from "@/components/dash/swipe-rij";
@@ -622,7 +622,7 @@ function Open({ data }: { data: DashData }) {
                   <section className="v-dash__panel v-dash__panel--flush">
                     <div className="v-table" role="table">
                       <div className="v-table__row v-table__row--head" role="row">
-                        <span role="columnheader">Warmte</span>
+                        <span role="columnheader">Warmth</span>
                         <span role="columnheader">Customer</span>
                         <span role="columnheader">Via</span>
                         <span role="columnheader">Received</span>
@@ -663,7 +663,7 @@ function Open({ data }: { data: DashData }) {
                           tabIndex={0}
                         >
                           <span role="cell">
-                            <span className={`v-heat v-heat--${warmteLabel(l.warmte).toLowerCase()}`} title={l.reden ?? ""}>
+                            <span className={`v-heat v-heat--${warmteKlasse(l.warmte)}`} title={l.reden ?? ""}>
                               {l.warmte}
                             </span>
                           </span>
@@ -770,7 +770,7 @@ function Open({ data }: { data: DashData }) {
           </>
         ) : null}
       </main>
-      <nav aria-label="Hoofdmenu" className="v-mnav">
+      <nav aria-label="Main menu" className="v-mnav">
         {mobiel.map(([id, label]) => (
           <button aria-current={tab === id ? "page" : undefined} key={id} onClick={() => setTab(id)} type="button">
             <Icon name={id} />
@@ -795,7 +795,7 @@ function Open({ data }: { data: DashData }) {
                     {TABS.find((t) => t[0] === id)?.[1]}
                   </button>
                 ))}
-                {groep.kop === "Werkplek" ? (
+                {groep.items.some(([id]) => id === "instellingen") ? (
                   <button onClick={() => setTab("abonnement")} type="button">
                     <Icon name="abonnement" />
                     Subscription

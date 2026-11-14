@@ -128,7 +128,7 @@ export const startBetaling = createServerFn({ method: "POST" })
       b.set("line_items[0][price_data][currency]", "eur");
       b.set("line_items[0][price_data][unit_amount]", String(plan.prijs));
       b.set("line_items[0][price_data][recurring][interval]", "month");
-      b.set("line_items[0][price_data][product_data][name]", plan.opstart ? `Volgo ${plan.naam} · Volgo in je website (per maand)` : `Volgo ${plan.naam}`);
+      b.set("line_items[0][price_data][product_data][name]", plan.opstart ? `Volgo ${plan.naam} · Volgo in your website (monthly)` : `Volgo ${plan.naam}`);
       if (plan.proefDagen && proefMag) {
         b.set("subscription_data[trial_period_days]", String(plan.proefDagen));
         // The trial is not free: €1 is charged today (one-time, on the first invoice), the full monthly price after the trial.
@@ -143,7 +143,7 @@ export const startBetaling = createServerFn({ method: "POST" })
         b.set(`line_items[${n}][quantity]`, "1");
         b.set(`line_items[${n}][price_data][currency]`, "eur");
         b.set(`line_items[${n}][price_data][unit_amount]`, String(plan.opstart));
-        b.set(`line_items[${n}][price_data][product_data][name]`, plan.id === "compleet" ? "Complete website met domein · gebouwd door Volgo (eenmalig)" : `${plan.naam} · built by Volgo (one-time)`);
+        b.set(`line_items[${n}][price_data][product_data][name]`, plan.id === "compleet" ? "Complete website with domain · built by Volgo (one-time)" : `${plan.naam} · built by Volgo (one-time)`);
       }
       // Introductory offer (first-time customers only): the lower price for the first months, then the full price automatically.
       // If the coupon can't be set up, the checkout fails (below) rather than charging more than the advertised price.

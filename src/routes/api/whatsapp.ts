@@ -29,9 +29,9 @@ function tekstVan(m: WaBericht) {
     case "text":
       return m.text?.body ?? "";
     case "image":
-      return `[Foto]${m.image?.caption ? ` ${m.image.caption}` : ""} (bekijk de foto in WhatsApp)`;
+      return `[Photo]${m.image?.caption ? ` ${m.image.caption}` : ""} (see the photo in WhatsApp)`;
     case "video":
-      return `[Video]${m.video?.caption ? ` ${m.video.caption}` : ""} (bekijk de video in WhatsApp)`;
+      return `[Video]${m.video?.caption ? ` ${m.video.caption}` : ""} (see the video in WhatsApp)`;
     case "audio":
       return "[Spraakbericht] (luister het af in WhatsApp)";
     case "document":

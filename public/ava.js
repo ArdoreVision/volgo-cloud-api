@@ -147,6 +147,7 @@ a.chip{text-decoration:none;display:inline-block;line-height:1.2}\
 .kal .err{margin:8px 0 0;font-size:13px;color:#c4211b}\
 .kal.ok{background:#eefaf3;box-shadow:0 0 0 1px #bfe8cf}.kal.ok h4{color:#157a42}\
 .donker .kal{background:#1b2230;color:#eef1f6;box-shadow:none}.donker .kal .opt,.donker .kal .dag,.donker .kal input{background:#232a36;color:#eef1f6}.donker .kal .tijd{background:#1b2230;color:#eef1f6;box-shadow:inset 0 0 0 1.5px #334}.donker .chip{background:#1b2230;color:#eef1f6}\
+.geen-chat .fab,.geen-chat .panel,.geen-chat .teaser{display:none!important}\
 .ok-laag{position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;padding:16px;background:rgba(15,20,28,.45);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);animation:okin .3s ease both}\
 @keyframes okin{from{opacity:0}}\
 .ok-kaart{width:min(460px,100%);padding:24px;border-radius:24px;background:#fff;color:#111318;box-shadow:0 30px 80px rgba(0,0,0,.3);animation:pop .4s cubic-bezier(.16,1,.3,1)}\
@@ -419,6 +420,9 @@ textarea::placeholder{color:#a3a3a3}\
   }
   // Short invitation bubble next to the chat button (optional).
   var PREVIEW = script.getAttribute("data-preview") === "1";
+  // data-chat="uit": no chat button or window on this page. The consent screen and the visit counter keep working.
+  var GEEN_CHAT = script.getAttribute("data-chat") === "uit";
+  if (GEEN_CHAT) { var w0 = root.querySelector(".w"); if (w0) w0.classList.add("geen-chat"); }
   var teaserTekst = "", teaserTimer = 0;
   function teaserZetten(t) {
     teaserTekst = String(t || "").slice(0, 90);
@@ -456,7 +460,7 @@ textarea::placeholder{color:#a3a3a3}\
     var w = $(".w");
     var donker = c.thema === "donker" || (c.thema === "auto" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
     w.className = "w" + (c.positie === "links" ? " links" : "") + (donker ? " donker" : "") + (c.vorm === "strak" ? " strak" : c.vorm === "zacht" ? " zacht" : "") + (c.lettertype === "website" ? " wf" : "") +
-      " knop-" + (c.knop || "pil") + " g-" + (c.grootte || "normaal") + (omkeer ? " omkeer" : "");
+      " knop-" + (c.knop || "pil") + " g-" + (c.grootte || "normaal") + (omkeer ? " omkeer" : "") + (GEEN_CHAT ? " geen-chat" : "");
     host.style.setProperty("--off", Math.max(8, Math.min(140, +c.afstand || 18)) + "px");
     host.style.setProperty("--zij", Math.max(8, Math.min(60, +c.zij || 18)) + "px");
     teaserZetten(c.uitnodiging || "");
@@ -530,7 +534,7 @@ textarea::placeholder{color:#a3a3a3}\
     // On Volgo's own website: pick the language of the site right here.
     if (location.hostname === new URL(BASE).hostname) {
       var TALEN = [["en","English"],["nl","Nederlands"],["de","Deutsch"],["fr","Français"],["es","Español"],["pt","Português"],["it","Italiano"],["pl","Polski"],["sv","Svenska"],["da","Dansk"],["fi","Suomi"],["el","Ελληνικά"],["cs","Čeština"],["sk","Slovenčina"],["hu","Magyar"],["ro","Română"],["bg","Български"],["hr","Hrvatski"],["sl","Slovenščina"],["et","Eesti"],["lv","Latviešu"],["lt","Lietuvių"],["ga","Gaeilge"],["mt","Malti"]];
-      var huidig = "en"; try { huidig = localStorage.getItem("volgo-taal") || window.__volgoRegioTaal || ((navigator.language || "en").slice(0, 2).toLowerCase()); } catch (e) {}
+      var huidig = "en"; try { huidig = localStorage.getItem("volgo-taal") || window.__volgoRegioTaal || "en"; } catch (e) {}
       var rij = document.createElement("label"); rij.className = "ok-taal";
       var sel = document.createElement("select"); sel.setAttribute("aria-label", "Language");
       TALEN.forEach(function (t) { var o = document.createElement("option"); o.value = t[0]; o.textContent = t[1]; if (t[0] === huidig) o.selected = true; sel.appendChild(o); });
@@ -587,7 +591,7 @@ textarea::placeholder{color:#a3a3a3}\
   }
 
   var chatGeteld = false, berichtGeteld = false;
-  function open() { var tz = $(".teaser"); if (tz) tz.remove(); if (!chatGeteld) { chatGeteld = true; gebeurtenis("chat_open"); } panel.classList.add("open"); fab.classList.add("open"); $(".dot").hidden = true; setTimeout(function () { ta.focus(); }, 250); }
+  function open() { if (GEEN_CHAT) return; var tz = $(".teaser"); if (tz) tz.remove(); if (!chatGeteld) { chatGeteld = true; gebeurtenis("chat_open"); } panel.classList.add("open"); fab.classList.add("open"); $(".dot").hidden = true; setTimeout(function () { ta.focus(); }, 250); }
   function close() { panel.classList.remove("open"); fab.classList.remove("open"); }
   fab.addEventListener("click", open);
   $(".x").addEventListener("click", close);
