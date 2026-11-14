@@ -18,7 +18,8 @@ export const PLATFORMS: { id: string; naam: string; stappen: string[]; noot?: st
   {
     id: "shopify",
     naam: "Shopify",
-    stappen: ["Open Online Store → Themes → … → Edit code.", "Open theme.liquid and paste the line just above </body>.", "Click Save."],
+    stappen: ["Open the code of your live theme: Online Store → Themes → … → Edit code → theme.liquid. Your dashboard has a button that opens it in one click.", "Scroll to the bottom and paste the line just above </body>.", "Click Save."],
+    noot: "A theme preview in your browser can show another theme without Volgo. Look at your shop in a private window to see the live one.",
   },
   {
     id: "squarespace",
@@ -64,3 +65,18 @@ export const WEBSITE_SOORTEN = ["WordPress", "Wix", "Shopify", "Squarespace", "W
 
 /** The one line a business pastes into its website. */
 export const installRegel = (origin: string, sleutel: string) => `<script src="${origin}/ava.js" data-key="${sleutel}" defer></script>`;
+
+/**
+ * One click to the right file in Shopify. Every Shopify shop forwards <its own domain>/admin/... to its admin,
+ * and "themes/current" is the published theme, so this opens theme.liquid of the live theme without the owner
+ * having to find it. Returns "" when the saved address is not a usable web address.
+ */
+export function shopifyCodeLink(siteUrl: string): string {
+  try {
+    const u = new URL(siteUrl);
+    if (u.protocol !== "https:" && u.protocol !== "http:") return "";
+    return `https://${u.host}/admin/themes/current?key=layout/theme.liquid`;
+  } catch {
+    return "";
+  }
+}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { bewaarMijnWebsite, controleerInstallatie, haalMijnWebsite } from "@/lib/api/groei.functions";
-import { INSTALL_MINUTEN, PLATFORMS, installRegel } from "@/lib/installatie";
+import { INSTALL_MINUTEN, PLATFORMS, installRegel, shopifyCodeLink } from "@/lib/installatie";
 
 import { InstelLijst } from "./instel-lijst";
 
@@ -56,6 +56,7 @@ export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: strin
   const origin = typeof window === "undefined" ? "https://thevolgo.app" : window.location.origin;
   const code = installRegel(origin, d.sleutel);
   const p = PLATFORMS.find((x) => x.id === platform);
+  const shopifyLink = shopifyCodeLink(d.siteUrl);
   const staat = check === "ok";
   const kopieer = (t: string, wat: string) => void navigator.clipboard.writeText(t).then(() => setGekopieerd(wat));
   const kiesPlatform = (id: string) => {
@@ -208,6 +209,14 @@ export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: strin
                       {gekopieerd === "code" ? "Copied ✓" : "Copy my line"}
                     </button>
                   </div>
+                  {p.id === "shopify" && shopifyLink ? (
+                    <div className="v-g__knoppen" style={{ margin: "0 0 16px" }}>
+                      <a className="v-g__knop" href={shopifyLink} rel="noopener noreferrer" style={{ textDecoration: "none" }} target="_blank">
+                        Open my theme code in Shopify
+                      </a>
+                      <small>Opens theme.liquid of your live theme in a new tab. Log in to Shopify if it asks.</small>
+                    </div>
+                  ) : null}
                   <p className="v-inst__vraag">Now paste it in {p.naam}:</p>
                   <ol className="v-g__stappen">
                     {p.stappen.map((x) => (
