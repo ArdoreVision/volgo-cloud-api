@@ -28,6 +28,8 @@ type AppEnv = {
   // Optioneel: Claude API-sleutel voor de Volgo-chatbot.
   ANTHROPIC_API_KEY?: string;
   CLAUDE_MODEL?: string;
+  /** Model for Ask Volgo in the dashboard (the owner's assistant). Default: claude-sonnet-5-5. */
+  ASSISTENT_MODEL?: string;
   // Optioneel: Stripe geheime sleutel voor echte abonnementsbetalingen.
   STRIPE_SECRET_KEY?: string;
   // Optioneel: afzender voor mails, bv. "Volgo <hallo@jouwdomein.nl>".

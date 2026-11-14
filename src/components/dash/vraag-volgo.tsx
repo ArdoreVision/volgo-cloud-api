@@ -3,7 +3,7 @@ import type { FormEvent } from "react";
 
 import { vraagAssistent } from "@/lib/api/assistent.functions";
 
-type Bericht = { rol: "ik" | "ava"; tekst: string };
+type Bericht = { rol: "ik" | "ava"; tekst: string; gewijzigd?: string[] };
 
 /** Pages Ask Volgo can send you to, with the label on the button. */
 const PAGINA: Record<string, string> = {
@@ -30,7 +30,8 @@ const VOORBEELDEN = [
   "Who should I call back first?",
   "What is on my calendar this week?",
   "How many visitors did my website have this month?",
-  "Help me set up Volgo",
+  "Switch on the review request",
+  "Read my website and fill in what the chat should know",
   "Find everything about Anna",
   "Write a reply to my newest request",
 ];
@@ -72,8 +73,9 @@ function Antwoord({ tekst, open }: { tekst: string; open: (t: string) => void })
 
 /**
  * Ask Volgo: a button bottom right in the dashboard that opens an assistant which knows the whole account.
- * It finds customers, conversations and appointments, reads the website analytics, and helps with the setup by
- * sending you to the right page. It never changes settings itself.
+ * It finds customers, conversations and appointments, reads the website analytics, reads a link you give it, and
+ * changes settings when you ask. Every change it makes is listed under its answer. It cannot change the dashboard
+ * itself; for anything outside the settings it sends you to the right page.
  */
 export function VraagVolgo({ openTab, voornaam }: { openTab: (t: string) => void; voornaam: string }) {
   const [open, setOpen] = useState(false);
@@ -115,11 +117,14 @@ export function VraagVolgo({ openTab, voornaam }: { openTab: (t: string) => void
     const v = vraag.trim();
     if (!v || bezig) return;
     setTekst("");
-    const historie = lijst.slice(-10);
     setLijst((l) => [...l, { rol: "ik", tekst: v }]);
     setBezig(true);
-    const r = await vraagAssistent({ data: { vraag: v, historie } }).catch(() => ({ ok: false as const, antwoord: "Volgo is temporarily unavailable. Please try again in a minute." }));
-    setLijst((l) => [...l, { rol: "ava", tekst: r.antwoord }]);
+    const historie = lijst.slice(-10).map(({ rol, tekst }) => ({ rol, tekst }));
+    const r: { antwoord: string; gewijzigd?: string[] } = await vraagAssistent({ data: { vraag: v, historie } }).catch(() => ({ antwoord: "Volgo is temporarily unavailable. Please try again in a minute." }));
+    const gewijzigd = r.gewijzigd ?? [];
+    setLijst((l) => [...l, { rol: "ava", tekst: r.antwoord, gewijzigd }]);
+    // The page behind the chat may show a setting that just changed: let the dashboard load it again.
+    if (gewijzigd.length) window.dispatchEvent(new Event("volgo-instellingen-gewijzigd"));
     setBezig(false);
   }
   const verstuur = (e: FormEvent) => {
@@ -145,7 +150,7 @@ export function VraagVolgo({ openTab, voornaam }: { openTab: (t: string) => void
           <header className="v-vv__kop">
             <div>
               <strong>Ask Volgo</strong>
-              <small>Knows your customers, calendar, numbers and settings</small>
+              <small>Knows your account, changes settings and reads links</small>
             </div>
             <button aria-label="Close" onClick={() => setOpen(false)} type="button">
               ×
@@ -155,7 +160,7 @@ export function VraagVolgo({ openTab, voornaam }: { openTab: (t: string) => void
             {lijst.length === 0 ? (
               <div className="v-vv__leeg">
                 <p>
-                  Hi {voornaam}. Ask me anything about your business: a customer, an appointment, your visitors, or how to set something up. I can find it and take you there.
+                  Hi {voornaam}. Ask me anything about your business: a customer, an appointment, your visitors. I can also switch settings on and off for you and read a link you paste.
                 </p>
                 <div className="v-vv__chips">
                   {VOORBEELDEN.map((v) => (
@@ -169,6 +174,16 @@ export function VraagVolgo({ openTab, voornaam }: { openTab: (t: string) => void
             {lijst.map((b, i) => (
               <div className={`v-vv__b v-vv__b--${b.rol}`} key={i}>
                 {b.rol === "ava" ? <Antwoord open={ga} tekst={b.tekst} /> : <p>{b.tekst}</p>}
+                {b.gewijzigd?.length ? (
+                  <div className="v-vv__gewijzigd">
+                    <strong>Changed in your settings</strong>
+                    <ul>
+                      {b.gewijzigd.map((x) => (
+                        <li key={x}>{x}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
               </div>
             ))}
             {bezig ? (
@@ -190,7 +205,7 @@ export function VraagVolgo({ openTab, voornaam }: { openTab: (t: string) => void
                   void stuur(tekst);
                 }
               }}
-              placeholder="Ask about a customer, your calendar, your numbers…"
+              placeholder="Ask, or tell me what to switch on…"
               ref={veld}
               rows={1}
               value={tekst}

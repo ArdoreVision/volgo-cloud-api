@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { instellingenVoorTeam } from "../ava.server";
-import { stijlSchema } from "../stijl.server";
+import { slaStijlOp, stijlSchema } from "../stijl.server";
 import { huidigeGebruiker } from "../auth.server";
 import { bindings } from "../bindings.server";
 import { actieveGebruiker } from "../toegang.server";
@@ -189,14 +189,6 @@ export const bewaarStijl = createServerFn({ method: "POST" })
     await slaStijlOp(DB, g.team_id, data);
     return { ok: true as const, message: "" };
   });
-
-async function slaStijlOp(DB: NonNullable<ReturnType<typeof bindings>["DB"]>, team: number, d: z.infer<typeof stijlSchema>) {
-  await DB.prepare(
-    "INSERT OR REPLACE INTO ava_stijl (team_id, avatar, positie, thema, vorm, lettertype, knoptekst, branding, knop, grootte, afstand, zij, uitnodiging) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-  )
-    .bind(team, d.avatar, d.positie, d.thema, d.vorm, d.lettertype, d.knoptekst, d.branding ? 1 : 0, d.knop, d.grootte, d.afstand, d.zij, d.uitnodiging)
-    .run();
-}
 
 /** Editor ("Customize"): everything the editor shows, in one go. */
 export const haalOntwerp = createServerFn({ method: "GET" }).handler(async () => {

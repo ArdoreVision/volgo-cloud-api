@@ -2801,6 +2801,11 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #050505;
 .v-vv__b--ava { align-self: flex-start; background: var(--surface); color: var(--ink); border-bottom-left-radius: 5px; }
 .v-vv__knoppen { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .v-vv__knoppen button { padding: 8px 12px; border: 0; border-radius: 999px; background: var(--ink); color: var(--bg); font: 600 13px/1 inherit; cursor: pointer; }
+.v-vv__gewijzigd { margin-top: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); font-size: 13px; line-height: 1.45; }
+.v-vv__gewijzigd strong { display: block; margin-bottom: 4px; font-size: 12px; color: var(--muted); font-weight: 600; }
+.v-vv__gewijzigd ul { margin: 0; padding: 0; list-style: none; }
+.v-vv__gewijzigd li { overflow-wrap: anywhere; }
+.v-vv__gewijzigd li + li { margin-top: 3px; }
 .v-vv__denkt { display: flex; gap: 4px; padding: 14px; }
 .v-vv__denkt i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: v-vv-dot 1s infinite ease-in-out; }
 .v-vv__denkt i:nth-child(2) { animation-delay: 0.15s; }

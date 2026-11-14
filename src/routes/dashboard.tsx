@@ -357,6 +357,18 @@ function Open({ data }: { data: DashData }) {
       else window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     }
   };
+  // Ask Volgo changed a setting: load the open page again if it is one that shows settings. The inbox and the
+  // requests are left alone, so nothing you are typing or reading there is lost.
+  const [versie, setVersie] = useState(0);
+  const tabNu = useRef<Tab>(begin);
+  tabNu.current = tab;
+  useEffect(() => {
+    const ververs = () => {
+      if (["agenda", "automatisch", "reviews", "installeren", "mijnsite", "kanalen", "ava", "instellingen"].includes(tabNu.current)) setVersie((v) => v + 1);
+    };
+    window.addEventListener("volgo-instellingen-gewijzigd", ververs);
+    return () => window.removeEventListener("volgo-instellingen-gewijzigd", ververs);
+  }, []);
   // A push notification opens /dashboard#agenda etc.: go straight to that tab.
   useEffect(() => {
     const ga = () => {
@@ -536,7 +548,7 @@ function Open({ data }: { data: DashData }) {
         </button>
         <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={plan.limieten.website} planNaam={plan.naam} />
       </div>
-      <main key={tab === "instellingen" ? `${tab}-${sub}` : tab} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || (tab === "website" && plan.id !== "compleet") ? " v-dash__main--full" : ""}`}>
+      <main key={`${tab === "instellingen" ? `${tab}-${sub}` : tab}-${versie}`} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || (tab === "website" && plan.id !== "compleet") ? " v-dash__main--full" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
           <p className="v-dash__banner">
             {proefDagen > PROEF_DAGEN
