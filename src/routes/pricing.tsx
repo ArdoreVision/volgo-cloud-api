@@ -5,6 +5,7 @@ import { Footer } from "@/components/volgo/footer";
 import { Vertaler } from "@/components/volgo/taal";
 import { Tracking } from "@/components/volgo/tracking";
 import { InstallUitleg, Kop, Prijzen, useOnthul } from "@/components/volgo/wit";
+import { VogelLader } from "@/components/volgo/post-vogel";
 import { uitloggen } from "@/lib/api/account.functions";
 import { accountStatus } from "@/lib/api/assistent.functions";
 import { PLANS, START_STAPPEN, VERGELIJKING, type PlanId, ZICHTBAAR, planTitel } from "@/lib/plans";
@@ -162,6 +163,7 @@ function Abonnement() {
         </section>
       </main>
       <Footer />
+      <VogelLader />
       <AvaChat />
     </div>
   );

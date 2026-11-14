@@ -558,3 +558,35 @@ function lokaal(tz: string, plusMin = 0) {
   );
   return `${p.year}-${p.month}-${p.day}T${p.hour === "24" ? "00" : p.hour}:${p.minute}`;
 }
+
+
+/**
+ * What the business's customers receive, with a sample customer, so the business can read it before it goes out.
+ * The follow-ups are written by Volgo from the chat itself; this shows the standard version.
+ */
+export function voorbeeldBerichten(inst: Inst, taal: Taal) {
+  const d = new Date(Date.now() + 2 * 86400000);
+  const start = `${d.toISOString().slice(0, 10)}T14:00`;
+  const eind = `${d.toISOString().slice(0, 10)}T15:00`;
+  const naam = taal === "nl" ? "Anna de Vries" : "Anna Miller";
+  const soort = taal === "nl" ? "Telefoongesprek" : "Phone call";
+  const opvolg = (dag: 1 | 3): Bericht => {
+    const kop = taal === "nl" ? "Hoi Anna," : "Hi Anna,";
+    const tekst =
+      taal === "nl"
+        ? dag === 1
+          ? `Bedankt voor je bericht aan ${inst.bedrijf}. Zullen we een moment plannen om het rustig door te nemen? Kies hieronder een dag en tijd die jou uitkomt, of antwoord gewoon op dit bericht.`
+          : "Nog even een korte check: kunnen we je ergens mee helpen? Antwoord gerust op dit bericht, of plan hieronder een moment."
+        : dag === 1
+          ? `Thanks for reaching out to ${inst.bedrijf}. Shall we plan a moment to go through it? Pick a day and time below, or just reply to this message.`
+          : "Just a quick check: can we help you with anything? Feel free to reply to this message or plan a moment below.";
+    return { onderwerp: taal === "nl" ? `Je vraag aan ${inst.bedrijf}` : `Your question to ${inst.bedrijf}`, kop, tekst, knop: { tekst: taal === "nl" ? "Plan een moment" : "Plan a moment", url: "#" }, sms: `${kop} ${tekst}` };
+  };
+  return {
+    bevestiging: bevestigingTekst(inst, naam, soort, start, eind, "", taal),
+    herinnering: herinneringTekst(inst, naam, start, "", taal),
+    opvolging: opvolg(1),
+    opvolging3: opvolg(3),
+    review: reviewTekst({ ...inst, review_url: inst.review_url || "#" }, naam, taal),
+  };
+}

@@ -51,7 +51,8 @@ const WEBSITE_LIMIETEN: Plan["limieten"] = { leden: 5, teamChat: true, eigenStij
 const BASIS = [
   "Volgo answers every visitor, day and night",
   "Visitors book an appointment themselves, in your website",
-  "Everything in one inbox",
+  "Every chat and request in one inbox",
+  "Links with your Google, Outlook or Apple Calendar",
   "Automatic follow-up after 1 and 3 days",
   "Confirmation right away, reminder the day before",
 ];
@@ -131,7 +132,7 @@ export const PLANS: Record<PlanId, Plan> = {
     features: [
       "Answers every visitor, day and night",
       "Asks your questions before the appointment",
-      "Shows only your free times, never double booked",
+      "Shows only your free times, also from your own linked calendar",
       "Phone call, visit, at your office or chat appointment",
       "Confirmation right away, reminder the day before",
       "Follow-up after 1 and 3 days when someone did not book",
@@ -215,7 +216,8 @@ export const VERGELIJKING: { label: string; starter: Cel; groei: Cel; max: Cel; 
   { label: "Visitors book an appointment themselves", starter: true, groei: true, max: true, compleet: true },
   { label: "Your questions before the appointment", starter: true, groei: true, max: true, compleet: true },
   { label: "Your opening hours and appointment length", starter: true, groei: true, max: true, compleet: true },
-  { label: "Everything in one inbox", starter: true, groei: true, max: true, compleet: true },
+  { label: "Every chat and request in one inbox", starter: true, groei: true, max: true, compleet: true },
+  { label: "Links with your own Google, Outlook or Apple Calendar", starter: true, groei: true, max: true, compleet: true },
   { label: "Confirmation and reminder", starter: true, groei: true, max: true, compleet: true },
   { label: "Automatic follow-up after 1 and 3 days", starter: true, groei: true, max: true, compleet: true },
   { label: "Notification for every appointment", starter: true, groei: true, max: true, compleet: true },

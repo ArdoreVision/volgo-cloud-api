@@ -3,6 +3,7 @@ import { type JSX, useEffect } from "react";
 import { AvaChat } from "./ava-chat";
 import { Footer } from "./footer";
 import { PijnScroll } from "./pijn-scroll";
+import { PostVogel, VogelLader } from "./post-vogel";
 import { type RouteTaal } from "./route-teksten";
 import { Vertaler, opgeslagenTaal, toonTaal } from "./taal";
 import { InstallUitleg, type Kijker, Kop, Prijzen, useOnthul } from "./wit";
@@ -17,14 +18,14 @@ const VANAF = `€${PLANS.starter.prijsTekst}`;
 const REIS: { tijd: string; titel: string; tekst: string; ok?: boolean }[] = [
   { tijd: "Tue 9:14 pm", titel: "A visitor opens the chat", tekst: "On your own website. You finished work hours ago." },
   { tijd: "Tue 9:15 pm", titel: "Volgo asks your questions", tekst: "What you want to know before the appointment." },
-  { tijd: "Tue 9:17 pm", titel: "The visitor picks Thursday 3:00 pm", tekst: "Only your free times. Never double booked." },
+  { tijd: "Tue 9:17 pm", titel: "The visitor picks Thursday 3:00 pm", tekst: "Only times that are free in Volgo and in your own calendar." },
   { tijd: "Tue 9:17 pm", titel: "Appointment in your inbox and calendar", tekst: "With name, number and every answer. The confirmation is sent.", ok: true },
   { tijd: "Wed 3:00 pm", titel: "Reminder", tekst: "The day before, by itself." },
   { tijd: "Thu 4:00 pm", titel: "After the appointment", tekst: "Volgo asks for a Google review." },
 ];
 
 const ZONDER = ["Requests in your mail, your apps and your head", "Answering when you are done working", "Texting back and forth about a time", "Forgetting to follow up", "No idea who is still waiting"];
-const MET = ["Everything in one inbox", "Every visitor gets an answer right away", "Visitors book an appointment themselves", "Follow-up after 1 and 3 days, by itself", "You see at a glance who is still waiting"];
+const MET = ["Every chat and request in one inbox", "Every visitor gets an answer right away", "Visitors book an appointment themselves", "Follow-up after 1 and 3 days, by itself", "You see at a glance who is still waiting"];
 
 const FAQ: [string, string][] = [
   ["What is Volgo?", "An appointment setter for your website. Visitors book an appointment themselves, everything lands in one inbox, and Volgo follows up automatically. Also when someone does not book right away."],
@@ -34,6 +35,8 @@ const FAQ: [string, string][] = [
   ["How fast is it on my website?", `About ${INSTALL_MINUTEN} minutes if you do it yourself: five questions, your hours, paste one line and check. Your dashboard walks you through it step by step.`],
   ["I know nothing about code. Can I do this?", "Yes. It is copy and paste. Does someone else manage your website? Then one button sends them the line. On Growth and Pro we put it in for you."],
   ["What is automatic follow-up?", "Someone leaves their details but does not book? Volgo sends a message after 1 day and after 3 days. Whoever does book gets a confirmation, a reminder and, after the appointment, a request for a review."],
+  ["Does it work with my own calendar?", "Yes. Link Google Calendar, Outlook or Apple Calendar in your dashboard with its private calendar address. Volgo reads the busy times and never offers those to visitors. Volgo's own appointments can show up in your calendar too."],
+  ["Do WhatsApp and phone calls land in Volgo too?", "Your website chat and contact form do right away, and your email when you forward it. WhatsApp messages and missed calls land in the inbox once we connect them with you; that takes a few days because Meta verifies your business first."],
   ["What counts as a conversation?", "One visitor chatting with Volgo on your website. Reached your number for the month? Volgo still catches requests, in a simple mode. So you never lose anyone."],
   ["Can I cancel?", "Yes, any month. You do it yourself in your dashboard. Your own website stays exactly as it is."],
   ["Does it work in my Instagram DMs?", "No. Volgo works on your website. Put your website in your bio and send people there: that is where Volgo takes over."],
@@ -190,8 +193,8 @@ const FUNCTIES: { oog: string; titel: string; tekst: string; punten: string[]; b
   {
     oog: "Appointments",
     titel: "Visitors book themselves.",
-    tekst: "Volgo asks your questions and lets the visitor pick a time. Only the times that work for you.",
-    punten: ["Your opening hours and appointment length", "A call, a visit or at your office", "Never double booked"],
+    tekst: "Volgo asks your questions and lets the visitor pick a time. Only the times that are free, in Volgo and in your own calendar.",
+    punten: ["Your opening hours and appointment length", "Links with Google, Outlook or Apple Calendar", "Times taken in your own calendar are never offered"],
     beeld: BoekBeeld,
   },
   {
@@ -226,14 +229,14 @@ export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTa
       <Kop bron={BRON} kijker={kijker} />
 
       <main>
-        <section aria-labelledby="vn-titel" className="vn-hero">
+        <section aria-labelledby="vn-titel" className="vn-hero" data-vogel="Hi! I'm Volgo, your post bird. I deliver every message.">
           <p className="vn-oog">Appointment setter for your website</p>
           <h1 className="vn-h1" id="vn-titel">
             Your website is missing appointments.
             <br />
             <em>Volgo books them.</em>
           </h1>
-          <p className="vn-sub">Visitors book an appointment themselves, in your website. Everything lands in one inbox. Volgo follows up automatically, and keeps following up.</p>
+          <p className="vn-sub">Visitors book an appointment themselves, in your website. Every chat and request lands in one inbox. Volgo follows up automatically, and keeps following up.</p>
           <div className="vn-hero__knoppen">
             <a className="vn-knop" href={doel}>
               {kijker.ingelogd ? "Go to your dashboard" : "Start with Volgo"}
@@ -261,7 +264,7 @@ export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTa
 
         <PijnScroll />
 
-        <section aria-labelledby="vn-reis" className="vn-sectie vn-reis">
+        <section aria-labelledby="vn-reis" className="vn-sectie vn-reis" data-vogel="I answer right away, book the time and send the confirmation. For you and your customer.">
           <header className="vn-sectie__kop" data-rv="">
             <p className="vn-oog">How it goes</p>
             <h2 className="vn-h2" id="vn-reis">
@@ -282,7 +285,7 @@ export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTa
           </p>
         </section>
 
-        <section aria-labelledby="vn-hou" className="vn-sectie vn-hou">
+        <section aria-labelledby="vn-hou" className="vn-sectie vn-hou" data-vogel="I fly into the website you already have.">
           <header className="vn-sectie__kop" data-rv="">
             <p className="vn-oog">Your own website</p>
             <h2 className="vn-h2" id="vn-hou">
@@ -307,7 +310,7 @@ export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTa
           </div>
         </section>
 
-        <section aria-label="Features" className="vn-sectie vn-functies" id="features">
+        <section aria-label="Features" className="vn-sectie vn-functies" data-vogel="I bring every request and all the details straight to you." id="features">
           {FUNCTIES.map((f, i) => (
             <article className={`vn-functie${i % 2 ? " is-om" : ""}`} key={f.oog}>
               <div className="vn-functie__tekst" data-rv="">
@@ -362,7 +365,7 @@ export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTa
 
         <InstallUitleg />
 
-        <section aria-labelledby="vn-zm" className="vn-sectie vn-zm">
+        <section aria-labelledby="vn-zm" className="vn-sectie vn-zm" data-vogel="No more chasing. I keep following up.">
           <header className="vn-sectie__kop" data-rv="">
             <p className="vn-oog">The difference</p>
             <h2 className="vn-h2" id="vn-zm">
@@ -387,7 +390,7 @@ export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTa
 
         <Prijzen kijker={kijker} />
 
-        <section aria-labelledby="vn-faq" className="vn-sectie vn-faq" id="faq">
+        <section aria-labelledby="vn-faq" className="vn-sectie vn-faq" data-vogel="Questions? The answers are right here." id="faq">
           <header className="vn-sectie__kop" data-rv="">
             <p className="vn-oog">FAQ</p>
             <h2 className="vn-h2" id="vn-faq">
@@ -404,7 +407,7 @@ export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTa
           </div>
         </section>
 
-        <section aria-labelledby="vn-slot" className="vn-slot">
+        <section aria-labelledby="vn-slot" className="vn-slot" data-vogel="Ready when you are. Pick a plan above.">
           <h2 className="vn-h1" data-rv="" id="vn-slot">
             You work.
             <br />
@@ -420,6 +423,8 @@ export function LandingPagina({ kijker, vast }: { kijker: Kijker; vast?: RouteTa
       </main>
       <Footer />
       <Vertaler bron={BRON} />
+      <PostVogel />
+      <VogelLader />
       <AvaChat />
     </div>
   );

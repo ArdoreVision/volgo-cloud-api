@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { VolgoMark } from "./logo";
+import { stopVogelLader, toonVogelLader } from "./post-vogel";
 import { TaalKiezer, Vertaler } from "./taal";
 import { Tracking } from "./tracking";
 import { startBetaling } from "@/lib/api/account.functions";
@@ -80,15 +81,18 @@ function KiesKnop({ id, kijker, licht = false, opFout }: { id: PlanId; kijker: K
   const uit = bezig || huidig || ouder || (klant && kijker.eigenaar === false);
   async function start() {
     setBezig(true);
+    toonVogelLader(planTitel(p));
     try {
       const r = await startBetaling({ data: { plan: id } });
       if (r.ok) {
         window.location.href = r.url;
         return;
       }
+      stopVogelLader();
       if (opFout) opFout(r.message);
       else window.location.href = "/pricing";
     } catch {
+      stopVogelLader();
       if (opFout) opFout("Something went wrong. Please try again.");
       else window.location.href = "/pricing";
     }
@@ -118,7 +122,7 @@ export function Prijzen({ kijker, kop = true }: { kijker: Kijker; kop?: boolean 
   const [fout, setFout] = useState("");
   const c = PLANS[COMPLEET];
   return (
-    <section aria-labelledby="vn-prijs" className="vn-sectie vn-prijzen" id="pricing">
+    <section aria-labelledby="vn-prijs" className="vn-sectie vn-prijzen" data-vogel="Pick a plan. I'll take it from here." id="pricing">
       {kop ? (
         <header className="vn-sectie__kop" data-rv="">
           <p className="vn-oog">Pricing</p>
@@ -230,7 +234,7 @@ export function InstallUitleg() {
   const [platform, setPlatform] = useState(PLATFORMS[0].id);
   const p = PLATFORMS.find((x) => x.id === platform) ?? PLATFORMS[0];
   return (
-    <section aria-labelledby="vn-install" className="vn-sectie vn-install" id="install">
+    <section aria-labelledby="vn-install" className="vn-sectie vn-install" data-vogel="Paste one line, and I fly in." id="install">
       <header className="vn-sectie__kop" data-rv="">
         <p className="vn-oog">Install</p>
         <h2 className="vn-h2" id="vn-install">

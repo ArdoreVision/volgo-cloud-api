@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { bewaarMijnWebsite, controleerInstallatie, haalMijnWebsite } from "@/lib/api/groei.functions";
 import { INSTALL_MINUTEN, PLATFORMS, installRegel } from "@/lib/installatie";
 
+import { InstelLijst } from "./instel-lijst";
+
 type Data = Awaited<ReturnType<typeof haalMijnWebsite>>;
 type Wie = "zelf" | "bouwer" | "volgo";
 type Check = "" | "bezig" | "ok" | "niet" | "geen" | "onbereikbaar";
@@ -333,42 +335,7 @@ export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: strin
         </section>
       ) : null}
 
-      <section className="v-g__kaart">
-        <h2>Before your first visitor</h2>
-        <p>Three things Volgo needs from you. Each takes a minute.</p>
-        <ul className="v-wiz__lijst">
-          <li>
-            <div>
-              <strong>Your opening hours</strong>
-              <small>When visitors can book, and how long an appointment takes.</small>
-            </div>
-            <button className="v-g__knop2" onClick={() => openTab("agenda")} type="button">
-              Open Calendar
-            </button>
-          </li>
-          <li>
-            <div>
-              <strong>Your questions and your chat</strong>
-              <small>What Volgo asks before an appointment, and the name, photo and colour of your chat.</small>
-            </div>
-            <button className="v-g__knop2" onClick={() => openTab("ava")} type="button">
-              Open Your chat
-            </button>
-          </li>
-          <li>
-            <div>
-              <strong>Your phone number and other connections</strong>
-              <small>Contact form, WhatsApp button, call button and Google reviews.</small>
-            </div>
-            <button className="v-g__knop2" onClick={() => openTab("kanalen")} type="button">
-              Open Connections
-            </button>
-          </li>
-        </ul>
-        <p className="v-g__leeg" style={{ marginTop: 12 }}>
-          Tip: give a button on your website the attribute <code>data-ava-book</code> and it opens your calendar right away, for example a “Book an appointment” button.
-        </p>
-      </section>
+      <InstelLijst openTab={openTab} />
     </div>
   );
 }
