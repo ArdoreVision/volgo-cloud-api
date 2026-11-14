@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { bewaarMijnWebsite, controleerInstallatie, haalMijnWebsite } from "@/lib/api/groei.functions";
-import { INSTALL_MINUTEN, PLATFORMS, installRegel } from "@/lib/installatie";
+import { INSTALL_MINUTEN, INSTALL_SECONDEN, PLATFORMS, installRegel, shopifyCodeLink, wordpressUploadLink } from "@/lib/installatie";
 
 import { InstelLijst } from "./instel-lijst";
 
@@ -25,6 +25,9 @@ export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: strin
   const [gekopieerd, setGekopieerd] = useState("");
   const [geplakt, setGeplakt] = useState(false);
   const [check, setCheck] = useState<Check>("");
+  // What Volgo saw the website is made with, and whether the owner has started installing (then Volgo keeps looking by itself).
+  const [herkend, setHerkend] = useState("");
+  const [wacht, setWacht] = useState(false);
 
   useEffect(() => {
     try {
@@ -51,11 +54,42 @@ export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: strin
       .catch(() => undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // Once the owner has started (copied the line, downloaded the plugin or opened their website's admin), look every
+  // few seconds for five minutes. The moment Volgo is on the website this page says so: no button to press.
+  useEffect(() => {
+    if (!wacht || check === "ok") return;
+    let keer = 0;
+    const t = window.setInterval(() => {
+      keer += 1;
+      if (keer > 50) {
+        window.clearInterval(t);
+        setWacht(false);
+        return;
+      }
+      if (document.hidden) return;
+      void controleerInstallatie()
+        .then((r) => {
+          if (r.status !== "ok") return;
+          setCheck("ok");
+          setWacht(false);
+          klaar?.();
+        })
+        .catch(() => undefined);
+    }, 6000);
+    return () => window.clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wacht, check]);
   if (!d) return <p className="v-g__leeg">Loading…</p>;
 
   const origin = typeof window === "undefined" ? "https://thevolgo.app" : window.location.origin;
   const code = installRegel(origin, d.sleutel);
   const p = PLATFORMS.find((x) => x.id === platform);
+  const shopifyLink = shopifyCodeLink(d.siteUrl);
+  const wpLink = wordpressUploadLink(d.siteUrl);
+  const begonnen = () => {
+    setGeplakt(true);
+    setWacht(true);
+  };
   const staat = check === "ok";
   const kopieer = (t: string, wat: string) => void navigator.clipboard.writeText(t).then(() => setGekopieerd(wat));
   const kiesPlatform = (id: string) => {
@@ -71,13 +105,16 @@ export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: strin
     let s = site.trim();
     if (s && !/^https?:\/\//.test(s)) s = `https://${s}`;
     if (!/^https?:\/\/[^\s]+\.[^\s]+$/.test(s)) return setOpgeslagen("fout");
-    const ok = await bewaarMijnWebsite({ data: { site_url: s } })
-      .then(() => true)
-      .catch(() => false);
-    setOpgeslagen(ok ? "ok" : "fout");
-    if (ok) {
+    const r = await bewaarMijnWebsite({ data: { site_url: s } }).catch(() => null);
+    setOpgeslagen(r ? "ok" : "fout");
+    if (r) {
       setSite(s);
       setD({ ...d!, siteUrl: s });
+      // Volgo looked at the website: fill in what it is made with, so the owner does not have to know.
+      if (r.platform && PLATFORMS.some((x) => x.id === r.platform)) {
+        setHerkend(r.platform);
+        kiesPlatform(r.platform);
+      }
     }
   }
   async function controleer() {
@@ -120,7 +157,9 @@ export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: strin
     <div className="v-g v-wiz">
       <header className="v-g__kop">
         <h1>Install</h1>
-        <p>Put Volgo on the website you already have. About {INSTALL_MINUTEN} minutes, no coding knowledge needed. Follow the steps one by one.</p>
+        <p>
+          Put Volgo on the website you already have. Fill in your address, Volgo sees what your website is made with and shows the one thing to do. That part takes about {INSTALL_SECONDEN} seconds; no coding knowledge needed.
+        </p>
       </header>
 
       {staat ? (
@@ -184,7 +223,11 @@ export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: strin
             <Nr af={stap2} n={2} />
             <div className="v-inst__body">
               <strong>What is your website made with?</strong>
-              <small>Not sure? Choose “Other / HTML”, or ask whoever made your website.</small>
+              <small>
+                {herkend && herkend === platform
+                  ? `We looked at your website: it is made with ${p?.naam}. Not right? Choose another.`
+                  : "Not sure? Choose “Other / HTML”, or ask whoever made your website."}
+              </small>
               <div className="v-g__tabs">
                 {PLATFORMS.map((x) => (
                   <button aria-pressed={platform === x.id} disabled={!stap1} key={x.id} onClick={() => kiesPlatform(x.id)} type="button">
@@ -198,16 +241,74 @@ export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: strin
           <div className={`v-inst${nu === 3 ? " is-nu" : ""}${stap2 ? "" : " is-dicht"}`}>
             <Nr af={stap3} n={3} />
             <div className="v-inst__body">
-              <strong>Copy your line and paste it into your website</strong>
-              <small>One line, one time. After that Volgo is on every page.</small>
-              {stap2 && p ? (
+              <strong>{p?.id === "wordpress" ? "Upload your Volgo plugin" : "Copy your line and paste it into your website"}</strong>
+              <small>{p?.id === "wordpress" ? "Your code is already in the plugin. Nothing to copy or paste." : "One line, one time. After that Volgo is on every page."}</small>
+              {stap2 && p?.id === "wordpress" ? (
+                <>
+                  <div className="v-g__knoppen" style={{ margin: "10px 0 16px" }}>
+                    <a className="v-g__knop" download="volgo.zip" href="/api/wordpress-plugin" onClick={begonnen} style={{ textDecoration: "none" }}>
+                      1. Download my Volgo plugin
+                    </a>
+                    {wpLink ? (
+                      <a className="v-g__knop2" href={wpLink} onClick={begonnen} rel="noopener noreferrer" style={{ textDecoration: "none" }} target="_blank">
+                        2. Open the upload page in WordPress
+                      </a>
+                    ) : null}
+                  </div>
+                  <ol className="v-g__stappen">
+                    <li>Click “Download my Volgo plugin”. You get the file volgo.zip.</li>
+                    <li>Click “Open the upload page in WordPress” and log in if it asks. (Or go to Plugins → Add New → Upload Plugin.)</li>
+                    <li>Choose volgo.zip, click Install Now, then Activate.</li>
+                  </ol>
+                  {p.noot ? (
+                    <p className="v-g__leeg" style={{ marginTop: 8 }}>
+                      {p.noot}
+                    </p>
+                  ) : null}
+                  <details style={{ marginTop: 10 }}>
+                    <summary>Rather paste one line yourself?</summary>
+                    <pre className="v-g__code">{code}</pre>
+                    <div className="v-g__knoppen" style={{ margin: "10px 0 0" }}>
+                      <button
+                        className="v-g__knop2"
+                        onClick={() => {
+                          kopieer(code, "code");
+                          begonnen();
+                        }}
+                        type="button"
+                      >
+                        {gekopieerd === "code" ? "Copied ✓" : "Copy my line"}
+                      </button>
+                    </div>
+                    <p className="v-g__leeg" style={{ marginTop: 8 }}>
+                      Paste it just above &lt;/body&gt;, for example with the free plugin “WPCode” (Code Snippets → Header &amp; Footer → Footer).
+                    </p>
+                  </details>
+                </>
+              ) : null}
+              {stap2 && p && p.id !== "wordpress" ? (
                 <>
                   <pre className="v-g__code">{code}</pre>
                   <div className="v-g__knoppen" style={{ margin: "10px 0 16px" }}>
-                    <button className="v-g__knop" onClick={() => kopieer(code, "code")} type="button">
+                    <button
+                      className="v-g__knop"
+                      onClick={() => {
+                        kopieer(code, "code");
+                        setWacht(true);
+                      }}
+                      type="button"
+                    >
                       {gekopieerd === "code" ? "Copied ✓" : "Copy my line"}
                     </button>
                   </div>
+                  {p.id === "shopify" && shopifyLink ? (
+                    <div className="v-g__knoppen" style={{ margin: "0 0 16px" }}>
+                      <a className="v-g__knop" href={shopifyLink} onClick={() => setWacht(true)} rel="noopener noreferrer" style={{ textDecoration: "none" }} target="_blank">
+                        Open my theme code in Shopify
+                      </a>
+                      <small>Opens theme.liquid of your live theme in a new tab. Log in to Shopify if it asks.</small>
+                    </div>
+                  ) : null}
                   <p className="v-inst__vraag">Now paste it in {p.naam}:</p>
                   <ol className="v-g__stappen">
                     {p.stappen.map((x) => (
@@ -221,7 +322,7 @@ export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: strin
                   ) : null}
                   {staat ? null : (
                     <div className="v-g__knoppen" style={{ marginTop: 14 }}>
-                      <button className="v-g__knop2" onClick={() => setGeplakt(true)} type="button">
+                      <button className="v-g__knop2" onClick={begonnen} type="button">
                         {geplakt ? "Pasted ✓" : "I pasted and saved it"}
                       </button>
                     </div>
@@ -235,7 +336,7 @@ export function Installeren({ openTab, wijDoenHet, klaar }: { openTab: (t: strin
             <Nr af={staat} n={4} />
             <div className="v-inst__body">
               <strong>Check that it works</strong>
-              <small>Volgo looks at your website and tells you if the chat is on it.</small>
+              <small>{wacht && !staat ? "Volgo is watching your website. This turns green by itself as soon as the chat is on it." : "Volgo looks at your website and tells you if the chat is on it."}</small>
               <div className="v-g__knoppen" style={{ marginTop: 10 }}>
                 <button className="v-g__knop" disabled={check === "bezig" || !stap1} onClick={() => void controleer()} type="button">
                   {check === "bezig" ? "Checking…" : staat ? "Check again" : "Check now"}

@@ -223,7 +223,18 @@ export const bewaarMijnWebsite = createServerFn({ method: "POST" })
     await instVan(DB, g.team_id);
     if (data.site_url !== undefined) await DB.prepare("UPDATE ava_instellingen SET site_url = ? WHERE team_id = ?").bind(data.site_url.replace(/^http:\/\//, "https://"), g.team_id).run();
     if (data.review_url !== undefined) await DB.prepare("UPDATE ava_instellingen SET review_url = ? WHERE team_id = ?").bind(data.review_url, g.team_id).run();
-    return { ok: true };
+    // A new website address: look at the website once and say what it is made with, so the owner does not have to know.
+    let platform = "";
+    if (data.site_url) {
+      try {
+        const r = await fetch(data.site_url.replace(/^http:\/\//, "https://"), { headers: { "User-Agent": "Mozilla/5.0 (compatible; VolgoCheck/1.0; +https://thevolgo.app)" }, redirect: "follow", signal: AbortSignal.timeout(6000) });
+        const { herkenPlatform } = await import("../installatie");
+        platform = herkenPlatform(await r.text(), r.headers);
+      } catch {
+        /* unreachable or slow: the owner chooses the platform */
+      }
+    }
+    return { ok: true, platform };
   });
 
 /** Is the chat code on the website? Looks for ava.js with this business's key in the homepage. */

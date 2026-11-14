@@ -14,10 +14,9 @@ export const GIDSEN: { id: string; naam: string; stappen: string[]; noot?: strin
     id: "wordpress",
     naam: "WordPress",
     stappen: [
-      "Go to Plugins → Add New and install the free plugin “WPCode”.",
-      "Open Code Snippets → Header & Footer.",
-      "Paste the Volgo line in the Footer box.",
-      "Click Save Changes.",
+      "In your Volgo dashboard open Install and download your Volgo plugin. Your code is already in it.",
+      "In WordPress go to Plugins → Add New → Upload Plugin and choose volgo.zip.",
+      "Click Install Now, then Activate.",
     ],
   },
   {

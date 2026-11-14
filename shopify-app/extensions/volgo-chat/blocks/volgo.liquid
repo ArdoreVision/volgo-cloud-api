@@ -1,0 +1,24 @@
+{%- comment -%}
+  The Volgo chat as an app embed: the shop owner switches it on in the theme editor (App embeds)
+  and fills in the Volgo key from the dashboard. No theme code is touched, and it keeps working
+  when the shop changes theme.
+{%- endcomment -%}
+{%- assign volgo_key = block.settings.key | strip -%}
+{%- if volgo_key != blank -%}
+  <script src="https://thevolgo.app/ava.js" data-key="{{ volgo_key | escape }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Volgo chat",
+  "target": "body",
+  "settings": [
+    {
+      "type": "text",
+      "id": "key",
+      "label": "Volgo key",
+      "info": "The code between the quotes after data-key in your Volgo install line (dashboard → Install)."
+    }
+  ]
+}
+{% endschema %}
