@@ -34,11 +34,11 @@ export const bewaarKanalen = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ nummer: z.string().trim().max(30), knopWhatsapp: z.boolean(), knopBellen: z.boolean() }).parse(v))
   .handler(async ({ data }) => {
     const { g, DB } = await sessie();
-    if (g.rol !== "eigenaar") return { ok: false as const, message: "Alleen de eigenaar kan de kanalen instellen." };
+    if (g.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can change the connections." };
     const { normNummer } = await import("../kanalen.server");
     const nummer = data.nummer ? normNummer(data.nummer) : "";
-    if (data.nummer && !nummer) return { ok: false as const, message: "Dit nummer klopt niet. Gebruik bijvoorbeeld 06 12345678 of +31 6 12345678." };
-    if ((data.knopWhatsapp || data.knopBellen) && !nummer) return { ok: false as const, message: "Vul eerst je zakelijke nummer in." };
+    if (data.nummer && !nummer) return { ok: false as const, message: "This number does not look right. Use for example 06 12345678 or +31 6 12345678." };
+    if ((data.knopWhatsapp || data.knopBellen) && !nummer) return { ok: false as const, message: "Fill in your business number first." };
     await DB.prepare("UPDATE ava_instellingen SET zakelijk_nummer = ?, knop_whatsapp = ?, knop_bellen = ?, kanalen_gezien = 1 WHERE team_id = ?")
       .bind(nummer, data.knopWhatsapp ? 1 : 0, data.knopBellen ? 1 : 0, g.team_id)
       .run();
@@ -56,12 +56,12 @@ export const vraagKoppelingAan = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ soort: z.enum(["whatsapp", "telefoon"]) }).parse(v))
   .handler(async ({ data }) => {
     const { g, DB } = await sessie();
-    if (g.rol !== "eigenaar") return { ok: false as const, message: "Alleen de eigenaar kan dit aanvragen." };
+    if (g.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can request this." };
     const i = await DB.prepare("SELECT a.kanaal_wens, a.zakelijk_nummer, g.bedrijf, g.email FROM ava_instellingen a JOIN gebruikers g ON g.id = a.team_id WHERE a.team_id = ?")
       .bind(g.team_id)
       .first<{ kanaal_wens: string; zakelijk_nummer: string; bedrijf: string; email: string }>();
-    if (!i) return { ok: false as const, message: "Niet gevonden." };
-    if (!i.zakelijk_nummer) return { ok: false as const, message: "Vul eerst je zakelijke nummer in en sla op." };
+    if (!i) return { ok: false as const, message: "Not found." };
+    if (!i.zakelijk_nummer) return { ok: false as const, message: "Fill in your business number first and save." };
     const wens = new Set(i.kanaal_wens.split(",").filter(Boolean));
     const al = wens.has(data.soort);
     wens.add(data.soort);

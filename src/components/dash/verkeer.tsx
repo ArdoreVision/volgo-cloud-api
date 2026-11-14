@@ -5,14 +5,14 @@ import { haalVerkeer } from "@/lib/api/verkeer.functions";
 type Data = Awaited<ReturnType<typeof haalVerkeer>>;
 
 const BEREIK: [number, string][] = [
-  [1, "Vandaag"],
+  [1, "Today"],
   [7, "7 days"],
   [30, "30 days"],
   [60, "60 days"],
   [90, "90 days"],
 ];
 
-const getal = (n: number) => n.toLocaleString("nl-NL");
+const getal = (n: number) => n.toLocaleString("en-GB");
 const tijd = (s: number) => (s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, "0")}s`);
 const vlag = (code: string) => (/^[A-Z]{2}$/.test(code) ? String.fromCodePoint(...[...code].map((c) => 0x1f1a5 + c.charCodeAt(0))) : "🌐");
 const taalNaam = (code: string) => {
@@ -31,7 +31,7 @@ const landNaam = (code: string) => {
 };
 
 function Verschil({ nu, toen }: { nu: number; toen: number }) {
-  if (!toen) return <small className="v-vk__delta">geen eerdere gegevens</small>;
+  if (!toen) return <small className="v-vk__delta">no earlier data</small>;
   const p = Math.round(((nu - toen) / toen) * 100);
   return <small className={`v-vk__delta ${p > 0 ? "is-op" : p < 0 ? "is-neer" : ""}`}>{p > 0 ? `+${p}%` : `${p}%`} vs previous period</small>;
 }
@@ -41,7 +41,7 @@ function Lijst({ titel, rijen, sleutel }: { titel: string; rijen: { naam: string
   return (
     <section className="v-dash__panel v-vk__lijst">
       <h2 className="v-sub">{titel}</h2>
-      {rijen.length === 0 ? <p className="v-muted v-small">Nog geen gegevens.</p> : null}
+      {rijen.length === 0 ? <p className="v-muted v-small">No data yet.</p> : null}
       <ul>
         {rijen.map((r) => (
           <li key={r.naam}>
@@ -67,7 +67,7 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
     const laad = () =>
       haalVerkeer({ data: { dagen } })
         .then((r) => !weg && setD(r))
-        .catch((e) => !weg && setFout(e instanceof Error ? e.message : "Je bezoekers konden niet geladen worden."));
+        .catch((e) => !weg && setFout(e instanceof Error ? e.message : "Your visitors could not be loaded."));
     void laad();
     const id = window.setInterval(laad, 30000);
     return () => {
@@ -79,11 +79,11 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
   const maxDag = d ? Math.max(1, ...d.perDag.map((x) => x.bezoekers)) : 1;
   const trechter = d
     ? [
-        ["Bezoekers", d.bezoekers],
-        ["Opende de chat", d.chatOpen],
+        ["Visitors", d.bezoekers],
+        ["Opened the chat", d.chatOpen],
         ["Vroeg Volgo iets", d.chatBericht],
-        ["Werd een aanvraag", d.leads],
-        ["Boekte een afspraak", d.geboekt],
+        ["Became a request", d.leads],
+        ["Booked an appointment", d.geboekt],
       ]
     : [];
 
@@ -91,7 +91,7 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
     <>
       <header className="v-dash__head v-vk__kop">
         <div>
-          <h1>Bezoekers</h1>
+          <h1>Visitors</h1>
           <p>
             Who visits your website, where they come from and how many become leads. Measured by Volgo, with your visitors’ permission.
             {d && d.live > 0 ? (
@@ -110,13 +110,13 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
         </div>
       </header>
       {fout ? <p className="v-err">{fout}</p> : null}
-      {!d ? <p className="v-feed__empty">Bezoekers laden…</p> : null}
+      {!d ? <p className="v-feed__empty">Loading visitors…</p> : null}
       {d && d.views === 0 ? (
         <section className="v-dash__panel v-vk__leeg">
-          <h2 className="v-sub">Nog geen bezoeken gemeten</h2>
-          <p className="v-muted">Zodra Volgo op je website staat, zie je hier elk bezoek: pagina's, bronnen, apparaten, landen en hoeveel bezoekers een aanvraag worden.</p>
+          <h2 className="v-sub">No visits measured yet</h2>
+          <p className="v-muted">As soon as Volgo is on your website, you see every visit here: pages, sources, devices, countries and how many visitors become a request.</p>
           <button className="v-btn-dark" onClick={() => openTab("installeren")} type="button">
-            Zet Volgo op je website
+            Put Volgo on your website
           </button>
         </section>
       ) : null}
@@ -124,27 +124,27 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
         <>
           <section className="v-vk__tegels">
             <div>
-              <span>Bezoekers</span>
+              <span>Visitors</span>
               <strong>{getal(d.bezoekers)}</strong>
               <Verschil nu={d.bezoekers} toen={d.vorigeBezoekers} />
             </div>
             <div>
-              <span>Paginaweergaven</span>
+              <span>Page views</span>
               <strong>{getal(d.views)}</strong>
               <Verschil nu={d.views} toen={d.vorigeViews} />
             </div>
             <div>
-              <span>Tijd per bezoek</span>
+              <span>Time per visit</span>
               <strong>{tijd(d.tijdPerBezoek)}</strong>
               <small className="v-vk__delta">scroll depth {d.scroll}%</small>
             </div>
             <div>
-              <span>Ging meteen weg</span>
+              <span>Left right away</span>
               <strong>{d.stuiter}%</strong>
-              <small className="v-vk__delta">1 pagina, korter dan 10 seconden</small>
+              <small className="v-vk__delta">1 page, shorter than 10 seconds</small>
             </div>
             <div className="is-blauw">
-              <span>Bezoekers die een aanvraag werden</span>
+              <span>Visitors who became a request</span>
               <strong>{d.bezoekers ? `${((d.leads / d.bezoekers) * 100).toFixed(1)}%` : "0%"}</strong>
               <small className="v-vk__delta">
                 {getal(d.leads)} {d.leads === 1 ? "lead" : "leads"} from your website
@@ -153,8 +153,8 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
           </section>
 
           <section className="v-dash__panel">
-            <h2 className="v-sub">Bezoekers per dag</h2>
-            <div aria-label="Bezoekers per dag" className="v-vk__grafiek" role="img">
+            <h2 className="v-sub">Visitors per day</h2>
+            <div aria-label="Visitors per day" className="v-vk__grafiek" role="img">
               {d.perDag.map((x) => (
                 <div key={x.dag} title={`${x.dag}: ${x.bezoekers} bezoekers, ${x.views} paginaweergaven`}>
                   <i style={{ height: `${Math.max(3, (x.bezoekers / maxDag) * 100)}%` }} />
@@ -165,7 +165,7 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
           </section>
 
           <section className="v-dash__panel v-vk__trechter">
-            <h2 className="v-sub">Van bezoeker naar klant</h2>
+            <h2 className="v-sub">From visitor to customer</h2>
             {trechter.map(([l, n], i) => (
               <div key={l as string}>
                 <span>{l}</span>
@@ -182,7 +182,7 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
           {d.nuOp.length ? (
             <section className="v-dash__panel v-vk__nu">
               <h2 className="v-sub">
-                <i /> Nu op je website
+                <i /> On your website now
               </h2>
               <ul>
                 {d.nuOp.map((x) => (
@@ -201,17 +201,17 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
           <div className="v-vk__raster">
             <Lijst
               rijen={d.steden.map((s) => ({ naam: `${vlag(s.land ?? "")}  ${s.stad}${s.regio ? `, ${s.regio}` : ""}`, n: s.n }))}
-              titel="Steden en regio's"
+              titel="Cities and regions"
             />
             <Lijst rijen={d.paginas.map((p) => ({ naam: p.pad, n: p.views, extra: `${tijd(p.duur)} · ${p.scroll}%` }))} titel="Populairste pagina's" />
-            <Lijst rijen={d.bronnen} titel="Waar bezoekers vandaan komen" />
-            <Lijst rijen={d.apparaten} titel="Apparaten" />
-            <Lijst rijen={d.landen} sleutel={(c) => `${vlag(c)}  ${landNaam(c)}`} titel="Landen" />
+            <Lijst rijen={d.bronnen} titel="Where visitors come from" />
+            <Lijst rijen={d.apparaten} titel="Devices" />
+            <Lijst rijen={d.landen} sleutel={(c) => `${vlag(c)}  ${landNaam(c)}`} titel="Countries" />
             <Lijst rijen={d.browsers} titel="Browsers" />
-            <Lijst rijen={d.systemen} titel="Besturingssystemen" />
+            <Lijst rijen={d.systemen} titel="Operating systems" />
             <Lijst rijen={d.talen} sleutel={(c) => taalNaam(c)} titel="Talen" />
             <section className="v-dash__panel v-vk__lijst">
-              <h2 className="v-sub">Bezoekers die ja zeiden</h2>
+              <h2 className="v-sub">Visitors who said yes</h2>
               <p className="v-vk__groot">{d.toestemmingPct}%</p>
               <p className="v-muted v-small">
                 gave permission for location and device details. {d.terugkerend} returning {d.terugkerend === 1 ? "visitor" : "visitors"} in this period.
@@ -219,9 +219,9 @@ export function Verkeer({ openTab }: { openTab: (t: string) => void }) {
             </section>
           </div>
           <p className="v-muted v-small v-vk__noot">
-            Bezoekers kiezen eerst in een toestemmingsscherm. Stad, regio, browser, systeem, taal en terugkerende bezoeken worden alleen bewaard bij bezoekers die
-            akkoord gaan; de rest wordt alleen anoniem geteld. Er worden geen IP-adressen bewaard, browsers die niet gevolgd willen worden slaan we over, en gegevens worden
-            13 maanden bewaard.
+            Visitors first choose in a consent screen. City, region, browser, system, language and returning visits are only kept for visitors who
+            agree; the rest is only counted anonymously. No IP addresses are kept, browsers that do not want to be tracked are skipped, and data is kept for
+            13 months.
           </p>
         </>
       ) : null}
@@ -241,10 +241,10 @@ type Trechter = {
 function LandingTrechter({ t }: { t: Trechter }) {
   const rijen = (b: number, k: number, m: number, a: number) =>
     [
-      ["Bezoeken (sessies)", b],
-      ["Klikte op “Probeer Volgo live”", k],
-      ["Stuurde een eerste demobericht", m],
-      ["Klikte door naar de pakketten", a],
+      ["Visits (sessions)", b],
+      ["Clicked “Try Volgo live”", k],
+      ["Sent a first demo message", m],
+      ["Clicked through to the plans", a],
     ] as const;
   const blok = (titel: string, r: ReturnType<typeof rijen>) => (
     <div className="v-vk__trechter-blok">
@@ -263,8 +263,8 @@ function LandingTrechter({ t }: { t: Trechter }) {
   return (
     <section className="v-dash__panel v-vk__trechter">
       <h2 className="v-sub">Landingspagina-funnel</h2>
-      <p className="v-muted">Eén keer geteld per bezoek, zonder cookies en zonder chatinhoud. Betaalde abonnementen staan onder Admin en in Stripe.</p>
-      {blok("Alle bezoekers", rijen(t.sessies, t.demoKlik, t.demoBericht, t.aboKlik))}
+      <p className="v-muted">Counted once per visit, without cookies and without chat content. Paid subscriptions are under Admin and in Stripe.</p>
+      {blok("All visitors", rijen(t.sessies, t.demoKlik, t.demoBericht, t.aboKlik))}
       {t.meta ? blok("Via Facebook / Instagram", rijen(t.meta.bezoekers, t.meta.demoKlik, t.meta.demoBericht, t.meta.aboKlik)) : null}
     </section>
   );

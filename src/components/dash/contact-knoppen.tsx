@@ -21,13 +21,13 @@ export function ContactKnoppen({ contact, naam, onderwerp, klein, kanaal }: { co
   const groet = `Hoi${vn && vn !== "Websitebezoeker" ? ` ${vn}` : ""}, `;
   const cls = klein ? "v-ck v-ck--klein" : "v-ck";
   return (
-    <div className={cls} onClick={(e) => e.stopPropagation()} role="group" aria-label="Contact opnemen">
+    <div className={cls} onClick={(e) => e.stopPropagation()} role="group" aria-label="Get in touch">
       {c.tel ? (
-        <a className="v-ck__knop v-ck__knop--bel" href={`tel:${c.tel}`} title={`Bel ${c.telToon ?? c.tel} met je eigen telefoon`}>
+        <a className="v-ck__knop v-ck__knop--bel" href={`tel:${c.tel}`} title={`Call ${c.telToon ?? c.tel} with your own phone`}>
           <svg aria-hidden="true" viewBox="0 0 24 24">
             <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />
           </svg>
-          {kanaal === "Telefoon" ? "Terugbellen" : "Bellen"}
+          {kanaal === "Telefoon" ? "Call back" : "Call"}
         </a>
       ) : null}
       {c.wa ? (
@@ -36,7 +36,7 @@ export function ContactKnoppen({ contact, naam, onderwerp, klein, kanaal }: { co
           href={`https://wa.me/${c.wa}?text=${encodeURIComponent(groet)}`}
           rel="noopener noreferrer"
           target="_blank"
-          title="Opent WhatsApp op je eigen telefoon of computer. Dit gesprek komt niet in Volgo."
+          title="Opens WhatsApp on your own phone or computer. This conversation does not land in Volgo."
         >
           <svg aria-hidden="true" viewBox="0 0 24 24">
             <path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z" />
@@ -50,7 +50,7 @@ export function ContactKnoppen({ contact, naam, onderwerp, klein, kanaal }: { co
           <svg aria-hidden="true" viewBox="0 0 24 24">
             <path d="M4 6h16v12H4zM4 7l8 6 8-6" />
           </svg>
-          Mailen
+          Email
         </a>
       ) : null}
     </div>
@@ -63,11 +63,11 @@ export function KanaalLabel({ kanaal }: { kanaal: string | null | undefined }) {
   const [klasse, tekst] = k.includes("whatsapp")
     ? ["whatsapp", "WhatsApp"]
     : k.includes("telefoon") || k.includes("phone")
-      ? ["telefoon", "Telefoon"]
+      ? ["telefoon", "Phone"]
       : k === "sms"
-        ? ["sms", "Sms"]
+        ? ["sms", "Text"]
         : k.includes("formulier") || k.includes("form")
-          ? ["formulier", "Contactformulier"]
+          ? ["formulier", "Contact form"]
           : k.includes("mail")
             ? ["mail", "Mail"]
             : k.includes("insta")

@@ -128,7 +128,7 @@ export const startBetaling = createServerFn({ method: "POST" })
       b.set("line_items[0][price_data][currency]", "eur");
       b.set("line_items[0][price_data][unit_amount]", String(plan.prijs));
       b.set("line_items[0][price_data][recurring][interval]", "month");
-      b.set("line_items[0][price_data][product_data][name]", plan.opstart ? "Volgo · assistant in your website (monthly)" : `Volgo ${plan.naam}`);
+      b.set("line_items[0][price_data][product_data][name]", plan.opstart ? `Volgo ${plan.naam} · Volgo in je website (per maand)` : `Volgo ${plan.naam}`);
       if (plan.proefDagen && proefMag) {
         b.set("subscription_data[trial_period_days]", String(plan.proefDagen));
         // The trial is not free: €1 is charged today (one-time, on the first invoice), the full monthly price after the trial.
@@ -143,7 +143,7 @@ export const startBetaling = createServerFn({ method: "POST" })
         b.set(`line_items[${n}][quantity]`, "1");
         b.set(`line_items[${n}][price_data][currency]`, "eur");
         b.set(`line_items[${n}][price_data][unit_amount]`, String(plan.opstart));
-        b.set(`line_items[${n}][price_data][product_data][name]`, `${plan.naam} · built by Volgo (one-time)`);
+        b.set(`line_items[${n}][price_data][product_data][name]`, plan.id === "compleet" ? "Complete website met domein · gebouwd door Volgo (eenmalig)" : `${plan.naam} · built by Volgo (one-time)`);
       }
       // Introductory offer (first-time customers only): the lower price for the first months, then the full price automatically.
       // If the coupon can't be set up, the checkout fails (below) rather than charging more than the advertised price.
@@ -294,7 +294,7 @@ export const maakAccount = createServerFn({ method: "POST" })
     // Straight into the dashboard: no second login.
     await maakSessie(id);
     // proef/test tell the browser whether real money was paid at checkout (only then a "Purchase" goes to the ad pixel).
-    return { ok: true as const, plan: plan.id, prijs: plan.prijs / 100, proef: plan.proefDagen > 0, test: Boolean(b.testmodus) };
+    return { ok: true as const, plan: plan.id, prijs: (plan.prijs + plan.opstart) / 100, proef: plan.proefDagen > 0, test: Boolean(b.testmodus) };
   });
 
 // 3a. Account aanmaken zonder abonnement: je komt in een dashboard dat op slot zit tot je een plan kiest (7 dagen voor €1).
@@ -467,7 +467,7 @@ export const activeerAbonnement = createServerFn({ method: "POST" })
       const { push } = await import("../push.server");
       await push(`🎉 Plan started: ${PLANS[b.plan].naam}`, `Account #${g.team_id} started Volgo ${PLANS[b.plan].naam}${proefDagen ? ` · ${proefDagen}-day trial for €1` : ""}${b.testmodus ? " · TEST" : ""}`, { tags: ["tada"], prioriteit: 5, link: `${origin()}/admin` });
     }
-    return { ok: true as const, message: "", plan: b.plan, prijs: proefDagen ? PROEF_PRIJS / 100 : PLANS[b.plan].prijs / 100, test: Boolean(b.testmodus) };
+    return { ok: true as const, message: "", plan: b.plan, prijs: proefDagen ? PROEF_PRIJS / 100 : (PLANS[b.plan].prijs + PLANS[b.plan].opstart) / 100, test: Boolean(b.testmodus) };
   });
 
 // 4. Inloggen / uitloggen
@@ -572,6 +572,8 @@ export const haalDashboard = createServerFn({ method: "GET" }).handler(async () 
     gesprekken: gesprekken.results,
     leden: leden.results,
     kanalen: kanalen.results,
+    // Is Volgo on the customer's website? Set by the Check button under Install (or by the first visit the chat reports).
+    geinstalleerd: Boolean((await DB.prepare("SELECT geinstalleerd FROM onboarding WHERE team_id = ?").bind(team).first<{ geinstalleerd: number }>().catch(() => null))?.geinstalleerd),
     gebruik: { gesprekken: await (await import("../limieten.server")).gesprekkenDezeMaand(DB, team) },
     nu: new Date().toISOString(),
   };

@@ -7,7 +7,7 @@ export const Route = createFileRoute("/terms")({
   head: () => ({ meta: [{ title: "Terms of Service · Volgo" }, { name: "description", content: "Volgo's Terms of Service." }] }),
   component: () => (
     <LegalPage
-      bijgewerkt="November 13, 2026"
+      bijgewerkt="November 14, 2026"
       intro={<p>These terms apply to all use of Volgo. By starting a subscription, you agree to them.</p>}
       titel="Terms of Service"
     >
@@ -22,15 +22,16 @@ export const Route = createFileRoute("/terms")({
       <p>
         Volgo is an appointment setter that the customer adds to their own website with one line of code. Volgo chats with visitors, answers
         questions, asks the customer's own questions, lets visitors book an appointment, captures contact details and ranks leads by how warm they are. The customer gets access to an online
-        dashboard with conversations, leads, calendar, team chat and analytics. A website is not part of the service: Volgo works inside the website the customer already has. Customers who bought one of the
+        dashboard with conversations, leads, calendar, team chat and analytics. A website is not part of the Starter, Growth and Pro plans: Volgo works inside the website the customer already has. With the
+        Complete package Volgo builds a website for the customer with Volgo inside, hosted for as long as the subscription runs, with one domain name included. Customers who bought one of the
         earlier website packages (Website or 3D website) keep the website Volgo built for them, hosted for as long as their
-        subscription runs; domain name costs are not included and are paid by the customer. What each plan includes is listed on the{" "}
+        subscription runs; for those earlier packages domain name costs are not included and are paid by the customer. What each plan includes is listed on the{" "}
         <a href="/pricing">pricing page</a>.
       </p>
 
       <h2>3. Prices and payment</h2>
       <ul>
-        <li>Volgo has one monthly price, listed on the pricing page. There are no setup costs. The first month is charged at checkout.</li>
+        <li>The plans and their monthly prices are listed on the pricing page. Starter, Growth and Pro have no setup costs; the first month is charged at checkout. The Complete package has a one-time price for the website, charged at checkout together with the first month.</li>
         <li>The Volgo subscription renews automatically every month at the current monthly price. Prices exclude VAT.</li>
         <li>Payment is made monthly in advance through our payment partner. If a payment fails, we may suspend the service after a reminder.</li>
         <li>We may adjust prices once a year. We’ll let you know at least 30 days in advance; you may then cancel before the change takes effect.</li>
@@ -40,7 +41,7 @@ export const Route = createFileRoute("/terms")({
       <p>
         A subscription runs month to month and can be canceled monthly, effective from the next billing period. You can cancel
         in your dashboard or by emailing volgo.app@outlook.com. When the subscription ends, Volgo stops working on your website
-        and, for customers with an earlier website package, the website built by Volgo goes offline. The domain name stays yours. We delete the data as described in
+        and, for customers with a website built by Volgo, that website goes offline. The domain name stays yours. We delete the data as described in
         the Data Processing Agreement.
       </p>
 

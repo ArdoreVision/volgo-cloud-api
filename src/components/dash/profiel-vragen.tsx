@@ -26,10 +26,10 @@ export function ProfielVragen({ bedrijf, start = {}, klaar, annuleer }: { bedrij
     }
     setBezig(true);
     setFout("");
-    const r = await bewaarProfiel({ data: nieuw as Record<string, string> }).catch(() => ({ ok: false as const, message: "Er ging iets mis. Probeer het opnieuw." }));
+    const r = await bewaarProfiel({ data: nieuw as Record<string, string> }).catch(() => ({ ok: false as const, message: "Something went wrong. Please try again." }));
     setBezig(false);
     if (!r.ok) {
-      setFout(r.message || "Beantwoord alle vijf de vragen.");
+      setFout(r.message || "Answer all five questions.");
       return;
     }
     await klaar();
@@ -50,13 +50,13 @@ export function ProfielVragen({ bedrijf, start = {}, klaar, annuleer }: { bedrij
         <div aria-hidden="true" className="v-vragen__balk">
           <i style={{ width: `${((stap + (gekozen ? 1 : 0)) / VRAGEN.length) * 100}%` }} />
         </div>
-        {stap === 0 && !annuleer ? <p className="v-vragen__intro">Vijf korte vragen, zodat Volgo weet hoe het de klanten van {bedrijf} helpt. Duurt nog geen minuut.</p> : null}
+        {stap === 0 && !annuleer ? <p className="v-vragen__intro">Five short questions, so Volgo knows how to help the customers of {bedrijf}. Takes less than a minute.</p> : null}
         <h1 className="v-vragen__titel" id="vr-titel" key={vraag.id}>
           {vraag.titel}
         </h1>
         <p className="v-vragen__sub">{vraag.sub}</p>
         <div className="v-vragen__opties" role="radiogroup" aria-label={vraag.titel}>
-          {vraag.opties.map((o) => (
+          {vraag.opties.filter((o) => !o.oud || gekozen === o.id).map((o) => (
             <button aria-checked={gekozen === o.id} className="v-vragen__optie" disabled={bezig} key={o.id} onClick={() => void kies(o.id)} role="radio" type="button">
               <span className="v-vragen__bol" aria-hidden="true" />
               <span>
@@ -70,16 +70,16 @@ export function ProfielVragen({ bedrijf, start = {}, klaar, annuleer }: { bedrij
         <footer className="v-vragen__voet">
           {stap > 0 ? (
             <button className="v-vragen__terug" disabled={bezig} onClick={() => setStap((s) => s - 1)} type="button">
-              Terug
+              Back
             </button>
           ) : annuleer ? (
             <button className="v-vragen__terug" onClick={annuleer} type="button">
-              Annuleren
+              Cancel
             </button>
           ) : (
             <span />
           )}
-          <span className="v-vragen__hint">{bezig ? "Opslaan…" : laatste ? "Kies er één om af te ronden" : "Kies er één om verder te gaan"}</span>
+          <span className="v-vragen__hint">{bezig ? "Saving…" : laatste ? "Pick one to finish" : "Pick one to continue"}</span>
         </footer>
       </div>
     </div>
@@ -93,18 +93,18 @@ export function ProfielSamenvatting({ profiel, wijzig }: { profiel: Profiel; wij
     <section className="v-dash__panel v-profiel-kaart">
       <div className="v-profiel-kaart__kop">
         <div>
-          <h2>Je bedrijf in vijf antwoorden</h2>
-          <p className="v-muted">Volgo gebruikt dit om te bepalen wat het vraagt en hoe het klinkt.</p>
+          <h2>Your business in five answers</h2>
+          <p className="v-muted">Volgo uses this to decide what it asks and how it sounds.</p>
         </div>
         <button className="v-btn-wit" onClick={wijzig} type="button">
-          Antwoorden wijzigen
+          Change answers
         </button>
       </div>
       <dl className="v-profiel-kaart__lijst">
         {rijen.map(({ vraag, optie }) => (
           <div key={vraag.id}>
             <dt>{vraag.titel}</dt>
-            <dd>{optie?.label ?? "Nog niet beantwoord"}</dd>
+            <dd>{optie?.label ?? "Not answered yet"}</dd>
           </div>
         ))}
       </dl>

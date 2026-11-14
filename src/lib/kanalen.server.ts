@@ -64,16 +64,16 @@ export async function kanaalInst(DB: D1Database, team: number) {
 export function kanaalStatus(i: KanaalInst, websiteActief: boolean): KanaalStatus[] {
   const p = platform();
   const wens = i.kanaal_wens.split(",");
-  const geenNummer = i.zakelijk_nummer ? [] : ["Je zakelijke nummer"];
+  const geenNummer = i.zakelijk_nummer ? [] : ["Your business number"];
   const koppeling = (id: "whatsapp" | "telefoon", gekoppeld: boolean, platformKlaar: boolean): KanaalStatus => {
     const ontbreekt: string[] = [];
-    if (!platformKlaar) ontbreekt.push(id === "whatsapp" ? "WhatsApp-koppeling van Volgo (Meta) is nog niet ingesteld" : "Telefoonkoppeling van Volgo (Twilio) is nog niet ingesteld");
-    if (!gekoppeld) ontbreekt.push(id === "whatsapp" ? "Je WhatsApp-nummer is nog niet geverifieerd en gekoppeld" : "Je hebt nog geen Volgo-telefoonnummer");
+    if (!platformKlaar) ontbreekt.push(id === "whatsapp" ? "Volgo's WhatsApp connection (Meta) is not set up yet" : "Volgo's phone connection (Twilio) is not set up yet");
+    if (!gekoppeld) ontbreekt.push(id === "whatsapp" ? "Your WhatsApp number is not verified and connected yet" : "You do not have a Volgo phone number yet");
     const status = ontbreekt.length === 0 ? "actief" : wens.includes(id) ? "aangevraagd" : "niet_gekoppeld";
     return { id, soort: "koppeling", status, ontbreekt };
   };
   return [
-    { id: "website", soort: "chat", status: websiteActief ? "actief" : "uit", ontbreekt: websiteActief ? [] : ["De chatcode staat nog niet op je website"] },
+    { id: "website", soort: "chat", status: websiteActief ? "actief" : "uit", ontbreekt: websiteActief ? [] : ["The chat code is not on your website yet"] },
     { id: "whatsapp_knop", soort: "knop", status: i.knop_whatsapp && i.zakelijk_nummer ? "actief" : "uit", ontbreekt: i.knop_whatsapp ? geenNummer : [] },
     { id: "bel_knop", soort: "knop", status: i.knop_bellen && i.zakelijk_nummer ? "actief" : "uit", ontbreekt: i.knop_bellen ? geenNummer : [] },
     koppeling("whatsapp", Boolean(i.wa_phone_id), p.whatsapp.klaar),

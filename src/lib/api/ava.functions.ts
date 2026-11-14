@@ -291,11 +291,11 @@ export const stuurMensBericht = createServerFn({ method: "POST" })
     )
       .bind(data.id, g.team_id)
       .first<{ overgenomen_door: number | null; token: string; contact: string | null; naam: string | null; kanaal: string; onderwerp: string }>();
-    if (!m) return { ok: false as const, message: "Gesprek niet gevonden." };
+    if (!m) return { ok: false as const, message: "Conversation not found." };
     // Contact form and email: the reply goes out by email (or text), no live chat to take over.
     const perMail = m.kanaal === "Contactformulier" || m.kanaal === "E-mail";
     const perTelefoon = m.kanaal === "WhatsApp" || m.kanaal === "SMS" || m.kanaal === "Telefoon";
-    if (!m.overgenomen_door && !perMail && !perTelefoon) return { ok: false as const, message: "Neem het gesprek eerst over." };
+    if (!m.overgenomen_door && !perMail && !perTelefoon) return { ok: false as const, message: "Take over the conversation first." };
     // WhatsApp, sms and phone: send through the provider first; only a sent message is saved.
     if (perTelefoon) {
       const k = await import("../kanalen.server");

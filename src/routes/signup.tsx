@@ -67,7 +67,7 @@ function Aanmelden() {
         <AutoStart actie={activeer} />
         <p className="v-auth__ok">Payment successful · {planTitel(p)}</p>
         <h1 className="v-auth__title">Activate your plan</h1>
-        <p className="v-auth__sub">You’re already logged in. We’ll add Volgo {p.naam} to your existing account, with all your data.</p>
+        <p className="v-auth__sub">You’re already logged in. We’ll add {planTitel(p)} to your existing account, with all your data.</p>
         {fout ? <p className="v-err" role="alert">{fout}</p> : null}
         <button className="v-auth__btn" disabled={bezig} onClick={() => void activeer()} type="button">
           {bezig ? "One moment…" : "Activate and go to my dashboard"}
@@ -114,7 +114,7 @@ function Aanmelden() {
   return (
     <AuthShell>
       <Steps actief={3} />
-      <p className="v-auth__ok">Payment successful · Volgo {p.naam}</p>
+      <p className="v-auth__ok">Payment successful · {planTitel(p)}</p>
       <h1 className="v-auth__title">Create your account.</h1>
       <p className="v-auth__sub">You’ll use it to log in to your business dashboard.</p>
       <form className="v-auth__form" noValidate onSubmit={onSubmit}>

@@ -53,9 +53,9 @@ export function Meldingen() {
       await bewaarPush({ data: { endpoint: j.endpoint, keys: j.keys, apparaat: apparaatNaam() } });
       await testPush();
       setStaat("aan");
-      setMelding("Klaar. Je ziet nu een testmelding.");
+      setMelding("Done. You now see a test notification.");
     } catch {
-      setMelding("Dat lukte niet op dit apparaat. Probeer het opnieuw of gebruik een andere browser.");
+      setMelding("That did not work on this device. Try again or use another browser.");
     } finally {
       setBezig(false);
     }
@@ -78,22 +78,22 @@ export function Meldingen() {
 
   return (
     <section className="v-dash__panel">
-      <h2 className="v-sub">Pushmeldingen op dit apparaat</h2>
-      <p className="v-muted">Krijg een melding op je telefoon zodra iemand op je website begint te chatten, en wanneer iemand een afspraak boekt.</p>
+      <h2 className="v-sub">Push notifications on this device</h2>
+      <p className="v-muted">Get a notification on your phone as soon as someone starts chatting on your website, and when someone books an appointment.</p>
 
-      {staat === "laden" ? <p className="v-muted v-small">Dit apparaat controleren…</p> : null}
+      {staat === "laden" ? <p className="v-muted v-small">Checking this device…</p> : null}
 
       {staat === "aan" ? (
         <div className="v-push">
           <p>
-            <strong>Aan</strong> voor dit apparaat.
+            <strong>On</strong> for this device.
           </p>
           <div className="v-push__knoppen">
-            <button className="v-dash__logout" disabled={bezig} onClick={() => void testPush().then(() => setMelding("Test verstuurd."))} type="button">
-              Stuur een test
+            <button className="v-dash__logout" disabled={bezig} onClick={() => void testPush().then(() => setMelding("Test sent."))} type="button">
+              Send a test
             </button>
             <button className="v-dash__logout" disabled={bezig} onClick={() => void zetUit()} type="button">
-              Uitzetten
+              Switch off
             </button>
           </div>
         </div>
@@ -101,12 +101,12 @@ export function Meldingen() {
 
       {staat === "uit" ? (
         <button className="v-btn-blauw" disabled={bezig} onClick={() => void zetAan()} type="button">
-          {bezig ? "Een moment…" : "Meldingen aanzetten"}
+          {bezig ? "One moment…" : "Switch notifications on"}
         </button>
       ) : null}
 
       {staat === "geweigerd" ? (
-        <p className="v-muted">Meldingen zijn geblokkeerd voor Volgo op dit apparaat. Sta ze toe in je browser- of telefooninstellingen en kom dan terug.</p>
+        <p className="v-muted">Notifications are blocked for Volgo on this device. Allow them in your browser or phone settings and come back.</p>
       ) : null}
 
       {staat === "ios" ? (
@@ -115,16 +115,16 @@ export function Meldingen() {
             Open <strong>thevolgo.app/dashboard</strong> in Safari.
           </li>
           <li>
-            Tik op de deelknop, daarna op <strong>Zet op beginscherm</strong>.
+            Tap the share button, then <strong>Add to Home Screen</strong>.
           </li>
-          <li>Open Volgo vanaf je beginscherm en kom terug naar deze pagina om meldingen aan te zetten.</li>
+          <li>Open Volgo from your home screen and come back to this page to switch notifications on.</li>
         </ol>
       ) : null}
 
-      {staat === "niet" ? <p className="v-muted">Deze browser kan geen meldingen ontvangen. Gebruik Chrome, Edge, Firefox of Safari op je telefoon of computer.</p> : null}
+      {staat === "niet" ? <p className="v-muted">This browser cannot receive notifications. Use Chrome, Edge, Firefox or Safari on your phone or computer.</p> : null}
 
       {melding ? <p className="v-small">{melding}</p> : null}
-      <p className="v-muted v-small">Zet het één keer aan op elke telefoon of computer waar je de meldingen wilt.</p>
+      <p className="v-muted v-small">Switch it on once on every phone or computer where you want the notifications.</p>
     </section>
   );
 }

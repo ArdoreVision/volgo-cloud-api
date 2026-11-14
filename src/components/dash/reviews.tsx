@@ -20,13 +20,13 @@ export function Reviews({ openTab }: { openTab: (t: string) => void }) {
   useEffect(laad, []);
 
   async function schrijf() {
-    if (review.trim().length < 2) return setFout("Plak eerst de review.");
+    if (review.trim().length < 2) return setFout("Paste the review first.");
     setBezig(true);
     setFout("");
     setGekopieerd(false);
     const r = await schrijfReviewAntwoord({ data: { naam: naam || undefined, sterren, review } }).catch(() => null);
     setBezig(false);
-    if (!r?.ok) return setFout(r?.message ?? "Dat lukte niet. Probeer het opnieuw.");
+    if (!r?.ok) return setFout(r?.message ?? "That did not work. Please try again.");
     setAntwoord(r.antwoord);
     laad();
   }
@@ -35,51 +35,51 @@ export function Reviews({ openTab }: { openTab: (t: string) => void }) {
     <div className="v-g">
       <header className="v-g__kop">
         <h1>Reviews</h1>
-        <p>Meer Google-reviews betekent meer mensen die je vertrouwen voordat ze bellen. Volgo vraagt elke klant na de afspraak om een review en schrijft je antwoorden.</p>
+        <p>More Google reviews means more people who trust you before they call. Volgo asks every customer for a review after the appointment and writes your replies.</p>
       </header>
 
       <section className="v-g__kaart">
-        <h2>Automatische reviewverzoeken</h2>
+        <h2>Automatic review requests</h2>
         {d && !d.reviewUrl ? (
           <>
-            <p>Zet één keer je Google-reviewlink erin, dan vraagt Volgo elke klant een uur na de afspraak om een review.</p>
-            <button className="v-g__knop" onClick={() => openTab("mijnsite")} type="button">
-              Reviewlink toevoegen
+            <p>Add your Google review link once, and Volgo asks every customer for a review an hour after the appointment.</p>
+            <button className="v-g__knop" onClick={() => openTab("kanalen")} type="button">
+              Add review link
             </button>
           </>
         ) : d ? (
           <>
             <p>
-              {d.aan ? "Aan." : "Uit."} Volgo stuurt je link <a href={d.reviewUrl} rel="noreferrer" target="_blank">{d.reviewUrl.replace(/^https:\/\//, "").slice(0, 48)}</a> één keer per klant.
+              {d.aan ? "On." : "Off."} Volgo sends your link <a href={d.reviewUrl} rel="noreferrer" target="_blank">{d.reviewUrl.replace(/^https:\/\//, "").slice(0, 48)}</a> once per customer.
             </p>
-            {d.verzoeken.length === 0 ? <p className="v-g__leeg">Nog geen verzoeken verstuurd.</p> : null}
+            {d.verzoeken.length === 0 ? <p className="v-g__leeg">No requests sent yet.</p> : null}
             <ul className="v-g__lijst">
               {d.verzoeken.slice(0, 8).map((v, i) => (
                 <li key={i}>
                   <span>{v.aan}</span>
                   <small>
-                    {datumAms(sqlDate(v.gemaakt))} · {v.status === "verstuurd" ? (v.kanaal === "sms" ? "sms ✓" : "mail ✓") : "niet afgeleverd"}
+                    {datumAms(sqlDate(v.gemaakt))} · {v.status === "verstuurd" ? (v.kanaal === "sms" ? "sms ✓" : "mail ✓") : "not delivered"}
                   </small>
                 </li>
               ))}
             </ul>
           </>
         ) : (
-          <p className="v-g__leeg">Laden…</p>
+          <p className="v-g__leeg">Loading…</p>
         )}
       </section>
 
       <section className="v-g__kaart">
-        <h2>Antwoord op een review</h2>
-        <p>Plak een review van Google, Volgo schrijft een persoonlijk antwoord in jouw toon. Kopieer het en plak het onder de review in Google.</p>
+        <h2>Reply to a review</h2>
+        <p>Paste a review from Google and Volgo writes a personal reply in your tone. Copy it and paste it under the review in Google.</p>
         <div className="v-g__form">
           <label className="v-g__veld">
-            Naam van de schrijver
-            <input onChange={(e) => setNaam(e.target.value)} placeholder="Bijvoorbeeld Anna" value={naam} />
+            Name of the writer
+            <input onChange={(e) => setNaam(e.target.value)} placeholder="For example Anna" value={naam} />
           </label>
           <div className="v-g__veld">
-            Sterren
-            <div className="v-g__sterren" role="radiogroup" aria-label="Sterren">
+            Stars
+            <div className="v-g__sterren" role="radiogroup" aria-label="Stars">
               {[1, 2, 3, 4, 5].map((n) => (
                 <button aria-checked={sterren === n} aria-label={`${n} sterren`} className={n <= sterren ? "is-aan" : ""} key={n} onClick={() => setSterren(n)} role="radio" type="button">
                   ★
@@ -88,12 +88,12 @@ export function Reviews({ openTab }: { openTab: (t: string) => void }) {
             </div>
           </div>
           <label className="v-g__veld is-breed">
-            De review
-            <textarea onChange={(e) => setReview(e.target.value)} placeholder="Plak de review hier" rows={4} value={review} />
+            The review
+            <textarea onChange={(e) => setReview(e.target.value)} placeholder="Paste the review here" rows={4} value={review} />
           </label>
           <div className="v-g__knoppen is-breed">
             <button className="v-g__knop" disabled={bezig} onClick={() => void schrijf()} type="button">
-              {bezig ? "Schrijven…" : "Schrijf mijn antwoord"}
+              {bezig ? "Writing…" : "Write my reply"}
             </button>
             {fout ? <span className="v-g__fout">{fout}</span> : null}
           </div>
@@ -109,10 +109,10 @@ export function Reviews({ openTab }: { openTab: (t: string) => void }) {
                 }}
                 type="button"
               >
-                {gekopieerd ? "Gekopieerd ✓" : "Antwoord kopiëren"}
+                {gekopieerd ? "Copied ✓" : "Antwoord kopiëren"}
               </button>
               <button className="v-g__knop2" disabled={bezig} onClick={() => void schrijf()} type="button">
-                Schrijf een andere versie
+                Write another version
               </button>
             </div>
           </div>
@@ -121,7 +121,7 @@ export function Reviews({ openTab }: { openTab: (t: string) => void }) {
 
       {d && d.antwoorden.length ? (
         <section className="v-g__kaart">
-          <h2>Eerdere antwoorden</h2>
+          <h2>Earlier replies</h2>
           <ul className="v-g__lijst">
             {d.antwoorden.map((a) => (
               <li key={a.id}>

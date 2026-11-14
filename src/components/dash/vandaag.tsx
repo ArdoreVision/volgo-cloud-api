@@ -5,11 +5,11 @@ import { Dagtaken } from "./dagtaken";
 import { type Afspraak, type DashData, type Gesprek, type Lead, dagKey, geleden, sqlDate } from "./util";
 
 function groet(d: Date) {
-  const uur = Number(new Intl.DateTimeFormat("nl-NL", { hour: "numeric", hour12: false, timeZone: "Europe/Amsterdam" }).format(d));
-  if (uur < 6) return "Goedenacht";
-  if (uur < 12) return "Goedemorgen";
-  if (uur < 18) return "Goedemiddag";
-  return "Goedenavond";
+  const uur = Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: "Europe/Amsterdam" }).format(d));
+  if (uur < 6) return "Good night";
+  if (uur < 12) return "Good morning";
+  if (uur < 18) return "Good afternoon";
+  return "Good evening";
 }
 
 /** Contact line from the note the booking saved ("Contact: …"). */
@@ -21,7 +21,7 @@ const isTel = (s: string) => /^[+\d][\d\s()-]{6,}$/.test(s);
 
 function AfspraakRij({ a }: { a: Afspraak }) {
   const contact = contactVan(a);
-  const dag = new Date(`${a.start.slice(0, 10)}T12:00:00Z`).toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+  const dag = new Date(`${a.start.slice(0, 10)}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
   return (
     <li className="v-vd__rij">
       <span className="v-vd__tijd">
@@ -34,7 +34,7 @@ function AfspraakRij({ a }: { a: Afspraak }) {
       </span>
       {contact ? (
         <a className="v-vd__actie" href={isTel(contact) ? `tel:${contact.replace(/[^\d+]/g, "")}` : `mailto:${contact}`}>
-          {isTel(contact) ? "Bellen" : "Mailen"}
+          {isTel(contact) ? "Call" : "Email"}
         </a>
       ) : null}
     </li>
@@ -49,16 +49,16 @@ function WeekStrook({ openTab }: { openTab: (t: string) => void }) {
   }, []);
   const tegels: [string, string, string][] = w
     ? [
-        [String(w.gesprekken), w.gesprekken === 1 ? "gesprek beantwoord" : "gesprekken beantwoord", "gesprekken"],
-        [String(w.aanvragen), w.aanvragen === 1 ? "nieuwe aanvraag" : "nieuwe aanvragen", "aanvragen"],
-        [String(w.afspraken), w.afspraken === 1 ? "afspraak geboekt" : "afspraken geboekt", "agenda"],
-        [String(w.berichten), "berichten automatisch verstuurd", "automatisch"],
-        [`€ ${Math.round(w.betaald / 100).toLocaleString("nl-NL")}`, "betaald via Volgo", "betalingen"],
+        [String(w.gesprekken), w.gesprekken === 1 ? "conversation answered" : "conversations answered", "gesprekken"],
+        [String(w.aanvragen), w.aanvragen === 1 ? "new request" : "new requests", "aanvragen"],
+        [String(w.afspraken), w.afspraken === 1 ? "appointment booked" : "appointments booked", "agenda"],
+        [String(w.berichten), "messages sent automatically", "automatisch"],
+        [`€ ${Math.round(w.betaald / 100).toLocaleString("en-GB")}`, "paid via Volgo", "betalingen"],
       ]
     : [];
   return (
-    <section aria-label="Deze week" className="v-vd__week">
-      <h2>Wat Volgo de afgelopen 7 dagen voor je deed</h2>
+    <section aria-label="This week" className="v-vd__week">
+      <h2>What Volgo did for you in the last 7 days</h2>
       <div className="v-vd__tegels">
         {w
           ? tegels.map(([n, label, tab]) => (
@@ -84,7 +84,7 @@ export function Vandaag({ data, voornaam, openTab }: { data: DashData; voornaam:
 
   const live: Gesprek[] = echt(data.gesprekken).filter((g) => g.status === "live" && nu.getTime() - sqlDate(g.laatste).getTime() < 15 * 60000);
   const afspraken: Afspraak[] = echt(data.afspraken);
-  const nuLokaal = `${vandaag}T${nu.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" })}`;
+  const nuLokaal = `${vandaag}T${nu.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" })}`;
   const vandaagLijst = afspraken.filter((a) => a.start.slice(0, 10) === vandaag && a.eind.slice(0, 16) >= nuLokaal);
   const straks = afspraken.filter((a) => a.start.slice(0, 10) > vandaag).slice(0, 5);
   const nieuw: Lead[] = echt(data.leads)
@@ -99,7 +99,7 @@ export function Vandaag({ data, voornaam, openTab }: { data: DashData; voornaam:
           {voornaam ? `, ${voornaam}` : ""}.
         </h1>
         <p>
-          {live.length ? `${live.length} ${live.length === 1 ? "persoon chat" : "mensen chatten"} nu met je assistent.` : "Je assistent is online en beantwoordt je website, 24/7."}
+          {live.length ? `${live.length} ${live.length === 1 ? "person is" : "people are"} chatting with your assistant right now.` : "Your assistant is online and answers your website, 24/7."}
         </p>
       </header>
 
@@ -109,9 +109,9 @@ export function Vandaag({ data, voornaam, openTab }: { data: DashData; voornaam:
 
       <section aria-labelledby="vd-live" className="v-vd__blok">
         <div className="v-vd__blokkop">
-          <h2 id="vd-live">Nu live</h2>
+          <h2 id="vd-live">Live now</h2>
           <button className="v-vd__link" onClick={() => openTab("gesprekken")} type="button">
-            Alle gesprekken →
+            All conversations →
           </button>
         </div>
         {live.length ? (
@@ -126,21 +126,21 @@ export function Vandaag({ data, voornaam, openTab }: { data: DashData; voornaam:
                   </small>
                 </span>
                 <button className="v-vd__actie" onClick={() => openTab("gesprekken")} type="button">
-                  Meekijken
+                  Watch
                 </button>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="v-vd__leeg">Er chat nu niemand. Je krijgt een melding zodra iemand begint.</p>
+          <p className="v-vd__leeg">Nobody is chatting right now. You get a notification as soon as someone starts.</p>
         )}
       </section>
 
       <section aria-labelledby="vd-vandaag" className="v-vd__blok">
         <div className="v-vd__blokkop">
-          <h2 id="vd-vandaag">Vandaag</h2>
+          <h2 id="vd-vandaag">Today</h2>
           <button className="v-vd__link" onClick={() => openTab("agenda")} type="button">
-            Agenda →
+            Calendar →
           </button>
         </div>
         {vandaagLijst.length ? (
@@ -150,13 +150,13 @@ export function Vandaag({ data, voornaam, openTab }: { data: DashData; voornaam:
             ))}
           </ul>
         ) : (
-          <p className="v-vd__leeg">Vandaag geen afspraken meer.</p>
+          <p className="v-vd__leeg">No more appointments today.</p>
         )}
       </section>
 
       <section aria-labelledby="vd-straks" className="v-vd__blok">
         <div className="v-vd__blokkop">
-          <h2 id="vd-straks">Binnenkort</h2>
+          <h2 id="vd-straks">Coming up</h2>
         </div>
         {straks.length ? (
           <ul className="v-vd__lijst">
@@ -165,15 +165,15 @@ export function Vandaag({ data, voornaam, openTab }: { data: DashData; voornaam:
             ))}
           </ul>
         ) : (
-          <p className="v-vd__leeg">Kiest een klant in de chat een dag en tijd, dan staat de afspraak hier met naam en adres.</p>
+          <p className="v-vd__leeg">When a customer picks a day and time in the chat, the appointment shows up here with name and address.</p>
         )}
       </section>
 
       <section aria-labelledby="vd-nieuw" className="v-vd__blok">
         <div className="v-vd__blokkop">
-          <h2 id="vd-nieuw">Nieuwe aanvragen om terug te bellen</h2>
+          <h2 id="vd-nieuw">New requests to call back</h2>
           <button className="v-vd__link" onClick={() => openTab("aanvragen")} type="button">
-            Alle aanvragen →
+            All requests →
           </button>
         </div>
         {nieuw.length ? (
@@ -187,13 +187,13 @@ export function Vandaag({ data, voornaam, openTab }: { data: DashData; voornaam:
                   </small>
                 </span>
                 <button className="v-vd__actie" onClick={() => openTab("aanvragen")} type="button">
-                  Openen
+                  Open
                 </button>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="v-vd__leeg">Geen open aanvragen. Mooi.</p>
+          <p className="v-vd__leeg">No open requests. Nice.</p>
         )}
       </section>
     </div>
