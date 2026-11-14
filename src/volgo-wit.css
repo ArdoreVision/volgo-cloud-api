@@ -406,7 +406,8 @@ html:has(.vn), body:has(.vn) { background: #fff; }
 }
 
 /* ---------- Volgo's post bird ---------- */
-.pv { --pv-y: 0; --pv-kantel: 0deg; position: fixed; right: max(14px, calc((100vw - 1280px) / 2 - 40px)); top: calc(96px + var(--pv-y) * (100vh - 290px)); z-index: 30; width: 92px; pointer-events: none; transition: opacity 0.4s; }
+/* Flies from left to right as you scroll, low in the screen so it never covers what you read. */
+.pv { --pv-y: 0; --pv-kantel: 0deg; position: fixed; left: calc(16px + var(--pv-y) * (100vw - 140px)); bottom: 22px; z-index: 30; width: 92px; pointer-events: none; transition: opacity 0.4s; }
 .pv.is-weg { opacity: 0; }
 .pv-vlieg { width: 92px; transform: rotate(var(--pv-kantel)); animation: pv-zweef 2.6s ease-in-out infinite; filter: drop-shadow(0 12px 14px rgba(10, 11, 13, 0.18)); }
 .pv-svg { display: block; width: 100%; height: auto; overflow: visible; }
@@ -415,13 +416,15 @@ html:has(.vn), body:has(.vn) { background: #fff; }
 @keyframes pv-flap { from { transform: rotate(8deg); } to { transform: rotate(-30deg) scaleY(0.85); } }
 @keyframes pv-zweef { 0%, 100% { transform: translateY(0) rotate(var(--pv-kantel)); } 50% { transform: translateY(-8px) rotate(var(--pv-kantel)); } }
 @keyframes pv-schommel { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(4deg); } }
-.pv-ballon { position: absolute; right: 82px; top: 2px; width: max-content; max-width: 230px; margin: 0; padding: 10px 13px; border-radius: 16px 16px 4px 16px; background: #fff; color: var(--ink); font-size: 13.5px; font-weight: 600; line-height: 1.35; box-shadow: 0 0 0 1px var(--line), 0 14px 30px -14px rgba(10, 11, 13, 0.35); animation: pv-ballon 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+.pv-ballon { position: absolute; left: 70px; bottom: 78px; width: max-content; max-width: 230px; margin: 0; padding: 10px 13px; border-radius: 16px 16px 16px 4px; background: #fff; color: var(--ink); font-size: 13.5px; font-weight: 600; line-height: 1.35; box-shadow: 0 0 0 1px var(--line), 0 14px 30px -14px rgba(10, 11, 13, 0.35); animation: pv-ballon 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+.pv.is-rechts .pv-ballon { left: auto; right: 70px; border-radius: 16px 16px 4px 16px; }
 @keyframes pv-ballon { from { opacity: 0; transform: translateY(6px) scale(0.96); } to { opacity: 1; transform: none; } }
 @media (max-width: 1100px) { .pv-ballon { max-width: 190px; font-size: 12.5px; } }
 @media (max-width: 760px) {
-  .pv { top: auto; bottom: 14px; right: 10px; width: 64px; }
+  .pv { bottom: 12px; left: calc(8px + var(--pv-y) * (100vw - 82px)); width: 64px; }
   .pv-vlieg { width: 64px; }
-  .pv-ballon { right: 56px; top: auto; bottom: 36px; max-width: 200px; padding: 8px 11px; font-size: 12.5px; }
+  .pv-ballon { left: 40px; bottom: 58px; max-width: 200px; padding: 8px 11px; font-size: 12.5px; }
+  .pv.is-rechts .pv-ballon { left: auto; right: 40px; }
 }
 @media (prefers-reduced-motion: reduce) { .pv-vlieg, .pv-vleugel, .pv-envelop { animation: none; } }
 
