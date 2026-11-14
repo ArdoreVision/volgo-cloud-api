@@ -7,6 +7,10 @@ import { ContactKnoppen, KanaalLabel } from "@/components/dash/contact-knoppen";
 import { Automatisch } from "@/components/dash/automatisch";
 import { Betalingen } from "@/components/dash/betalingen";
 import { Installeren } from "@/components/dash/installeren";
+import { InstelLijst } from "@/components/dash/instel-lijst";
+import { AgendaInstellen } from "@/components/dash/agenda-instellen";
+import { AvaInstellen } from "@/components/dash/ava-instellen";
+import { VraagVolgo } from "@/components/dash/vraag-volgo";
 import { MijnWebsite } from "@/components/dash/mijn-website";
 import { Kanalen } from "@/components/dash/kanalen";
 import { Reviews } from "@/components/dash/reviews";
@@ -58,7 +62,7 @@ const SUBS: [Sub, string][] = [
 ];
 const isSub = (t: string): t is Sub => SUBS.some(([id]) => id === t);
 /** Old names other parts of the app may still use. */
-const ALIAS: Record<string, Tab> = { stijl: "ontwerp" };
+const ALIAS: Record<string, Tab> = { stijl: "ontwerp", "agenda-instellen": "agenda" };
 
 /**
  * The sidebar. First what a business looks at every day: the inbox, the calendar, the requests. Then what Volgo does by
@@ -348,7 +352,10 @@ function Open({ data }: { data: DashData }) {
       setTabRaw(doel as Tab);
     }
     setMeer(false);
-    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    if (typeof window !== "undefined") {
+      if (t === "agenda-instellen") window.setTimeout(() => document.getElementById("agenda-instellen")?.scrollIntoView({ behavior: "smooth", block: "start" }), 350);
+      else window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    }
   };
   // A push notification opens /dashboard#agenda etc.: go straight to that tab.
   useEffect(() => {
@@ -547,11 +554,17 @@ function Open({ data }: { data: DashData }) {
           </button>
         ) : null}
 
+        {(tab === "home" || tab === "gesprekken") && g.rol === "eigenaar" ? <InstelLijst kort metWebsite={plan.limieten.website} openTab={(t) => setTab(t)} /> : null}
         {tab === "home" ? <Vandaag data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "overzicht" ? <Overview data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "verkeer" ? <Verkeer openTab={(t) => setTab(t)} /> : null}
         {tab === "gesprekken" ? <Gesprekken data={data} /> : null}
-        {tab === "agenda" ? <Agenda data={data} /> : null}
+        {tab === "agenda" ? (
+          <>
+            <Agenda data={data} />
+            <AgendaInstellen />
+          </>
+        ) : null}
         {tab === "website" && plan.limieten.website ? plan.id === "compleet" ? <WebsiteAanvraag openTab={(t) => setTab(t)} /> : <Website /> : null}
         {tab === "ava" ? <MijnChat /> : null}
         {tab === "automatisch" ? <Automatisch openTab={(t) => setTab(t)} /> : null}
@@ -712,7 +725,12 @@ function Open({ data }: { data: DashData }) {
               ))}
             </nav>
             
-            {sub === "meldingen" ? <Meldingen /> : null}
+            {sub === "meldingen" ? (
+              <>
+                <Meldingen />
+                <AvaInstellen deel="meldingen" />
+              </>
+            ) : null}
             {sub === "account" ? <Account g={g} leden={data.leden} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} /> : null}
             {sub === "abonnement" ? (
               <>
@@ -835,6 +853,7 @@ function Open({ data }: { data: DashData }) {
           zetStatus={zetStatus}
         />
       ) : null}
+      <VraagVolgo openTab={(t) => setTab(t)} voornaam={voornaam} />
       <div aria-live="polite" className="v-toasts">
         {toasts.map((t) => (
           <button

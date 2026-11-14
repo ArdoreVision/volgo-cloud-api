@@ -1,5 +1,5 @@
 // Appointments: visitors pick a free moment in a small calendar inside the Volgo chat.
-// Only within opening hours and never on top of another appointment in the business calendar.
+// Only within opening hours and never on top of another appointment in Volgo or in the business's own linked calendar.
 import type { D1Database } from "@cloudflare/workers-types";
 
 import type { AvaInstellingen } from "./ava.server";
@@ -41,12 +41,16 @@ type Inst = AvaInstellingen;
 const openDagen = (inst: Inst) => inst.open_dagen.split(",").map(Number);
 export const soortenVan = (inst: Inst) => inst.afspraak_soorten.split(",").filter(isSoort);
 
-async function bezet(DB: D1Database, team: number, van: string, tot: string) {
-  return (
+/** Taken moments: appointments in Volgo, plus the busy times in the business's own linked calendar (Google, Outlook, Apple). */
+async function bezet(DB: D1Database, inst: Inst, van: string, tot: string) {
+  const eigen = (
     await DB.prepare("SELECT start, eind FROM afspraken WHERE team_id = ? AND voorbeeld = 0 AND start < ? AND eind > ? ORDER BY start")
-      .bind(team, tot, van)
+      .bind(inst.team_id, tot, van)
       .all<{ start: string; eind: string }>()
   ).results;
+  if (!inst.agenda_ics) return eigen;
+  const { bezetInAgenda } = await import("./ical.server");
+  return [...eigen, ...(await bezetInAgenda(inst.agenda_ics, inst.tijdzone, van, tot))];
 }
 
 /**
@@ -61,7 +65,7 @@ export async function vrijeDagen(DB: D1Database, inst: Inst, weken = 3) {
   const wd = naarDate(`${vandaag}T12:00`).getUTCDay();
   const maandag = plus(`${vandaag}T00:00`, -((wd + 6) % 7) * 24 * 60);
   const einde = plus(maandag, weken * 7 * 24 * 60);
-  const drukte = await bezet(DB, inst.team_id, maandag, einde);
+  const drukte = await bezet(DB, inst, maandag, einde);
   const open = openDagen(inst);
   const duur = inst.afspraak_duur;
   const stap = duur <= 30 ? 30 : 60;
@@ -114,8 +118,8 @@ export async function boekAfspraak(DB: D1Database, inst: Inst, b: Boeking, leadI
   if (start > nuLokaal(inst.tijdzone, 60 * 24 * 60)) return { ok: false as const, reden: weg };
   if (!openDagen(inst).includes(naarDate(start).getUTCDay())) return { ok: false as const, reden: weg };
   if (t < minuten(inst.open_van) || t + inst.afspraak_duur > minuten(inst.open_tot)) return { ok: false as const, reden: weg };
-  if ((await bezet(DB, inst.team_id, start, eind)).length) return { ok: false as const, reden: weg };
-  const titel = `${SOORTEN_NL[soort]} · ${b.naam.trim()}`.slice(0, 120);
+  if ((await bezet(DB, inst, start, eind)).length) return { ok: false as const, reden: weg };
+  const titel = `${SOORTEN[soort]} · ${b.naam.trim()}`.slice(0, 120);
   const notitie = [`Booked by the visitor in the Volgo chat. Contact: ${b.contact.trim()}`, soort !== "langs" && b.adres?.trim() ? `Address: ${b.adres.trim()}` : "", b.notitie?.trim()].filter(Boolean).join("\n").slice(0, 600);
   const locatie = soort === "langs" ? (b.adres ?? "").trim() : soort === "kantoor" ? "Op kantoor" : soort === "chat" ? `Chat: ${b.contact.trim()}` : `Telefoon: ${b.contact.trim()}`;
   // One statement: the slot is checked and taken in the same step, so two visitors can never get the same time.

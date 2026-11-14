@@ -30,6 +30,25 @@ async function instVan(DB: Awaited<ReturnType<typeof sessie>>["DB"], team: numbe
 
 // ── Automations ─────────────────────────────────────────
 
+/** Switch an automatic message on or off. Only the owner. */
+export const zetAutomatisch = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ soort: z.enum(["herinnering", "review", "opvolging", "seizoen"]), aan: z.boolean() }).parse(v))
+  .handler(async ({ data }) => {
+    const { g, DB } = await sessie();
+    if (g.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can change this." };
+    await instVan(DB, g.team_id);
+    await DB.prepare(`UPDATE ava_instellingen SET auto_${data.soort} = ? WHERE team_id = ?`).bind(data.aan ? 1 : 0, g.team_id).run();
+    return { ok: true as const, message: "" };
+  });
+
+/** The messages the business's customers get, with a sample customer, in the language that is set. */
+export const haalVoorbeeldBerichten = createServerFn({ method: "GET" }).handler(async () => {
+  const { g, DB } = await sessie();
+  const i = await instVan(DB, g.team_id);
+  const { voorbeeldBerichten } = await import("../automatisch.server");
+  return voorbeeldBerichten(i, i.taal === "nl" ? "nl" : "en");
+});
+
 /** The language Volgo writes to this business's customers in. New accounts start in English. */
 export const bewaarBerichtTaal = createServerFn({ method: "POST" })
   .validator((v: unknown) => z.object({ taal: z.enum(["en", "nl"]) }).parse(v))
@@ -240,4 +259,77 @@ export const haalWeek = createServerFn({ method: "GET" }).handler(async () => {
     een("SELECT COALESCE(SUM(bedrag), 0) AS n FROM betaalverzoeken WHERE team_id = ? AND status = 'betaald' AND betaald > datetime('now', '-7 days')"),
   ]);
   return { gesprekken, aanvragen, afspraken, berichten, betaald };
+});
+
+// ── The business's own calendar ──────────────────────────
+
+/** Linked calendar (read busy times) and the private feed of Volgo's appointments (to add to Google, Outlook or Apple). */
+export const haalAgendaKoppeling = createServerFn({ method: "GET" }).handler(async () => {
+  const { g, DB } = await sessie();
+  await instVan(DB, g.team_id);
+  let r = await DB.prepare("SELECT agenda_ics, agenda_token, tijdzone FROM ava_instellingen WHERE team_id = ?").bind(g.team_id).first<{ agenda_ics: string; agenda_token: string; tijdzone: string }>();
+  if (r && !r.agenda_token) {
+    const t = [...crypto.getRandomValues(new Uint8Array(18))].map((b) => b.toString(16).padStart(2, "0")).join("");
+    await DB.prepare("UPDATE ava_instellingen SET agenda_token = ? WHERE team_id = ? AND agenda_token = ''").bind(t, g.team_id).run();
+    r = { ...r, agenda_token: t };
+  }
+  const { SITE_URL } = await import("../mail.server");
+  const basis = SITE_URL || "https://thevolgo.app";
+  return {
+    gekoppeld: Boolean(r?.agenda_ics),
+    // Only the host is shown: the full address is a secret.
+    bron: r?.agenda_ics ? new URL(r.agenda_ics).hostname : "",
+    feed: `${basis}/api/agenda/${r?.agenda_token ?? ""}.ics`,
+    eigenaar: g.rol === "eigenaar",
+  };
+});
+
+export const bewaarAgendaKoppeling = createServerFn({ method: "POST" })
+  .validator((v: unknown) => z.object({ url: z.string().trim().max(1000) }).parse(v))
+  .handler(async ({ data }) => {
+    const { g, DB } = await sessie();
+    if (g.rol !== "eigenaar") return { ok: false as const, message: "Only the account owner can link a calendar.", aantal: 0 };
+    await instVan(DB, g.team_id);
+    if (!data.url) {
+      await DB.prepare("UPDATE ava_instellingen SET agenda_ics = '' WHERE team_id = ?").bind(g.team_id).run();
+      return { ok: true as const, message: "", aantal: 0 };
+    }
+    const tz = (await DB.prepare("SELECT tijdzone FROM ava_instellingen WHERE team_id = ?").bind(g.team_id).first<{ tijdzone: string }>())?.tijdzone || "Europe/Amsterdam";
+    const { testAgenda } = await import("../ical.server");
+    const t = await testAgenda(data.url, tz);
+    if (!t.ok) return { ok: false as const, message: t.message, aantal: 0 };
+    await DB.prepare("UPDATE ava_instellingen SET agenda_ics = ? WHERE team_id = ?").bind(t.url, g.team_id).run();
+    return { ok: true as const, message: "", aantal: t.aantal };
+  });
+
+// ── Setup: everything a business has to check once, with its real status ──
+
+export const haalInstelStatus = createServerFn({ method: "GET" }).handler(async () => {
+  const { g, DB } = await sessie();
+  const i = await instVan(DB, g.team_id);
+  const extra = await DB.prepare("SELECT boeken, zakelijk_nummer, agenda_ics FROM ava_instellingen WHERE team_id = ?")
+    .bind(g.team_id)
+    .first<{ boeken: number; zakelijk_nummer: string; agenda_ics: string }>()
+    .catch(() => null);
+  const [ob, m, test] = await Promise.all([
+    DB.prepare("SELECT geinstalleerd, ava_getest FROM onboarding WHERE team_id = ?").bind(g.team_id).first<{ geinstalleerd: number; ava_getest: number }>(),
+    DB.prepare("SELECT chat_mail, heet_mail, email, samenvatting FROM meldingen WHERE gebruiker_id = ?").bind(g.id).first<{ chat_mail: number; heet_mail: number; email: number; samenvatting: number }>(),
+    DB.prepare("SELECT 1 AS n FROM ava_gesprekken WHERE team_id = ? LIMIT 1").bind(g.team_id).first(),
+  ]);
+  // Email notifications are on unless the user switched them all off (no row = defaults: on).
+  const mailAan = !m || Boolean(m.chat_mail || m.heet_mail || m.email || m.samenvatting);
+  const push = await DB.prepare("SELECT 1 AS n FROM push_abonnementen WHERE gebruiker_id = ? LIMIT 1").bind(g.id).first().catch(() => null);
+  return {
+    eigenaar: g.rol === "eigenaar",
+    geinstalleerd: Boolean(ob?.geinstalleerd),
+    getest: Boolean(ob?.ava_getest) || Boolean(test),
+    boeken: Boolean(extra?.boeken ?? 1),
+    agenda: Boolean(extra?.agenda_ics),
+    mail: mailAan,
+    push: Boolean(push),
+    opvolging: { herinnering: !!i.auto_herinnering, review: !!i.auto_review, opvolging: !!i.auto_opvolging, seizoen: !!i.auto_seizoen },
+    taal: i.taal === "nl" ? "nl" : "en",
+    review: Boolean(i.review_url),
+    nummer: Boolean(extra?.zakelijk_nummer),
+  };
 });
