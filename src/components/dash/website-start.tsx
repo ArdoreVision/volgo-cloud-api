@@ -182,16 +182,16 @@ export function WebsiteStart({ klaar }: { klaar: () => void | Promise<void> }) {
                         3D website
                       </button>
                       <button aria-checked={!g.drieD} onClick={() => zet("drieD", false)} role="radio" type="button">
-                        Professional
+                        Without 3D
                       </button>
                     </div>
-                    <small>{g.drieD ? "3D visuals and scroll animation. Included in your plan." : "A calm, fast website without 3D."}</small>
+                    <small>{g.drieD ? "The opening screen is a moving 3D scene that reacts to scrolling, and the sections slide in as you scroll. Included in your plan." : "The same website with a calm, still opening screen."}</small>
                   </div>
                 ) : (
                   <div className="v-g__veld">
                     Kind of website
                     <span className="v-ws__vast">Professional website</span>
-                    <small>A 3D website comes with Pro and Complete.</small>
+                    <small>Included in your plan.</small>
                   </div>
                 )}
                 <label className="v-g__veld">

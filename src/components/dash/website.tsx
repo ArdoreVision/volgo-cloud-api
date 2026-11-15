@@ -171,7 +171,7 @@ export function Website() {
         </p>
       ) : null}
 
-      {d.drieD ? <PlanCall compact /> : null}
+      {d.planCall ? <PlanCall compact /> : null}
 
       <section className="v-bw__domein" aria-label="Your domain">
         {d.domein ? (

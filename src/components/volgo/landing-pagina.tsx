@@ -5,7 +5,7 @@ import { Footer } from "./footer";
 import { PijnScroll } from "./pijn-scroll";
 import { PostVogel, VogelLader } from "./post-vogel";
 import { InstallUitleg, type Kijker, Kop, Prijzen, useOnthul } from "./wit";
-import { PLANS } from "@/lib/plans";
+import { DRIE_D_UITLEG, PLANS } from "@/lib/plans";
 
 /** The page is written in English and shown in English. Another language only when the visitor picks one at the top. */
 const VANAF = `€${PLANS.starter.prijsTekst}`;
@@ -26,7 +26,8 @@ const MET = ["Every chat and request in one inbox", "Every visitor gets an answe
 const FAQ: [string, string][] = [
   ["What is Volgo?", "A complete website with an appointment setter inside. Volgo builds your website, visitors book an appointment themselves, everything lands in one inbox, and Volgo follows up automatically. Also when someone does not book right away."],
   ["Who is Volgo made for?", "For businesses that get customers through appointments on their website. Think of detailers, hairdressers, salons, gardeners, installers, coaches and practices."],
-  ["Do I get a new website?", "Yes, with every plan. You tell Volgo about your business and Volgo builds a complete professional website with the appointment setter inside. Complete is a 3D website made to measure, with a 1-on-1 call."],
+  ["What is a 3D website?", DRIE_D_UITLEG],
+  ["Do I get a new website?", "Yes, with every plan. You tell Volgo about your business and Volgo builds a complete 3D website with the appointment setter inside. With Complete the team finishes your 3D website to measure, with a 1-on-1 call."],
   ["Can I use my own domain name?", "Yes. You fill in the domain you own and get the two lines to pass on to whoever manages it. Until it is connected, your website is online on a Volgo address. Buying a domain name is only included with Complete."],
   ["How fast is my website ready?", "You fill in your business details in a few minutes. Volgo then builds your website in one to two minutes. You look at it, change what you want and press Publish."],
   ["I know nothing about websites. Can I do this?", "Yes. You answer questions about your business in plain words. Want something changed? Type it in the chat in your dashboard and Volgo changes your website."],
@@ -287,7 +288,7 @@ export function LandingPagina({ kijker }: { kijker: Kijker }) {
             <div className="vn-kaart" data-rv="">
               <h3>Want to stand out?</h3>
               <p>
-                Complete is a 3D website made to measure, with a 1-on-1 call. <a href="#pricing">See Complete</a>
+                With Complete the team finishes your 3D website to measure, with a 1-on-1 call. <a href="#pricing">See Complete</a>
               </p>
             </div>
           </div>

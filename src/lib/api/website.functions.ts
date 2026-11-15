@@ -70,6 +70,7 @@ export const haalBouwer = createServerFn({ method: "GET" }).handler(async () => 
     domeinDoel: DOMEIN_DOEL,
     heeftGegevens: Boolean(intake?.gegevens),
     drieD: Boolean(plan.limieten.drieD),
+    planCall: Boolean(plan.limieten.planCall),
     mag: plan.limieten.website,
     eigenaar: g.rol === "eigenaar",
     bedrijf: g.bedrijf,

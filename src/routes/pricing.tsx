@@ -20,7 +20,7 @@ export const Route = createFileRoute("/pricing")({
       {
         name: "description",
         content:
-          "Volgo pricing: Starter €149, Growth €249 and Pro €449 per month, each with a complete professional website built for you and the appointment setter inside. Or Complete: a 3D website made to measure with a 1-on-1 call, €2499 one-time plus €249.99 per month. Excl. VAT, cancel any month.",
+          "Volgo pricing: Starter €149, Growth €249 and Pro €449 per month, each with a complete 3D website built for you and the appointment setter inside. Or Complete: your 3D website made to measure by the team, with a 1-on-1 call, €2499 one-time plus €249.99 per month. Excl. VAT, cancel any month.",
       },
       { property: "og:url", content: "https://thevolgo.app/pricing" },
     ],
@@ -68,7 +68,7 @@ function Abonnement() {
           {verlopen ? <p className="vn-melding">Your subscription has ended. Choose a plan to continue. All your data is still here.</p> : null}
           <p className="vn-oog">Pricing</p>
           <h1 className="vn-h1">{klant ? "Your plan." : "Pick what fits your business."}</h1>
-          <p className="vn-sub">Every plan comes with a complete professional website, built for you, with Volgo inside. For serious businesses: a 3D website made to measure.</p>
+          <p className="vn-sub">Every plan comes with a complete 3D website, built for you, with Volgo inside. With Complete, the team makes it to measure with you.</p>
         </header>
 
         <div className="vn-prijzen--los">

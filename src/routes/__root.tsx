@@ -43,7 +43,7 @@ const LD_ORGANISATIE = {
         "Appointment booking inside the chat",
         "Hot-lead emails and daily morning summary",
         "Lead pipeline from new to quote to won",
-        "A complete professional website built for you with every plan, on your own domain",
+        "A complete 3D website built for you with every plan, on your own domain",
         "Every chat, form and appointment in one inbox",
         "Confirmation, reminder and follow-up sent automatically",
       ],
