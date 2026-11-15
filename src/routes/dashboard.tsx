@@ -573,7 +573,7 @@ function Open({ data }: { data: DashData }) {
             </svg>
           </span>
         </button>
-        <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={Boolean(plan.limieten.drieD)} planNaam={plan.naam} />
+        <ProfielKnop admin={admin} g={g} loguit={() => void loguit()} openTab={(t) => setTab(t)} planCall={Boolean(plan.limieten.planCall)} planNaam={plan.naam} />
       </div>
       <main hidden={tab === "vraag"} key={`${tab === "instellingen" ? `${tab}-${sub}` : tab}-${versie}`} className={`v-dash__main${(tab === "team" && plan.limieten.teamChat) || tab === "website" ? " v-dash__main--full" : ""}`}>
         {g.status === "proef" && proefDagen > 0 ? (
@@ -780,7 +780,7 @@ function Open({ data }: { data: DashData }) {
             {sub === "account" ? <Account g={g} leden={data.leden} loguit={() => void loguit()} openTab={(t) => setTab(t)} planNaam={plan.naam} /> : null}
             {sub === "abonnement" ? (
               <>
-            {plan.limieten.drieD ? (
+            {plan.limieten.planCall ? (
               <section className="v-dash__panel">
                 <PlanCall />
               </section>

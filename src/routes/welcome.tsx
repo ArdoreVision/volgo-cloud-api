@@ -58,7 +58,7 @@ function Welcome() {
       <h1 className="v-auth__title">Welcome to {p ? planTitel(p) : "Volgo"}.</h1>
       <p className="v-auth__sub">Your payment went through. Here’s what happens next.</p>
       <ol className="v-welkom__stappen">
-        {(p?.limieten.drieD ? STAPPEN_3D : p?.limieten.website ? STAPPEN_WEBSITE : STAPPEN).map((s, i) => (
+        {(p?.limieten.planCall ? STAPPEN_3D : p?.limieten.website ? STAPPEN_WEBSITE : STAPPEN).map((s, i) => (
           <li key={s.t}>
             <span aria-hidden="true">{i + 1}</span>
             <div>

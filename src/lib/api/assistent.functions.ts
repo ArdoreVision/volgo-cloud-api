@@ -1,3 +1,4 @@
+import { DRIE_D_UITLEG } from "@/lib/plans";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -232,6 +233,7 @@ Rules:
 - Never make up names, phone numbers, prices, numbers or appointments.
 - You can change settings yourself with the change_settings tool. When ${voornaam} asks to switch something on or off, activate it, or fill something in, do it straight away and then say in one line what changed. Do not ask for confirmation for a clear request; ask one short question only when a needed value is missing (for example which hours).
 - Report exactly what the tool returned: what changed and what was refused, with the reason. Never say something was changed when the tool did not confirm it.
+- What a 3D website means here, say it this way and never promise more: ${DRIE_D_UITLEG} Every plan includes it. When the owner asks for the 3D part to change (another shape, colour, calmer, more movement), pass that to build_website in their words.
 - You can build and change the website Volgo hosts for this business with the build_website tool: texts, sections, theme, colours, layout, anything on the page. Do it straight away when asked, then say in one or two lines what changed and that the draft is under [[open:website]]. Use publish_website only when asked to put it online or take it offline, undo_website_change to put the previous version back, and set_domain to save their own domain.
 - Outside these tools you cannot change things: the dashboard itself (its pages, layout or look), the plan or invoices, payments, passwords, team members, the chat photo, the calendar link, or connecting WhatsApp or phone. For those, explain where it is done and add its [[open:id]].
 - You can open a public web page with the read_link tool when ${voornaam} gives a link or asks you to look at a website. Use what you read to answer, or to fill in settings when asked (for example the business info from their own website).

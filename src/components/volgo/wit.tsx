@@ -110,7 +110,7 @@ const VOORBEELDEN: { naam: string; soort: string; tekst: string; beeld: string; 
   { naam: "Bluebonnet Build Co.", soort: "Service business", tekst: "Dark and bold, with a clear button to book. A working sample: try the Volgo chat on it.", beeld: "/voorbeeld/contractor.jpg", b: 1440, h: 900, link: "/voorbeeld/contractor" },
 ];
 
-/** The three monthly plans, each with a professional website, and under them the 3D website made to measure. */
+/** The three monthly plans, each with a 3D website, and under them Complete, made to measure by the team. */
 export function Prijzen({ kijker, kop = true }: { kijker: Kijker; kop?: boolean }) {
   const [fout, setFout] = useState("");
   const c = PLANS[COMPLEET];
@@ -122,7 +122,7 @@ export function Prijzen({ kijker, kop = true }: { kijker: Kijker; kop?: boolean 
           <h2 className="vn-h2" id="vn-prijs">
             Pick what fits your business.
           </h2>
-          <p className="vn-sub">Every plan comes with a complete professional website, built for you, with Volgo inside. For serious businesses there is a 3D website made to measure.</p>
+          <p className="vn-sub">Every plan comes with a complete 3D website, built for you, with Volgo inside. With Complete, the team makes it to measure with you.</p>
         </header>
       ) : (
         <h2 className="vn-sr" id="vn-prijs">
@@ -262,7 +262,7 @@ export function InstallUitleg() {
         </div>
         <div>
           <strong>Want a website people remember?</strong>
-          <span>Complete is a 3D website made to measure, with a 1-on-1 call with the founder or someone from the team.</span>
+          <span>With Complete the team finishes your 3D website to measure, with a 1-on-1 call with the founder or someone from the team.</span>
         </div>
       </div>
     </section>

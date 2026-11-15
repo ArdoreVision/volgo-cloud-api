@@ -52,13 +52,39 @@ export function splitsAntwoord(tekst: string) {
   return { bericht: schoon.slice(0, i).trim(), html: (eind > i ? schoon.slice(i, eind + 7) : schoon.slice(i)).trim() };
 }
 
-/** Extra instructions for the 3D package: a real 3D scene and scroll animation, still one fast, self-contained page. */
+/**
+ * What "a 3D website" means, as a build specification. Every plan that is sold includes it,
+ * so this has to be exact: the same promise as DRIE_D_UITLEG in plans.ts, written for the builder.
+ */
 const DRIE_D = `
-THIS IS A 3D WEBSITE
-- The hero is a real 3D scene drawn with WebGL: load three.js as an ES module from https://unpkg.com/three@0.160.0/build/three.module.js inside one <script type="module">. Build the scene from code (geometry, lights, materials, particles); never load 3D model files.
-- The scene reacts to scrolling and gently to the pointer. Further down the page, sections animate in as they scroll into view.
-- Keep it fast: one canvas, a capped pixel ratio, pause rendering when the canvas is off screen. Respect prefers-reduced-motion with a still frame. If WebGL is not available the page must still look finished.
-- The text stays readable on top of the 3D scene, on a phone as well.`;
+THIS IS A 3D WEBSITE. That means exactly this, and nothing else:
+
+WHAT IT IS
+- A normal one-page website with all the usual sections, where the opening screen (the hero) is a real 3D scene rendered live with WebGL, and the rest of the page comes alive as the visitor scrolls.
+- It is NOT a virtual reality world, not a game, not a video or a looping GIF, not a flat image with a shadow, not CSS-only "fake 3D", and not a 3D model of the owner's real product, building or logo. Never promise or imitate those.
+
+THE 3D SCENE (the hero)
+- Load three.js once as an ES module from https://unpkg.com/three@0.160.0/build/three.module.js inside one <script type="module">. No other libraries.
+- Build everything from code: geometry, lights, materials, particles. Never load model files (glb, gltf, obj), textures or HDR images from the internet.
+- One clear subject, not a clutter of objects: for example a slowly turning sculptural shape, a field of floating forms, soft waves or a terrain, a cloud of particles. Choose a subject that fits the business in an abstract way (flowing organic forms for a gardener or a spa, clean architectural blocks for a builder, glass and light for a window cleaner, precise orbiting rings for a technical firm). Suggest the trade, do not try to model it literally.
+- Real depth: perspective camera, at least one key light and one soft fill light, materials that catch the light (MeshStandardMaterial or MeshPhysicalMaterial), fog or a gradient background so far objects fade.
+- Colours come from the page's theme and accent colour. The scene and the page must look like one design.
+
+MOVEMENT
+- The scene always moves a little on its own (slow rotation or drift), so it is clearly alive the moment the page opens.
+- Scrolling drives the scene: as the visitor scrolls through the hero, the camera or the subject moves, turns or opens up, tied to the scroll position. It must be obvious that scrolling does something.
+- The pointer (mouse or finger) tilts or shifts the scene softly, with easing. Never let the visitor lose control of the page scroll: no scroll hijacking, no click-and-drag to continue.
+- Below the hero, every section animates in as it enters the screen (fade and rise, staggered items) using IntersectionObserver. Cards may tilt slightly in 3D on hover with CSS perspective. Keep it calm and premium, never bouncing or spinning text.
+
+READABLE AND USABLE
+- The headline, the short promise and the main button sit on top of the scene and stay perfectly readable: keep the subject to one side or behind a soft gradient where the text is. Check the contrast.
+- The canvas sits behind the content, never blocks taps, and the buttons work at all times.
+
+FAST AND SAFE
+- One canvas for the whole page. Cap the pixel ratio at 2 (1.5 on small screens). Use fewer objects and particles on a phone. Stop rendering when the hero is off screen or the tab is hidden. Resize correctly when the window or phone orientation changes.
+- If the visitor prefers reduced motion: draw one still frame and skip the scroll and pointer movement.
+- If WebGL or the three.js import fails: show a finished-looking hero with a CSS gradient and shapes in the same colours. The page must never look broken or empty.
+- When the owner asks to change the 3D scene (other shape, colour, speed, calmer, more spectacular), change the scene itself and keep all the rules above.`;
 
 const SYSTEM = (bedrijf: string, info: string, profiel: string, drieD = false) => `You are the website builder inside Volgo. The owner of a business chats with you and you build their website.
 
