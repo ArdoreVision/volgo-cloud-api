@@ -345,3 +345,11 @@ html[data-thema="donker"], html[data-thema="donker"] body { background: #000; }
 .v-dash .v-hub__lijst li.is-klaar .v-hub__punt { color: var(--bg); }
 .v-dash .v-hub__punt { box-shadow: inset 0 0 0 1.5px var(--line); }
 .v-dash .v-g__status.is-let { background: transparent !important; color: var(--ink) !important; box-shadow: inset 0 0 0 1px var(--line); }
+
+/* Inbox: only the contacts and the chat */
+.v-dash .v-dm__filter { padding: 12px; }
+.v-dash .v-dm__filter .v-leadbalk__zoek { width: 100%; }
+.v-dash .v-dm__banner { justify-content: center; gap: 12px; padding: 8px 12px; font-size: 13px; }
+.v-dash .v-dm__niks p { color: var(--muted); font-size: 14px; }
+.v-dash .v-dm__b--wij.is-mens p, .v-dash .v-dm__b--wij p { background: var(--ink); color: var(--bg); }
+.v-dash .v-dm__vink { color: var(--muted); }
