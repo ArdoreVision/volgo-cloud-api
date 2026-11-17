@@ -91,8 +91,16 @@ export function LiveTest() {
   }, [open]);
 
   useEffect(() => {
-    chatEind.current?.scrollIntoView({ block: "end" });
-    inboxEind.current?.scrollIntoView({ block: "end" });
+    const naarEind = () => {
+      for (const el of [chatEind.current, inboxEind.current]) {
+        const lijst = el?.parentElement;
+        if (lijst) lijst.scrollTop = lijst.scrollHeight;
+      }
+    };
+    naarEind();
+    // Once more after the new card has slid in.
+    const t = window.setTimeout(naarEind, 450);
+    return () => window.clearTimeout(t);
   }, [berichten.length, bezig, kies, geboekt, scherm]);
 
   async function stuur(t: string) {
