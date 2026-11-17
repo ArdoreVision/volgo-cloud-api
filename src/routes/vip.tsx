@@ -1,6 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { redirect, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { PAUZE } from "@/lib/pauze";
 
 import { AuthShell } from "@/components/volgo/auth-shell";
 import { WachtwoordVeld } from "@/components/volgo/wachtwoord-veld";
@@ -11,6 +12,9 @@ import "@/volgo.css";
 
 /** Personal invite for the first customers: enter the code, get welcomed, create an account with 3 months free. */
 export const Route = createFileRoute("/vip")({
+  beforeLoad: () => {
+    if (PAUZE) throw redirect({ to: "/" });
+  },
   loader: async () => ({ ingelogd: await isIngelogd().catch(() => false) }),
   head: () => ({ meta: [{ title: "Your invitation · Volgo" }, { name: "robots", content: "noindex" }] }),
   component: Vip,

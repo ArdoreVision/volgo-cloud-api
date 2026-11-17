@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { redirect, createFileRoute } from "@tanstack/react-router";
+import { PAUZE } from "@/lib/pauze";
 
 import { AvaChat } from "@/components/volgo/ava-chat";
 import { Footer } from "@/components/volgo/footer";
@@ -12,6 +13,9 @@ import { PLANS, START_STAPPEN, VERGELIJKING, type PlanId, ZICHTBAAR, planTitel }
 import "@/volgo.css";
 
 export const Route = createFileRoute("/pricing")({
+  beforeLoad: () => {
+    if (PAUZE) throw redirect({ to: "/" });
+  },
   validateSearch: (s: Record<string, unknown>): { expired?: number } => ({ expired: s.expired === "1" || s.expired === 1 ? 1 : undefined }),
   loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "", plan: "", eigenaar: false })),
   head: () => ({

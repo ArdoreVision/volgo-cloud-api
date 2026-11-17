@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { hashIp } from "../aanvraag.server";
 import { bindings } from "../bindings.server";
+import { PAUZE } from "../pauze";
 import { binnenLimiet } from "../limiet.server";
 import { TEST_BEDRIJF } from "../test-bedrijf";
 
@@ -55,7 +56,7 @@ export const testVolgo = createServerFn({ method: "POST" })
   .validator((v: unknown) => invoer.parse(v))
   .handler(async ({ data }): Promise<TestAntwoord> => {
     const { ANTHROPIC_API_KEY, CLAUDE_MODEL, DB } = bindings();
-    if (!ANTHROPIC_API_KEY || !DB) return { ok: false, message: DRUK };
+    if (PAUZE || !ANTHROPIC_API_KEY || !DB) return { ok: false, message: DRUK };
 
     // Limits: per visitor and for everyone together, so a test can never run up a bill.
     const ip = await hashIp(getRequestHeader("cf-connecting-ip") ?? "onbekend");

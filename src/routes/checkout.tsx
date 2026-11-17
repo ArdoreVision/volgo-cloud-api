@@ -1,5 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { redirect, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { PAUZE } from "@/lib/pauze";
 
 import { AuthShell, Steps } from "@/components/volgo/auth-shell";
 import { bekijkTestBetaling, rondTestBetalingAf } from "@/lib/api/account.functions";
@@ -7,6 +8,9 @@ import { PLANS, isPlan, planTitel } from "@/lib/plans";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/checkout")({
+  beforeLoad: () => {
+    if (PAUZE) throw redirect({ to: "/" });
+  },
   validateSearch: (s: Record<string, unknown>): { token?: string } => ({ token: typeof s.token === "string" && s.token ? s.token : undefined }),
   loaderDeps: ({ search }) => ({ token: search.token ?? "" }),
   loader: ({ deps }) => (deps.token ? bekijkTestBetaling({ data: { token: deps.token } }) : null),

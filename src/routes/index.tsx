@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { LandingPagina } from "@/components/volgo/landing-pagina";
+import { Pauze } from "@/components/volgo/pauze";
 import { accountStatus } from "@/lib/api/assistent.functions";
+import { PAUZE } from "@/lib/pauze";
 import "@/volgo.css";
 
 const TITEL = "Volgo · The appointment setter for your website";
@@ -11,7 +13,8 @@ export const Route = createFileRoute("/")({
   loader: async () => accountStatus().catch(() => ({ ingelogd: false, toegang: false, email: "", plan: "", eigenaar: false })),
   head: () => ({
     meta: [
-      { title: TITEL },
+      ...(PAUZE ? [{ name: "robots", content: "noindex" }] : []),
+      { title: PAUZE ? "Volgo" : TITEL },
       { name: "description", content: OMSCHRIJVING },
       { property: "og:title", content: TITEL },
       { property: "og:description", content: OMSCHRIJVING },
@@ -27,5 +30,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  return <LandingPagina kijker={Route.useLoaderData()} />;
+  const kijker = Route.useLoaderData();
+  if (PAUZE) return <Pauze />;
+  return <LandingPagina kijker={kijker} />;
 }
