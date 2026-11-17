@@ -449,3 +449,133 @@ html:has(.vn), body:has(.vn) { background: #fff; }
 
 /* One example: keep the card at a readable width instead of stretching it. */
 .vn-vb__grid:has(> :only-child) { grid-template-columns: minmax(0, 560px); }
+
+/* ═══════════ Live test: the full-screen chat that slides up ═══════════ */
+.vn-lt { position: fixed; inset: 0; z-index: 9000; display: flex; flex-direction: column; background: #fff; color: var(--ink); transform: translateY(100%); visibility: hidden; transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s 0.65s; }
+.vn-lt.is-open { transform: none; visibility: visible; transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s; }
+.vn-lt__balk { display: flex; align-items: center; gap: 14px; height: 56px; padding: 0 18px; border-bottom: 1px solid var(--line); flex: none; }
+.vn-lt__merk { display: flex; align-items: baseline; gap: 10px; min-width: 0; margin-right: auto; }
+.vn-lt__merk b { padding: 4px 10px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 12.5px; font-weight: 650; white-space: nowrap; }
+.vn-lt__merk span { color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vn-lt__sluit { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--surface); color: var(--ink); cursor: pointer; transition: background 0.15s; flex: none; }
+.vn-lt__sluit:hover { background: var(--sky-1); }
+.vn-lt__wissel { display: none; padding: 3px; border-radius: 999px; background: var(--surface); }
+.vn-lt__wissel button { position: relative; min-height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: 600 13px/1 inherit; cursor: pointer; }
+.vn-lt__wissel button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+.vn-lt__wissel i { position: absolute; top: 5px; right: 4px; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+
+.vn-lt__vlak { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px; padding: 18px 20px 20px; background: var(--surface); transition: grid-template-columns 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+.vn-lt__jij, .vn-lt__eigenaar { display: flex; flex-direction: column; min-width: 0; min-height: 0; transition: opacity 0.45s, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+.vn-lt__label { margin: 0 0 10px 4px; color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vn-lt__label b { color: var(--ink); font-weight: 650; }
+
+/* Your chat */
+.vn-lt__chat { flex: 1; min-height: 0; display: flex; flex-direction: column; width: 100%; max-width: 620px; margin: 0 auto; border-radius: 22px; background: #fff; box-shadow: 0 0 0 1px var(--line), 0 30px 60px -40px rgba(10, 11, 13, 0.35); overflow: hidden; transition: max-width 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+.vn-lt__kop { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); flex: none; }
+.vn-lt__kop b, .vn-lt__gkop b { display: block; font-size: 15px; color: var(--ink); }
+.vn-lt__kop small, .vn-lt__gkop small { display: block; color: var(--muted); font-size: 12.5px; }
+.vn-lt__av { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 14px; font-weight: 650; flex: none; }
+.vn-lt__berichten { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 18px; overscroll-behavior: contain; }
+.vn-lt__b { display: flex; animation: vn-lt-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.vn-lt__b p { max-width: 82%; margin: 0; padding: 11px 15px; border-radius: 20px; font-size: 16px; line-height: 1.42; white-space: pre-wrap; overflow-wrap: anywhere; }
+.vn-lt__b--volgo p { background: var(--surface); color: var(--ink); border-bottom-left-radius: 6px; }
+.vn-lt__b--bezoeker { justify-content: flex-end; }
+.vn-lt__b--bezoeker p { background: var(--ink); color: #fff; border-bottom-right-radius: 6px; }
+@keyframes vn-lt-in { from { opacity: 0; transform: translateY(8px); } }
+.vn-lt__typt p { display: flex; gap: 5px; padding: 15px; }
+.vn-lt__typt i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: vn-lt-punt 1.1s infinite; }
+.vn-lt__typt i:nth-child(2) { animation-delay: 0.15s; }
+.vn-lt__typt i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes vn-lt-punt { 0%, 60%, 100% { opacity: 0.25; transform: none; } 30% { opacity: 1; transform: translateY(-3px); } }
+.vn-lt__snel, .vn-lt__tijden div { display: flex; flex-wrap: wrap; gap: 8px; }
+.vn-lt__snel { margin-top: 6px; }
+.vn-lt__snel button, .vn-lt__tijden button, .vn-lt__klaar button { min-height: 42px; padding: 0 16px; border: 0; border-radius: 999px; background: #fff; color: var(--ink); font: 600 14.5px/1 inherit; cursor: pointer; box-shadow: inset 0 0 0 1px var(--line); transition: box-shadow 0.15s, transform 0.15s; }
+.vn-lt__snel button:hover, .vn-lt__tijden button:hover, .vn-lt__klaar button:hover { box-shadow: inset 0 0 0 1.5px var(--ink); transform: translateY(-1px); }
+.vn-lt__tijden { margin-top: 6px; padding: 16px; border-radius: 18px; background: var(--surface); animation: vn-lt-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.vn-lt__tijden p { margin: 0 0 10px; font-weight: 650; color: var(--ink); }
+.vn-lt__tijden div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.vn-lt__tijden button { min-height: 48px; }
+.vn-lt__klaar { display: grid; gap: 4px; margin-top: 6px; padding: 18px; border-radius: 18px; background: var(--ink); color: #fff; animation: vn-lt-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.vn-lt__klaar b { font-size: 13px; opacity: 0.7; font-weight: 600; }
+.vn-lt__klaar > span { font: 650 20px/1.2 var(--display); }
+.vn-lt__klaar small { opacity: 0.7; font-size: 13px; }
+.vn-lt__klaar div { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.vn-lt__klaar .vn-knop { min-height: 42px; padding: 0 16px; background: #fff; color: var(--ink) !important; font-size: 14.5px; }
+.vn-lt__klaar button { background: transparent; color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35); }
+.vn-lt__klaar button:hover { box-shadow: inset 0 0 0 1.5px #fff; }
+.vn-lt__fout { margin: 4px 0 0; color: var(--bad); font-size: 14px; }
+.vn-lt__invoer { display: flex; align-items: flex-end; gap: 8px; margin: 0 14px 14px; padding: 6px 6px 6px 16px; border-radius: 26px; background: #fff; box-shadow: inset 0 0 0 1px var(--line); flex: none; transition: box-shadow 0.15s; }
+.vn-lt__invoer:focus-within { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.vn-lt__invoer textarea { flex: 1; min-width: 0; max-height: 120px; padding: 9px 0; border: 0; outline: 0; resize: none; background: transparent; color: var(--ink); font: 400 16px/1.4 inherit; field-sizing: content; }
+.vn-lt__invoer button { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--ink); color: #fff; cursor: pointer; flex: none; transition: opacity 0.15s, transform 0.15s; }
+.vn-lt__invoer button:disabled { opacity: 0.25; cursor: default; }
+.vn-lt__invoer button:not(:disabled):active { transform: scale(0.94); }
+
+/* The owner's screen */
+.vn-lt__dash { flex: 1; min-height: 0; display: flex; flex-direction: column; border-radius: 16px; background: #fff; box-shadow: 0 0 0 1px var(--line), 0 30px 60px -40px rgba(10, 11, 13, 0.35); overflow: hidden; }
+.vn-lt__top { display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 14px; background: #0a0a0a; color: #fff; font-size: 13px; flex: none; }
+.vn-lt__top b { font-weight: 650; }
+.vn-lt__top span { margin-left: auto; opacity: 0.6; }
+.vn-lt__in { flex: 1; min-height: 0; display: grid; grid-template-columns: 124px minmax(0, 0.9fr) minmax(0, 1.4fr); }
+.vn-lt__menu { display: flex; flex-direction: column; gap: 2px; padding: 10px 8px; background: #fafafa; border-right: 1px solid var(--line); font-size: 13px; }
+.vn-lt__menu span { display: flex; align-items: center; justify-content: space-between; padding: 7px 9px; border-radius: 8px; color: var(--ink-2); }
+.vn-lt__menu span.is-aan { background: #ededed; color: var(--ink); font-weight: 650; }
+.vn-lt__menu em { min-width: 18px; padding: 1px 5px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 11px; font-style: normal; font-weight: 650; text-align: center; animation: vn-lt-in 0.4s both; }
+.vn-lt__lijst { padding: 12px 8px; border-right: 1px solid var(--line); min-width: 0; }
+.vn-lt__lijst > p { margin: 0 6px 10px; font: 650 16px/1.2 var(--display); color: var(--ink); }
+.vn-lt__contact { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 12px; background: var(--surface); animation: vn-lt-in 0.4s both; }
+.vn-lt__contact .vn-lt__av, .vn-lt__gkop .vn-lt__av { width: 32px; height: 32px; font-size: 12px; }
+.vn-lt__contact > span:nth-child(2) { flex: 1; min-width: 0; }
+.vn-lt__contact b { display: block; font-size: 13.5px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vn-lt__contact small { display: block; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vn-lt__contact time { align-self: flex-start; color: var(--muted); font-size: 11px; white-space: nowrap; }
+.vn-lt__leeg { display: block; margin: 8px; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.vn-lt__gesprek { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.vn-lt__gesprek > .vn-lt__leeg { margin: auto; padding: 20px; text-align: center; }
+.vn-lt__gkop { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); flex: none; }
+.vn-lt__gkop b { font-size: 14px; }
+.vn-lt__gkop small { font-size: 12px; }
+.vn-lt__glijst { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 14px; }
+.vn-lt__g { display: flex; flex-direction: column; align-items: flex-start; animation: vn-lt-in 0.35s both; }
+.vn-lt__g p { max-width: 86%; margin: 0; padding: 8px 12px; border-radius: 15px; background: var(--surface); color: var(--ink); font-size: 13.5px; line-height: 1.4; overflow-wrap: anywhere; }
+.vn-lt__g time { margin: 2px 4px 0; color: var(--muted); font-size: 10.5px; }
+.vn-lt__g--volgo { align-items: flex-end; }
+.vn-lt__g--volgo p { background: var(--ink); color: #fff; }
+.vn-lt__gtypt { margin: 0; align-self: flex-end; color: var(--muted); font-size: 12px; }
+.vn-lt__melding { display: grid; gap: 2px; margin-top: 8px; padding: 12px 14px; border-radius: 12px; box-shadow: inset 0 0 0 1.5px var(--ink); animation: vn-lt-in 0.5s both; }
+.vn-lt__melding b { font-size: 13.5px; color: var(--ink); }
+.vn-lt__melding span { font-size: 13.5px; color: var(--ink); }
+.vn-lt__melding small { color: var(--muted); font-size: 12px; }
+.vn-lt__gvoet { margin: 0 12px 12px; padding: 10px 14px; border-radius: 999px; color: var(--muted); font-size: 12.5px; box-shadow: inset 0 0 0 1px var(--line); flex: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Booking: all attention on the chat */
+@media (min-width: 901px) {
+  .vn-lt.is-boekt .vn-lt__vlak { grid-template-columns: minmax(0, 1fr) minmax(0, 0fr); gap: 0; }
+  .vn-lt.is-boekt .vn-lt__eigenaar { opacity: 0; transform: translateX(40px); pointer-events: none; overflow: hidden; }
+  .vn-lt.is-boekt .vn-lt__chat { max-width: 720px; }
+}
+
+/* Phone: one screen at a time, the chat fills everything */
+@media (max-width: 900px) {
+  .vn-lt__merk span { display: none; }
+  .vn-lt__wissel { display: flex; }
+  .vn-lt__balk { padding: 0 10px; gap: 8px; }
+  .vn-lt__vlak { display: block; padding: 0; background: #fff; }
+  .vn-lt__label { margin: 8px 14px; font-size: 12.5px; }
+  .vn-lt__jij, .vn-lt__eigenaar { height: 100%; }
+  .vn-lt.is-chat .vn-lt__eigenaar, .vn-lt.is-eigenaar .vn-lt__jij { display: none; }
+  .vn-lt__chat { max-width: none; border-radius: 0; box-shadow: none; border-top: 1px solid var(--line); }
+  .vn-lt__dash { border-radius: 0; box-shadow: none; border-top: 1px solid var(--line); }
+  .vn-lt__in { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .vn-lt__menu { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 8px; }
+  .vn-lt__menu span { gap: 6px; white-space: nowrap; }
+  .vn-lt__lijst { display: none; }
+  .vn-lt__invoer { margin: 0 10px max(10px, env(safe-area-inset-bottom)); }
+  .vn-lt.is-boekt .vn-lt__wissel { opacity: 0.4; pointer-events: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vn-lt, .vn-lt.is-open, .vn-lt__vlak, .vn-lt__jij, .vn-lt__eigenaar, .vn-lt__chat { transition: none; }
+  .vn-lt__b, .vn-lt__g, .vn-lt__tijden, .vn-lt__klaar, .vn-lt__contact, .vn-lt__melding, .vn-lt__menu em { animation: none; }
+}
+.vn .vn-lt__invoer textarea, .vn .vn-lt__invoer textarea:focus, .vn .vn-lt__invoer textarea:focus-visible { border: 0 !important; outline: 0 !important; box-shadow: none !important; border-radius: 0; background: transparent; }
+@media (max-width: 900px) { .vn-lt__tijden div { grid-template-columns: minmax(0, 1fr); } }
