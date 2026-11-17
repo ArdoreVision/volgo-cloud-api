@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 
@@ -9,6 +9,7 @@ import { beoordeel } from "@/lib/wachtwoord";
 import { activeerAbonnement, controleerBetaling, maakAccount, maakAccountZonderPlan } from "@/lib/api/account.functions";
 import { isIngelogd } from "@/lib/api/assistent.functions";
 import { PLANS, isPlan, type PlanId, planTitel } from "@/lib/plans";
+import { PAUZE } from "@/lib/pauze";
 import "@/volgo.css";
 
 export const Route = createFileRoute("/signup")({
@@ -16,6 +17,10 @@ export const Route = createFileRoute("/signup")({
     token: typeof s.token === "string" && s.token ? s.token : undefined,
     session_id: typeof s.session_id === "string" && s.session_id ? s.session_id : undefined,
   }),
+  // Paused: only someone who already paid (and arrives with their payment) can still finish creating the account.
+  beforeLoad: ({ search }) => {
+    if (PAUZE && !search.token && !search.session_id) throw redirect({ to: "/" });
+  },
   loaderDeps: ({ search }) => ({ token: search.token ?? "", session_id: search.session_id ?? "" }),
   loader: async ({ deps }) => {
     const [betaling, ingelogd] = await Promise.all([
