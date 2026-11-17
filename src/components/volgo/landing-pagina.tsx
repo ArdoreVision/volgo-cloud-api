@@ -1,6 +1,7 @@
 import { type JSX, useEffect } from "react";
 
 import { AvaChat } from "./ava-chat";
+import { LiveTest, LiveTestKnop } from "./live-test";
 import { Footer } from "./footer";
 import { PijnScroll } from "./pijn-scroll";
 import { PostVogel, VogelLader } from "./post-vogel";
@@ -9,6 +10,7 @@ import { DRIE_D_UITLEG, PLANS } from "@/lib/plans";
 
 /** The page is written in English and shown in English. Another language only when the visitor picks one at the top. */
 const VANAF = `€${PLANS.starter.prijsTekst}`;
+void VANAF;
 
 /** One visitor, from opening the chat to the appointment. Every line is something the app really does. */
 const REIS: { tijd: string; titel: string; tekst: string; ok?: boolean }[] = [
@@ -231,19 +233,9 @@ export function LandingPagina({ kijker }: { kijker: Kijker }) {
           </h1>
           <p className="vn-sub">Volgo builds your complete website, with an appointment setter inside. Visitors book themselves, every chat and request lands in one inbox, and Volgo follows up automatically.</p>
           <div className="vn-hero__knoppen">
-            <a className="vn-knop" href={doel}>
-              {kijker.ingelogd ? "Go to your dashboard" : "Start with Volgo"}
-            </a>
-            <a className="vn-knop vn-knop--licht" href="#features">
-              See how it works
-            </a>
+            <LiveTestKnop />
           </div>
-          <p className="vn-klein">
-            From {VANAF} per month · Your website built in minutes · Cancel any month
-          </p>
-          <div className="vn-hero__beeld" data-rv="">
-            <InboxBeeld />
-          </div>
+          <p className="vn-klein">A real chat, right here. You see your own screen and the owner's screen. Nothing is really booked.</p>
         </section>
 
         <PijnScroll />
@@ -409,6 +401,7 @@ export function LandingPagina({ kijker }: { kijker: Kijker }) {
       <PostVogel />
       <VogelLader />
       <AvaChat />
+      <LiveTest />
     </div>
   );
 }
