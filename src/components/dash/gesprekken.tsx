@@ -145,29 +145,20 @@ export function Gesprekken({ data }: { data: DashData }) {
   // Not a live website chat: there is no Volgo to take over from, your reply goes out via the channel itself.
   const perMail = ["Contactformulier", "E-mail", "WhatsApp", "SMS", "Telefoon"].includes(g?.kanaal ?? "");
   const viaTekst = g?.kanaal === "WhatsApp" ? "via WhatsApp" : g?.kanaal === "SMS" || g?.kanaal === "Telefoon" ? "by text" : g?.contact?.includes("@") ? "by email" : "by text";
-  const berichten = detail?.berichten ?? [];
+  const berichten = (detail?.berichten ?? []).filter((b) => b.rol !== "log");
 
   return (
     <>
       <header className="v-dash__head">
         <h1>Inbox</h1>
-        <p>Website chat, contact form, mail, WhatsApp and phone in one place (WhatsApp, phone and mail once they are connected under Connections). Open a conversation to read along or answer yourself.</p>
       </header>
       <div className={`v-dm${open ? " is-open" : ""}`}>
         <aside className="v-dm__list" aria-label="Chats">
           <div className="v-dm__filter">
-            <div className="v-instel__nav" role="tablist" aria-label="Filter conversations">
-              <button aria-current={!alleenLive ? "page" : undefined} onClick={() => setAlleenLive(false)} type="button">
-                All
-              </button>
-              <button aria-current={alleenLive ? "page" : undefined} onClick={() => setAlleenLive(true)} type="button">
-                Live <span className="v-leadbalk__n">{items?.filter(isLive).length ?? 0}</span>
-              </button>
-            </div>
-            <input aria-label="Search conversations" className="v-leadbalk__zoek" onChange={(e) => setZoekChat(e.target.value)} placeholder="Search" type="search" value={zoekChat} />
+            <input aria-label="Search conversations" className="v-leadbalk__zoek" onChange={(e) => setZoekChat(e.target.value)} placeholder="Search a contact" type="search" value={zoekChat} />
           </div>
           {items === null ? <p className="v-dm__leeg">Loading…</p> : null}
-          {items?.length === 0 ? <p className="v-dm__leeg">No conversations yet. As soon as someone talks to Volgo on your website, it shows up here.</p> : null}
+          {items?.length === 0 ? <p className="v-dm__leeg">No messages yet. Everyone who messages you shows up here.</p> : null}
           {items && items.length > 0 && items.filter((c) => (!alleenLive || isLive(c)) && (!zoekChat.trim() || `${c.bezoeker} ${c.onderwerp}`.toLowerCase().includes(zoekChat.trim().toLowerCase()))).length === 0 ? (
             <p className="v-dm__leeg">Nothing found.</p>
           ) : null}
@@ -191,13 +182,12 @@ export function Gesprekken({ data }: { data: DashData }) {
                   <span className="v-dm__rij">
                     <strong>
                       {c.bezoeker}
-                      {KANAAL[c.kanaal] ? <span className="v-dm__kanaal">{KANAAL[c.kanaal]}</span> : null}
                     </strong>
                     <time>{kortTijd(sqlDate(c.laatste), nu)}</time>
                   </span>
                   <span className="v-dm__rij">
                     <span className="v-dm__voorbeeld">{c.laatste_tekst ? wie + c.laatste_tekst : c.onderwerp}</span>
-                    {ongelezen ? <i aria-label="Unread" className="v-dm__dot" /> : c.overgenomen_naam ? <em className="v-dm__tag v-dm__tag--jij">You</em> : live && !KANAAL[c.kanaal] ? <em className="v-dm__tag">Volgo</em> : null}
+                    {ongelezen ? <i aria-label="Unread" className="v-dm__dot" /> : null}
                   </span>
                 </span>
               </button>
@@ -216,31 +206,18 @@ export function Gesprekken({ data }: { data: DashData }) {
                 <div className="v-dm__wie">
                   <strong>{g.bezoeker}</strong>
                   <small>
-                    {isLive(g) && !perMail ? "Online now" : `Last message ${geleden(sqlDate(g.laatste), nu)}`}
-                    {g.contact ? ` · ${g.contact}` : ""}
-                    {KANAAL[g.kanaal] ? ` · via ${KANAAL[g.kanaal].toLowerCase()}` : ""}
+                    {isLive(g) && !perMail ? "Online now" : g.contact || `Last message ${geleden(sqlDate(g.laatste), nu)}`}
                   </small>
                 </div>
-                <ContactKnoppen contact={g.contact} kanaal={g.kanaal} klein naam={g.bezoeker} onderwerp={g.onderwerp} />
-                {kanChatten && !perMail ? (
-                  <div className="v-dm__modus" role="group" aria-label="Who answers">
-                    <button aria-pressed={!ikChat} disabled={bezig} onClick={() => void zetModus(false)} type="button">
-                      Volgo automatic
-                    </button>
-                    <button aria-pressed={ikChat} disabled={bezig} onClick={() => void zetModus(true)} type="button">
-                      Take over
-                    </button>
-                  </div>
-                ) : null}
               </header>
 
               {ikChat && !perMail ? (
                 <div className="v-dm__banner">
                   <span>
-                    <b>You are answering.</b> Volgo is paused for this conversation.
+                    You are answering this chat yourself.
                   </span>
                   <button disabled={bezig} onClick={() => void zetModus(false)} type="button">
-                    Back to Volgo
+                    Let Volgo answer
                   </button>
                 </div>
               ) : null}
@@ -249,11 +226,11 @@ export function Gesprekken({ data }: { data: DashData }) {
                 {berichten.map((b, i) => {
                   const vorige = berichten[i - 1];
                   const chip = !vorige || dagLabel(sqlDate(vorige.created_at), nu) !== dagLabel(sqlDate(b.created_at), nu) ? <p className="v-dm__dag" key={`d${b.id}`}>{dagLabel(sqlDate(b.created_at), nu)}</p> : null;
-                  if (b.rol === "systeem" || b.rol === "log")
+                  if (b.rol === "systeem")
                     return (
                       <div key={b.id}>
                         {chip}
-                        <p className={`v-dm__sys${b.rol === "log" ? " v-dm__sys--log" : ""}`}>{b.tekst}</p>
+                        <p className="v-dm__sys">{b.tekst}</p>
                       </div>
                     );
                   const kant = b.rol === "bezoeker" ? "zij" : "wij";
@@ -279,33 +256,13 @@ export function Gesprekken({ data }: { data: DashData }) {
                 })}
               </div>
 
-              {g.lead_id ? <p className="v-dm__lead">✓ Saved as a request, see Requests</p> : null}
-              {detail.herkomst || detail.bezoek.length ? (
-                <details className="v-dm__bezoek">
-                  <summary>
-                    {detail.herkomst ? `📍 ${detail.herkomst}` : "Visit details"}
-                    {detail.bezoek.length ? ` · ${detail.bezoek.length} ${detail.bezoek.length === 1 ? "pagina" : "pagina's"} bekeken` : ""}
-                    {detail.bezoek[0]?.bron ? ` · via ${detail.bezoek[0].bron}` : ""}
-                  </summary>
-                  <ol>
-                    {detail.bezoek.map((v, i) => (
-                      <li key={i}>
-                        <time>{tijdAms(sqlDate(v.created_at))}</time>
-                        <span>{v.titel || v.pad}</span>
-                        <small>{v.pad}</small>
-                      </li>
-                    ))}
-                  </ol>
-                </details>
-              ) : null}
-
               {kanChatten ? (
                 <form className={`v-dm__invoer${ikChat ? " is-jij" : ""}`} onSubmit={(e) => void stuur(e)}>
                   <textarea
                     aria-label="Your message"
                     onChange={(e) => setTekst(e.target.value)}
                     onKeyDown={onKey}
-                    placeholder={perMail ? `Reply to ${g.bezoeker} (${viaTekst})…` : ikChat ? `Message to ${g.bezoeker}…` : "Volgo is answering. Type here to take over…"}
+                    placeholder={perMail ? `Reply ${viaTekst}…` : ikChat ? "Message…" : "Volgo answers. Type to answer yourself…"}
                     rows={1}
                     value={tekst}
                   />
@@ -320,12 +277,7 @@ export function Gesprekken({ data }: { data: DashData }) {
             </>
           ) : (
             <div className="v-dm__niks">
-              <span aria-hidden="true" className="v-dm__niks-ico">💬</span>
-              <p>
-                <strong>Your conversations</strong>
-                <br />
-                Pick a conversation on the left to read along or take over from Volgo.
-              </p>
+              <p>Pick a contact to open the chat.</p>
             </div>
           )}
         </section>

@@ -599,7 +599,7 @@ function Open({ data }: { data: DashData }) {
           </button>
         ) : null}
 
-        {(tab === "home" || tab === "gesprekken") && g.rol === "eigenaar" ? <InstelLijst kort metWebsite={plan.limieten.website} openTab={(t) => setTab(t)} /> : null}
+        {tab === "home" && g.rol === "eigenaar" ? <InstelLijst kort metWebsite={plan.limieten.website} openTab={(t) => setTab(t)} /> : null}
         {tab === "home" ? <Vandaag data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "overzicht" ? <Overview data={data} openTab={(t) => setTab(t)} voornaam={voornaam} /> : null}
         {tab === "verkeer" ? <Verkeer afspraken={data.afspraken} gesprekken={data.gesprekken} leads={data.leads} openTab={(t) => setTab(t)} /> : null}
