@@ -579,3 +579,4 @@ html:has(.vn), body:has(.vn) { background: #fff; }
 }
 .vn .vn-lt__invoer textarea, .vn .vn-lt__invoer textarea:focus, .vn .vn-lt__invoer textarea:focus-visible { border: 0 !important; outline: 0 !important; box-shadow: none !important; border-radius: 0; background: transparent; }
 @media (max-width: 900px) { .vn-lt__tijden div { grid-template-columns: minmax(0, 1fr); } }
+.vn-lt__berichten > *, .vn-lt__glijst > * { flex: none; }
