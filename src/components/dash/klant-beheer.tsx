@@ -89,6 +89,9 @@ export function KlantBeheer({ id, sluit }: { id: number; sluit: () => void }) {
             wa_phone_id: inst.wa_phone_id,
             twilio_nummer: inst.twilio_nummer,
             sms_terug: inst.sms_terug,
+            bedrijf: inst.bedrijf,
+            toestemming: inst.toestemming,
+            branding: inst.branding,
             ...(stripeNieuw.trim() ? { stripe_sleutel: stripeNieuw.trim() } : {}),
           },
         },
@@ -189,6 +192,10 @@ export function KlantBeheer({ id, sluit }: { id: number; sluit: () => void }) {
                 <input onChange={(e) => zet("kleur", e.target.value)} type="color" value={inst.kleur} />
               </label>
               <label className="is-breed">
+                <span>Company name (shown in the chat and on the consent screen)</span>
+                <input maxLength={80} onChange={(e) => zet("bedrijf", e.target.value)} value={inst.bedrijf} />
+              </label>
+              <label className="is-breed">
                 <span>First message</span>
                 <textarea onChange={(e) => zet("begroeting", e.target.value)} rows={2} value={inst.begroeting} />
               </label>
@@ -205,6 +212,12 @@ export function KlantBeheer({ id, sluit }: { id: number; sluit: () => void }) {
                 <input onChange={(e) => zet("site_url", e.target.value)} placeholder="https://" value={inst.site_url} />
               </label>
             </div>
+            <label className="v-kb__aan">
+              <input checked={inst.toestemming} onChange={(e) => zet("toestemming", e.target.checked)} type="checkbox" /> Consent screen on their website (off: visitors count as &quot;only necessary&quot;)
+            </label>
+            <label className="v-kb__aan">
+              <input checked={inst.branding} onChange={(e) => zet("branding", e.target.checked)} type="checkbox" /> Show the Volgo mention in the chat
+            </label>
           </section>
 
           <section className="v-kb__blok">

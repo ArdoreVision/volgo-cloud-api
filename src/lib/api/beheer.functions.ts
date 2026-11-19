@@ -52,6 +52,12 @@ const instellingSchema = z.object({
   /** Twilio number in E.164 that forwards calls to the business. */
   twilio_nummer: z.union([z.literal(""), z.string().trim().regex(/^\+[1-9]\d{7,14}$/)]).optional(),
   sms_terug: z.boolean().optional(),
+  /** Company name of the account: shown in the chat header and on the consent screen. */
+  bedrijf: z.string().trim().min(2).max(80).optional(),
+  /** Consent screen on the customer's website (off = visitors count as "only necessary"). */
+  toestemming: z.boolean().optional(),
+  /** "Volgo" mention in the chat. */
+  branding: z.boolean().optional(),
 });
 type Instelling = z.infer<typeof instellingSchema>;
 
@@ -103,10 +109,17 @@ async function pasAan(DB: DB, id: number, w: Instelling) {
   if (w.wa_phone_id !== undefined) zet("wa_phone_id", w.wa_phone_id);
   if (w.twilio_nummer !== undefined) zet("twilio_nummer", w.twilio_nummer);
   if (w.sms_terug !== undefined) zet("sms_terug", w.sms_terug ? 1 : 0);
-  if (!sets.length) return [];
-  await DB.prepare(`UPDATE ava_instellingen SET ${sets.join(", ")} WHERE team_id = ?`)
-    .bind(...waarden, id)
-    .run();
+  if (w.toestemming !== undefined) zet("toestemming", w.toestemming ? 1 : 0);
+  if (w.bedrijf !== undefined) await DB.prepare("UPDATE gebruikers SET bedrijf = ? WHERE id = ?").bind(w.bedrijf, id).run();
+  if (w.branding !== undefined) {
+    const { haalStijl, slaStijlOp, STANDAARD_STIJL } = await import("../stijl.server");
+    const stijl = (await haalStijl(DB, id)) ?? STANDAARD_STIJL;
+    await slaStijlOp(DB, id, { ...stijl, branding: w.branding });
+  }
+  if (sets.length)
+    await DB.prepare(`UPDATE ava_instellingen SET ${sets.join(", ")} WHERE team_id = ?`)
+      .bind(...waarden, id)
+      .run();
   return Object.keys(w).filter((k) => (w as Record<string, unknown>)[k] !== undefined);
 }
 
@@ -164,6 +177,8 @@ async function laadKlant(DB: DB, id: number) {
     DB.prepare("SELECT COUNT(*) AS n, MAX(laatste) AS laatst FROM ava_gesprekken WHERE team_id = ? AND voorbeeld = 0").bind(id).first<{ n: number; laatst: string | null }>(),
   ]);
   const site_url = extra?.site_url ?? "";
+  const { actieveStijl } = await import("../stijl.server");
+  const stijl = await actieveStijl(DB, id);
   return {
     klant: { ...g, planNaam: isPlan(g.plan) ? PLANS[g.plan].naam : g.plan },
     inst: {
@@ -194,6 +209,9 @@ async function laadKlant(DB: DB, id: number) {
       wa_phone_id: extra?.wa_phone_id ?? "",
       twilio_nummer: extra?.twilio_nummer ?? "",
       sms_terug: Boolean(extra?.sms_terug),
+      bedrijf: g.bedrijf,
+      toestemming: Boolean(i.toestemming),
+      branding: stijl.branding,
     },
     kanaalWens: extra?.kanaal_wens ?? "",
     platform: platform(),
@@ -265,6 +283,9 @@ const TOOLS = [
         afspraak_duur: { type: "integer", description: "Minutes" },
         afspraak_soorten: { type: "array", items: { type: "string", enum: [...SOORTEN] } },
         tijdzone: { type: "string" },
+        bedrijf: { type: "string", description: "Company name of the account, shown in the chat header and on the consent screen" },
+        toestemming: { type: "boolean", description: "Consent screen on the customer's website on/off" },
+        branding: { type: "boolean", description: "Show the Volgo mention in the chat" },
       },
     },
   },
